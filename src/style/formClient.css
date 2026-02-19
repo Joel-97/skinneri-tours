@@ -1,0 +1,47 @@
+.footer-buttons {
+    text-align: end;
+}
+
+.button-cancel {
+    margin: 5px;
+}
+
+.button-save {
+    margin: 5px;
+}
+
+.box-status-list {
+    display: flex;
+}
+
+.status-list {
+    margin-right: 50%;
+}
+
+.retail-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.retail-scroll-container {
+    max-height: 200px;
+    min-height: 100px;
+    overflow-y: auto;
+}
+
+.retail-container-retail {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+    max-height: 300px;
+
+} 
+  
+.retail-scroll-container-retail {
+    max-height: 200px;
+    min-height: 200px;
+    overflow-y: auto;
+}
+  

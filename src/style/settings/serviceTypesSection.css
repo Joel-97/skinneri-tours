@@ -1,0 +1,287 @@
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.serviceTypes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.serviceTypes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.serviceTypes-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.serviceTypes-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.serviceTypes-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.serviceTypes-table {
+  width: 100%;
+  min-width: 600px; /* evita compresión en móvil */
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.serviceTypes-content {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.serviceTypes-content table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.serviceTypes-content th,
+.serviceTypes-content td {
+  text-align: left;
+  padding: 14px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.serviceTypes-content th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* Scrollbar elegante */
+
+.serviceTypes-content::-webkit-scrollbar {
+  height: 6px;
+}
+
+.serviceTypes-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ======================================================
+   BADGES
+====================================================== */
+
+.badge-active {
+  background: #dcfce7;
+  color: #166534;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-fixed {
+  background: #e0f2fe;
+  color: #075985;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-manual {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ======================================================
+   MODAL FORM
+====================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #08204B;
+  box-shadow: 0 0 0 2px rgba(8, 32, 75, 0.1);
+}
+
+/* ======================================================
+   CHECKBOX
+====================================================== */
+
+.form-checkbox {
+  margin-bottom: 12px;
+}
+
+.form-checkbox label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* ======================================================
+   DURATION ROW
+====================================================== */
+
+.duration-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.duration-row input {
+  flex: 1;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.duration-row input:focus {
+  outline: none;
+  border-color: #08204B;
+}
+
+.duration-row .react-select__control {
+  min-height: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+/* ======================================================
+   COLOR PICKER
+====================================================== */
+
+.color-input {
+  height: 40px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+}
+
+/* ======================================================
+   SERVICE NAME CELL (color preview)
+====================================================== */
+
+.service-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #d1d5db;
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   LOADING
+====================================================== */
+
+.section-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .serviceTypes-container {
+    padding: 20px 16px;
+  }
+
+  .serviceTypes-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .serviceTypes-header .btn-primary {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .duration-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+}

@@ -1,0 +1,128 @@
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.locations-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.locations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.locations-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.locations-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.locations-content {
+  margin-top: 20px;
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.locations-empty {
+  padding: 40px;
+  background: #f9fafb;
+  border-radius: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.locations-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.locations-table {
+  width: 100%;
+  min-width: 600px; /* evita compresión en móvil */
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.locations-table th {
+  text-align: left;
+  padding: 14px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.locations-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+/* Scrollbar elegante */
+
+.locations-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.locations-table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ======================================================
+   LOADING
+====================================================== */
+
+.section-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .locations-container {
+    padding: 20px 16px;
+  }
+
+  .locations-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .locations-header .btn-primary {
+    width: 100%;
+  }
+
+}

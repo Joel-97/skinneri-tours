@@ -1,0 +1,67 @@
+/* ===== APP MODAL OVERLAY ===== */
+
+.app-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: appFadeIn 0.2s ease-in-out;
+}
+
+/* ===== APP MODAL CONTENT ===== */
+
+.app-modal-content {
+  background: #ffffff;
+  width: 520px;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.35);
+  animation: appScaleIn 0.2s ease-in-out;
+}
+
+/* Scroll bonito dentro del modal */
+
+.app-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-modal-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+/* ===== HEADER OPCIONAL ===== */
+
+.app-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* ===== ANIMACIONES ===== */
+
+@keyframes appFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes appScaleIn {
+  from { 
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}

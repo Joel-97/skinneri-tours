@@ -1,0 +1,257 @@
+/* CONTENEDOR GRID */
+.companies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 20px;
+}
+
+/* TARJETA EMPRESA */
+.company-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e6e6e6;
+  transition: 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.company-card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* HEADER EMPRESA */
+.company-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.company-name {
+  font-size: 18px;
+  margin: 0;
+}
+
+.company-id {
+  font-size: 12px;
+  color: #777;
+}
+
+.admins-count {
+  background: #eef2ff;
+  color: #3b5bdb;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* ADMINS */
+.company-admins {
+  margin-top: 10px;
+
+  /* 🔥 NUEVO: evita cards gigantes */
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* cuando hay muchos admins */
+.company-admins.many {
+  max-height: 320px;
+}
+
+/* Scroll bonito */
+.company-admins::-webkit-scrollbar {
+  width: 6px;
+}
+
+.company-admins::-webkit-scrollbar-thumb {
+  background: #d0d7de;
+  border-radius: 6px;
+}
+
+.company-admins::-webkit-scrollbar-thumb:hover {
+  background: #b6bec8;
+}
+
+.admins-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ITEM ADMIN */
+.admin-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: 0.15s ease;
+}
+
+.admin-item:hover {
+  background: #f1f3f5;
+}
+
+/* INFO ADMIN */
+.admin-email {
+  font-weight: 500;
+  margin: 0;
+}
+
+.admin-meta {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* BADGES */
+.badge {
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.role-admin {
+  background: #e7f1ff;
+  color: #1c4ed8;
+}
+
+.role-superadmin {
+  background: #fff4e6;
+  color: #cc6600;
+}
+
+.status-approved {
+  background: #e6f9f0;
+  color: #0f9d58;
+}
+
+.status-disabled {
+  background: #ffe6e6;
+  color: #c62828;
+}
+
+/* ACCIONES */
+.admin-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* BOTONES */
+.btn {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #f1f3f5;
+  transition: 0.15s ease;
+}
+
+.btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.btn-disable { background: #ffe3e3; }
+.btn-enable { background: #e6f4ea; }
+.btn-role { background: #e8edff; }
+.btn-move { background: #f1f3f4; }
+
+
+/* TITULO SECCIÓN */
+.section-title {
+  margin-bottom: 16px;
+}
+
+/* GRID */
+.requests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 18px;
+}
+
+/* TARJETA SOLICITUD */
+.request-card {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s ease;
+}
+
+.request-card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* INFO */
+.request-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-email {
+  font-weight: 500;
+  margin: 0;
+}
+
+/* BADGE */
+.request-badge {
+  margin-top: 6px;
+  font-size: 12px;
+  background: #fff4e6;
+  color: #cc6600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+/* ACCIONES */
+.request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* BOTONES */
+.btn {
+  border: none;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* APROBAR */
+.btn.approve {
+  background: #e6f4ea;
+  color: #0f9d58;
+}
+
+/* RECHAZAR */
+.btn.reject {
+  background: #ffe6e6;
+  color: #c62828;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  color: #666;
+}

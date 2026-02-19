@@ -1,0 +1,199 @@
+/* ======================================================
+   NAVBAR BASE
+====================================================== */
+
+.navbar {
+  background: linear-gradient(
+    90deg,
+    #08204B 0%,
+    #0a2a63 100%
+  );
+  padding: 12px 24px;
+  box-shadow: 0 6px 16px rgba(8, 32, 75, 0.35);
+}
+
+/* Contenido principal */
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Secciones */
+.navbar-left,
+.navbar-center,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Centro perfectamente centrado en desktop */
+.navbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ======================================================
+   LOGO / EMPRESA
+====================================================== */
+
+.company-name {
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0;
+}
+
+.navbar-logo-center {
+  max-width: 260px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+.navbar-logo-center:hover {
+  transform: scale(1.03);
+}
+
+/* Modo test */
+.test-mode {
+  color: #829CB0;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* ======================================================
+   USER / AVATAR
+====================================================== */
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  transition: background-color 0.25s ease;
+  cursor: pointer;
+}
+
+.nav-user:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #5B2D8B;
+}
+
+/* ======================================================
+   DROPDOWN
+====================================================== */
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-menu {
+  min-width: 190px;
+  border-radius: 12px;
+  padding: 8px 0;
+  margin-top: 10px;
+  border: none;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  background-color: #FFFFFF;
+  z-index: 1000;
+}
+
+.dropdown-menu .dropdown-item {
+  padding: 12px 18px;
+  font-size: 14px;
+  color: #08204B;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #5B2D8B;
+  color: #FFFFFF;
+}
+
+/* Separador */
+.dropdown-menu .dropdown-item + .dropdown-item {
+  border-top: 1px solid rgba(130, 156, 176, 0.25);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+/* Pantallas grandes */
+@media (min-width: 1400px) {
+  .navbar-logo-center {
+    max-width: 380px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 10px 18px;
+  }
+
+  .navbar-logo-center {
+    max-width: 220px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+  .navbar-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Fila superior */
+  .navbar-left,
+  .navbar-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-left {
+    justify-content: flex-start;
+  }
+
+  .navbar-right {
+    justify-content: flex-end;
+  }
+
+  /* Logo debajo centrado */
+  .navbar-center {
+    position: static;
+    transform: none;
+    margin-top: 6px;
+  }
+
+  .company-name {
+    font-size: 16px;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .navbar-logo-center {
+    height: 22px;
+    max-width: 160px;
+  }
+
+}
+
