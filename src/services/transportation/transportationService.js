@@ -55,7 +55,7 @@ export const createTransportation = async (companyId, data, user) => {
   }
 
   if (!data.date) {
-    const error = new Error("date_required");
+    const error = new Error("Por favor agregue una fecha");
     error.code = "date_required";
     throw error;
   }
@@ -110,7 +110,7 @@ export const updateTransportation = async (
   }
 
   if (!data.date) {
-    const error = new Error("date_required");
+    const error = new Error("Por favor agregue una fecha");
     error.code = "date_required";
     throw error;
   }

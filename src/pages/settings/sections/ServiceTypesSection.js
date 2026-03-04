@@ -42,6 +42,11 @@ const ServiceTypesSection = () => {
     durationUnit: "minutes",
     durationMinutes: null,
     color: "#0a2a63",
+    driverPayment: {
+      enabled: false,
+      type: "fixed",      // "fixed" | "percentage"
+      value: ""           // número
+    },
     isActive: true
   });
 
@@ -80,6 +85,11 @@ const ServiceTypesSection = () => {
       currency: "",
       symbol: "",
       color: "#0a2a63",
+      driverPayment: {
+        enabled: false,
+        type: "fixed",      // "fixed" | "percentage"
+        value: ""           // número
+      },
       isActive: true
     });
     setEditingId(null);
@@ -187,15 +197,26 @@ const ServiceTypesSection = () => {
     }
 
     setForm({
-      name: type.name,
-      pricingMode: type.pricingMode,
-      basePrice: type.basePrice || "",
+      name: type.name || "",
+      pricingMode: type.pricingMode || "fixed",
+      basePrice: type.basePrice ?? "",
       currency: type.currency || "",
       symbol: type.symbol || "",
       durationValue,
       durationUnit,
       color: type.color || "#0a2a63",
-      isActive: type.isActive
+
+      driverPayment: {
+        enabled: type.driverPayment?.enabled ?? false,
+        type: type.driverPayment?.type || "fixed",
+        value:
+          type.driverPayment?.value !== null &&
+          type.driverPayment?.value !== undefined
+            ? String(type.driverPayment.value)
+            : ""
+      },
+
+      isActive: type.isActive ?? true
     });
 
     setEditingId(type.id);
@@ -272,166 +293,273 @@ const ServiceTypesSection = () => {
         </button>
       </div>
 
-      {showForm && (
-        <Modal onClose={resetForm}>
-          <div className="app-modal-header">
-            <h4>
-              {editingId ? "Editar tipo" : "Nuevo tipo"}
-            </h4>
-            <button className="close-btn" onClick={resetForm}>✕</button>
-          </div>
+{showForm && (
+  <Modal onClose={resetForm}>
+    <div className="app-modal-header">
+      <h4>{editingId ? "Editar tipo" : "Nuevo tipo"}</h4>
+      <button className="close-btn" onClick={resetForm}>✕</button>
+    </div>
 
-          <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="modal-form">
 
-            <div className="form-group">
-              <label>Nombre</label>
-              <input
-                value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
-                }
-              />
-            </div>
+      {/* ================= NOMBRE ================= */}
+      <div className="form-group">
+        <label>Nombre</label>
+        <input
+          type="text"
+          value={form.name}
+          onChange={(e) =>
+            setForm({ ...form, name: e.target.value })
+          }
+          required
+        />
+      </div>
 
-            <div className="form-group">
-              <label>Modo de precio</label>
-              <Select
-                options={pricingOptions}
-                value={
-                  pricingOptions.find(
-                    (option) => option.value === form.pricingMode
-                  ) || null
-                }
-                onChange={handlePricingModeChange}
-                placeholder="Seleccionar modo de precio"
-                isClearable={false}
-              />
-            </div>
+      {/* ================= MODO PRECIO ================= */}
+      <div className="form-group">
+        <label>Modo de precio</label>
+        <Select
+          options={pricingOptions}
+          value={
+            pricingOptions.find(
+              (option) => option.value === form.pricingMode
+            ) || null
+          }
+          onChange={handlePricingModeChange}
+          placeholder="Seleccionar modo de precio"
+          isClearable={false}
+        />
+      </div>
 
-            {form.pricingMode === "fixed" && (
-              <>
-                <div className="form-group">
-                  <label>Precio base</label>
-                  <input
-                    type="number"
-                    value={form.basePrice}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        basePrice: Number(e.target.value)
-                      })
-                    }
-                  />
-                </div>
-              </>
-            )}
+      {/* ================= PRECIO BASE ================= */}
+      {form.pricingMode === "fixed" && (
+        <div className="form-group">
+          <label>
+            Precio base {form.symbol && `(${form.symbol})`}
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={form.basePrice}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                basePrice: e.target.value === "" ? "" : Number(e.target.value)
+              })
+            }
+            placeholder="Ej: 150"
+          />
+        </div>
+      )}
 
-            <div className="form-group">
-              <label>Moneda</label>
-              <Select
-                options={currencyOptions}
-                value={currencyOptions.find(
-                  (option) => option.value === form.currency
-                ) || null}
-                onChange={(selectedOption) => {
-                  setForm({
-                    ...form,
-                    currency: selectedOption?.value || "",
-                    symbol: selectedOption?.symbol || ""
-                  });
-                }}
-                placeholder="Seleccionar"
-                isClearable
-              />
-            </div>
+      {/* ================= PAGO AL CHOFER ================= */}
+      <div className="form-group">
 
-            <div className="form-group">
-              <label>Color del servicio</label>
-              <input
-                type="color"
-                value={form.color}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    color: e.target.value
-                  })
-                }
-                className="color-input"
-              />
-            </div>
+        <div className="section-header">
+          <label className="section-title">Pago al chofer</label>
 
+          {/* TOGGLE */}
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={form.driverPayment?.enabled || false}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  driverPayment: {
+                    ...(form.driverPayment || {}),
+                    enabled: e.target.checked,
+                    value: "" // limpia cuando cambia estado
+                  }
+                })
+              }
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
 
-            <div className="form-group">
-            <label>Duración estimada</label>
-
-            <div className="duration-row">
-              <input
-                type="number"
-                min="0"
-                value={form.durationValue}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    durationValue: Number(e.target.value)
-                  })
-                }
-                placeholder="Cantidad"
-              />
-
-              <Select
-                options={durationUnitOptions}
-                value={
-                  durationUnitOptions.find(
-                    (option) => option.value === form.durationUnit
-                  ) || null
-                }
-                onChange={(selectedOption) =>
-                  setForm({
-                    ...form,
-                    durationUnit: selectedOption?.value || "minutes"
-                  })
-                }
-                isSearchable={false}
-                isClearable={false}
-              />
-            </div>
-          </div>
-
-
-            <div className="form-checkbox">
-              <label>
+        {/* SOLO SE MUESTRA SI ESTÁ ACTIVADO */}
+        {form.driverPayment?.enabled && (
+          <>
+            <div className="driver-type-toggle">
+              <label className="radio-option">
                 <input
-                  type="checkbox"
-                  checked={form.isActive}
+                  type="radio"
+                  value="fixed"
+                  checked={form.driverPayment?.type === "fixed"}
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      isActive: e.target.checked
+                      driverPayment: {
+                        ...form.driverPayment,
+                        type: e.target.value,
+                        value: ""
+                      }
                     })
                   }
                 />
-                Activo
+                <span>Monto fijo</span>
+              </label>
+
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  value="percentage"
+                  checked={form.driverPayment?.type === "percentage"}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      driverPayment: {
+                        ...form.driverPayment,
+                        type: e.target.value,
+                        value: ""
+                      }
+                    })
+                  }
+                />
+                <span>Comisión (%)</span>
               </label>
             </div>
 
-            <div className="form-actions">
-              <button className="btn-primary" type="submit">
-                {editingId ? "Actualizar" : "Crear"}
-              </button>
+            <input
+              type="number"
+              min="0"
+              max={form.driverPayment?.type === "percentage" ? "100" : undefined}
+              step="0.01"
+              className="modern-input"
+              placeholder={
+                form.driverPayment?.type === "fixed"
+                  ? `Ej: ${form.symbol || ""} 25`
+                  : "Ej: 20 %"
+              }
+              value={form.driverPayment?.value || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  driverPayment: {
+                    ...form.driverPayment,
+                    value: e.target.value
+                  }
+                })
+              }
+            />
+          </>
+        )}
 
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={resetForm}
-              >
-                Cancelar
-              </button>
-        
-            </div>
+      </div>
 
-          </form>
-        </Modal>
-      )}
+      {/* ================= MONEDA + COLOR ================= */}
+      <div className="form-row two-columns">
+        <div className="form-group">
+          <label>Moneda</label>
+          <Select
+            options={currencyOptions}
+            value={
+              currencyOptions.find(
+                (option) => option.value === form.currency
+              ) || null
+            }
+            onChange={(selectedOption) => {
+              setForm({
+                ...form,
+                currency: selectedOption?.value || "",
+                symbol: selectedOption?.symbol || ""
+              });
+            }}
+            placeholder="Seleccionar"
+            isClearable
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Color del servicio</label>
+          <input
+            type="color"
+            value={form.color}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                color: e.target.value
+              })
+            }
+            className="color-input"
+          />
+        </div>
+      </div>
+
+      {/* ================= DURACIÓN ================= */}
+      <div className="form-group">
+        <label>Duración estimada</label>
+
+        <div className="duration-row">
+          <input
+            type="number"
+            min="0"
+            value={form.durationValue}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                durationValue: e.target.value === "" ? "" : Number(e.target.value)
+              })
+            }
+            placeholder="Cantidad"
+          />
+
+          <Select
+            options={durationUnitOptions}
+            value={
+              durationUnitOptions.find(
+                (option) => option.value === form.durationUnit
+              ) || null
+            }
+            onChange={(selectedOption) =>
+              setForm({
+                ...form,
+                durationUnit: selectedOption?.value || "minutes"
+              })
+            }
+            isSearchable={false}
+            isClearable={false}
+          />
+        </div>
+      </div>
+
+      {/* ================= ACTIVO ================= */}
+      <div className="form-checkbox">
+        <label>
+          <input
+            type="checkbox"
+            checked={form.isActive}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                isActive: e.target.checked
+              })
+            }
+          />
+          Activo
+        </label>
+      </div>
+
+      {/* ================= BOTONES ================= */}
+      <div className="form-actions">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={resetForm}
+        >
+          Cancelar
+        </button>
+
+        <button className="btn-primary" type="submit">
+          {editingId ? "Actualizar" : "Crear"}
+        </button>
+      </div>
+
+    </form>
+  </Modal>
+)}
 
       <div className="serviceTypes-content">
 

@@ -9,6 +9,7 @@ import {
 } from "../../services/transportation/transportationService";
 import { getServiceTypes } from "../../services/settings/serviceTypeService";
 import Loading from "../../components/general/loading";
+import { notifySuccess, notifyError, notifyConfirm } from "../../services/notificationService";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
@@ -81,18 +82,11 @@ const CalendarTransportations = ({ companyId, user }) => {
       setLoading(true);
 
       if (modalMode === "edit") {
-        await updateTransportation(
-          companyId,
-          selectedReservation.id,
-          formData,
-          user
-        );
+        await updateTransportation(companyId, selectedReservation.id, formData, user);
+        notifySuccess("Reserva actualizada", "Los cambios fueron guardados.");
       } else {
-        await createTransportation(
-          companyId,
-          formData,
-          user
-        );
+        await createTransportation(companyId, formData, user);
+        notifySuccess("Reserva creada", "La reserva fue creada correctamente.");
       }
 
       setModalOpen(false);
@@ -100,11 +94,11 @@ const CalendarTransportations = ({ companyId, user }) => {
 
     } catch (error) {
       console.error(error);
+      notifyError("Error", error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleSelectSlot = (slotInfo) => {
 
@@ -120,6 +114,8 @@ const CalendarTransportations = ({ companyId, user }) => {
       // 🟢 Usuario arrastró → usar rango exacto
       formattedEnd = end.format("YYYY-MM-DDTHH:mm");
     }
+
+    console.log("formattedEnd", formattedEnd);
 
     setModalMode("create");
 

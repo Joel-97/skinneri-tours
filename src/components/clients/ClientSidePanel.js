@@ -25,10 +25,10 @@ const ClientSidePanel = ({ client }) => {
         <p><strong>Fuente:</strong> {client.source}</p>
 
         <hr />
-
+{/* 
         <p><strong>Nacionalidad:</strong> {client.nationality}</p>
         <p><strong>Cumpleaños:</strong> {client.birthday}</p>
-        <p><strong>Tags:</strong> {client.tags?.join(", ")}</p>
+        <p><strong>Tags:</strong> {client.tags?.join(", ")}</p> */}
 
       </div>
     </div>

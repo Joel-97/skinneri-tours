@@ -2,7 +2,7 @@
    CONTAINER
 ====================================================== */
 
-.locations-container {
+.drivers-container {
   margin: 0 auto;
   padding: 32px 50px;
 }
@@ -11,7 +11,7 @@
    HEADER
 ====================================================== */
 
-.locations-header {
+.drivers-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,13 +19,13 @@
   margin-bottom: 28px;
 }
 
-.locations-header h3 {
+.drivers-header h3 {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
 }
 
-.locations-header p {
+.drivers-header p {
   font-size: 14px;
   color: #6b7280;
   margin: 4px 0 0;
@@ -35,15 +35,69 @@
    CONTENT
 ====================================================== */
 
-.locations-content {
-  margin-top: 20px;
+.drivers-content {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.drivers-table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.drivers-table th,
+.drivers-table td {
+  text-align: left;
+  padding: 14px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.drivers-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* Hover suave */
+
+.drivers-table tbody tr:hover {
+  background-color: #f9fafb;
+  transition: 0.2s ease;
+}
+
+/* ======================================================
+   BADGES
+====================================================== */
+
+.badge-active {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* ======================================================
    EMPTY STATE
 ====================================================== */
 
-.locations-empty {
+.drivers-empty {
   padding: 40px;
   background: #f9fafb;
   border-radius: 12px;
@@ -53,56 +107,16 @@
 }
 
 /* ======================================================
-   TABLE
+   SCROLLBAR
 ====================================================== */
 
-.locations-table-wrapper {
-  overflow-x: auto;
-  border-radius: 12px;
-}
-
-.locations-table {
-  width: 100%;
-  min-width: 600px; /* evita compresión en móvil */
-  border-collapse: collapse;
-  background: #ffffff;
-}
-
-.locations-table th {
-  text-align: left;
-  padding: 14px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
-  background-color: #f9fafb;
-}
-
-.locations-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 14px;
-}
-
-/* Scrollbar elegante */
-
-.locations-table-wrapper::-webkit-scrollbar {
+.drivers-content::-webkit-scrollbar {
   height: 6px;
 }
 
-.locations-table-wrapper::-webkit-scrollbar-thumb {
+.drivers-content::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
-}
-
-/* ======================================================
-   LOADING
-====================================================== */
-
-.section-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 0;
 }
 
 /* ======================================================
@@ -111,17 +125,21 @@
 
 @media (max-width: 768px) {
 
-  .locations-container {
+  .drivers-container {
     padding: 20px 16px;
   }
 
-  .locations-header {
+  .drivers-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .locations-header .btn-primary {
+  .drivers-header .btn-primary {
     width: 100%;
+  }
+
+  .drivers-table {
+    min-width: 600px;
   }
 
 }

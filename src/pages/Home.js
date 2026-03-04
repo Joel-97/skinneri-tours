@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
-import "../style/home.css";
+import "../style/home/home.css";
 import Swal from "sweetalert2";
 import Pending from "./Pending";
 import Loading from "../components/general/loading"; 

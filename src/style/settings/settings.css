@@ -3,10 +3,8 @@
 =========================== */
 
 .settings-container {
-  padding: 40px;
   background: transparent; /* evita competir con el modal */
   min-height: 100%;
-  max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }

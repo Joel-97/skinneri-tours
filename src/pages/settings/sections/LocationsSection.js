@@ -195,9 +195,6 @@ const LocationsSection = () => {
             </div>
 
             <div className="form-actions">
-              <button className="btn-primary" type="submit">
-                {editingId ? "Actualizar" : "Crear"}
-              </button>
 
               <button
                 type="button"
@@ -206,6 +203,11 @@ const LocationsSection = () => {
               >
                 Cancelar
               </button>
+
+              <button className="btn-primary" type="submit">
+                {editingId ? "Actualizar" : "Crear"}
+              </button>
+
             </div>
 
           </form>

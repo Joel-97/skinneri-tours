@@ -15,6 +15,7 @@ import Pending from "./pages/Pending";
 import SuperAdmin from "./pages/SuperAdmin";
 import ClientsPage from "./pages/clients/ClientsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
+import DashboardHome from "./pages/home/DashboardHome";
 
 function App() {
   return (
@@ -35,7 +36,8 @@ function App() {
             <ProtectedRoute>
               <>
                 <Navbar />
-                <Home />
+                {/* <Home /> */}
+                <DashboardHome />
               </>
             </ProtectedRoute>
           }
@@ -47,7 +49,8 @@ function App() {
             <ProtectedRoute>
               <>
                 <Navbar />
-                <Home />
+                {/* <Home /> */}
+                <DashboardHome />
               </>
             </ProtectedRoute>
           }

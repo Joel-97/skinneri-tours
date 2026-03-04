@@ -51,6 +51,10 @@ export const createServiceType = async (
     throw new Error("Debe seleccionar un color.");
   }
 
+  if (!data.currency) {
+    throw new Error("Debe seleccionar una moneda.");
+  }
+
   const snapshot = await getDocs(
     collection(db, "companies", companyId, "serviceTypes")
   );
@@ -69,24 +73,60 @@ export const createServiceType = async (
     throw new Error("Ya existe un tipo de servicio con ese nombre.");
   }
 
+  // ========================
+  // NORMALIZAR DATOS
+  // ========================
+
   let basePrice = data.basePrice ?? null;
   let currency = data.currency ?? null;
   let symbol = data.symbol ?? null;
 
-  // 🚫 Validaciones pricingMode
+  // 🔹 Validaciones pricingMode
   if (data.pricingMode === "fixed") {
-
-    if (!basePrice || basePrice <= 0) {
+    if (!basePrice || Number(basePrice) <= 0) {
       throw new Error("El precio base debe ser mayor a 0.");
     }
-
+    basePrice = Number(basePrice);
   } else {
     basePrice = null;
   }
 
-  if (!currency) {
-    throw new Error("Debe seleccionar una moneda.");
+  // ========================
+  // DRIVER PAYMENT
+  // ========================
+
+  const driverPayment =
+    data.driverPayment?.enabled
+      ? {
+          enabled: true,
+          type: data.driverPayment.type || "fixed",
+          value:
+            data.driverPayment.value === "" ||
+            data.driverPayment.value === undefined
+              ? null
+              : Number(data.driverPayment.value)
+        }
+      : null;
+
+  // 🔹 Validar si tiene valor
+  if (
+    driverPayment.value !== null &&
+    driverPayment.value < 0
+  ) {
+    throw new Error("El pago al chofer no puede ser negativo.");
   }
+
+  if (
+    driverPayment.type === "percentage" &&
+    driverPayment.value !== null &&
+    driverPayment.value > 100
+  ) {
+    throw new Error("La comisión no puede ser mayor a 100%.");
+  }
+
+  // ========================
+  // CREAR DOCUMENTO
+  // ========================
 
   return await addDoc(
     collection(db, "companies", companyId, "serviceTypes"),
@@ -98,6 +138,7 @@ export const createServiceType = async (
       symbol,
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
+      driverPayment, // 👈 NUEVO CAMPO
       isActive: data.isActive ?? true,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -186,6 +227,19 @@ export const updateServiceType = async (
       );
     }
   }
+  
+  const driverPayment =
+    data.driverPayment?.enabled
+      ? {
+          enabled: true,
+          type: data.driverPayment.type || "fixed",
+          value:
+            data.driverPayment.value === "" ||
+            data.driverPayment.value === undefined
+              ? null
+              : Number(data.driverPayment.value)
+        }
+      : null;
 
   return await updateDoc(
     doc(db, "companies", companyId, "serviceTypes", serviceTypeId),
@@ -197,6 +251,7 @@ export const updateServiceType = async (
       symbol,
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
+      driverPayment, // 👈 ahora puede ser null
       isActive: data.isActive,
       updatedAt: Timestamp.now(),
       updatedBy: user.uid

@@ -4,6 +4,7 @@ import CurrenciesSection from "./sections/CurrenciesSection";
 import LocationsSection from "./sections/LocationsSection";
 import ServiceTypesSection from "./sections/ServiceTypesSection";
 import DiscountsSection from "./sections/DiscountsSection";
+import DriversSection from "./sections/DriversSection";
 import "../../style/settings/settings.css";
 
 const SettingsPage = () => {
@@ -57,6 +58,13 @@ const SettingsPage = () => {
         >
           Moneda
         </button>
+
+        <button
+          className={activeTab === "drivers" ? "active" : ""}
+          onClick={() => setActiveTab("drivers")}
+        >
+          Choferes
+        </button>
       </div>
 
       <div className="settings-content">
@@ -66,6 +74,7 @@ const SettingsPage = () => {
         {activeTab === "vehicles" && <div>Vehículos próximamente</div>}
         {activeTab === "discounts" && < DiscountsSection />}
         {activeTab === "currency" && < CurrenciesSection />}
+        {activeTab === "drivers" && < DriversSection />}
       </div>
 
     </div>

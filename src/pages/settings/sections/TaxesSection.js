@@ -302,16 +302,16 @@ const TaxesSettings = () => {
             </div>
 
             <div className="form-actions">
-              <button className="btn-primary" type="submit">
-                {editingId ? "Actualizar" : "Crear"}
-              </button>
-
               <button
                 type="button"
                 className="btn-secondary"
                 onClick={resetForm}
               >
                 Cancelar
+              </button>
+              
+              <button className="btn-primary" type="submit">
+                {editingId ? "Actualizar" : "Crear"}
               </button>
             </div>
 

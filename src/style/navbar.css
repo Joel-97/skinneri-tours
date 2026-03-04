@@ -15,6 +15,7 @@
 /* Contenido principal */
 .navbar-content {
   display: flex;
+  min-height: 100px;
   align-items: center;
   justify-content: space-between;
   position: relative;

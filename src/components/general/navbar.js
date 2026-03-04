@@ -7,7 +7,7 @@ import logoWord from '../../assets/Logo_izquierda_blanco_peq.png';
 import { UserAuth } from '../../context/AuthContext';
 import { server } from '../../services/serverName/Bookings';
 
-// import '../../style/style.css';
+import '../../style/style.css';
 import '../../style/navbar.css';
 
 /* -------------------------------------------------------------------------- */
@@ -34,7 +34,7 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
 
       <Dropdown.Menu align="end">
         <Dropdown.Item onClick={() => navigate("/home")}>
-          Home
+          Inicio
         </Dropdown.Item>
         
         <Dropdown.Item onClick={() => navigate("/clients")}>
@@ -42,11 +42,11 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
         </Dropdown.Item>
 
         <Dropdown.Item onClick={() => navigate("/transport")}>
-          Transport
+          Transportes
         </Dropdown.Item>
 
         <Dropdown.Item onClick={() => navigate("/settings")}>
-          Settings
+          Configuración
         </Dropdown.Item>
 
         {isSuperAdmin && (
@@ -66,7 +66,7 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
             navigate("/login");
           }}
         >
-          Logout
+          Cerrar sesión
         </Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>

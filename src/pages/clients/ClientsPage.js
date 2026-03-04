@@ -3,6 +3,7 @@ import ClientsTable from "../../components/clients/ClientsTable";
 import ClientSidePanel from "../../components/clients/ClientSidePanel";
 import ClientSearch from "../../components/clients/ClientSearch";
 import CreateClientModal from "../../components/clients/CreateClientModal";
+import "../../style/clients/clients.css";
 
 const ClientsPage = () => {
 
@@ -28,7 +29,7 @@ const ClientsPage = () => {
           <h2>Clientes</h2>
 
           <button
-            className="btn btn-primary"
+            className="btn-primary"
             onClick={() => setOpenCreateModal(true)}
           >
             + Nuevo cliente

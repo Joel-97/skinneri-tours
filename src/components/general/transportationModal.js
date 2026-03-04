@@ -9,7 +9,9 @@ import { getLocations } from "../../services/settings/locationsService";
 import { getTaxes } from "../../services/settings/taxService";
 import { getDiscounts } from "../../services/settings/discountService";
 import { getCurrencies } from "../../services/settings/currencyService";
+import { getDrivers } from "../../services/settings/driverService";
 import { reservationNumberExists } from "../../services/transportation/transportationService";
+import { getEndDate, generateReservationNumber, safe } from "../../services/Tools";
 
 import { notifySuccess, notifyError } from "../../services/notificationService";
 import "../../style/general/transportationModal.css";
@@ -35,6 +37,7 @@ export default function TransportationModal({
     phone: "",
 
     serviceTypeId: "",
+    serviceTypeName: "",
     locationFromId: "",
     locationToId: "",
 
@@ -47,7 +50,8 @@ export default function TransportationModal({
     currency: "",
     price: 0,
     discountId: "",
-    activeTaxIds: []
+    activeTaxIds: [],
+    driverId: "",
   };
 
   /* =======================
@@ -76,23 +80,36 @@ export default function TransportationModal({
   const [taxes, setTaxes] = useState([]);
   const [discounts, setDiscounts] = useState([]);
   const [currencies, setCurrencies] = useState([]);
-
+  const [drivers, setDrivers] = useState([]);
 
   useEffect(() => {
     if (!companyId) return;
 
     const load = async () => {
-      const st = await getServiceTypes(companyId);
-      const loc = await getLocations(companyId);
-      const tx = await getTaxes(companyId);
-      const ds = await getDiscounts(companyId);
-      const cur = await getCurrencies(companyId);
+
+      const [
+        st,
+        loc,
+        tx,
+        ds,
+        cur,
+        dr
+      ] = await Promise.all([
+        getServiceTypes(companyId),
+        getLocations(companyId),
+        getTaxes(companyId),
+        getDiscounts(companyId),
+        getCurrencies(companyId),
+        getDrivers(companyId)
+      ]);
 
       setServiceTypes(st.filter(s => s.isActive));
       setLocations(loc.filter(l => l.isActive));
       setTaxes(tx.filter(t => t.isActive));
       setDiscounts(ds.filter(d => d.isActive));
       setCurrencies(cur.filter(c => c.isActive));
+      setDrivers(dr.filter(d => d.isActive));
+
     };
 
     load();
@@ -155,54 +172,9 @@ export default function TransportationModal({
 
   }, [reservation, mode, taxes]);
 
-  // 2️⃣ 🔥 Cálculo automático de duración
-  useEffect(() => {
-
-    if (mode !== "create") return;
-
-    if (!form.date) return;
-
-    // Si ya tiene endDate (porque arrastró) no recalcular
-    if (form.endDate) return;
-
-    if (!form.serviceTypeId) return;
-
-    const selectedService = serviceTypes.find(
-      s => s.id === form.serviceTypeId
-    );
-
-    if (!selectedService?.durationMinutes) return;
-
-    const start = new Date(form.date);
-
-    const end = new Date(
-      start.getTime() + selectedService.durationMinutes * 60000
-    );
-
-    const formattedEnd =
-      end.getFullYear() +
-      "-" +
-      String(end.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(end.getDate()).padStart(2, "0") +
-      "T" +
-      String(end.getHours()).padStart(2, "0") +
-      ":" +
-      String(end.getMinutes()).padStart(2, "0");
-
-    setForm(prev => ({
-      ...prev,
-      endDate: formattedEnd
-    }));
-
-  }, [form.date, form.serviceTypeId, mode, serviceTypes]);
-
-  /* =======================
-     SERVICE TYPE AUTO PRICE
-  ======================== */
-
-  const selectedServiceType = serviceTypes.find(
-    s => s.id === form.serviceTypeId
+  const selectedServiceType = useMemo(() =>
+    serviceTypes.find(s => s.id === form.serviceTypeId),
+    [serviceTypes, form.serviceTypeId]
   );
 
   useEffect(() => {
@@ -224,41 +196,6 @@ export default function TransportationModal({
       }));
     }
   }, [selectedServiceType]);
-
-  /* =======================
-     SERVICE TYPE AUTO ENDDATE
-  ======================== */
-
-  useEffect(() => {
-
-    if (!form.date || !form.serviceTypeId) return;
-
-    const selectedService = serviceTypes.find(
-      (s) => s.id === form.serviceTypeId
-    );
-
-    if (!selectedService || !selectedService.durationMinutes) {
-      setForm(prev => ({
-        ...prev,
-        endDate: form.date,
-      }));
-      return;
-    }
-
-    const start = new Date(form.date);
-    const end = new Date(
-      start.getTime() + selectedService.durationMinutes * 60000
-    );
-
-    const formattedEnd = end.toISOString().slice(0, 16);
-
-    setForm(prev => ({
-      ...prev,
-      endDate: formattedEnd
-    }));
-
-  }, [form.date, form.serviceTypeId, serviceTypes]);
-
 
   /* =======================
      DESCUENTO
@@ -303,17 +240,23 @@ export default function TransportationModal({
     form.activeTaxIds.includes(t.id)
   );
 
-  const taxBreakdown = activeTaxes.map(t => {
-    const rate = Number(t.rate || 0);
-    const amount = subtotalAfterDiscount * (rate / 100);
+  const taxBreakdown = useMemo(() => {
 
-    return {
-      taxId: t.id,
-      name: t.name,
-      rate,
-      amount: Number(amount.toFixed(2))
-    };
-  });
+    return activeTaxes.map(t => {
+
+      const rate = Number(t.rate || 0);
+      const amount = subtotalAfterDiscount * (rate / 100);
+
+      return {
+        taxId: t.id,
+        name: t.name,
+        rate,
+        amount: Number(amount.toFixed(2))
+      };
+
+    });
+
+  }, [activeTaxes, subtotalAfterDiscount]);
 
   const totalTax = taxBreakdown.reduce(
     (sum, t) => sum + t.amount,
@@ -362,23 +305,60 @@ export default function TransportationModal({
 
     const { name, value } = e.target;
 
-    setForm(prev => ({
-        ...prev,
-        [name]: name === "price" ? Number(value) : value
-      }));
-  };
+    setForm(prev => {
 
+      const newValue = name === "price" ? Number(value) : value;
+
+      const updatedForm = {
+        ...prev,
+        [name]: newValue
+      };
+
+      // Solo recalcular si cambia fecha o servicio
+      if (name === "date" || name === "serviceTypeId") {
+
+        const date = name === "date" ? newValue : prev.date;
+
+        const serviceId =
+          name === "serviceTypeId" ? Number(newValue) : prev.serviceTypeId;
+
+        const selectedService = serviceTypes.find(
+          s => s.id === serviceId
+        );
+
+        if (date && selectedService?.durationMinutes) {
+
+          updatedForm.endDate = getEndDate(
+            date,
+            selectedService.durationMinutes
+          );
+
+        }
+      }
+
+      return updatedForm;
+
+    });
+  };
 
   const toggleTax = (taxId) => {
-    setForm(prev => ({
-      ...prev,
-      activeTaxIds: prev.activeTaxIds.includes(taxId)
-        ? prev.activeTaxIds.filter(id => id !== taxId)
-        : [...prev.activeTaxIds, taxId]
-    }));
+
+    setForm(prev => {
+
+      const exists = prev.activeTaxIds.includes(taxId);
+
+      return {
+        ...prev,
+        activeTaxIds: exists
+          ? prev.activeTaxIds.filter(id => id !== taxId)
+          : [...prev.activeTaxIds, taxId]
+      };
+
+    });
+
   };
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
 
   if (!form.clientId) {
     notifyError("Cliente requerido");
@@ -477,8 +457,6 @@ const handleSubmit = async () => {
     }
   };
 
-  const safe = (value) => Number(value || 0).toFixed(2);
-
   const discountOptions = [
     {
       value: "",
@@ -517,19 +495,18 @@ const handleSubmit = async () => {
     { value: "cancelled", label: "Cancelada" }
   ];
 
-  const generateReservationNumber = () => {
-    const now = new Date();
+  const driverOptions = drivers.map(driver => ({
+    value: driver.id,
+    label: driver.name
+  }));
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-
-    const unique = Date.now().toString().slice(-5); 
-
-    return `TR-${year}${month}${day}-${unique}`;
+  const selectPortal = {
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+    styles: {
+      menuPortal: base => ({ ...base, zIndex: 9999 })
+    }
   };
-
-
 
   if (!isOpen) return null;
   
@@ -611,11 +588,7 @@ const handleSubmit = async () => {
               </label>
 
               <Select
-                menuPortalTarget={document.body}
-                menuPosition="fixed"
-                styles={{
-                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                }}
+                {...selectPortal}
                 name="serviceTypeId"
                 options={serviceTypeOptions}
                 value={
@@ -623,12 +596,17 @@ const handleSubmit = async () => {
                     (option) => option.value === form.serviceTypeId
                   ) || null
                 }
-                onChange={(selectedOption) =>
-                  setForm({
-                    ...form,
-                    serviceTypeId: selectedOption?.value || ""
-                  })
-                }
+                onChange={(selectedOption) => {
+                  const selectedService = serviceTypes.find(
+                    s => s.id === selectedOption.value
+                  );
+
+                  setForm(prev => ({
+                    ...prev,
+                    serviceTypeId: selectedOption?.value || "",
+                    serviceTypeName: selectedService?.name || ""
+                  }));
+                }}
                 placeholder="Seleccionar tipo"
                 isClearable
                 isSearchable
@@ -658,11 +636,7 @@ const handleSubmit = async () => {
                 Lugar de recogida <span className="required">*</span>
               </label>
             <Select
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-              styles={{
-                  menuPortal: (base) => ({ ...base, zIndex: 9999 })
-              }}
+              {...selectPortal}
               name="locationFromId"
               options={locationOptions}
               value={
@@ -671,10 +645,10 @@ const handleSubmit = async () => {
                 ) || null
               }
               onChange={(selectedOption) =>
-                setForm({
-                  ...form,
-                  locationFromId: selectedOption?.value || ""
-                })
+              setForm(prev => ({
+                ...prev,
+                locationFromId: selectedOption?.value || ""
+              }))
               }
               placeholder="Recogida"
               isClearable
@@ -687,11 +661,7 @@ const handleSubmit = async () => {
                 Lugar de destino <span className="required">*</span>
               </label>
               <Select
-                menuPortalTarget={document.body}
-                menuPosition="fixed"
-                styles={{
-                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                }}
+                {...selectPortal}
                 name="locationToId"
                 options={locationOptions}
                 value={
@@ -700,10 +670,10 @@ const handleSubmit = async () => {
                   ) || null
                 }
                 onChange={(selectedOption) =>
-                  setForm({
-                    ...form,
-                    locationToId: selectedOption?.value || ""
-                  })
+                setForm(prev => ({
+                  ...prev,
+                  locationToId: selectedOption?.value || ""
+                }))
                 }
                 placeholder="Destino"
                 isClearable
@@ -729,32 +699,59 @@ const handleSubmit = async () => {
 
             </div>
             
-          <div className="form-field">
-            <label className="field-label">
-              Información de reserva
-            </label>
-            <Select
-              menuPortalTarget={document.body}
-              menuPosition="fixed"
-              styles={{
-                  menuPortal: (base) => ({ ...base, zIndex: 9999 })
-              }}
-              name="status"
-              options={statusOptions}
-              value={
-                statusOptions.find(
-                  (option) => option.value === form.status
-                ) || null
-              }
-              onChange={(selectedOption) =>
-                setForm({
-                  ...form,
+            <div className="form-field">
+              <label className="field-label">
+                Información de reserva
+              </label>
+              <Select
+                {...selectPortal}
+                name="status"
+                options={statusOptions}
+                value={
+                  statusOptions.find(
+                    (option) => option.value === form.status
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                setForm(prev => ({
+                  ...prev,
                   status: selectedOption?.value || ""
-                })
-              }
-              isSearchable={false}
-            />
+                }))
+                }
+                isSearchable={false}
+              />
+            </div>
           </div>
+
+          <div className="form-grid two-columns">
+            <div className="form-field">
+              <label className="field-label">
+                Chofer asignado <span className="required">*</span>
+              </label>
+
+              <Select
+                options={driverOptions}
+                value={driverOptions.find(
+                  option => option.value === form.driverId
+                ) || null}
+                onChange={(selectedOption) =>
+                setForm(prev => ({
+                  ...prev,
+                  driverId: selectedOption?.value || ""
+                }))
+                }
+                placeholder="Seleccionar chofer"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                isClearable
+              />
+
+            </div>
+            
+            <div className="form-field">
+            
+            </div>
+
           </div>
 
         </div>
@@ -771,11 +768,7 @@ const handleSubmit = async () => {
               </label>
               <div className="form-field">
                 <Select
-                  menuPortalTarget={document.body}
-                  menuPosition="fixed"
-                  styles={{
-                      menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                  }}
+                  {...selectPortal}
                   name="discountId"
                   options={discountOptions}
                   value={
@@ -784,10 +777,10 @@ const handleSubmit = async () => {
                     ) || null
                   }
                   onChange={(selectedOption) =>
-                    setForm({
-                      ...form,
-                      discountId: selectedOption?.value || ""
-                    })
+                  setForm(prev => ({
+                    ...prev,
+                    discountId: selectedOption?.value || ""
+                  }))
                   }
                   placeholder="Sin descuento"
                   isSearchable={false}
@@ -838,7 +831,7 @@ const handleSubmit = async () => {
           <div className="financial-summary">
             <p>Subtotal: {form.symbol} {safe(form.price)}</p>
             <p>Descuento: - {form.symbol} {safe(discountAmount)}</p>
-            <p>Impuestos: {form.curresymbolncy} {safe(totalTax)}</p>
+            <p>Impuestos: {form.symbol} {safe(totalTax)}</p>
             <hr />
             <p className="total">
               Total: {form.symbol} {safe(total)}
@@ -852,6 +845,7 @@ const handleSubmit = async () => {
           <textarea
             className="notes-textarea"
             name="notes"
+            placeholder="Notas internas de la reserva..."
             value={form.notes}
             onChange={handleChange}
           />
@@ -920,54 +914,87 @@ const handleSubmit = async () => {
             </div>
           )}
 
-
           {/* ================= CREAR CLIENTE MODAL ================= */}
           {showClientModal && (
-            <div className="inner-modal">
-              <div className="inner-header">
-                <h3>Crear cliente (CRM)</h3>
-                <button className="close-btn" onClick={() => setShowClientModal(false)}>✕</button>
+            <div className="client-modal-overlay">
+
+              <div className="client-modal">
+
+                <div className="client-modal-header">
+                  <h3>Nuevo cliente</h3>
+                  <button
+                    className="client-modal-close"
+                    onClick={() => setShowClientModal(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="client-modal-body">
+
+                  <div className="form-group">
+                    <label>Nombre *</label>
+                    <input
+                      name="name"
+                      placeholder="Ej: María González"
+                      value={clientData.name}
+                      onChange={handleClientChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Email</label>
+                    <input
+                      name="email"
+                      placeholder="correo@ejemplo.com"
+                      value={clientData.email}
+                      onChange={handleClientChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Teléfono</label>
+                    <input
+                      name="phone"
+                      placeholder="+506 8888 8888"
+                      value={clientData.phone}
+                      onChange={handleClientChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Notas</label>
+                    <textarea
+                      name="notes"
+                      placeholder="Información adicional del cliente..."
+                      value={clientData.notes}
+                      onChange={handleClientChange}
+                      rows="3"
+                    />
+                  </div>
+
+                </div>
+
+                <div className="client-modal-footer">
+
+                  <button
+                    className="btn-secondary"
+                    onClick={() => setShowClientModal(false)}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    className="btn-primary"
+                    onClick={handleCreateClient}
+                  >
+                    Guardar cliente
+                  </button>
+
+                </div>
+
               </div>
 
-              <div className="modal-section">
-                <input
-                  name="name"
-                  placeholder="Nombre"
-                  value={clientData.name}
-                  onChange={handleClientChange}
-                />
-
-                <input
-                  name="email"
-                  placeholder="Email"
-                  value={clientData.email}
-                  onChange={handleClientChange}
-                />
-
-                <input
-                  name="phone"
-                  placeholder="Teléfono"
-                  value={clientData.phone}
-                  onChange={handleClientChange}
-                />
-
-                <textarea
-                  name="notes"
-                  placeholder="Notas"
-                  value={clientData.notes}
-                  onChange={handleClientChange}
-                />
-              </div>
-
-              <div className="modal-footer">
-                <button className="btn-secondary" onClick={() => setShowClientModal(false)}>
-                  Cancelar
-                </button>
-
-                <button className="btn-primary" onClick={handleCreateClient}>
-                  Guardar cliente
-                </button>
-              </div>
             </div>
           )}
 

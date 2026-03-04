@@ -107,8 +107,59 @@ function formatDate(date, patternStr) {
 function twoDigitPad(num) {
   return num < 10 ? "0" + num : num;
 }
+
+  /* =============================================================== 
+  * SE UTILIZA PARA OBTENER LA FECHA FINAL
+  * Genera la fecha final (endDate) a partir de la fecha inicial y la duración en minutos. 
+  =============================================================== */
+
+  const getEndDate = (startDate, durationMinutes) => {
+
+    const start = new Date(startDate);
+
+    const end = new Date(
+      start.getTime() + durationMinutes * 60000
+    );
+
+    const formattedEnd =
+      end.getFullYear() +
+      "-" +
+      String(end.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(end.getDate()).padStart(2, "0") +
+      "T" +
+      String(end.getHours()).padStart(2, "0") +
+      ":" +
+      String(end.getMinutes()).padStart(2, "0");
+
+    return formattedEnd;
+  };
+
+  /* =============================================================== 
+  * FUNCION PARA GENERAR EL NUMERO DE RESERVA PARA TRANSPORTE
+  =============================================================== */
+
+
+  const generateReservationNumber = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    const unique = Date.now().toString().slice(-5); 
+
+    return `TR-${year}${month}${day}-${unique}`;
+  };
+
+  /* =============================================================== 
+  * A LOS NUMEROS LES PONE SOLO DOS DECIMALES
+  =============================================================== */
   
-export { numtoDate, monthNames, dayOfWeekNames, formatDate, twoDigitPad, columnsNotifications }
+  const safe = (value) => Number(value || 0).toFixed(2);
+
+
+export { numtoDate, monthNames, dayOfWeekNames, formatDate, twoDigitPad, columnsNotifications, getEndDate, generateReservationNumber, safe}
 
   export const roleVisit = 'visit';
   export const roleSuperAdmin = 'superAdmin';
