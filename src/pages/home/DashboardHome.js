@@ -4,7 +4,8 @@ import "../../style/home/dashboard.css";
 import {
   getDashboardMetrics,
   getUpcomingTrips,
-  getLast7DaysRevenue
+  getLast7DaysRevenue,
+  getActiveDrivers
 } from "../../services/home/dashboardService";
 
 import {
@@ -24,6 +25,7 @@ const DashboardHome = () => {
   const nombreEmpresa = adminData?.companyName || "";
 
   const [metrics, setMetrics] = useState(null);
+  const [activeDrivers, setActiveDrivers] = useState(null);
   const [trips, setTrips] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,9 +41,13 @@ const DashboardHome = () => {
     return "Buenas noches";
   };
 
-  const formatearHora = (timestamp) => {
+  const formatDateTime = (timestamp) => {
     if (!timestamp) return "-";
-    return new Date(timestamp.seconds * 1000).toLocaleTimeString("es-CR", {
+
+    return new Date(timestamp.seconds * 1000).toLocaleString("es-CR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
       hour: "2-digit",
       minute: "2-digit"
     });
@@ -73,8 +79,13 @@ const DashboardHome = () => {
         const metricsData = await getDashboardMetrics(companyId);
         const tripsData = await getUpcomingTrips(companyId);
         const revenue7 = await getLast7DaysRevenue(companyId);
+        const activeDrivers = await getActiveDrivers(companyId);
+
+        console.log(activeDrivers);
+
 
         setMetrics(metricsData);
+        setActiveDrivers(activeDrivers);
         setTrips(tripsData);
         setRevenueData(revenue7);
 
@@ -142,9 +153,9 @@ const DashboardHome = () => {
 
           <div className="kpi-card">
             <h3>Choferes Activos</h3>
-            <p>{metrics?.activeDrivers || 0}</p>
+            <p>{activeDrivers || 0}</p>
             <span className="kpi-description">
-              Choferes trabajando hoy
+              Choferes activos hoy
             </span>
           </div>
 
@@ -171,8 +182,7 @@ const DashboardHome = () => {
               <tr>
                 <th>Hora</th>
                 <th>Cliente</th>
-                <th>Origen</th>
-                <th>Destino</th>
+                <th>Tipo de servicio</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -183,10 +193,9 @@ const DashboardHome = () => {
 
                 return (
                   <tr key={trip.id}>
-                    <td>{formatearHora(trip.date)}</td>
+                    <td>{formatDateTime(trip.date)}</td>
                     <td>{trip.clientName || "-"}</td>
-                    <td>{trip.pickupLocation || "-"}</td>
-                    <td>{trip.dropoffLocation || "-"}</td>
+                    <td>{trip.serviceTypeName || "-"}</td>
                     <td>
                       <span className={`status-badge status-${status}`}>
                         {capitalizar(status)}

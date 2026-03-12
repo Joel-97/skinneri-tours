@@ -12,6 +12,7 @@ import { getCurrencies } from "../../services/settings/currencyService";
 import { getDrivers } from "../../services/settings/driverService";
 import { reservationNumberExists } from "../../services/transportation/transportationService";
 import { getEndDate, generateReservationNumber, safe } from "../../services/Tools";
+import { getPaymentTypes } from "../../services/settings/paymentTypeService";
 
 import { notifySuccess, notifyError } from "../../services/notificationService";
 import "../../style/general/transportationModal.css";
@@ -52,6 +53,7 @@ export default function TransportationModal({
     discountId: "",
     activeTaxIds: [],
     driverId: "",
+    paymentTypeId: "",
   };
 
   /* =======================
@@ -81,6 +83,7 @@ export default function TransportationModal({
   const [discounts, setDiscounts] = useState([]);
   const [currencies, setCurrencies] = useState([]);
   const [drivers, setDrivers] = useState([]);
+  const [paymentTypes, setPaymentTypes] = useState([]);
 
   useEffect(() => {
     if (!companyId) return;
@@ -93,14 +96,16 @@ export default function TransportationModal({
         tx,
         ds,
         cur,
-        dr
+        dr,
+        pt
       ] = await Promise.all([
         getServiceTypes(companyId),
         getLocations(companyId),
         getTaxes(companyId),
         getDiscounts(companyId),
         getCurrencies(companyId),
-        getDrivers(companyId)
+        getDrivers(companyId),
+        getPaymentTypes(companyId)
       ]);
 
       setServiceTypes(st.filter(s => s.isActive));
@@ -109,7 +114,7 @@ export default function TransportationModal({
       setDiscounts(ds.filter(d => d.isActive));
       setCurrencies(cur.filter(c => c.isActive));
       setDrivers(dr.filter(d => d.isActive));
-
+      setPaymentTypes(pt.filter(p => p.isActive));
     };
 
     load();
@@ -307,7 +312,11 @@ export default function TransportationModal({
 
     setForm(prev => {
 
-      const newValue = name === "price" ? Number(value) : value;
+      let newValue = value;
+
+      if (name === "price") {
+        newValue = value === "" ? "" : Number(value);
+      }
 
       const updatedForm = {
         ...prev,
@@ -362,6 +371,16 @@ export default function TransportationModal({
 
   if (!form.clientId) {
     notifyError("Cliente requerido");
+    return;
+  }
+
+  if (!form.locationToId) {
+    notifyError("Lugar de destino requerido");
+    return;
+  }
+
+  if (!form.status) {
+    notifyError("Estado de la reserva requerido");
     return;
   }
 
@@ -498,6 +517,11 @@ export default function TransportationModal({
   const driverOptions = drivers.map(driver => ({
     value: driver.id,
     label: driver.name
+  }));
+
+  const paymentTypeOptions = paymentTypes.map(p => ({
+    value: p.id,
+    label: p.name
   }));
 
   const selectPortal = {
@@ -693,7 +717,7 @@ export default function TransportationModal({
                 type="number"
                 name="passengers"
                 placeholder="Pasajeros"
-                value={form.passengers || 1}
+                value={form.passengers ?? 1}
                 onChange={handleChange}
               />
 
@@ -701,7 +725,7 @@ export default function TransportationModal({
             
             <div className="form-field">
               <label className="field-label">
-                Información de reserva
+                Estado de la reserva <span className="required">*</span>
               </label>
               <Select
                 {...selectPortal}
@@ -724,9 +748,25 @@ export default function TransportationModal({
           </div>
 
           <div className="form-grid two-columns">
+                        
             <div className="form-field">
               <label className="field-label">
-                Chofer asignado <span className="required">*</span>
+                Nº de vuelo 
+              </label>
+
+              <input
+                type="text"
+                name="flightNumber"
+                placeholder="Ej: AA1337"
+                value={form.flightNumber}
+                onChange={handleChange}
+              />
+            
+            </div>
+
+            <div className="form-field">
+              <label className="field-label">
+                Chofer asignado
               </label>
 
               <Select
@@ -746,10 +786,6 @@ export default function TransportationModal({
                 isClearable
               />
 
-            </div>
-            
-            <div className="form-field">
-            
             </div>
 
           </div>
@@ -788,6 +824,32 @@ export default function TransportationModal({
                 />
               </div>
           
+            </div>
+
+            <div className="form-field">
+
+              <label className="field-label">
+                Tipo de pago
+              </label>
+
+              <Select
+                {...selectPortal}
+                options={paymentTypeOptions}
+                value={
+                  paymentTypeOptions.find(
+                    option => option.value === form.paymentTypeId
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setForm(prev => ({
+                    ...prev,
+                    paymentTypeId: selectedOption?.value || ""
+                  }))
+                }
+                placeholder="Seleccionar tipo de pago"
+                isClearable
+              />
+
             </div>
 
 
@@ -829,7 +891,7 @@ export default function TransportationModal({
 
           {/* RESUMEN */}
           <div className="financial-summary">
-            <p>Subtotal: {form.symbol} {safe(form.price)}</p>
+            <p>Subtotal: {console.log(form)} {safe(form.price)}</p>
             <p>Descuento: - {form.symbol} {safe(discountAmount)}</p>
             <p>Impuestos: {form.symbol} {safe(totalTax)}</p>
             <hr />

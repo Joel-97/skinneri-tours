@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 import Loading from "../components/general/loading"; 
+import logoWord from '../assets/Flor_morada.png';
+import { notifySuccess, notifyError } from "../services/notificationService";
+
+
 import "../style/register.css";
 
 const Register = () => {
@@ -22,7 +26,7 @@ const Register = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
+      notifyError("Error","Las contraseñas no coinciden");
       return;
     }
 
@@ -44,57 +48,93 @@ const Register = () => {
   }
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <h2 className="register-title">Solicitud de acceso Admin</h2>
+<div className="register-container">
 
-        <form onSubmit={handleSubmit} className="register-form">
+  <div className="register-card">
 
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="register-input"
-            required
-          />
+    <div className="register-header">
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="register-input"
-            required
-          />
+      <img
+        src={logoWord}
+        alt="Skinneri Tours"
+        className="register-logo"
+      />
 
-          <input
-            type="password"
-            placeholder="Confirmar contraseña"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="register-input"
-            required
-          />
+      <h2 className="register-title">
+        Solicitud de acceso
+      </h2>
 
-          <button type="submit" className="register-button">
-            Solicitar acceso
-          </button>
+      <p className="register-subtitle">
+        Crea una cuenta para solicitar acceso al panel
+      </p>
 
-        </form>
-
-        <p className="register-text">
-          Tu cuenta será revisada por un administrador antes de activarse.
-        </p>
-
-        <button
-          onClick={() => navigate("/login")}
-          className="register-secondary-button"
-        >
-          Volver al login
-        </button>
-      </div>
     </div>
+
+    <form onSubmit={handleSubmit} className="register-form">
+
+      <div className="form-group">
+        <label>Correo electrónico</label>
+        <input
+          type="email"
+          placeholder="correo@empresa.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="register-input"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="register-input"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Confirmar contraseña</label>
+        <input
+          type="password"
+          placeholder="••••••••"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="register-input"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="register-button"
+      >
+        Solicitar acceso
+      </button>
+
+    </form>
+
+    <div className="register-footer">
+
+      <p className="register-text">
+        Tu cuenta será revisada por un administrador antes de activarse.
+      </p>
+
+      <button
+        onClick={() => navigate("/login")}
+        className="register-secondary-button"
+      >
+        Volver al login
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
   );
 };
 

@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
+import logoWord from '../assets/Flor_morada.png';
+import Loading from "../components/general/loading"; 
+
 import "../style/login.css";
 
 const Login = () => {
@@ -57,58 +60,84 @@ const Login = () => {
   };
 
   if (loading) {
-    return (
-      <div className="login-loading">
-        Verificando sesión...
-      </div>
-    );
+    return <div> <Loading /> </div>;
   }
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2 className="login-title">Admin Login</h2>
+  <div className="login-container">
 
-        <form onSubmit={handleSubmit} className="login-form">
+    <div className="login-card">
+
+      <div className="login-header">
+
+        <img
+          src={logoWord}
+          alt="Skinneri Tours"
+          className="login-logo"
+        />
+
+        <h2 className="login-title">Panel administrativo</h2>
+
+        <p className="login-subtitle">
+          Ingresa con tus credenciales
+        </p>
+
+      </div>
+
+      <form onSubmit={handleSubmit} className="login-form">
+
+        <div className="form-group">
+          <label>Correo electrónico</label>
           <input
             type="email"
-            placeholder="Correo electrónico"
+            placeholder="correo@empresa.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="login-input"
             required
           />
+        </div>
 
+        <div className="form-group">
+          <label>Contraseña</label>
           <input
             type="password"
-            placeholder="Contraseña"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="login-input"
             required
           />
+        </div>
 
-          <button
-            type="submit"
-            className="login-button"
-            disabled={submitting}
-          >
-            {submitting ? "Ingresando..." : "Iniciar sesión"}
-          </button>
-        </form>
+        <button
+          type="submit"
+          className="login-button"
+          disabled={submitting}
+        >
+          {submitting ? "Ingresando..." : "Iniciar sesión"}
+        </button>
+
+      </form>
+
+      <div className="login-footer">
 
         <p className="login-text">
-          ¿No tienes acceso? Solicita registro.
+          ¿No tienes acceso?
         </p>
 
         <button
           onClick={() => navigate("/register")}
           className="login-secondary-button"
         >
-          Solicitar acceso admin
+          Solicitar acceso
         </button>
+
       </div>
+
     </div>
+
+  </div>
   );
 };
 

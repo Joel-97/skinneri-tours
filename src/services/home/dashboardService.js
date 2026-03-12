@@ -47,7 +47,7 @@ export const getDashboardMetrics = async (companyId) => {
     const data = doc.data();
     bookingsToday++;
 
-    revenueToday += data.totalAmount || 0;
+    revenueToday += data.total || 0;
 
     if (!data.driverId) {
       unassignedTrips++;
@@ -69,6 +69,11 @@ export const getDashboardMetrics = async (companyId) => {
 export const getUpcomingTrips = async (companyId) => {
   const now = Timestamp.now();
 
+  // Crear fecha límite: ahora + 4 días
+  const fourDaysLaterDate = new Date();
+  fourDaysLaterDate.setDate(fourDaysLaterDate.getDate() + 5);
+  const fourDaysLater = Timestamp.fromDate(fourDaysLaterDate);
+
   const bookingsRef = collection(
     db,
     "companies",
@@ -79,6 +84,7 @@ export const getUpcomingTrips = async (companyId) => {
   const upcomingQuery = query(
     bookingsRef,
     where("date", ">=", now),
+    where("date", "<=", fourDaysLater),
     orderBy("date", "asc")
   );
 
@@ -132,20 +138,32 @@ export const getLast7DaysRevenue = async (companyId) => {
 
     const revenueByDay = {};
 
-    // Inicializar últimos 7 días en 0
+    // Función para obtener fecha local YYYY-MM-DD
+    const formatDateKey = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
+
+    // Inicializar últimos 7 días
     for (let i = 0; i < 7; i++) {
       const d = new Date(sevenDaysAgo);
       d.setDate(sevenDaysAgo.getDate() + i);
-      const key = d.toISOString().split("T")[0];
-      revenueByDay[key] = 0;
+      revenueByDay[formatDateKey(d)] = 0;
     }
 
     snapshot.forEach(doc => {
       const data = doc.data();
-      const date = data.date.toDate();
-      const key = date.toISOString().split("T")[0];
 
-      revenueByDay[key] += data.totalAmount || 0;
+      if (!data.date) return;
+
+      const date = data.date.toDate();
+      const key = formatDateKey(date);
+
+      if (!(key in revenueByDay)) return;
+
+      revenueByDay[key] += Number(data.total || 0);
     });
 
     return Object.keys(revenueByDay).map(date => ({
@@ -157,4 +175,34 @@ export const getLast7DaysRevenue = async (companyId) => {
     console.log("Error getLast7DaysRevenue:", error);
     return [];
   }
+};
+
+export const getActiveDrivers = async (companyId) => {
+
+  try {
+
+    const driversRef = collection(
+      db,
+      `companies/${companyId}/drivers`
+    );
+
+    const activeDriversQuery = query(
+      driversRef,
+      where("isActive", "==", true)
+    );
+
+    const snapshot = await getDocs(activeDriversQuery);
+
+    const activeDrivers = snapshot.size;
+
+    return activeDrivers;
+
+  } catch (error) {
+
+    console.error("Error getting active drivers:", error);
+
+    return 0;
+
+  }
+
 };

@@ -334,7 +334,7 @@ const TransportationList = ({ companyId, user }) => {
                 <th>Cliente</th>
                 <th>Servicio</th>
                 <th>Fecha</th>
-                <th>Fin</th>
+                {/* <th>Fin</th> */}
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -346,9 +346,9 @@ const TransportationList = ({ companyId, user }) => {
                   <td onClick={() => handleEdit(r)}>{r.clientName}</td>
                   <td onClick={() => handleEdit(r)}>{r.serviceTypeName}</td>
                   <td onClick={() => handleEdit(r)}>{formatDate(r.date)}</td>
-                  <td onClick={() => handleEdit(r)}>
+                  {/* <td onClick={() => handleEdit(r)}>
                     {r.endDate ? formatDate(r.endDate) : "-"}
-                  </td>
+                  </td> */}
                   <td>
                     <span className={getStatusClass(r.status)}>
                       {r.status}

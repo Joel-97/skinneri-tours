@@ -79,6 +79,7 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
 
 const Navbars = () => {
   const { user, adminData, company, logout, isSuperAdmin } = UserAuth();
+  const navigate = useNavigate();
 
   // si no hay usuario o está pending → no mostrar navbar
   if (!user || adminData?.status === "pending") return null;
@@ -95,8 +96,12 @@ const Navbars = () => {
         </div>
 
         {/* CENTER */}
-        <div className="navbar-center">
-          {server === 'dev' ? (
+        <div
+          className="navbar-center"
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }}
+        >
+          {server === "dev" ? (
             <span className="test-mode">THIS IS A TEST MODE</span>
           ) : (
             <img
@@ -117,7 +122,6 @@ const Navbars = () => {
         </div>
 
       </Container>
-
     </Navbar>
   );
 };

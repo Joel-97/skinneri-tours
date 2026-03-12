@@ -1,3 +1,2 @@
-//export const server = 'dev';
-export const server = 'bookings';
-
+//export const server = 'beta';
+export const server = 'live';

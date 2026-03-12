@@ -5,6 +5,7 @@ import LocationsSection from "./sections/LocationsSection";
 import ServiceTypesSection from "./sections/ServiceTypesSection";
 import DiscountsSection from "./sections/DiscountsSection";
 import DriversSection from "./sections/DriversSection";
+import PaymentTypesSection from "./sections/PaymentTypesSection";
 import "../../style/settings/settings.css";
 
 const SettingsPage = () => {
@@ -65,6 +66,14 @@ const SettingsPage = () => {
         >
           Choferes
         </button>
+
+        <button
+          className={activeTab === "paymentTypes" ? "active" : ""}
+          onClick={() => setActiveTab("paymentTypes")}
+        >
+          Tipos de pago
+        </button>
+
       </div>
 
       <div className="settings-content">
@@ -75,6 +84,7 @@ const SettingsPage = () => {
         {activeTab === "discounts" && < DiscountsSection />}
         {activeTab === "currency" && < CurrenciesSection />}
         {activeTab === "drivers" && < DriversSection />}
+        {activeTab === "paymentTypes" && < PaymentTypesSection />}
       </div>
 
     </div>

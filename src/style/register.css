@@ -1,81 +1,181 @@
+/* ======================================================
+   CONTAINER
+====================================================== */
+
 .register-container {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f5f6fa;
+
+  background: linear-gradient(
+    135deg,
+    #08204B 0%,
+    #0A2A63 100%
+  );
 }
 
+/* ======================================================
+   LOGO
+====================================================== */
+
+.register-logo{
+  width:100px;
+  margin-bottom:5px;
+  object-fit:contain;
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
 .register-card {
-  background-color: #fff;
+  background: #ffffff;
   padding: 40px;
-  border-radius: 12px;
-  width: 380px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 14px;
+
+  width: 420px;
+  max-width: 92%;
+
+  box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.register-header {
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .register-title {
-  margin-bottom: 20px;
-  text-align: center;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #08204B;
 }
+
+.register-subtitle {
+  font-size: 14px;
+  color: #6B7280;
+  margin-top: 6px;
+}
+
+/* ======================================================
+   FORM
+====================================================== */
 
 .register-form {
   display: flex;
   flex-direction: column;
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+/* ======================================================
+   INPUT
+====================================================== */
+
 .register-input {
-  padding: 12px;
-  margin-bottom: 12px;
+  padding: 12px 14px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #E5E7EB;
+  font-size: 14px;
+
+  transition: border 0.2s, box-shadow 0.2s;
 }
 
 .register-input:focus {
   outline: none;
-  border-color: #173d38;
+  border-color: #5B2D8B;
+  box-shadow: 0 0 0 2px rgba(91,45,139,0.15);
 }
 
+/* ======================================================
+   BUTTON PRIMARY
+====================================================== */
+
 .register-button {
+  margin-top: 10px;
   padding: 12px;
   border-radius: 8px;
+
   border: none;
-  background-color: #173d38;
-  color: #fff;
-  font-weight: bold;
+  background: #08204B;
+  color: #ffffff;
+
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+
+  transition: all 0.2s ease;
 }
 
 .register-button:hover {
-  opacity: 0.9;
+  background: #0A2A63;
 }
 
-.register-secondary-button {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #173d38;
-  background-color: transparent;
-  color: #173d38;
-  cursor: pointer;
-  transition: 0.2s;
-}
+/* ======================================================
+   FOOTER
+====================================================== */
 
-.register-secondary-button:hover {
-  background-color: #173d38;
-  color: #fff;
+.register-footer {
+  margin-top: 20px;
+  text-align: center;
 }
 
 .register-text {
-  margin-top: 15px;
-  text-align: center;
-  font-size: 14px;
+  font-size: 13px;
+  color: #6B7280;
+  margin-bottom: 10px;
 }
 
-.section-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 0;
+/* ======================================================
+   SECONDARY BUTTON
+====================================================== */
+
+.register-secondary-button {
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  border: 1px solid #5B2D8B;
+  background: transparent;
+
+  color: #5B2D8B;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.register-secondary-button:hover {
+  background: #5B2D8B;
+  color: #ffffff;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 480px) {
+
+  .register-card {
+    padding: 28px;
+  }
+
+  .register-title {
+    font-size: 20px;
+  }
+
 }

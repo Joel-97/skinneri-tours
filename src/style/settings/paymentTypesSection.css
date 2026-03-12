@@ -1,0 +1,145 @@
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.payment-types-container {
+  margin: 0 auto;
+  padding: 32px 50px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.payment-types-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.payment-types-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.payment-types-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.payment-types-content {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.payment-types-table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.payment-types-table th,
+.payment-types-table td {
+  text-align: left;
+  padding: 14px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-types-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* Hover suave */
+
+.payment-types-table tbody tr:hover {
+  background-color: #f9fafb;
+  transition: 0.2s ease;
+}
+
+/* ======================================================
+   BADGES
+====================================================== */
+
+.badge-active {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.payment-types-empty {
+  padding: 40px;
+  background: #f9fafb;
+  border-radius: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.payment-types-content::-webkit-scrollbar {
+  height: 6px;
+}
+
+.payment-types-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .payment-types-container {
+    padding: 20px 16px;
+  }
+
+  .payment-types-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .payment-types-header .btn-primary {
+    width: 100%;
+  }
+
+  .payment-types-table {
+    min-width: 600px;
+  }
+
+}
