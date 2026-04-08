@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import logoWord from '../../assets/Logo_izquierda_blanco_peq.png';
 
 import { UserAuth } from '../../context/AuthContext';
-import { server } from '../../services/serverName/Bookings';
+import { server } from '../../services/serverName/Server';
 
 import '../../style/style.css';
 import '../../style/navbar.css';
@@ -47,6 +47,10 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
 
         <Dropdown.Item onClick={() => navigate("/settings")}>
           Configuración
+        </Dropdown.Item>
+
+        <Dropdown.Item onClick={() => navigate("/reports")}>
+          Reportes
         </Dropdown.Item>
 
         {isSuperAdmin && (

@@ -1,5 +1,6 @@
 import { db } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { server } from '../serverName/Server';
 
 export const listenCompanies = (callback) => {
   const ref = collection(db, "companies");

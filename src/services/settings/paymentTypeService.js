@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
+import { server } from '../serverName/Server';
 
 /* ===============================
    GET PAYMENT TYPES
@@ -82,13 +83,7 @@ export const togglePaymentTypeStatus = async (
   currentStatus
 ) => {
 
-  const ref = doc(
-    db,
-    "companies",
-    companyId,
-    "paymentTypes",
-    id
-  );
+  const ref = doc(db, "companies", companyId, "paymentTypes", id);
 
   await updateDoc(ref, {
     isActive: !currentStatus

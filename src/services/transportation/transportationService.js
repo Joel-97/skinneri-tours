@@ -11,6 +11,7 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { server } from '../serverName/Server';
 
 /* =========================================================
    OBTENER RESERVAS
@@ -60,12 +61,7 @@ export const createTransportation = async (companyId, data, user) => {
     throw error;
   }
 
-  const transportationRef = collection(
-    db,
-    "companies",
-    companyId,
-    "transportation"
-  );
+  const transportationRef = collection(db, "companies", companyId, "transportation");
 
   return await addDoc(transportationRef, {
 
@@ -115,13 +111,9 @@ export const updateTransportation = async (
     throw error;
   }
 
-  const ref = doc(
-    db,
-    "companies",
-    companyId,
-    "transportation",
-    id
-  );
+  const ref = doc(db, "companies", companyId, "transportation", id);
+
+  console.log("data",data);
 
   return await updateDoc(ref, {
 

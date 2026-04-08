@@ -139,17 +139,16 @@ function twoDigitPad(num) {
   * FUNCION PARA GENERAR EL NUMERO DE RESERVA PARA TRANSPORTE
   =============================================================== */
 
-
   const generateReservationNumber = () => {
     const now = new Date();
 
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
 
-    const unique = Date.now().toString().slice(-5); 
+    const random = Math.floor(10000 + Math.random() * 90000);
+    const extra = Date.now().toString().slice(-2); // 2 dígitos extra
 
-    return `TR-${year}${month}${day}-${unique}`;
+    return `TR-${day}${month}-${random}${extra}`;
   };
 
   /* =============================================================== 
