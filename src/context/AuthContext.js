@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import Swal from "sweetalert2";
+import { server } from '../services/serverName/Server';
 
 const AuthContext = createContext();
 
@@ -156,11 +157,11 @@ export const AuthProvider = ({ children }) => {
         createdAt: new Date()
       });
 
-      Swal.fire({
-        icon: "success",
-        title: "Solicitud enviada",
-        text: "Tu cuenta está pendiente de aprobación"
-      });
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "Solicitud enviada",
+      //   text: "Tu cuenta está pendiente de aprobación"
+      // });
 
       return true;
 

@@ -7,6 +7,7 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { server } from '../serverName/Server';
 
 /* ===============================
    GET SERVICE TYPES
@@ -108,20 +109,24 @@ export const createServiceType = async (
         }
       : null;
 
-  // 🔹 Validar si tiene valor
-  if (
-    driverPayment.value !== null &&
-    driverPayment.value < 0
-  ) {
-    throw new Error("El pago al chofer no puede ser negativo.");
-  }
+  // 🔹 VALIDACIONES SEGURAS (🔥 AQUÍ ESTABA EL BUG)
+  if (driverPayment) {
 
-  if (
-    driverPayment.type === "percentage" &&
-    driverPayment.value !== null &&
-    driverPayment.value > 100
-  ) {
-    throw new Error("La comisión no puede ser mayor a 100%.");
+    if (
+      driverPayment.value !== null &&
+      driverPayment.value < 0
+    ) {
+      throw new Error("El pago al chofer no puede ser negativo.");
+    }
+
+    if (
+      driverPayment.type === "percentage" &&
+      driverPayment.value !== null &&
+      driverPayment.value > 100
+    ) {
+      throw new Error("La comisión no puede ser mayor a 100%.");
+    }
+
   }
 
   // ========================
@@ -138,7 +143,7 @@ export const createServiceType = async (
       symbol,
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
-      driverPayment, // 👈 NUEVO CAMPO
+      driverPayment, // 👈 puede ser null o válido
       isActive: data.isActive ?? true,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -204,11 +209,10 @@ export const updateServiceType = async (
   let symbol = data.symbol ?? null;
 
   if (data.pricingMode === "fixed") {
-
-    if (!basePrice || basePrice <= 0) {
+    if (!basePrice || Number(basePrice) <= 0) {
       throw new Error("El precio base debe ser mayor a 0.");
     }
-
+    basePrice = Number(basePrice);
   } else {
     basePrice = null;
   }
@@ -227,7 +231,11 @@ export const updateServiceType = async (
       );
     }
   }
-  
+
+  // ========================
+  // DRIVER PAYMENT
+  // ========================
+
   const driverPayment =
     data.driverPayment?.enabled
       ? {
@@ -241,6 +249,26 @@ export const updateServiceType = async (
         }
       : null;
 
+  // 🔥 VALIDACIONES SEGURAS
+  if (driverPayment) {
+
+    if (
+      driverPayment.value !== null &&
+      driverPayment.value < 0
+    ) {
+      throw new Error("El pago al chofer no puede ser negativo.");
+    }
+
+    if (
+      driverPayment.type === "percentage" &&
+      driverPayment.value !== null &&
+      driverPayment.value > 100
+    ) {
+      throw new Error("La comisión no puede ser mayor a 100%.");
+    }
+
+  }
+
   return await updateDoc(
     doc(db, "companies", companyId, "serviceTypes", serviceTypeId),
     {
@@ -251,14 +279,13 @@ export const updateServiceType = async (
       symbol,
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
-      driverPayment, // 👈 ahora puede ser null
+      driverPayment, // 👈 puede ser null o válido
       isActive: data.isActive,
       updatedAt: Timestamp.now(),
       updatedBy: user.uid
     }
   );
 };
-
 
 /* ===============================
    TOGGLE STATUS

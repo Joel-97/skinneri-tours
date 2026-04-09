@@ -7,6 +7,7 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { server } from '../serverName/Server';
 
 // 🔹 Obtener rango de hoy (00:00 - 23:59)
 const getTodayRange = () => {
@@ -71,15 +72,10 @@ export const getUpcomingTrips = async (companyId) => {
 
   // Crear fecha límite: ahora + 4 días
   const fourDaysLaterDate = new Date();
-  fourDaysLaterDate.setDate(fourDaysLaterDate.getDate() + 5);
+  fourDaysLaterDate.setDate(fourDaysLaterDate.getDate() + 7);
   const fourDaysLater = Timestamp.fromDate(fourDaysLaterDate);
 
-  const bookingsRef = collection(
-    db,
-    "companies",
-    companyId,
-    "transportation"
-  );
+  const bookingsRef = collection(db, "companies", companyId, "transportation");
 
   const upcomingQuery = query(
     bookingsRef,
@@ -118,12 +114,7 @@ export const getLast7DaysRevenue = async (companyId) => {
   const start = Timestamp.fromDate(sevenDaysAgo);
   const end = Timestamp.fromDate(today);
 
-  const bookingsRef = collection(
-    db,
-    "companies",
-    companyId,
-    "transportation"
-  );
+  const bookingsRef = collection(db, "companies", companyId, "transportation");
 
   const q = query(
     bookingsRef,
@@ -181,10 +172,7 @@ export const getActiveDrivers = async (companyId) => {
 
   try {
 
-    const driversRef = collection(
-      db,
-      `companies/${companyId}/drivers`
-    );
+    const driversRef = collection(db, `companies/${companyId}/drivers`);
 
     const activeDriversQuery = query(
       driversRef,

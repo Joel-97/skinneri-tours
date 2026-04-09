@@ -39,6 +39,8 @@ export default function TransportationModal({
 
     serviceTypeId: "",
     serviceTypeName: "",
+    serviceCategory: "", // 🔥 NUEVO
+
     locationFromId: "",
     locationToId: "",
 
@@ -49,11 +51,28 @@ export default function TransportationModal({
     notes: "",
 
     currency: "",
+
+    // 💰 BASE
     price: 0,
+
+    // 🔻 DESCUENTO
     discountId: "",
+    discountAmount: 0,
+
+    // 🧾 IMPUESTOS
     activeTaxIds: [],
+    taxAmount: 0,
+
+    // 🧮 RESULTADOS (CLAVE PARA REPORTES)
+    subtotal: 0,
+    total: 0,
+
+    // 👤 SNAPSHOTS
     driverId: "",
+    driverName: "",
+
     paymentTypeId: "",
+    paymentTypeName: ""
   };
 
   /* =======================
@@ -155,7 +174,8 @@ export default function TransportationModal({
         ...reservation, // si viene del calendario
         date: formatDate(reservation?.date),
         endDate: formatDate(reservation?.endDate),
-        activeTaxIds: taxes.map(t => t.id),
+        //activeTaxIds: taxes.map(t => t.id),
+        activeTaxIds: [],
         reservationNumber: generateReservationNumber()
       });
 
@@ -167,13 +187,12 @@ export default function TransportationModal({
     // =========================
     if (!reservation) return;
 
-    setForm({
-      ...reservation,
-      date: formatDate(reservation.date),
-      endDate: formatDate(reservation.endDate),
-      activeTaxIds:
-        reservation.taxBreakdown?.map(t => t.taxId) || []
-    });
+setForm({
+  ...reservation,
+  date: formatDate(reservation.date),
+  endDate: formatDate(reservation.endDate),
+  activeTaxIds: reservation.activeTaxIds || []
+});
 
   }, [reservation, mode, taxes]);
 
@@ -369,30 +388,30 @@ export default function TransportationModal({
 
   const handleSubmit = async () => {
 
-  if (!form.clientId) {
-    notifyError("Cliente requerido");
-    return;
-  }
+    if (!form.clientId) {
+      notifyError("Cliente requerido");
+      return;
+    }
 
-  if (!form.locationToId) {
-    notifyError("Lugar de destino requerido");
-    return;
-  }
+    if (!form.locationToId) {
+      notifyError("Lugar de destino requerido");
+      return;
+    }
 
-  if (!form.status) {
-    notifyError("Estado de la reserva requerido");
-    return;
-  }
+    if (!form.status) {
+      notifyError("Estado de la reserva requerido");
+      return;
+    }
 
-  if (!form.serviceTypeId) {
-    notifyError("Selecciona tipo de servicio.");
-    return;
-  }
+    if (!form.serviceTypeId) {
+      notifyError("Selecciona tipo de servicio.");
+      return;
+    }
 
-  let updatedForm = { ...form };
+    let updatedForm = { ...form };
 
-  // 🔹 Generar número solo si es nueva reserva
-  if (mode === "create") {
+    // 🔹 Generar número si es nueva
+    if (mode === "create") {
       let newNumber;
       let exists = true;
 
@@ -404,14 +423,36 @@ export default function TransportationModal({
       updatedForm.reservationNumber = newNumber;
     }
 
+    // 🔥 SNAPSHOTS (CLAVE PARA REPORTES)
+    const selectedDriver = drivers.find(d => d.id === form.driverId);
+    const selectedPayment = paymentTypes.find(p => p.id === form.paymentTypeId);
+    const selectedService = serviceTypes.find(s => s.id === form.serviceTypeId);
+
+    // 🔥 DATOS FINANCIEROS (CONGELADOS)
     const financialData = {
       ...updatedForm,
-      subtotal: updatedForm.price,
+
+      // 💰 BASE
+      subtotal: Number(form.price || 0),
+
+      // 🔻 DESCUENTO
       discountAmount: Number(discountAmount.toFixed(2)),
-      subtotalAfterDiscount: Number(subtotalAfterDiscount.toFixed(2)),
-      taxBreakdown,
-      totalTax,
-      total
+
+      // 🧾 IMPUESTOS
+      taxAmount: Number(totalTax.toFixed(2)),
+
+      // 🧮 TOTAL FINAL
+      total: Number(total.toFixed(2)),
+
+      // 🔍 SNAPSHOTS
+      driverName: selectedDriver?.name || "",
+      paymentTypeName: selectedPayment?.name || "",
+      serviceCategory: selectedService?.category || "transport",
+
+      // 🔎 OPCIONAL (muy útil después)
+      dateString: form.date ? form.date.slice(0, 10) : "",
+      month: form.date ? form.date.slice(0, 7) : "",
+      year: form.date ? form.date.slice(0, 4) : ""
     };
 
     onSave(financialData);

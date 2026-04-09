@@ -30,6 +30,10 @@ const DashboardHome = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   /* ===============================
      Helpers
   =============================== */
@@ -53,12 +57,12 @@ const DashboardHome = () => {
     });
   };
 
-    const formatearMoneda = (monto) => {
+  const formatearMoneda = (monto) => {
     return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD"
+      style: "currency",
+      currency: "USD"
     }).format(monto || 0);
-    };
+  };
 
   const capitalizar = (texto) => {
     if (!texto) return "";
@@ -81,9 +85,6 @@ const DashboardHome = () => {
         const revenue7 = await getLast7DaysRevenue(companyId);
         const activeDrivers = await getActiveDrivers(companyId);
 
-        console.log(activeDrivers);
-
-
         setMetrics(metricsData);
         setActiveDrivers(activeDrivers);
         setTrips(tripsData);
@@ -98,6 +99,17 @@ const DashboardHome = () => {
 
     loadData();
   }, [companyId]);
+
+  // 🔥 RESET PAGINACIÓN cuando cambia trips
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [trips]);
+
+  // 🔥 LÓGICA PAGINACIÓN
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentTrips = trips.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(trips.length / itemsPerPage);
 
   return (
     <div className="dashboard-container">
@@ -177,35 +189,56 @@ const DashboardHome = () => {
             <p>No hay servicios programados próximamente 🎉</p>
           </div>
         ) : (
-          <table className="trips-table">
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>Cliente</th>
-                <th>Tipo de servicio</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
+          <>
+            <table className="trips-table">
+              <thead>
+                <tr>
+                  <th>Hora</th>
+                  <th>Cliente</th>
+                  <th>Tipo de servicio</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {trips.map((trip) => {
-                const status = trip.status || "pendiente";
+              <tbody>
+                {currentTrips.map((trip) => {
+                  const status = trip.status || "pendiente";
 
-                return (
-                  <tr key={trip.id}>
-                    <td>{formatDateTime(trip.date)}</td>
-                    <td>{trip.clientName || "-"}</td>
-                    <td>{trip.serviceTypeName || "-"}</td>
-                    <td>
-                      <span className={`status-badge status-${status}`}>
-                        {capitalizar(status)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={trip.id}>
+                      <td>{formatDateTime(trip.date)}</td>
+                      <td>{trip.clientName || "-"}</td>
+                      <td>{trip.serviceTypeName || "-"}</td>
+                      <td>
+                        <span className={`status-badge status-${status}`}>
+                          {capitalizar(status)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* 🔥 PAGINACIÓN UI */}
+            <div className="pagination">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+              >
+                ←
+              </button>
+
+              <span>{currentPage} / {totalPages}</span>
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+              >
+                →
+              </button>
+            </div>
+          </>
         )}
       </div>
 

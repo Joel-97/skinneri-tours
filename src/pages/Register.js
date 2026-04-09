@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
-import Loading from "../components/general/loading"; 
+import Loading from "../components/general/loading";
 import logoWord from '../assets/Flor_morada.png';
 import { notifySuccess, notifyError } from "../services/notificationService";
-
 
 import "../style/register.css";
 
@@ -15,6 +14,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [companyName, setCompanyName] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -24,6 +24,11 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!companyName.trim()) {
+      notifyError("Error", "Debes ingresar el nombre de la empresa");
+      return;
+    }
 
     if (password !== confirmPassword) {
       notifyError("Error","Las contraseñas no coinciden");
@@ -35,14 +40,21 @@ const Register = () => {
       return;
     }
 
-    await registerAdmin(email, password);
+    await registerAdmin(email, password, companyName);
+
+    // notifySuccess(
+    //   "Solicitud enviada",
+    //   "Tu solicitud será revisada por un administrador"
+    // );
+
     navigate("/login");
   };
+  
 
   if (loading) {
     return (
       <div className="section-loading">
-          <Loading />
+        <Loading />
       </div>
     );
   }
@@ -71,6 +83,18 @@ const Register = () => {
     </div>
 
     <form onSubmit={handleSubmit} className="register-form">
+
+      <div className="form-group">
+        <label>Nombre de la empresa</label>
+        <input
+          type="text"
+          placeholder="Nombre de la empresa"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          className="register-input"
+          required
+        />
+      </div>
 
       <div className="form-group">
         <label>Correo electrónico</label>

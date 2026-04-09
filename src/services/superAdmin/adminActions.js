@@ -1,5 +1,6 @@
 import { db } from "../../firebase";
 import { doc, updateDoc, collection, addDoc, getDoc } from "firebase/firestore";
+import { server } from '../serverName/Server';
 
 // -------------------- CREAR EMPRESA --------------------
 export const createCompany = async (companyName) => {
@@ -77,7 +78,6 @@ export const enableAdmin = async (adminId) => {
   });
 };
 
-
 // -------------------- MOVER (CAMBIAR) DE EMPRESA ADMIN --------------------
 export const changeAdminCompany = async (adminId, companyId) => {
   const adminRef = doc(db, "admins", adminId);
@@ -95,4 +95,3 @@ export const changeAdminRole = async (adminId, role) => {
     role
   });
 };
-

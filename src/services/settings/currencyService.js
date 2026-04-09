@@ -9,6 +9,7 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { server } from '../serverName/Server';
 
 export const getCurrencies = async (companyId) => {
   const snapshot = await getDocs(
@@ -78,7 +79,7 @@ export const updateCurrency = async (companyId, currencyId, data, user) => {
 export const toggleCurrencyStatus = async (companyId, currencyId, currentStatus) => {
 
   const snapshot = await getDocs(
-    collection(db, "companies", companyId, "currencies")
+    collection(db,  "companies", companyId, "currencies")
   );
 
   const currencies = snapshot.docs.map(d => ({

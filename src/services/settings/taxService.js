@@ -9,6 +9,7 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase"; // ajusta si tu ruta cambia
+import { server } from '../serverName/Server';
 
 // Obtener todos los impuestos
 export const getTaxes = async (companyId) => {

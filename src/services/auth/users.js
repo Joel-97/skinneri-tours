@@ -3,7 +3,7 @@ import { query, collection, getDocs, doc, setDoc, deleteDoc, updateDoc, where } 
 import { auth, db } from '../../firebase';
 import Swal from "sweetalert2";
 import { v4 as uuid } from "uuid";
-import { server } from '../serverName/Bookings';
+import { server } from '../serverName/Server';
 import { roleVisit } from '../Tools';
 
 export const getDataUsers = async (setdata, setPending = null) => {

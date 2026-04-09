@@ -10,6 +10,7 @@ import Loading from "../../../components/general/loading";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
+import Pagination from "../../../components/general/pagination";
 import {
   notifySuccess,
   notifyError,
@@ -27,6 +28,16 @@ const DriversSection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // 🔥 PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentDrivers = drivers.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(drivers.length / rowsPerPage);
 
   const [form, setForm] = useState({
     name: "",
@@ -57,6 +68,13 @@ const DriversSection = () => {
   useEffect(() => {
     loadDrivers();
   }, [companyId]);
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, drivers]);
 
   /* =========================
      RESET
@@ -258,39 +276,62 @@ const DriversSection = () => {
       )}
 
       
-    <table className="drivers-table">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        {drivers.map(driver => (
-            <tr key={driver.id}>
-            <td>{driver.name}</td>
-            <td>{driver.phone}</td>
-            <td>{driver.driverType}</td>
-            <td>
-                <span className={driver.isActive ? "badge-active" : "badge-inactive"}>
-                {driver.isActive ? "Activo" : "Inactivo"}
-                </span>
-            </td>
-            <td>
-                <button className="btn-link" onClick={() => handleEdit(driver)}>
-                Editar
-                </button>
-                <button className="btn-link" onClick={() => handleToggle(driver)}>
-                {driver.isActive ? "Desactivar" : "Activar"}
-                </button>
-            </td>
+
+      <div className="drivers-table-wrapper">
+        <table className="drivers-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-        ))}
-        </tbody>
-    </table>
+          </thead>
+
+          <tbody>
+            {currentDrivers.map(driver => (
+              <tr key={driver.id}>
+                <td>{driver.name}</td>
+                <td>{driver.phone}</td>
+                <td>{driver.driverType}</td>
+
+                <td>
+                  <span className={driver.isActive ? "badge-active" : "badge-inactive"}>
+                    {driver.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                </td>
+
+                <td>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(driver)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="btn-link"
+                    onClick={() => handleToggle(driver)}
+                  >
+                    {driver.isActive ? "Desactivar" : "Activar"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 🔥 PAGINACIÓN */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+        onRowsChange={setRowsPerPage}
+      />
+
 
     </div>
   );

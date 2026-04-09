@@ -2,16 +2,16 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
 
-import '../style/booking.css';
+import '../style/reports.css';
 import '../style/style.css';
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
-import CalendarTransportations from '../components/calendars/calendarTransportation';
-import TransportationList from '../components/reservations/transportation/transportationList';
+import TransportationReport from './reports/transportationReport';
+// import TransportationList from '../components/reservations/transportation/transportationList';
 
-const Bookings = () => {
+const Reports = () => {
 
     const { tap } = useParams();
     const { companyId, user } = UserAuth();
@@ -34,17 +34,17 @@ const Bookings = () => {
                     <Tabs defaultIndex={defaultTabIndex === 0 ? 0 : 1}>
 
                         <TabList>
-                            <Tab>Calendario</Tab>
-                            <Tab>Lista de reservas</Tab>
+                            <Tab>Reportes de Transportes</Tab>
+                            {/* <Tab>Lista de reservas</Tab> */}
                         </TabList>
 
                         <TabPanel>
-                            <CalendarTransportations companyId={companyId} user={user} />
+                            <TransportationReport companyId={companyId} />
                         </TabPanel>
 
-                        <TabPanel>
+                        {/* <TabPanel>
                             <TransportationList companyId={companyId} user={user}/>
-                        </TabPanel>
+                        </TabPanel> */}
 
                     </Tabs>
 
@@ -54,4 +54,4 @@ const Bookings = () => {
     );
 };
 
-export default Bookings;
+export default Reports;

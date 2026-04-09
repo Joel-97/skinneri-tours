@@ -16,6 +16,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import ClientsPage from "./pages/clients/ClientsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import DashboardHome from "./pages/home/DashboardHome";
+import Reports from "./pages/Reports";
 
 function App() {
   return (
@@ -91,6 +92,18 @@ function App() {
                   <SettingsPage />
                 </>
               </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <>
+                <Navbar />
+                <Reports />
+              </>
             </ProtectedRoute>
           }
         />
