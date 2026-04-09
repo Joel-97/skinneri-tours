@@ -8,6 +8,7 @@ import {
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
+import Pagination from "../../../components/general/pagination";
 import {
   notifySuccess,
   notifyError,
@@ -25,6 +26,16 @@ const CurrenciesSection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // 🔥 PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentCurrencies = currencies.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(currencies.length / rowsPerPage);
 
   const [form, setForm] = useState({
     code: "",
@@ -47,6 +58,13 @@ const CurrenciesSection = () => {
   useEffect(() => {
     loadCurrencies();
   }, [companyId]);
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, currencies]);
 
   const resetForm = () => {
     setForm({
@@ -201,74 +219,89 @@ const CurrenciesSection = () => {
         </Modal>
       )}
 
+
       { currencies.length === 0 ? (
         <p>No hay monedas creadas.</p>
       ) : (
-      <div className="currencies-table-wrapper">
-        <table className="currencies-table">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Símbolo</th>
-              <th>Predeterminada</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currencies.map((currency) => (
-              <tr key={currency.id}>
-                <td>{currency.code}</td>
-                <td>{currency.name}</td>
-                <td>{currency.symbol}</td>
-                <td>
-                  {currency.isDefault && (
-                    <span className="badge-default">⭐ Sí</span>
-                  )}
-                </td>
-                <td>
-                  <span className={currency.isActive ? "badge-active" : "badge-inactive"}>
-                    {currency.isActive ? "Activa" : "Inactiva"}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn-link"
-                    onClick={() => handleEdit(currency)}
-                  >
-                    Editar
-                  </button>
-
-                <button
-                    className="btn-link"
-                    onClick={async () => {
-                    try {
-                        await toggleCurrencyStatus(
-                        companyId,
-                        currency.id,
-                        currency.isActive
-                        );
-
-                        notifySuccess("Moneda actualizada", "Los cambios fueron guardados.");
-                        loadCurrencies();
-
-                    } catch (error) {
-                        notifyError("Error", "Debe existir al menos una moneda activa");
-                    }
-                    }}
-
-                    >
-                    {currency.isActive ? "Desactivar" : "Activar"}
-                </button>
-
-                </td>
+      <>
+        <div className="currencies-table-wrapper">
+          <table className="currencies-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Símbolo</th>
+                <th>Predeterminada</th>
+                <th>Estado</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-       </div>
+            </thead>
 
+            <tbody>
+              {currentCurrencies.map((currency) => (
+                <tr key={currency.id}>
+                  <td>{currency.code}</td>
+                  <td>{currency.name}</td>
+                  <td>{currency.symbol}</td>
+
+                  <td>
+                    {currency.isDefault && (
+                      <span className="badge-default">⭐ Sí</span>
+                    )}
+                  </td>
+
+                  <td>
+                    <span className={currency.isActive ? "badge-active" : "badge-inactive"}>
+                      {currency.isActive ? "Activa" : "Inactiva"}
+                    </span>
+                  </td>
+
+                  <td>
+                    <button
+                      className="btn-link"
+                      onClick={() => handleEdit(currency)}
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="btn-link"
+                      onClick={async () => {
+                        try {
+                          await toggleCurrencyStatus(
+                            companyId,
+                            currency.id,
+                            currency.isActive
+                          );
+
+                          notifySuccess("Moneda actualizada", "Los cambios fueron guardados.");
+                          loadCurrencies();
+
+                        } catch (error) {
+                          notifyError("Error", "Debe existir al menos una moneda activa");
+                        }
+                      }}
+                    >
+                      {currency.isActive ? "Desactivar" : "Activar"}
+                    </button>
+
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 🔥 PAGINACIÓN REUTILIZABLE */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setCurrentPage}
+          onRowsChange={setRowsPerPage}
+        />
+
+      </>
       )}
 
     </div>

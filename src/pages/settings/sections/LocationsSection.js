@@ -8,6 +8,7 @@ import {
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
+import Pagination from "../../../components/general/pagination";
 import {
   notifySuccess,
   notifyError,
@@ -26,6 +27,15 @@ const LocationsSection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentLocations = locations.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(locations.length / rowsPerPage);
 
   const [form, setForm] = useState({
     name: "",
@@ -49,6 +59,15 @@ const LocationsSection = () => {
   useEffect(() => {
     cargarLocations();
   }, [companyId]);
+
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, locations]);
 
   /* =========================
      RESET FORM
@@ -221,49 +240,61 @@ const LocationsSection = () => {
             <p>No hay lugares registrados todavía.</p>
           </div>
         ) : (
-        <div className="locations-table-wrapper">
-          <table className="locations-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {locations.map(location => (
-                <tr key={location.id}>
-                  <td>{location.name}</td>
-
-                  <td>
-                    <span className={location.isActive ? "badge-active" : "badge-inactive"}>
-                      {location.isActive ? "Activo" : "Inactivo"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <button
-                      className="btn-link"
-                      onClick={() => handleEdit(location)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-link"
-                      onClick={() => handleToggle(location)}
-                    >
-                      {location.isActive ? "Desactivar" : "Activar"}
-                    </button>
-                  </td>
-
+        <>
+          <div className="locations-table-wrapper">
+            <table className="locations-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
 
+              <tbody>
+                {currentLocations.map(location => (
+                  <tr key={location.id}>
+                    <td>{location.name}</td>
+
+                    <td>
+                      <span className={location.isActive ? "badge-active" : "badge-inactive"}>
+                        {location.isActive ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <button
+                        className="btn-link"
+                        onClick={() => handleEdit(location)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn-link"
+                        onClick={() => handleToggle(location)}
+                      >
+                        {location.isActive ? "Desactivar" : "Activar"}
+                      </button>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 🔥 PAGINACIÓN */}
+
+          <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              rowsPerPage={rowsPerPage}
+              onPageChange={setCurrentPage}
+              onRowsChange={setRowsPerPage}
+            />
+
+        </>
         )}
 
       </div>

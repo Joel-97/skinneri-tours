@@ -1,0 +1,89 @@
+/* ======================================================
+   CSS de paginación de la tabla
+====================================================== */
+
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+/* LEFT */
+.rows-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.rows-selector select {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 60px;
+}
+
+/* RIGHT */
+.page-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.page-controls button {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.page-controls button:hover:not(:disabled) {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.page-controls button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.page-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-controls span {
+  font-weight: 500;
+}
+
+/* ACCESSIBILITY */
+.page-controls button:focus-visible,
+.rows-selector select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .table-pagination {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .page-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

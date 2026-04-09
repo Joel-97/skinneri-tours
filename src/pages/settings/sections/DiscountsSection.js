@@ -11,6 +11,7 @@ import { getCurrencies } from "../../../services/settings/currencyService";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
+import Pagination from "../../../components/general/pagination";
 import Loading from "../../../components/general/loading";
 
 import {
@@ -32,6 +33,16 @@ const DiscountsSection = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // 🔥 PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentDiscounts = discounts.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(discounts.length / rowsPerPage);
 
   const [form, setForm] = useState({
     name: "",
@@ -58,6 +69,13 @@ const DiscountsSection = () => {
   useEffect(() => {
     loadData();
   }, [companyId]);
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, discounts]);
 
   /* ================= RESET FORM ================= */
 
@@ -295,82 +313,96 @@ const DiscountsSection = () => {
         {discounts.length === 0 ? (
           <p>No hay descuentos registrados.</p>
         ) : (
-        <div className="discounts-table-wrapper">
-          <table className="discounts-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Valor</th>
-                <th>Expira</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+        <>
+          <div className="discounts-table-wrapper">
+            <table className="discounts-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Valor</th>
+                  <th>Expira</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {discounts.map(discount => {
+              <tbody>
+                {currentDiscounts.map(discount => {
 
-                const expired =
-                  discount.expirationDate &&
-                  discount.expirationDate.toDate() < new Date();
+                  const expired =
+                    discount.expirationDate &&
+                    discount.expirationDate.toDate() < new Date();
 
-                return (
-                  <tr key={discount.id}>
-                    <td>{discount.name}</td>
+                  return (
+                    <tr key={discount.id}>
+                      <td>{discount.name}</td>
 
-                    <td>
-                      {discount.type === "percentage"
-                        ? "Porcentaje"
-                        : "Fijo"}
-                    </td>
+                      <td>
+                        {discount.type === "percentage"
+                          ? "Porcentaje"
+                          : "Fijo"}
+                      </td>
 
-                    <td>
-                      {discount.type === "percentage"
-                        ? `${discount.value}%`
-                        : `${discount.currency} ${discount.value}`}
-                    </td>
+                      <td>
+                        {discount.type === "percentage"
+                          ? `${discount.value}%`
+                          : `${discount.currency} ${discount.value}`}
+                      </td>
 
-                    <td>
-                      {discount.expirationDate
-                        ? discount.expirationDate.toDate().toLocaleDateString()
-                        : "-"}
-                    </td>
+                      <td>
+                        {discount.expirationDate
+                          ? discount.expirationDate.toDate().toLocaleDateString()
+                          : "-"}
+                      </td>
 
-                    <td>
-                      <span className={
-                        discount.isActive && !expired
-                          ? "badge-active"
-                          : "badge-inactive"
-                      }>
-                        {expired ? "Expirado" :
-                         discount.isActive ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
+                      <td>
+                        <span className={
+                          discount.isActive && !expired
+                            ? "badge-active"
+                            : "badge-inactive"
+                        }>
+                          {expired
+                            ? "Expirado"
+                            : discount.isActive
+                              ? "Activo"
+                              : "Inactivo"}
+                        </span>
+                      </td>
 
-                    <td>
-                      <button
-                        className="btn-link"
-                        onClick={() => handleEdit(discount)}
-                      >
-                        Editar
-                      </button>
+                      <td>
+                        <button
+                          className="btn-link"
+                          onClick={() => handleEdit(discount)}
+                        >
+                          Editar
+                        </button>
 
-                      <button
-                        className="btn-link"
-                        onClick={() => handleToggle(discount)}
-                      >
-                        {discount.isActive ? "Desactivar" : "Activar"}
-                      </button>
-                    </td>
+                        <button
+                          className="btn-link"
+                          onClick={() => handleToggle(discount)}
+                        >
+                          {discount.isActive ? "Desactivar" : "Activar"}
+                        </button>
+                      </td>
 
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-  
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 🔥 PAGINACIÓN REUTILIZABLE */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            rowsPerPage={rowsPerPage}
+            onPageChange={setCurrentPage}
+            onRowsChange={setRowsPerPage}
+          />
+
+        </>
         )}
 
       </div>

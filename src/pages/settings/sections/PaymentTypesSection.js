@@ -8,7 +8,7 @@ import {
 
 import Loading from "../../../components/general/loading";
 import Modal from "../../../components/general/modal";
-
+import Pagination from "../../../components/general/pagination";
 import { UserAuth } from "../../../context/AuthContext";
 import {
   notifySuccess,
@@ -27,6 +27,16 @@ const PaymentTypesSection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // 🔥 PAGINACIÓN
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentPaymentTypes = paymentTypes.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(paymentTypes.length / rowsPerPage);
 
   const [form, setForm] = useState({
     name: "",
@@ -53,6 +63,14 @@ const PaymentTypesSection = () => {
   useEffect(() => {
     loadPaymentTypes();
   }, [companyId]);
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, paymentTypes]);
 
   /* =========================
      RESET
@@ -256,63 +274,68 @@ const PaymentTypesSection = () => {
         </Modal>
 
       )}
+    
+      <div className="payment-types-table-wrapper">
+        <table className="payment-types-table">
 
-      <table className="payment-types-table">
-
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          {paymentTypes.map(paymentType => (
-
-            <tr key={paymentType.id}>
-
-              <td>{paymentType.name}</td>
-
-              <td>{paymentType.description}</td>
-
-              <td>
-                <span className={
-                  paymentType.isActive
-                    ? "badge-active"
-                    : "badge-inactive"
-                }>
-                  {paymentType.isActive ? "Activo" : "Inactivo"}
-                </span>
-              </td>
-
-              <td>
-
-                <button
-                  className="btn-link"
-                  onClick={() => handleEdit(paymentType)}
-                >
-                  Editar
-                </button>
-
-                <button
-                  className="btn-link"
-                  onClick={() => handleToggle(paymentType)}
-                >
-                  {paymentType.isActive ? "Desactivar" : "Activar"}
-                </button>
-
-              </td>
-
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
+          </thead>
 
-          ))}
+          <tbody>
+            {currentPaymentTypes.map(paymentType => (
+              <tr key={paymentType.id}>
 
-        </tbody>
+                <td>{paymentType.name}</td>
 
-      </table>
+                <td>{paymentType.description}</td>
+
+                <td>
+                  <span className={
+                    paymentType.isActive
+                      ? "badge-active"
+                      : "badge-inactive"
+                  }>
+                    {paymentType.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                </td>
+
+                <td>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(paymentType)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="btn-link"
+                    onClick={() => handleToggle(paymentType)}
+                  >
+                    {paymentType.isActive ? "Desactivar" : "Activar"}
+                  </button>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
+
+      {/* 🔥 PAGINACIÓN */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+        onRowsChange={setRowsPerPage}
+      />
 
     </div>
 

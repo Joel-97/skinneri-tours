@@ -11,6 +11,7 @@ import { UserAuth } from "../../../context/AuthContext";
 import "../../../style/settings/taxSettings.css";
 // import "../../style/settings/settings.css";
 import Modal from "../../../components/general/modal";
+import Pagination from "../../../components/general/pagination";
 import { getCurrencies } from "../../../services/settings/currencyService";
 import {
   notifySuccess,
@@ -28,6 +29,16 @@ const TaxesSettings = () => {
   const [loading, setLoading] = useState(true);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [currencies, setCurrencies] = useState([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+
+  const currentTaxes = taxes.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(taxes.length / rowsPerPage);
+
 
   const [form, setForm] = useState({
     name: "",
@@ -54,6 +65,14 @@ const TaxesSettings = () => {
     if (!companyId) return;
     cargarImpuestos();
   }, [companyId]);
+
+  /* =========================
+    Reset automático de paginación
+  ========================== */
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage, taxes]);
 
   // Bloquear scroll cuando el modal está abierto
   useEffect(() => {
@@ -326,108 +345,117 @@ const TaxesSettings = () => {
         { taxes.length === 0 ? (
           <p>No hay impuestos creados todavía.</p>
         ) : (
-        <div className="taxes-table-wrapper">
-          <table className="taxes-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Tasa</th>
-                <th>Predeterminado</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {taxes.map((tax) => (
-                <tr key={tax.id}>
-                  <td>{tax.name}</td>
-
-                  <td>
-                    {tax.type === "percentage"
-                      ? `${tax.rate}%`
-                      : `${getCurrencySymbol(tax.currency)}${tax.rate}`
-                    }
-                  </td>
-
-                  <td>
-                    {tax.isDefault && (
-                      <span className="badge-default">
-                        ⭐ Sí
-                      </span>
-                    )}
-                  </td>
-
-                  <td>
-                    <span
-                      className={
-                        tax.isActive
-                          ? "badge-active"
-                          : "badge-inactive"
-                      }
-                    >
-                      {tax.isActive
-                        ? "Activo"
-                        : "Inactivo"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <button
-                      className="btn-link"
-                      onClick={() => handleEdit(tax)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-link"
-                      onClick={async () => {
-
-                        const confirmed = await notifyConfirm(
-                          `¿Deseas ${tax.isActive ? "desactivar" : "activar"} este impuesto?`
-                        );
-
-                        if (!confirmed) return;
-
-                        try {
-
-                          await toggleTaxStatus(
-                            companyId,
-                            tax.id,
-                            tax.isActive
-                          );
-
-                          notifySuccess(
-                            "Estado actualizado",
-                            `El impuesto fue ${tax.isActive ? "desactivado" : "activado"} correctamente.`
-                          );
-
-                          cargarImpuestos();
-
-                        } catch (error) {
-
-                          console.error("Error cambiando estado:", error);
-
-                          notifyError(
-                            "No se pudo actualizar",
-                            error.message || "Ocurrió un error inesperado."
-                          );
-
-                        }
-
-                      }}
-                    >
-                      {tax.isActive ? "Desactivar" : "Activar"}
-                    </button>
-
-                  </td>
+        <>
+          <div className="taxes-table-wrapper">
+            <table className="taxes-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tasa</th>
+                  <th>Predeterminado</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
 
+              <tbody>
+                {currentTaxes.map((tax) => (
+                  <tr key={tax.id}>
+                    <td>{tax.name}</td>
+
+                    <td>
+                      {tax.type === "percentage"
+                        ? `${tax.rate}%`
+                        : `${getCurrencySymbol(tax.currency)}${tax.rate}`
+                      }
+                    </td>
+
+                    <td>
+                      {tax.isDefault && (
+                        <span className="badge-default">
+                          ⭐ Sí
+                        </span>
+                      )}
+                    </td>
+
+                    <td>
+                      <span
+                        className={
+                          tax.isActive
+                            ? "badge-active"
+                            : "badge-inactive"
+                        }
+                      >
+                        {tax.isActive ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <button
+                        className="btn-link"
+                        onClick={() => handleEdit(tax)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn-link"
+                        onClick={async () => {
+
+                          const confirmed = await notifyConfirm(
+                            `¿Deseas ${tax.isActive ? "desactivar" : "activar"} este impuesto?`
+                          );
+
+                          if (!confirmed) return;
+
+                          try {
+
+                            await toggleTaxStatus(
+                              companyId,
+                              tax.id,
+                              tax.isActive
+                            );
+
+                            notifySuccess(
+                              "Estado actualizado",
+                              `El impuesto fue ${tax.isActive ? "desactivado" : "activado"} correctamente.`
+                            );
+
+                            cargarImpuestos();
+
+                          } catch (error) {
+
+                            console.error("Error cambiando estado:", error);
+
+                            notifyError(
+                              "No se pudo actualizar",
+                              error.message || "Ocurrió un error inesperado."
+                            );
+
+                          }
+
+                        }}
+                      >
+                        {tax.isActive ? "Desactivar" : "Activar"}
+                      </button>
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 🔥 PAGINACIÓN REUTILIZABLE */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            rowsPerPage={rowsPerPage}
+            onPageChange={setCurrentPage}
+            onRowsChange={setRowsPerPage}
+          />
+
+        </>
         )}
 
       </div>
