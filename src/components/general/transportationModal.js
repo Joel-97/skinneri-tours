@@ -326,46 +326,53 @@ setForm({
   ===================================================== */
 
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     setForm(prev => {
-
       let newValue = value;
 
+      // Solo price es número
       if (name === "price") {
         newValue = value === "" ? "" : Number(value);
       }
 
-      const updatedForm = {
+      let updatedForm = {
         ...prev,
         [name]: newValue
       };
 
-      // Solo recalcular si cambia fecha o servicio
+      // Actualizar nombre del servicio (IDs tipo string)
+      if (name === "serviceTypeId") {
+        const selectedService = serviceTypes.find(
+          s => s.id === newValue
+        );
+
+        updatedForm.serviceTypeName = selectedService?.name || "";
+      }
+
+      // Recalcular endDate
       if (name === "date" || name === "serviceTypeId") {
 
         const date = name === "date" ? newValue : prev.date;
 
         const serviceId =
-          name === "serviceTypeId" ? Number(newValue) : prev.serviceTypeId;
+          name === "serviceTypeId" ? newValue : prev.serviceTypeId;
 
         const selectedService = serviceTypes.find(
           s => s.id === serviceId
         );
 
         if (date && selectedService?.durationMinutes) {
-
           updatedForm.endDate = getEndDate(
             date,
             selectedService.durationMinutes
           );
-
+        } else {
+          updatedForm.endDate = "";
         }
       }
 
       return updatedForm;
-
     });
   };
 
@@ -662,15 +669,12 @@ setForm({
                   ) || null
                 }
                 onChange={(selectedOption) => {
-                  const selectedService = serviceTypes.find(
-                    s => s.id === selectedOption.value
-                  );
-
-                  setForm(prev => ({
-                    ...prev,
-                    serviceTypeId: selectedOption?.value || "",
-                    serviceTypeName: selectedService?.name || ""
-                  }));
+                  handleChange({
+                    target: {
+                      name: "serviceTypeId",
+                      value: selectedOption?.value || ""
+                    }
+                  });
                 }}
                 placeholder="Seleccionar tipo"
                 isClearable
@@ -807,7 +811,7 @@ setForm({
 
             <div className="form-field">
               <label className="field-label">
-                Staff asignado
+                Colaborador asignado
               </label>
 
               <Select
@@ -821,7 +825,7 @@ setForm({
                   staffId: selectedOption?.value || ""
                 }))
                 }
-                placeholder="Seleccionar staff"
+                placeholder="Seleccionar colaborador"
                 className="react-select-container"
                 classNamePrefix="react-select"
                 isClearable
