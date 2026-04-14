@@ -31,6 +31,32 @@
   margin: 4px 0 0;
 }
 
+/* DERECHA */
+.serviceTypes-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* INPUT */
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 220px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.serviceTypes-header .btn-primary {
+  width: 100%;
+}
+
+
 /* ======================================================
    TABLE
 ====================================================== */

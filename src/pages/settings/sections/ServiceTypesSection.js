@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import {
   getServiceTypes,
   createServiceType,
   updateServiceType,
   toggleServiceTypeStatus
-} from "../../../services/settings/serviceTypeService";
+} from "../../../services/settings/general/serviceTypeService";
 
-import { getCurrencies } from "../../../services/settings/currencyService";
+import { getCurrencies } from "../../../services/settings/general/currencyService";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
@@ -18,8 +18,8 @@ import {
   notifyConfirm
 } from "../../../services/notificationService";
 
-import "../../../style/settings/serviceTypesSection.css";
-import Loading from "../../../components/general/loading"; 
+import "../../../style/settings/transportation/serviceTypesSection.css";
+import Loading from "../../../components/general/loading";
 
 const ServiceTypesSection = () => {
 
@@ -36,14 +36,43 @@ const ServiceTypesSection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  // 🔍 búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const currentServiceTypes = serviceTypes.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(serviceTypes.length / rowsPerPage);
+  /* =========================
+     FILTRO
+  ========================== */
+
+  const filteredServiceTypes = useMemo(() => {
+    if (!searchTerm) return serviceTypes;
+
+    const term = searchTerm.toLowerCase();
+
+    return serviceTypes.filter((type) => (
+      type.name?.toLowerCase().includes(term) ||
+      type.category?.toLowerCase().includes(term) ||
+      type.pricingMode?.toLowerCase().includes(term)
+    ));
+  }, [serviceTypes, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredServiceTypes.length / rowsPerPage);
+
+  const currentServiceTypes = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredServiceTypes.slice(start, start + rowsPerPage);
+  }, [filteredServiceTypes, currentPage, rowsPerPage]);
+
+  /* =========================
+     FORM
+  ========================== */
 
   const [form, setForm] = useState({
     name: "",
+    category: "",
     pricingMode: "fixed",
     basePrice: "",
     currency: "",
@@ -52,10 +81,10 @@ const ServiceTypesSection = () => {
     durationUnit: "minutes",
     durationMinutes: null,
     color: "#0a2a63",
-    driverPayment: {
+    staffPayment: {
       enabled: false,
-      type: "fixed",      // "fixed" | "percentage"
-      value: ""           // número
+      type: "fixed",
+      value: ""
     },
     isActive: true
   });
@@ -67,29 +96,31 @@ const ServiceTypesSection = () => {
   const loadData = async () => {
     if (!companyId) return;
 
-    const types = await getServiceTypes(companyId);
-    const curr = await getCurrencies(companyId);
+    try {
+      const types = await getServiceTypes(companyId);
+      const curr = await getCurrencies(companyId);
 
-    const ordered = types.sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+      const ordered = types.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
 
-    setServiceTypes(ordered);
-    setCurrencies(curr.filter(c => c.isActive));
-    setLoading(false);
+      setServiceTypes(ordered);
+      setCurrencies(curr.filter(c => c.isActive));
+    } catch (error) {
+      notifyError("Error cargando datos", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadData();
   }, [companyId]);
 
-  /* =========================
-    Reset automático de paginación
-  ========================== */
-
+  // reset page cuando cambia filtro o tamaño
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, serviceTypes]);
+  }, [rowsPerPage, searchTerm]);
 
   /* =========================
      RESET FORM
@@ -98,21 +129,29 @@ const ServiceTypesSection = () => {
   const resetForm = () => {
     setForm({
       name: "",
+      category: "",
       pricingMode: "fixed",
       basePrice: "",
       currency: "",
       symbol: "",
+      durationValue: "",
+      durationUnit: "minutes",
       color: "#0a2a63",
-      driverPayment: {
+      staffPayment: {
         enabled: false,
-        type: "fixed",      // "fixed" | "percentage"
-        value: ""           // número
+        type: "fixed",
+        value: ""
       },
       isActive: true
     });
+
     setEditingId(null);
     setShowForm(false);
   };
+
+  /* =========================
+     OPTIONS
+  ========================== */
 
   const pricingOptions = [
     { value: "fixed", label: "Precio fijo" },
@@ -131,7 +170,6 @@ const ServiceTypesSection = () => {
     { value: "days", label: "Días" }
   ];
 
-
   /* =========================
      SUBMIT
   ========================== */
@@ -139,31 +177,16 @@ const ServiceTypesSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name) {
-      notifyError("Error","El nombre es obligatorio.");
-      return;
-    }
+    if (!form.name) return notifyError("Error", "Nombre requerido");
+    if (!form.category) return notifyError("Error", "Categoría requerida");
+    if (!form.durationValue) return notifyError("Error", "Duración requerida");
 
-    if (!form.durationValue) {
-      notifyError("Error","La duración del servicio es obligatoria.");
-      return;
-    }
-
-    // 🔥 VALIDACIÓN DRIVER PAYMENT
-    if (form.driverPayment?.enabled) {
-      if (
-        form.driverPayment.value === "" ||
-        form.driverPayment.value === null ||
-        form.driverPayment.value === undefined
-      ) {
-        notifyError("Error", "Debe ingresar el pago al chofer.");
-        return;
-      }
+    if (form.staffPayment?.enabled && !form.staffPayment.value) {
+      return notifyError("Error", "Debe ingresar el pago al staff");
     }
 
     try {
 
-      // 🔹 Calcular duración en minutos (opcional)
       let durationMinutes = null;
 
       if (form.durationValue) {
@@ -171,31 +194,19 @@ const ServiceTypesSection = () => {
           durationMinutes = Number(form.durationValue);
         } else if (form.durationUnit === "hours") {
           durationMinutes = Number(form.durationValue) * 60;
-        } else if (form.durationUnit === "days") {
-          durationMinutes = Number(form.durationValue) * 60 * 24;
+        } else {
+          durationMinutes = Number(form.durationValue) * 1440;
         }
       }
 
-      const finalForm = {
-        ...form,
-        durationMinutes
-      };
+      const finalForm = { ...form, durationMinutes };
 
       if (editingId) {
-        await updateServiceType(
-          companyId,
-          editingId,
-          finalForm,
-          user
-        );
-        notifySuccess("Tipo actualizado correctamente.");
+        await updateServiceType(companyId, editingId, finalForm, user);
+        notifySuccess("Tipo de servicio actualizado");
       } else {
-        await createServiceType(
-          companyId,
-          finalForm,
-          user
-        );
-        notifySuccess("Tipo creado correctamente.");
+        await createServiceType(companyId, finalForm, user);
+        notifySuccess("Tipo de servicio creado");
       }
 
       resetForm();
@@ -205,7 +216,6 @@ const ServiceTypesSection = () => {
       notifyError("Error", error.message);
     }
   };
-
 
   /* =========================
      EDIT
@@ -217,7 +227,6 @@ const ServiceTypesSection = () => {
     let durationUnit = "minutes";
 
     if (type.durationMinutes) {
-
       if (type.durationMinutes % 1440 === 0) {
         durationValue = type.durationMinutes / 1440;
         durationUnit = "days";
@@ -226,13 +235,12 @@ const ServiceTypesSection = () => {
         durationUnit = "hours";
       } else {
         durationValue = type.durationMinutes;
-        durationUnit = "minutes";
       }
-
     }
 
     setForm({
       name: type.name || "",
+      category: type.category || "",
       pricingMode: type.pricingMode || "fixed",
       basePrice: type.basePrice ?? "",
       currency: type.currency || "",
@@ -240,24 +248,17 @@ const ServiceTypesSection = () => {
       durationValue,
       durationUnit,
       color: type.color || "#0a2a63",
-
-      driverPayment: {
-        enabled: type.driverPayment?.enabled ?? false,
-        type: type.driverPayment?.type || "fixed",
-        value:
-          type.driverPayment?.value !== null &&
-          type.driverPayment?.value !== undefined
-            ? String(type.driverPayment.value)
-            : ""
+      staffPayment: {
+        enabled: type.staffPayment?.enabled ?? false,
+        type: type.staffPayment?.type || "fixed",
+        value: type.staffPayment?.value != null ? String(type.staffPayment.value) : ""
       },
-
       isActive: type.isActive ?? true
     });
 
     setEditingId(type.id);
     setShowForm(true);
   };
-
 
   /* =========================
      TOGGLE
@@ -266,48 +267,45 @@ const ServiceTypesSection = () => {
   const handleToggle = async (type) => {
 
     const confirmed = await notifyConfirm(
-      `¿Deseas ${type.isActive ? "desactivar" : "activar"} este tipo de servicio?`
+      `¿Deseas ${type.isActive ? "desactivar" : "activar"} este tipo?`
     );
 
     if (!confirmed) return;
 
     try {
-
       await toggleServiceTypeStatus(
         companyId,
         type.id,
-        type.isActive
+        type.isActive,
+        type.category
       );
 
-      notifySuccess("Estado actualizado.");
+      notifySuccess("Estado actualizado");
       loadData();
 
     } catch (error) {
-      notifyError("Error",error.message);
+      notifyError("Error", error.message);
     }
   };
+
+  /* =========================
+     PRICING MODE
+  ========================== */
 
   const handlePricingModeChange = (selectedOption) => {
 
     const newMode = selectedOption?.value || "";
 
-    setForm(prev => {
-
-      // Si no cambió el modo, no hacer nada
-      if (prev.pricingMode === newMode) return prev;
-
-      return {
-        ...prev,
-        pricingMode: newMode,
-
-        // 🔥 Reset automático
-        basePrice: "",
-      };
-    });
+    setForm(prev => ({
+      ...prev,
+      pricingMode: newMode,
+      basePrice: ""
+    }));
   };
 
-
-  /* ================= RENDER ================= */
+  /* =========================
+     RENDER
+  ========================== */
 
   if (loading) return <Loading />;
 
@@ -315,17 +313,33 @@ const ServiceTypesSection = () => {
     <div className="serviceTypes-container">
 
       <div className="serviceTypes-header">
-        <div>
+
+        {/* IZQUIERDA */}
+        <div className="serviceTypes-header-left">
           <h3>Tipos de servicio</h3>
           <p>Define cómo se calcula el precio de cada servicio.</p>
         </div>
 
-        <button
-          className="btn-primary"
-          onClick={() => setShowForm(true)}
-        >
-          + Agregar tipo
-        </button>
+        {/* DERECHA */}
+        <div className="serviceTypes-header-right">
+
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Buscar tipo de servicio..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <button
+            className="btn-primary"
+            onClick={() => setShowForm(true)}
+          >
+            + Agregar tipo
+          </button>
+
+        </div>
+
       </div>
 
       {showForm && (
@@ -336,6 +350,35 @@ const ServiceTypesSection = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="modal-form">
+
+            {/* ================= CATEGORÍA ================= */}
+            <div className="form-group">
+              <label>Categoría</label>
+              <Select
+                options={[
+                  { value: "transportation", label: "Transporte" },
+                  { value: "adventure", label: "Aventura" }
+                ]}
+                value={
+                  form.category
+                    ? {
+                        value: form.category,
+                        label:
+                          form.category === "transportation"
+                            ? "Transporte"
+                            : "Aventura"
+                      }
+                    : null
+                }
+                onChange={(option) =>
+                  setForm({
+                    ...form,
+                    category: option?.value || ""
+                  })
+                }
+                placeholder="Seleccionar categoría"
+              />
+            </div>
 
             {/* ================= NOMBRE ================= */}
             <div className="form-group">
@@ -361,7 +404,6 @@ const ServiceTypesSection = () => {
                   ) || null
                 }
                 onChange={handlePricingModeChange}
-                placeholder="Seleccionar modo de precio"
                 isClearable={false}
               />
             </div>
@@ -380,32 +422,33 @@ const ServiceTypesSection = () => {
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      basePrice: e.target.value === "" ? "" : Number(e.target.value)
+                      basePrice:
+                        e.target.value === "" ? "" : Number(e.target.value)
                     })
                   }
-                  placeholder="Ej: 150"
                 />
               </div>
             )}
 
-            {/* ================= PAGO AL CHOFER ================= */}
+            {/* ================= STAFF PAYMENT ================= */}
             <div className="form-group">
 
               <div className="section-header">
-                <label className="section-title">Pago al chofer</label>
+                <label className="section-title">
+                  Pago al staff / guía
+                </label>
 
-                {/* TOGGLE */}
                 <label className="switch">
                   <input
                     type="checkbox"
-                    checked={form.driverPayment?.enabled || false}
+                    checked={form.staffPayment?.enabled || false}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        driverPayment: {
-                          ...(form.driverPayment || {}),
+                        staffPayment: {
+                          ...(form.staffPayment || {}),
                           enabled: e.target.checked,
-                          value: "" // limpia cuando cambia estado
+                          value: ""
                         }
                       })
                     }
@@ -414,20 +457,20 @@ const ServiceTypesSection = () => {
                 </label>
               </div>
 
-              {/* SOLO SE MUESTRA SI ESTÁ ACTIVADO */}
-              {form.driverPayment?.enabled && (
+              {form.staffPayment?.enabled && (
                 <>
                   <div className="driver-type-toggle">
+
                     <label className="radio-option">
                       <input
                         type="radio"
                         value="fixed"
-                        checked={form.driverPayment?.type === "fixed"}
+                        checked={form.staffPayment?.type === "fixed"}
                         onChange={(e) =>
                           setForm({
                             ...form,
-                            driverPayment: {
-                              ...form.driverPayment,
+                            staffPayment: {
+                              ...form.staffPayment,
                               type: e.target.value,
                               value: ""
                             }
@@ -441,12 +484,12 @@ const ServiceTypesSection = () => {
                       <input
                         type="radio"
                         value="percentage"
-                        checked={form.driverPayment?.type === "percentage"}
+                        checked={form.staffPayment?.type === "percentage"}
                         onChange={(e) =>
                           setForm({
                             ...form,
-                            driverPayment: {
-                              ...form.driverPayment,
+                            staffPayment: {
+                              ...form.staffPayment,
                               type: e.target.value,
                               value: ""
                             }
@@ -455,25 +498,25 @@ const ServiceTypesSection = () => {
                       />
                       <span>Comisión (%)</span>
                     </label>
+
                   </div>
 
                   <input
                     type="number"
                     min="0"
-                    max={form.driverPayment?.type === "percentage" ? "100" : undefined}
-                    step="0.01"
+                    max={form.staffPayment?.type === "percentage" ? "100" : undefined}
                     className="modern-input"
                     placeholder={
-                      form.driverPayment?.type === "fixed"
+                      form.staffPayment?.type === "fixed"
                         ? `Ej: ${form.symbol || ""} 25`
                         : "Ej: 20 %"
                     }
-                    value={form.driverPayment?.value || ""}
+                    value={form.staffPayment?.value || ""}
                     onChange={(e) =>
                       setForm({
                         ...form,
-                        driverPayment: {
-                          ...form.driverPayment,
+                        staffPayment: {
+                          ...form.staffPayment,
                           value: e.target.value
                         }
                       })
@@ -495,20 +538,18 @@ const ServiceTypesSection = () => {
                       (option) => option.value === form.currency
                     ) || null
                   }
-                  onChange={(selectedOption) => {
+                  onChange={(selectedOption) =>
                     setForm({
                       ...form,
                       currency: selectedOption?.value || "",
                       symbol: selectedOption?.symbol || ""
-                    });
-                  }}
-                  placeholder="Seleccionar"
-                  isClearable
+                    })
+                  }
                 />
               </div>
 
               <div className="form-group">
-                <label>Color del servicio</label>
+                <label>Color</label>
                 <input
                   type="color"
                   value={form.color}
@@ -525,7 +566,7 @@ const ServiceTypesSection = () => {
 
             {/* ================= DURACIÓN ================= */}
             <div className="form-group">
-              <label>Duración estimada</label>
+              <label>Duración</label>
 
               <div className="duration-row">
                 <input
@@ -535,10 +576,10 @@ const ServiceTypesSection = () => {
                   onChange={(e) =>
                     setForm({
                       ...form,
-                      durationValue: e.target.value === "" ? "" : Number(e.target.value)
+                      durationValue:
+                        e.target.value === "" ? "" : Number(e.target.value)
                     })
                   }
-                  placeholder="Cantidad"
                 />
 
                 <Select
@@ -555,7 +596,6 @@ const ServiceTypesSection = () => {
                     })
                   }
                   isSearchable={false}
-                  isClearable={false}
                 />
               </div>
             </div>
@@ -596,96 +636,100 @@ const ServiceTypesSection = () => {
         </Modal>
       )}
 
+      {/* ================= TABLA ================= */}
+
       <div className="serviceTypes-content">
 
-        { serviceTypes.length === 0 ? (
+        {serviceTypes.length === 0 ? (
           <p>No hay tipos registrados.</p>
         ) : (
-        <>
-          <div className="serviceTypes-table-wrapper">
-            <table className="serviceTypes-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Modo</th>
-                  <th>Precio</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {currentServiceTypes.map(type => (
-                  <tr key={type.id}>
-                    <td>
-                      <div className="service-name-cell">
-                        <span
-                          className="color-dot"
-                          style={{ backgroundColor: type.color || "#3B82F6" }}
-                        />
-                        {type.name}
-                      </div>
-                    </td>
-
-                    <td>
-                      <span className={
-                        type.pricingMode === "fixed"
-                          ? "badge-fixed"
-                          : "badge-manual"
-                      }>
-                        {type.pricingMode === "fixed" ? "Precio fijo" : "Manual"}
-                      </span>
-                    </td>
-
-                    <td>
-                      {type.pricingMode === "fixed"
-                        ? `${type.symbol ?? type.currency ?? ""} ${type.basePrice ?? 0}`
-                        : "-"}
-                    </td>
-
-                    <td>
-                      <span className={type.isActive ? "badge-active" : "badge-inactive"}>
-                        {type.isActive ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
-
-                    <td>
-                      <button
-                        className="btn-link"
-                        onClick={() => handleEdit(type)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        className="btn-link"
-                        onClick={() => handleToggle(type)}
-                      >
-                        {type.isActive ? "Desactivar" : "Activar"}
-                      </button>
-                    </td>
+          <>
+            <div className="serviceTypes-table-wrapper">
+              <table className="serviceTypes-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Modo</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
 
-          {/* 🔥 PAGINACIÓN REUTILIZABLE */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setCurrentPage}
-            onRowsChange={setRowsPerPage}
-          />
+                <tbody>
+                  {currentServiceTypes.map(type => (
+                    <tr key={type.id}>
 
-        </>
+                      <td>
+                        <div className="service-name-cell">
+                          <span
+                            className="color-dot"
+                            style={{ backgroundColor: type.color || "#3B82F6" }}
+                          />
+                          {type.name}
+                        </div>
+                      </td>
+
+                      <td>
+                        {type.category === "transportation"
+                          ? "Transporte"
+                          : "Aventura"}
+                      </td>
+
+                      <td>
+                        {type.pricingMode === "fixed"
+                          ? "Precio fijo"
+                          : "Manual"}
+                      </td>
+
+                      <td>
+                        {type.pricingMode === "fixed"
+                          ? `${type.symbol ?? ""} ${type.basePrice ?? 0}`
+                          : "-"}
+                      </td>
+
+                      <td>
+                        {type.isActive ? "Activo" : "Inactivo"}
+                      </td>
+
+                      <td>
+                        <button
+                          className="btn-link"
+                          onClick={() => handleEdit(type)}
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          className="btn-link"
+                          onClick={() => handleToggle(type)}
+                        >
+                          {type.isActive ? "Desactivar" : "Activar"}
+                        </button>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              rowsPerPage={rowsPerPage}
+              onPageChange={setCurrentPage}
+              onRowsChange={setRowsPerPage}
+            />
+          </>
         )}
 
       </div>
 
     </div>
   );
+  
 };
 
 export default ServiceTypesSection;

@@ -2,7 +2,7 @@
    CONTAINER
 ====================================================== */
 
-.payment-types-container {
+.currencies-container {
   margin: 0 auto;
   padding: 32px 50px;
 }
@@ -11,7 +11,7 @@
    HEADER
 ====================================================== */
 
-.payment-types-header {
+.currencies-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,85 +19,106 @@
   margin-bottom: 28px;
 }
 
-.payment-types-header h3 {
+.currencies-header h3 {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
 }
 
-.payment-types-header p {
+.currencies-header p {
   font-size: 14px;
   color: #6b7280;
   margin: 4px 0 0;
 }
 
+.currencies-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 200px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.currencies-header .btn-primary {
+  width: 100%;
+}
+
 /* ======================================================
-   CONTENT
+   CONTENT (por si agregas tabla o cards)
 ====================================================== */
 
-.payment-types-content {
+.currencies-content {
+  margin-top: 20px;
+}
+
+/* ======================================================
+   TABLE (si la usas)
+====================================================== */
+
+.currencies-table-wrapper {
   overflow-x: auto;
   border-radius: 12px;
 }
 
-/* ======================================================
-   TABLE
-====================================================== */
-
-.payment-types-table {
+.currencies-table {
   width: 100%;
-  min-width: 650px;
+  min-width: 600px; /* evita compresión en móvil */
   border-collapse: collapse;
   background: #ffffff;
 }
 
-.payment-types-table th,
-.payment-types-table td {
+.currencies-content {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.currencies-content table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.currencies-content th,
+.currencies-content td {
   text-align: left;
   padding: 14px 12px;
   font-size: 14px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.payment-types-table th {
+.currencies-content th {
   background-color: #f9fafb;
   font-weight: 600;
 }
 
-/* Hover suave */
+/* Scrollbar elegante */
 
-.payment-types-table tbody tr:hover {
-  background-color: #f9fafb;
-  transition: 0.2s ease;
+.currencies-content::-webkit-scrollbar {
+  height: 6px;
 }
 
-/* ======================================================
-   BADGES
-====================================================== */
-
-.badge-active {
-  background-color: #dcfce7;
-  color: #166534;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.badge-inactive {
-  background-color: #fee2e2;
-  color: #991b1b;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
+.currencies-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 /* ======================================================
    EMPTY STATE
 ====================================================== */
 
-.payment-types-empty {
+.currencies-empty {
   padding: 40px;
   background: #f9fafb;
   border-radius: 12px;
@@ -107,39 +128,22 @@
 }
 
 /* ======================================================
-   SCROLLBAR
-====================================================== */
-
-.payment-types-content::-webkit-scrollbar {
-  height: 6px;
-}
-
-.payment-types-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-/* ======================================================
    RESPONSIVE
 ====================================================== */
 
 @media (max-width: 768px) {
 
-  .payment-types-container {
+  .currencies-container {
     padding: 20px 16px;
   }
 
-  .payment-types-header {
+  .currencies-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .payment-types-header .btn-primary {
+  .currencies-header .btn-primary {
     width: 100%;
-  }
-
-  .payment-types-table {
-    min-width: 600px;
   }
 
 }

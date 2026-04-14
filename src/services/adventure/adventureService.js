@@ -11,12 +11,12 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import { server } from '../serverName/Server';
+// import { server } from '../serverName/Server';
 
 /* =========================================================
-   OBTENER RESERVAS
+   OBTENER RESERVAS (ADVENTURES)
 ========================================================= */
-export const getTransportation = async (companyId) => {
+export const getAdventures = async (companyId) => {
 
   if (!companyId) {
     const error = new Error("company_required");
@@ -25,7 +25,7 @@ export const getTransportation = async (companyId) => {
   }
 
   const q = query(
-    collection(db, "companies", companyId, "transportation"),
+    collection(db, "companies", companyId, "adventure"),
     orderBy("date", "asc")
   );
 
@@ -39,9 +39,9 @@ export const getTransportation = async (companyId) => {
 
 
 /* =========================================================
-   CREAR RESERVA
+   CREAR RESERVA (ADVENTURE)
 ========================================================= */
-export const createTransportation = async (companyId, data, user) => {
+export const createAdventure = async (companyId, data, user) => {
 
   if (!companyId) {
     const error = new Error("company_required");
@@ -61,9 +61,9 @@ export const createTransportation = async (companyId, data, user) => {
     throw error;
   }
 
-  const transportationRef = collection(db, "companies", companyId, "transportation");
+  const adventureRef = collection(db, "companies", companyId, "adventure");
 
-  return await addDoc(transportationRef, {
+  return await addDoc(adventureRef, {
 
     ...data,
 
@@ -83,10 +83,11 @@ export const createTransportation = async (companyId, data, user) => {
   });
 };
 
+
 /* =========================================================
-   ACTUALIZAR RESERVA
+   ACTUALIZAR RESERVA (ADVENTURE)
 ========================================================= */
-export const updateTransportation = async (
+export const updateAdventure = async (
   companyId,
   id,
   data,
@@ -111,7 +112,7 @@ export const updateTransportation = async (
     throw error;
   }
 
-  const ref = doc(db, "companies", companyId, "transportation", id);
+  const ref = doc(db, "companies", companyId, "adventure", id);
 
   return await updateDoc(ref, {
 
@@ -129,10 +130,11 @@ export const updateTransportation = async (
   });
 };
 
+
 /* =========================================================
-   ELIMINAR RESERVA
+   ELIMINAR RESERVA (ADVENTURE)
 ========================================================= */
-export const deleteTransportation = async (companyId, id) => {
+export const deleteAdventure = async (companyId, id) => {
 
   if (!companyId) {
     const error = new Error("company_required");
@@ -146,19 +148,19 @@ export const deleteTransportation = async (companyId, id) => {
     throw error;
   }
 
-  const ref = doc(db, "companies", companyId, "transportation", id);
+  const ref = doc(db, "companies", companyId, "adventure", id);
 
   return await deleteDoc(ref);
 };
 
+
 /* =========================================================
    VERIFICAR SI EXISTE NUMERO DE RESERVACION
 ========================================================= */
-
 export const reservationNumberExists = async (companyId, reservationNumber) => {
   try {
     const q = query(
-      collection(db, "companies", companyId, "transportation"),
+      collection(db, "companies", companyId, "adventure"),
       where("reservationNumber", "==", reservationNumber)
     );
 

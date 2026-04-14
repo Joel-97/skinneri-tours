@@ -4,15 +4,15 @@ import {
   createClient,
   searchClientsByName
 } from "../../services/clients/clientService";
-import { getServiceTypes } from "../../services/settings/serviceTypeService";
-import { getLocations } from "../../services/settings/locationsService";
-import { getTaxes } from "../../services/settings/taxService";
-import { getDiscounts } from "../../services/settings/discountService";
-import { getCurrencies } from "../../services/settings/currencyService";
-import { getDrivers } from "../../services/settings/driverService";
+import { getServiceTypes } from "../../services/settings/general/serviceTypeService";
+import { getLocations } from "../../services/settings/transportation/locationsService";
+import { getTaxes } from "../../services/settings/general/taxService";
+import { getDiscounts } from "../../services/settings/transportation/discountService";
+import { getCurrencies } from "../../services/settings/general/currencyService";
+import { getStaff } from "../../services/settings/general/staffService";
 import { reservationNumberExists } from "../../services/transportation/transportationService";
 import { getEndDate, generateReservationNumber, safe } from "../../services/Tools";
-import { getPaymentTypes } from "../../services/settings/paymentTypeService";
+import { getPaymentTypes } from "../../services/settings/general/paymentTypeService";
 
 import { notifySuccess, notifyError } from "../../services/notificationService";
 import "../../style/general/transportationModal.css";
@@ -68,8 +68,8 @@ export default function TransportationModal({
     total: 0,
 
     // 👤 SNAPSHOTS
-    driverId: "",
-    driverName: "",
+    staffId: "",
+    staffName: "",
 
     paymentTypeId: "",
     paymentTypeName: ""
@@ -101,7 +101,7 @@ export default function TransportationModal({
   const [taxes, setTaxes] = useState([]);
   const [discounts, setDiscounts] = useState([]);
   const [currencies, setCurrencies] = useState([]);
-  const [drivers, setDrivers] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
 
   useEffect(() => {
@@ -118,12 +118,12 @@ export default function TransportationModal({
         dr,
         pt
       ] = await Promise.all([
-        getServiceTypes(companyId),
+        getServiceTypes(companyId, "transportation"),
         getLocations(companyId),
         getTaxes(companyId),
         getDiscounts(companyId),
         getCurrencies(companyId),
-        getDrivers(companyId),
+        getStaff(companyId),
         getPaymentTypes(companyId)
       ]);
 
@@ -132,7 +132,7 @@ export default function TransportationModal({
       setTaxes(tx.filter(t => t.isActive));
       setDiscounts(ds.filter(d => d.isActive));
       setCurrencies(cur.filter(c => c.isActive));
-      setDrivers(dr.filter(d => d.isActive));
+      setStaff(dr.filter(d => d.isActive));
       setPaymentTypes(pt.filter(p => p.isActive));
     };
 
@@ -424,7 +424,7 @@ setForm({
     }
 
     // 🔥 SNAPSHOTS (CLAVE PARA REPORTES)
-    const selectedDriver = drivers.find(d => d.id === form.driverId);
+    const selectedStaff = staff.find(d => d.id === form.staffId);
     const selectedPayment = paymentTypes.find(p => p.id === form.paymentTypeId);
     const selectedService = serviceTypes.find(s => s.id === form.serviceTypeId);
 
@@ -445,7 +445,7 @@ setForm({
       total: Number(total.toFixed(2)),
 
       // 🔍 SNAPSHOTS
-      driverName: selectedDriver?.name || "",
+      staffName: selectedStaff?.name || "",
       paymentTypeName: selectedPayment?.name || "",
       serviceCategory: selectedService?.category || "transport",
 
@@ -555,9 +555,9 @@ setForm({
     { value: "cancelled", label: "Cancelada" }
   ];
 
-  const driverOptions = drivers.map(driver => ({
-    value: driver.id,
-    label: driver.name
+  const staffOptions = staff.map(staff => ({
+    value: staff.id,
+    label: staff.name
   }));
 
   const paymentTypeOptions = paymentTypes.map(p => ({
@@ -807,21 +807,21 @@ setForm({
 
             <div className="form-field">
               <label className="field-label">
-                Chofer asignado
+                Staff asignado
               </label>
 
               <Select
-                options={driverOptions}
-                value={driverOptions.find(
-                  option => option.value === form.driverId
+                options={staffOptions}
+                value={staffOptions.find(
+                  option => option.value === form.staffId
                 ) || null}
                 onChange={(selectedOption) =>
                 setForm(prev => ({
                   ...prev,
-                  driverId: selectedOption?.value || ""
+                  staffId: selectedOption?.value || ""
                 }))
                 }
-                placeholder="Seleccionar chofer"
+                placeholder="Seleccionar staff"
                 className="react-select-container"
                 classNamePrefix="react-select"
                 isClearable

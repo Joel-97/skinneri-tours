@@ -8,8 +8,8 @@ import {
   where,
   Timestamp
 } from "firebase/firestore";
-import { db } from "../../firebase";
-import { server } from '../serverName/Server';
+import { db } from "../../../firebase";
+// import { server } from '../serverName/Server';
 
 export const getCurrencies = async (companyId) => {
   const snapshot = await getDocs(

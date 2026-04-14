@@ -4,7 +4,7 @@ import CurrenciesSection from "./sections/CurrenciesSection";
 import LocationsSection from "./sections/LocationsSection";
 import ServiceTypesSection from "./sections/ServiceTypesSection";
 import DiscountsSection from "./sections/DiscountsSection";
-import DriversSection from "./sections/DriversSection";
+import StaffSection from "./sections/StaffSection";
 import PaymentTypesSection from "./sections/PaymentTypesSection";
 import "../../style/settings/settings.css";
 
@@ -61,10 +61,10 @@ const SettingsPage = () => {
         </button>
 
         <button
-          className={activeTab === "drivers" ? "active" : ""}
-          onClick={() => setActiveTab("drivers")}
+          className={activeTab === "staff" ? "active" : ""}
+          onClick={() => setActiveTab("staff")}
         >
-          Choferes
+          Staff
         </button>
 
         <button
@@ -83,7 +83,7 @@ const SettingsPage = () => {
         {activeTab === "vehicles" && <div>Vehículos próximamente</div>}
         {activeTab === "discounts" && < DiscountsSection />}
         {activeTab === "currency" && < CurrenciesSection />}
-        {activeTab === "drivers" && < DriversSection />}
+        {activeTab === "staff" && < StaffSection />}
         {activeTab === "paymentTypes" && < PaymentTypesSection />}
       </div>
 

@@ -15,7 +15,7 @@ const TransportationReport = ({ companyId }) => {
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [driverFilter, setDriverFilter] = useState("");
+  const [staffFilter, setStaffFilter] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("");
 
   // 📥 cargar datos
@@ -48,8 +48,8 @@ const TransportationReport = ({ companyId }) => {
   };
 
   // 🔹 opciones dinámicas
-  const driverOptions = useMemo(() => {
-    const unique = [...new Set(bookings.map(b => b.driverName).filter(Boolean))];
+  const staffOptions = useMemo(() => {
+    const unique = [...new Set(bookings.map(b => b.staffName).filter(Boolean))];
     return unique;
   }, [bookings]);
 
@@ -71,20 +71,20 @@ const TransportationReport = ({ companyId }) => {
         !searchTerm ||
         b.clientName?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesDriver =
-        !driverFilter || b.driverName === driverFilter;
+      const matchesStaff =
+        !staffFilter || b.staffName === staffFilter;
 
       const matchesPayment =
         !paymentFilter || b.paymentTypeName === paymentFilter;
 
-      return matchesDate && matchesSearch && matchesDriver && matchesPayment;
+      return matchesDate && matchesSearch && matchesStaff && matchesPayment;
     });
   }, [
     bookings,
     startDateFilter,
     endDateFilter,
     searchTerm,
-    driverFilter,
+    staffFilter,
     paymentFilter
   ]);
 
@@ -148,15 +148,15 @@ const TransportationReport = ({ companyId }) => {
         </div>
 
         <div className="filter-group">
-          <label>Chofer</label>
+          <label>Colaborador</label>
           <select
-            value={driverFilter}
-            onChange={(e) => setDriverFilter(e.target.value)}
+            value={staffFilter}
+            onChange={(e) => setStaffFilter(e.target.value)}
           >
             <option value="">Todos</option>
-            {driverOptions.map((driver, i) => (
-              <option key={i} value={driver}>
-                {driver}
+            {staffOptions.map((staff, i) => (
+              <option key={i} value={staff}>
+                {staff}
               </option>
             ))}
           </select>
@@ -207,7 +207,7 @@ const TransportationReport = ({ companyId }) => {
                 <tr key={i}>
                   <td>{b.clientName}</td>
                   <td>{formatDate(b.date)}</td>
-                  <td>{b.driverName || "-"}</td>
+                  <td>{b.staffName || "-"}</td>
                   <td>{b.paymentTypeName || "-"}</td>
 
                   <td>${Number(b.subtotal || 0).toFixed(2)}</td>

@@ -136,10 +136,11 @@ function twoDigitPad(num) {
   };
 
   /* =============================================================== 
-  * FUNCION PARA GENERAR EL NUMERO DE RESERVA PARA TRANSPORTE
+  * GENERADOR DE NÚMERO DE RESERVA (MULTI-CATEGORÍA)
   =============================================================== */
 
-  const generateReservationNumber = () => {
+  const generateReservationNumber = (category = "transportation") => {
+
     const now = new Date();
 
     const day = String(now.getDate()).padStart(2, "0");
@@ -148,7 +149,16 @@ function twoDigitPad(num) {
     const random = Math.floor(10000 + Math.random() * 90000);
     const extra = Date.now().toString().slice(-2); // 2 dígitos extra
 
-    return `TR-${day}${month}-${random}${extra}`;
+    // 🔥 Prefijo dinámico
+    let prefix = "TR"; // default
+
+    if (category === "adventure") {
+      prefix = "AD";
+    } else if (category === "transportation") {
+      prefix = "TR";
+    }
+
+    return `${prefix}-${day}${month}-${random}${extra}`;
   };
 
   /* =============================================================== 

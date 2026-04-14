@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import {
   getDiscounts,
   createDiscount,
   updateDiscount,
   toggleDiscountStatus
-} from "../../../services/settings/discountService";
+} from "../../../services/settings/transportation/discountService";
 
-import { getCurrencies } from "../../../services/settings/currencyService";
+import { getCurrencies } from "../../../services/settings/general/currencyService";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
@@ -20,7 +20,7 @@ import {
   notifyConfirm
 } from "../../../services/notificationService";
 
-import "../../../style/settings/discountsSection.css";
+import "../../../style/settings/transportation/discountsSection.css";
 
 const DiscountsSection = () => {
 
@@ -34,15 +34,36 @@ const DiscountsSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
+
   // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* ================= FILTRO ================= */
 
-  const currentDiscounts = discounts.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(discounts.length / rowsPerPage);
+  const filteredDiscounts = useMemo(() => {
+    if (!searchTerm) return discounts;
+
+    const term = searchTerm.toLowerCase();
+
+    return discounts.filter((d) => (
+      d.name?.toLowerCase().includes(term) ||
+      d.type?.toLowerCase().includes(term) ||
+      d.value?.toString().includes(term) ||
+      d.currency?.toLowerCase().includes(term)
+    ));
+  }, [discounts, searchTerm]);
+
+  /* ================= PAGINACIÓN ================= */
+
+  const totalPages = Math.ceil(filteredDiscounts.length / rowsPerPage);
+
+  const currentDiscounts = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredDiscounts.slice(start, start + rowsPerPage);
+  }, [filteredDiscounts, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -70,12 +91,11 @@ const DiscountsSection = () => {
     loadData();
   }, [companyId]);
 
-  /* =========================
-    Reset automático de paginación
-  ========================== */
+  /* ================= RESET PAGINACIÓN ================= */
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, discounts]);
+  }, [rowsPerPage, searchTerm]);
 
   /* ================= RESET FORM ================= */
 
@@ -177,11 +197,27 @@ const DiscountsSection = () => {
   return (
     <div className="discounts-container">
 
-      <div className="discounts-header">
-        <div>
-          <h3>Descuentos</h3>
-          <p>Gestiona descuentos globales del sistema.</p>
-        </div>
+    <div className="discounts-header">
+
+      {/* IZQUIERDA */}
+      <div className="discounts-header-left">
+        <h3>Descuentos</h3>
+        <p>Gestiona descuentos globales del sistema.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="discounts-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar descuento..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // mantiene consistencia con paginación
+          }}
+        />
 
         <button
           className="btn-primary"
@@ -189,7 +225,10 @@ const DiscountsSection = () => {
         >
           + Agregar descuento
         </button>
+
       </div>
+
+    </div>
 
       {showForm && (
         <Modal onClose={resetForm}>

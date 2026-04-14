@@ -9,6 +9,7 @@ import Navbar from "./components/general/navbar";
 
 import Home from "./pages/Home";
 import Transport from "./pages/Booking";
+import Adventure from "./pages/Adventure";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Pending from "./pages/Pending";
@@ -64,6 +65,18 @@ function App() {
               <>
                 <Navbar />
                 <Transport />
+              </>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/adventure"
+          element={
+            <ProtectedRoute>
+              <>
+                <Navbar />
+                <Adventure />
               </>
             </ProtectedRoute>
           }

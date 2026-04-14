@@ -7,7 +7,7 @@ import {
   createTransportation,
   updateTransportation
 } from "../../services/transportation/transportationService";
-import { getServiceTypes } from "../../services/settings/serviceTypeService";
+import { getServiceTypes } from "../../services/settings/general/serviceTypeService";
 import Loading from "../../components/general/loading";
 import { notifySuccess, notifyError, notifyConfirm } from "../../services/notificationService";
 

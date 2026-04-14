@@ -45,6 +45,10 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
           Transportes
         </Dropdown.Item>
 
+        <Dropdown.Item onClick={() => navigate("/adventure")}>
+          Aventuras
+        </Dropdown.Item>
+
         <Dropdown.Item onClick={() => navigate("/settings")}>
           Configuración
         </Dropdown.Item>

@@ -1,0 +1,275 @@
+/* ================= HEADER ACTIONS ================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.view-toggle {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.view-toggle button {
+  padding: 6px 14px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.view-toggle button.active {
+  background: #08204B;
+  color: white;
+}
+
+/* ================= TABLE VIEW ================= */
+
+.reservations-table-wrapper {
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.reservations-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.reservations-table thead {
+  background: #f8fafc;
+}
+
+.reservations-table th {
+  text-align: left;
+  padding: 12px;
+  font-weight: 600;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reservations-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.reservations-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.transportation-container {
+  padding: 20px;
+}
+
+.transportation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.transportation-header h2 {
+  margin: 0;
+}
+
+.transportation-header p {
+  font-size: 14px;
+  color: #777;
+  margin-top: 4px;
+}
+
+/*TABLE FILTER STYLE*/
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.rows-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rows-selector select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.page-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-controls button {
+  padding: 4px 10px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.page-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* FILTROS */
+
+.filters-bar {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  background: #f8f9fb;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.filter-group.search {
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+  min-width: 300px;
+}
+
+/* CARDS */
+
+.reservations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.reservation-card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transition: 0.2s ease;
+}
+
+.reservation-card:hover {
+  transform: translateY(-3px);
+}
+
+.reservation-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.service {
+  font-weight: 500;
+  margin: 10px 0;
+}
+
+.reservation-info p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* STATUS */
+
+.status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.confirmed {
+  background: #e6f7ed;
+  color: #1a7f37;
+}
+
+.status.pending {
+  background: #fff4e5;
+  color: #b26a00;
+}
+
+.status.cancelled {
+  background: #fdecea;
+  color: #b42318;
+}
+
+/* BOTONES */
+
+.btn-primary {
+  background: #08204B;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background: #f1f5f9;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #b91c1c;
+}
+
+.reservation-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}

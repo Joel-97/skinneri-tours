@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   getLocations,
   createLocations,
   updateLocations,
   toggleLocationStatus
-} from "../../../services/settings/locationsService";
+} from "../../../services/settings/transportation/locationsService";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
@@ -15,7 +15,7 @@ import {
   notifyConfirm
 } from "../../../services/notificationService";
 
-import "../../../style/settings/locationsSection.css";
+import "../../../style/settings/transportation/locationsSection.css";
 import Loading from "../../../components/general/loading"; 
 
 const LocationsSection = () => {
@@ -28,14 +28,37 @@ const LocationsSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* =========================
+     FILTRO
+  ========================== */
 
-  const currentLocations = locations.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(locations.length / rowsPerPage);
+  const filteredLocations = useMemo(() => {
+    if (!searchTerm) return locations;
+
+    const term = searchTerm.toLowerCase();
+
+    return locations.filter((loc) =>
+      loc.name?.toLowerCase().includes(term)
+    );
+  }, [locations, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredLocations.length / rowsPerPage);
+
+  const currentLocations = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredLocations.slice(start, start + rowsPerPage);
+  }, [filteredLocations, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -50,7 +73,11 @@ const LocationsSection = () => {
     if (!companyId) return;
 
     const data = await getLocations(companyId);
-    const ordenados = data.sort((a, b) => b.name - a.name);
+
+    // ⚠️ FIX opcional (recomendado): sort correcto para strings
+    const ordenados = data.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
     setLocations(ordenados);
     setLoading(false);
@@ -60,14 +87,13 @@ const LocationsSection = () => {
     cargarLocations();
   }, [companyId]);
 
-
   /* =========================
-    Reset automático de paginación
+     RESET PAGINACIÓN
   ========================== */
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, locations]);
+  }, [rowsPerPage, searchTerm]);
 
   /* =========================
      RESET FORM
@@ -159,7 +185,6 @@ const LocationsSection = () => {
     }
   };
 
-
   /* ================= RENDER ================= */
 
   if (loading) return <Loading />;
@@ -167,11 +192,27 @@ const LocationsSection = () => {
   return (
     <div className="locations-container">
 
-      <div className="locations-header">
-        <div>
-          <h3>Lugares</h3>
-          <p>Administra los puntos disponibles para reservas.</p>
-        </div>
+    <div className="locations-header">
+
+      {/* IZQUIERDA */}
+      <div className="locations-header-left">
+        <h3>Lugares</h3>
+        <p>Administra los puntos disponibles para reservas.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="locations-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar lugar..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // mantiene consistencia con paginación
+          }}
+        />
 
         <button
           className="btn-primary"
@@ -179,7 +220,10 @@ const LocationsSection = () => {
         >
           + Agregar lugar
         </button>
+
       </div>
+
+    </div>
 
       {showForm && (
         <Modal onClose={resetForm}>

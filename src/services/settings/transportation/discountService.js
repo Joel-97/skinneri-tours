@@ -6,8 +6,8 @@ import {
   doc,
   Timestamp
 } from "firebase/firestore";
-import { db } from "../../firebase";
-import { server } from '../serverName/Server';
+import { db } from "../../../firebase";
+// import { server } from '../serverName/Server';
 
 /* ===============================
    GET DISCOUNTS

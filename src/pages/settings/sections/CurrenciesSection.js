@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   getCurrencies,
   createCurrency,
   updateCurrency,
   toggleCurrencyStatus
-} from "../../../services/settings/currencyService";
+} from "../../../services/settings/general/currencyService";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
@@ -14,7 +14,7 @@ import {
   notifyError,
   notifyConfirm
 } from "../../../services/notificationService";
-import "../../../style/settings/currenciesSection.css";
+import "../../../style/settings/general/currenciesSection.css";
 import Loading from "../../../components/general/loading"; 
 
 const CurrenciesSection = () => {
@@ -27,15 +27,39 @@ const CurrenciesSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
+
   // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* =========================
+     FILTRO
+  ========================== */
 
-  const currentCurrencies = currencies.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(currencies.length / rowsPerPage);
+  const filteredCurrencies = useMemo(() => {
+    if (!searchTerm) return currencies;
+
+    const term = searchTerm.toLowerCase();
+
+    return currencies.filter((c) => (
+      c.code?.toLowerCase().includes(term) ||
+      c.name?.toLowerCase().includes(term) ||
+      c.symbol?.toLowerCase().includes(term)
+    ));
+  }, [currencies, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredCurrencies.length / rowsPerPage);
+
+  const currentCurrencies = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredCurrencies.slice(start, start + rowsPerPage);
+  }, [filteredCurrencies, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     code: "",
@@ -60,11 +84,12 @@ const CurrenciesSection = () => {
   }, [companyId]);
 
   /* =========================
-    Reset automático de paginación
+     RESET PAGINACIÓN
   ========================== */
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, currencies]);
+  }, [rowsPerPage, searchTerm]);
 
   const resetForm = () => {
     setForm({
@@ -107,26 +132,44 @@ const CurrenciesSection = () => {
     setShowForm(true);
   };
 
-  
   /* ================= RENDER ================= */
 
   if (loading) return <Loading />;
 
   return (
     <div className="currencies-container">
+    <div className="currencies-header">
 
-      <div className="currencies-header">
-        <div>
-          <h3>Monedas</h3>
-          <p>Administra los tipos de moneda de la empresa.</p>
-        </div>
+      {/* IZQUIERDA */}
+      <div className="currencies-header-left">
+        <h3>Monedas</h3>
+        <p>Administra los tipos de moneda de la empresa.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="currencies-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar moneda..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // importante para UX
+          }}
+        />
+
         <button
           className="btn-primary"
           onClick={() => setShowForm(true)}
         >
           + Agregar Moneda
         </button>
+
       </div>
+
+    </div>
 
       {showForm && (
         <Modal onClose={resetForm}>

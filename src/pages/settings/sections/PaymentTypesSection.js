@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   getPaymentTypes,
   createPaymentType,
   updatePaymentType,
   togglePaymentTypeStatus
-} from "../../../services/settings/paymentTypeService";
+} from "../../../services/settings/general/paymentTypeService";
 
 import Loading from "../../../components/general/loading";
 import Modal from "../../../components/general/modal";
@@ -16,7 +16,7 @@ import {
   notifyConfirm
 } from "../../../services/notificationService";
 
-import "../../../style/settings/paymentTypesSection.css";
+import "../../../style/settings/general/paymentTypesSection.css";
 
 const PaymentTypesSection = () => {
 
@@ -28,15 +28,38 @@ const PaymentTypesSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
+
   // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* =========================
+     FILTRO
+  ========================== */
 
-  const currentPaymentTypes = paymentTypes.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(paymentTypes.length / rowsPerPage);
+  const filteredPaymentTypes = useMemo(() => {
+    if (!searchTerm) return paymentTypes;
+
+    const term = searchTerm.toLowerCase();
+
+    return paymentTypes.filter((p) =>
+      p.name?.toLowerCase().includes(term) ||
+      p.description?.toLowerCase().includes(term)
+    );
+  }, [paymentTypes, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredPaymentTypes.length / rowsPerPage);
+
+  const currentPaymentTypes = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredPaymentTypes.slice(start, start + rowsPerPage);
+  }, [filteredPaymentTypes, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -55,7 +78,6 @@ const PaymentTypesSection = () => {
     const data = await getPaymentTypes(companyId);
 
     setPaymentTypes(data);
-
     setLoading(false);
 
   };
@@ -65,12 +87,12 @@ const PaymentTypesSection = () => {
   }, [companyId]);
 
   /* =========================
-    Reset automático de paginación
+     RESET PAGINACIÓN
   ========================== */
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, paymentTypes]);
+  }, [rowsPerPage, searchTerm]);
 
   /* =========================
      RESET
@@ -181,12 +203,27 @@ const PaymentTypesSection = () => {
 
     <div className="payment-types-container">
 
-      <div className="payment-types-header">
+    <div className="payment-types-header">
 
-        <div>
-          <h3>Tipos de pago</h3>
-          <p>Administra los métodos de pago disponibles.</p>
-        </div>
+      {/* IZQUIERDA */}
+      <div className="payment-types-header-left">
+        <h3>Tipos de pago</h3>
+        <p>Administra los métodos de pago disponibles.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="payment-types-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar tipo de pago..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // mantiene consistencia con paginación
+          }}
+        />
 
         <button
           className="btn-primary"
@@ -196,6 +233,8 @@ const PaymentTypesSection = () => {
         </button>
 
       </div>
+
+    </div>
 
       {showForm && (
 

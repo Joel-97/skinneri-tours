@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import {
   getTaxes,
   createTax,
   updateTax,
   toggleTaxStatus
-} from "../../../services/settings/taxService";
+} from "../../../services/settings/general/taxService";
 
 import { UserAuth } from "../../../context/AuthContext";
-import "../../../style/settings/taxSettings.css";
-// import "../../style/settings/settings.css";
+import "../../../style/settings/general/taxSettings.css";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
-import { getCurrencies } from "../../../services/settings/currencyService";
+import { getCurrencies } from "../../../services/settings/general/currencyService";
 import {
   notifySuccess,
   notifyError,
@@ -30,15 +29,40 @@ const TaxesSettings = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [currencies, setCurrencies] = useState([]);
 
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* =========================
+     FILTRO
+  ========================== */
 
-  const currentTaxes = taxes.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(taxes.length / rowsPerPage);
+  const filteredTaxes = useMemo(() => {
+    if (!searchTerm) return taxes;
 
+    const term = searchTerm.toLowerCase();
+
+    return taxes.filter((t) =>
+      t.name?.toLowerCase().includes(term) ||
+      t.type?.toLowerCase().includes(term) ||
+      t.rate?.toString().includes(term) ||
+      t.currency?.toLowerCase().includes(term)
+    );
+  }, [taxes, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredTaxes.length / rowsPerPage);
+
+  const currentTaxes = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredTaxes.slice(start, start + rowsPerPage);
+  }, [filteredTaxes, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -50,6 +74,10 @@ const TaxesSettings = () => {
   });
 
   const [editingId, setEditingId] = useState(null);
+
+  /* =========================
+     LOAD DATA
+  ========================== */
 
   const cargarImpuestos = async () => {
     if (!companyId) return;
@@ -67,14 +95,17 @@ const TaxesSettings = () => {
   }, [companyId]);
 
   /* =========================
-    Reset automático de paginación
+     RESET PAGINACIÓN
   ========================== */
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, taxes]);
+  }, [rowsPerPage, searchTerm]);
 
-  // Bloquear scroll cuando el modal está abierto
+  /* =========================
+     BLOQUEO SCROLL MODAL
+  ========================== */
+
   useEffect(() => {
     if (mostrarFormulario) {
       document.body.style.overflow = "hidden";
@@ -87,6 +118,10 @@ const TaxesSettings = () => {
     };
   }, [mostrarFormulario]);
 
+  /* =========================
+     LOAD CURRENCIES
+  ========================== */
+
   useEffect(() => {
     if (!companyId) return;
 
@@ -97,7 +132,6 @@ const TaxesSettings = () => {
 
       setCurrencies(activeCurrencies);
 
-      // Si hay default, usarlo automáticamente
       const defaultCurrency = activeCurrencies.find(c => c.isDefault);
 
       if (defaultCurrency) {
@@ -112,6 +146,10 @@ const TaxesSettings = () => {
 
   }, [companyId]);
 
+  /* =========================
+     RESET FORM
+  ========================== */
+
   const resetForm = () => {
     setForm({
       name: "",
@@ -124,6 +162,10 @@ const TaxesSettings = () => {
     setEditingId(null);
     setMostrarFormulario(false);
   };
+
+  /* =========================
+     SUBMIT
+  ========================== */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -162,6 +204,10 @@ const TaxesSettings = () => {
 
   };
 
+  /* =========================
+     EDIT
+  ========================== */
+
   const handleEdit = (tax) => {
     setForm({
       name: tax.name,
@@ -175,6 +221,10 @@ const TaxesSettings = () => {
     setMostrarFormulario(true);
   };
 
+  /* =========================
+     HELPERS
+  ========================== */
+
   const getCurrencySymbol = (code) => {
     const currency = currencies.find(c => c.code === code);
     return currency?.symbol || "";
@@ -185,7 +235,6 @@ const TaxesSettings = () => {
     { value: "fixed", label: "Monto fijo" }
   ];
 
-  
   /* ================= RENDER ================= */
 
   if (loading) return <Loading />;
@@ -194,18 +243,38 @@ const TaxesSettings = () => {
 
     <div className="taxes-container">
 
-      <div className="taxes-header">
-        <div>
-          <h3>Impuestos</h3>
-          <p>Administra los impuesto de tu empresa.</p>
-        </div>
+    <div className="taxes-header">
+
+      {/* IZQUIERDA */}
+      <div className="taxes-header-left">
+        <h3>Impuestos</h3>
+        <p>Administra los impuesto de tu empresa.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="taxes-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar impuesto..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // mantiene consistencia con paginación
+          }}
+        />
+
         <button
           className="btn-primary"
           onClick={() => setMostrarFormulario(true)}
         >
           + Agregar Impuesto
         </button>
+
       </div>
+
+    </div>
 
       {/* MODAL */}
       {mostrarFormulario && (

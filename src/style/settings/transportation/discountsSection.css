@@ -2,7 +2,7 @@
    CONTAINER
 ====================================================== */
 
-.taxes-container {
+.discounts-container {
   margin: 0 auto;
   padding: 32px 50px;
 }
@@ -11,7 +11,7 @@
    HEADER
 ====================================================== */
 
-.taxes-header {
+.discounts-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,124 +19,89 @@
   margin-bottom: 28px;
 }
 
-.taxes-header h3 {
+.discounts-header h3 {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
 }
 
-.taxes-header p {
+.discounts-header p {
   font-size: 14px;
   color: #6b7280;
   margin: 4px 0 0;
 }
 
-/* ======================================================
-   FORM CARD (si lo usas)
-====================================================== */
-
-.taxes-form-card {
-  background: #ffffff;
-  padding: 28px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  margin-bottom: 32px;
-}
-
-/* ======================================================
-   FORM
-====================================================== */
-
-.form-group {
+.discounts-header-right {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 18px;
+  align-items: center;
+  gap: 10px;
 }
 
-.form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-
-.form-group input,
-.form-group select {
-  padding: 10px;
-  border-radius: 8px;
+.search-input {
+  padding: 8px 12px;
   border: 1px solid #d1d5db;
-  transition: border 0.2s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #08204B;
-}
-
-/* Checkboxes */
-
-.form-checkbox {
-  margin-bottom: 12px;
+  border-radius: 6px;
+  min-width: 220px;
   font-size: 14px;
 }
 
-/* Actions */
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
+.discounts-header .btn-primary {
+  width: 100%;
 }
 
 /* ======================================================
    TABLE
 ====================================================== */
 
-.taxes-table-wrapper {
+.discounts-table-wrapper {
   overflow-x: auto;
   border-radius: 12px;
 }
 
-.taxes-table {
+.discounts-table {
   width: 100%;
   min-width: 600px; /* evita compresión en móvil */
   border-collapse: collapse;
   background: #ffffff;
 }
 
-.taxes-list {
+.discounts-content {
   overflow-x: auto;
   border-radius: 12px;
 }
 
-.taxes-list table {
+.discounts-content table {
   width: 100%;
-  min-width: 650px; /* evita que se comprima en móvil */
+  min-width: 800px; /* evita que se comprima en móvil */
   border-collapse: collapse;
   background: #ffffff;
 }
 
-.taxes-list th,
-.taxes-list td {
+.discounts-content th,
+.discounts-content td {
   text-align: left;
   padding: 14px 12px;
-  border-bottom: 1px solid #e5e7eb;
   font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.taxes-list th {
+.discounts-content th {
   background-color: #f9fafb;
   font-weight: 600;
 }
 
 /* Scrollbar elegante */
 
-.taxes-list::-webkit-scrollbar {
+.discounts-content::-webkit-scrollbar {
   height: 6px;
 }
 
-.taxes-list::-webkit-scrollbar-thumb {
+.discounts-content::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
@@ -144,14 +109,6 @@
 /* ======================================================
    BADGES
 ====================================================== */
-
-.badge-default {
-  background: #facc15;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-}
 
 .badge-active {
   background: #dcfce7;
@@ -172,61 +129,70 @@
 }
 
 /* ======================================================
-   BUTTONS
+   MODAL FORM
 ====================================================== */
 
-.btn-primary {
-  background: #08204B;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
   font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
   transition: all 0.2s ease;
 }
 
-.btn-primary:hover {
-  background: #0a2a63;
-}
-
-.btn-secondary {
-  background: #e5e7eb;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: #d1d5db;
-}
-
-.btn-link {
-  background: none;
-  border: none;
-  color: #08204B;
-  cursor: pointer;
-  font-size: 14px;
-  margin-right: 8px;
-  padding: 0;
-}
-
-.btn-link:hover {
-  text-decoration: underline;
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #08204B;
+  box-shadow: 0 0 0 2px rgba(8, 32, 75, 0.1);
 }
 
 /* ======================================================
-   LOADING
+   CHECKBOX
 ====================================================== */
 
-.section-loading {
+.form-checkbox {
+  margin-bottom: 12px;
+}
+
+.form-checkbox label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.form-actions {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 0;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.discounts-content p {
+  color: #6b7280;
+  font-size: 14px;
+  padding: 30px 0;
+  text-align: center;
 }
 
 /* ======================================================
@@ -235,16 +201,16 @@
 
 @media (max-width: 768px) {
 
-  .taxes-container {
+  .discounts-container {
     padding: 20px 16px;
   }
 
-  .taxes-header {
+  .discounts-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .taxes-header .btn-primary {
+  .discounts-header .btn-primary {
     width: 100%;
   }
 

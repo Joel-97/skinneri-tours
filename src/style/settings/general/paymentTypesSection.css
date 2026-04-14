@@ -2,7 +2,7 @@
    CONTAINER
 ====================================================== */
 
-.drivers-container {
+.payment-types-container {
   margin: 0 auto;
   padding: 32px 50px;
 }
@@ -11,7 +11,7 @@
    HEADER
 ====================================================== */
 
-.drivers-header {
+.payment-types-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,23 +19,46 @@
   margin-bottom: 28px;
 }
 
-.drivers-header h3 {
+.payment-types-header h3 {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
 }
 
-.drivers-header p {
+.payment-types-header p {
   font-size: 14px;
   color: #6b7280;
   margin: 4px 0 0;
+}
+
+.payment-types-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 220px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.payment-types-header .btn-primary {
+  width: 100%;
 }
 
 /* ======================================================
    CONTENT
 ====================================================== */
 
-.drivers-content {
+.payment-types-content {
   overflow-x: auto;
   border-radius: 12px;
 }
@@ -44,29 +67,29 @@
    TABLE
 ====================================================== */
 
-.drivers-table {
+.payment-types-table {
   width: 100%;
   min-width: 650px;
   border-collapse: collapse;
   background: #ffffff;
 }
 
-.drivers-table th,
-.drivers-table td {
+.payment-types-table th,
+.payment-types-table td {
   text-align: left;
   padding: 14px 12px;
   font-size: 14px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.drivers-table th {
+.payment-types-table th {
   background-color: #f9fafb;
   font-weight: 600;
 }
 
 /* Hover suave */
 
-.drivers-table tbody tr:hover {
+.payment-types-table tbody tr:hover {
   background-color: #f9fafb;
   transition: 0.2s ease;
 }
@@ -97,7 +120,7 @@
    EMPTY STATE
 ====================================================== */
 
-.drivers-empty {
+.payment-types-empty {
   padding: 40px;
   background: #f9fafb;
   border-radius: 12px;
@@ -110,11 +133,11 @@
    SCROLLBAR
 ====================================================== */
 
-.drivers-content::-webkit-scrollbar {
+.payment-types-content::-webkit-scrollbar {
   height: 6px;
 }
 
-.drivers-content::-webkit-scrollbar-thumb {
+.payment-types-content::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
@@ -125,20 +148,20 @@
 
 @media (max-width: 768px) {
 
-  .drivers-container {
+  .payment-types-container {
     padding: 20px 16px;
   }
 
-  .drivers-header {
+  .payment-types-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .drivers-header .btn-primary {
+  .payment-types-header .btn-primary {
     width: 100%;
   }
 
-  .drivers-table {
+  .payment-types-table {
     min-width: 600px;
   }
 

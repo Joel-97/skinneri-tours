@@ -1,0 +1,168 @@
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.staff-container {
+  margin: 0 auto;
+  padding: 32px 50px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.staff-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.staff-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.staff-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+.staff-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 220px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.staff-header .btn-primary {
+  width: 100%;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.staff-content {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.staff-table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.staff-table th,
+.staff-table td {
+  text-align: left;
+  padding: 14px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.staff-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+
+/* Hover suave */
+
+.staff-table tbody tr:hover {
+  background-color: #f9fafb;
+  transition: 0.2s ease;
+}
+
+/* ======================================================
+   BADGES
+====================================================== */
+
+.badge-active {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.staff-empty {
+  padding: 40px;
+  background: #f9fafb;
+  border-radius: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.staff-content::-webkit-scrollbar {
+  height: 6px;
+}
+
+.staff-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .staff-container {
+    padding: 20px 16px;
+  }
+
+  .staff-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .staff-header .btn-primary {
+    width: 100%;
+  }
+
+  .staff-table {
+    min-width: 600px;
+  }
+
+}

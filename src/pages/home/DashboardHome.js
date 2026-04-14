@@ -169,7 +169,7 @@ const DashboardHome = () => {
             <span className="kpi-description">
               Choferes activos hoy
             </span>
-          </div>
+          </div> 
 
         </div>
       )}

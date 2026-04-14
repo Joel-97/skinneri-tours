@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import {
-  getDrivers,
-  createDriver,
-  updateDriver,
-  toggleDriverStatus
-} from "../../../services/settings/driverService";
+  getStaff,
+  createStaff,
+  updateStaff,
+  toggleStaffStatus
+} from "../../../services/settings/general/staffService";
 import Loading from "../../../components/general/loading";
 
 import { UserAuth } from "../../../context/AuthContext";
@@ -17,64 +17,103 @@ import {
   notifyConfirm
 } from "../../../services/notificationService";
 
-import "../../../style/settings/driversSection.css";
+import "../../../style/settings/general/staffSection.css";
 
-const DriversSection = () => {
+const StaffSection = () => {
 
   const { user, adminData } = UserAuth();
   const companyId = adminData?.companyId;
 
-  const [drivers, setDrivers] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  // 🔍 SEARCH
+  const [searchTerm, setSearchTerm] = useState("");
 
   // 🔥 PAGINACIÓN
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
+  /* =========================
+     FILTRO
+  ========================== */
 
-  const currentDrivers = drivers.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(drivers.length / rowsPerPage);
+  const filteredStaff = useMemo(() => {
+    if (!searchTerm) return staff;
+
+    const term = searchTerm.toLowerCase();
+
+    return staff.filter((s) =>
+      s.name?.toLowerCase().includes(term) ||
+      s.phone?.toLowerCase().includes(term) ||
+      s.email?.toLowerCase().includes(term) ||
+      s.licenseNumber?.toLowerCase().includes(term) ||
+      s.staffType?.toLowerCase().includes(term) ||
+      s.role?.toLowerCase().includes(term)
+    );
+  }, [staff, searchTerm]);
+
+  /* =========================
+     PAGINACIÓN (CORREGIDA)
+  ========================== */
+
+  const totalPages = Math.ceil(filteredStaff.length / rowsPerPage);
+
+  const currentStaff = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    return filteredStaff.slice(start, start + rowsPerPage);
+  }, [filteredStaff, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
     licenseNumber: "",
-    driverType: "Empleado", 
+    staffType: "Empleado",
+    role: "",
     isActive: true
   });
 
-  const driverTypeOptions = [
+  /* =========================
+     OPTIONS
+  ========================== */
+
+  const staffTypeOptions = [
     { value: "Empleado", label: "Empleado" },
     { value: "Freelance", label: "Freelance" }
+  ];
+
+  const roleOptions = [
+    { value: "driver", label: "Chofer" },
+    { value: "guide", label: "Guía turístico" },
+    { value: "instructor", label: "Instructor" }
   ];
 
   /* =========================
      LOAD
   ========================== */
 
-  const loadDrivers = async () => {
+  const loadStaff = async () => {
     if (!companyId) return;
 
-    const data = await getDrivers(companyId);
-    setDrivers(data);
+    const data = await getStaff(companyId);
+    setStaff(data);
     setLoading(false);
   };
 
   useEffect(() => {
-    loadDrivers();
+    loadStaff();
   }, [companyId]);
 
   /* =========================
-    Reset automático de paginación
+     RESET PAGINACIÓN
   ========================== */
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, drivers]);
+  }, [rowsPerPage, searchTerm]);
 
   /* =========================
      RESET
@@ -86,7 +125,8 @@ const DriversSection = () => {
       phone: "",
       email: "",
       licenseNumber: "",
-      driverType: "Empleado",
+      staffType: "Empleado",
+      role: "",
       isActive: true
     });
     setEditingId(null);
@@ -105,17 +145,22 @@ const DriversSection = () => {
       return;
     }
 
+    if (!form.role) {
+      notifyError("Selecciona el rol del colaborador.");
+      return;
+    }
+
     try {
       if (editingId) {
-        await updateDriver(companyId, editingId, form, user);
-        notifySuccess("Chofer actualizado");
+        await updateStaff(companyId, editingId, form, user);
+        notifySuccess("Colaborador actualizado");
       } else {
-        await createDriver(companyId, form, user);
-        notifySuccess("Chofer creado correctamente");
+        await createStaff(companyId, form, user);
+        notifySuccess("Colaborador creado");
       }
 
       resetForm();
-      loadDrivers();
+      loadStaff();
 
     } catch (error) {
       notifyError(error.message || "Error inesperado.");
@@ -126,9 +171,9 @@ const DriversSection = () => {
      EDIT
   ========================== */
 
-  const handleEdit = (driver) => {
-    setForm(driver);
-    setEditingId(driver.id);
+  const handleEdit = (staff) => {
+    setForm(staff);
+    setEditingId(staff.id);
     setShowForm(true);
   };
 
@@ -136,18 +181,18 @@ const DriversSection = () => {
      TOGGLE
   ========================== */
 
-  const handleToggle = async (driver) => {
+  const handleToggle = async (staff) => {
 
     const confirmed = await notifyConfirm(
-      `¿Deseas ${driver.isActive ? "desactivar" : "activar"} este chofer?`
+      `¿Deseas ${staff.isActive ? "desactivar" : "activar"} este colaborador?`
     );
 
     if (!confirmed) return;
 
     try {
-      await toggleDriverStatus(companyId, driver.id, driver.isActive);
+      await toggleStaffStatus(companyId, staff.id, staff.isActive);
       notifySuccess("Estado actualizado");
-      loadDrivers();
+      loadStaff();
     } catch (error) {
       notifyError("No se pudo actualizar.");
     }
@@ -160,26 +205,45 @@ const DriversSection = () => {
   ========================== */
 
   return (
-    <div className="drivers-container">
+    <div className="staff-container">
 
-      <div className="drivers-header">
-        <div>
-          <h3>Choferes</h3>
-          <p>Administra los conductores disponibles.</p>
-        </div>
+    <div className="staff-header">
+
+      {/* IZQUIERDA */}
+      <div className="staff-header-left">
+        <h3>Colaboradores</h3>
+        <p>Administra los colaboradores disponibles.</p>
+      </div>
+
+      {/* DERECHA */}
+      <div className="staff-header-right">
+
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar colaborador..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // mantiene consistencia con paginación
+          }}
+        />
 
         <button
           className="btn-primary"
           onClick={() => setShowForm(true)}
         >
-          + Agregar chofer
+          + Agregar colaborador
         </button>
+
       </div>
+
+    </div>
 
       {showForm && (
         <Modal onClose={resetForm}>
           <div className="app-modal-header">
-            <h4>{editingId ? "Editar chofer" : "Nuevo chofer"}</h4>
+            <h4>{editingId ? "Editar colaborador" : "Nuevo colaborador"}</h4>
             <button className="close-btn" onClick={resetForm}>✕</button>
           </div>
 
@@ -215,25 +279,37 @@ const DriversSection = () => {
               />
             </div>
 
+            {/* 🔥 NUEVO: ROL */}
             <div className="form-group">
-                <label>Tipo de chofer</label>
-
-                <Select
-                    options={driverTypeOptions}
-                    value={driverTypeOptions.find(
-                    option => option.value === form.driverType
-                    )}
-                    onChange={(selectedOption) =>
-                    setForm({ ...form, driverType: selectedOption.value })
-                    }
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    isSearchable={false}
-                />
+              <label>Rol del colaborador</label>
+              <Select
+                options={roleOptions}
+                value={roleOptions.find(
+                  option => option.label === form.role
+                )}
+                onChange={(selectedOption) =>
+                  setForm({ ...form, role: selectedOption.label })
+                }
+                placeholder="Seleccionar rol"
+              />
             </div>
 
             <div className="form-group">
-              <label>Tipo de licencia</label>
+              <label>Tipo de colaborador</label>
+              <Select
+                options={staffTypeOptions}
+                value={staffTypeOptions.find(
+                  option => option.value === form.staffType
+                )}
+                onChange={(selectedOption) =>
+                  setForm({ ...form, staffType: selectedOption.value })
+                }
+                isSearchable={false}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Licencia (opcional)</label>
               <input
                 value={form.licenseNumber}
                 onChange={(e) =>
@@ -268,21 +344,20 @@ const DriversSection = () => {
               <button className="btn-primary" type="submit">
                 {editingId ? "Actualizar" : "Crear"}
               </button>
-              
+
             </div>
 
           </form>
         </Modal>
       )}
 
-      
-
-      <div className="drivers-table-wrapper">
-        <table className="drivers-table">
+      <div className="staff-table-wrapper">
+        <table className="staff-table">
           <thead>
             <tr>
               <th>Nombre</th>
               <th>Teléfono</th>
+              <th>Rol</th> {/* 🔥 NUEVO */}
               <th>Tipo</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -290,31 +365,32 @@ const DriversSection = () => {
           </thead>
 
           <tbody>
-            {currentDrivers.map(driver => (
-              <tr key={driver.id}>
-                <td>{driver.name}</td>
-                <td>{driver.phone}</td>
-                <td>{driver.driverType}</td>
+            {currentStaff.map(staff => (
+              <tr key={staff.id}>
+                <td>{staff.name}</td>
+                <td>{staff.phone}</td>
+                <td>{staff.role}</td> {/* 🔥 NUEVO */}
+                <td>{staff.staffType}</td>
 
                 <td>
-                  <span className={driver.isActive ? "badge-active" : "badge-inactive"}>
-                    {driver.isActive ? "Activo" : "Inactivo"}
+                  <span className={staff.isActive ? "badge-active" : "badge-inactive"}>
+                    {staff.isActive ? "Activo" : "Inactivo"}
                   </span>
                 </td>
 
                 <td>
                   <button
                     className="btn-link"
-                    onClick={() => handleEdit(driver)}
+                    onClick={() => handleEdit(staff)}
                   >
                     Editar
                   </button>
 
                   <button
                     className="btn-link"
-                    onClick={() => handleToggle(driver)}
+                    onClick={() => handleToggle(staff)}
                   >
-                    {driver.isActive ? "Desactivar" : "Activar"}
+                    {staff.isActive ? "Desactivar" : "Activar"}
                   </button>
                 </td>
               </tr>
@@ -323,7 +399,6 @@ const DriversSection = () => {
         </table>
       </div>
 
-      {/* 🔥 PAGINACIÓN */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -332,9 +407,8 @@ const DriversSection = () => {
         onRowsChange={setRowsPerPage}
       />
 
-
     </div>
   );
 };
 
-export default DriversSection;
+export default StaffSection;
