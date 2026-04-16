@@ -109,9 +109,13 @@ const SettingsPage = () => {
         <button
           className={view === "vehicles" ? "active" : ""}
           onClick={() => setView("vehicles")}
+          disabled
         >
           Vehículos
+          <p><small>Próximamente</small></p>
+
         </button>
+
 
         <h4 className="sidebar-title">Aventuras</h4>
 
