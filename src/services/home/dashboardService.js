@@ -172,7 +172,7 @@ export const getActiveDrivers = async (companyId) => {
 
   try {
 
-    const driversRef = collection(db, `companies/${companyId}/drivers`);
+    const driversRef = collection(db, `companies/${companyId}/staff`);
 
     const activeDriversQuery = query(
       driversRef,

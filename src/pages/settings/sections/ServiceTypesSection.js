@@ -8,6 +8,7 @@ import {
 } from "../../../services/settings/general/serviceTypeService";
 
 import { getCurrencies } from "../../../services/settings/general/currencyService";
+import DataTable from "../../../components/general/dataTable";
 
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
@@ -38,33 +39,83 @@ const ServiceTypesSection = () => {
 
   // 🔍 búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  
+  
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
 
   /* =========================
-     FILTRO
+    PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const filteredServiceTypes = useMemo(() => {
-    if (!searchTerm) return serviceTypes;
+  const processedServiceTypes = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    let result = serviceTypes;
 
-    return serviceTypes.filter((type) => (
-      type.name?.toLowerCase().includes(term) ||
-      type.category?.toLowerCase().includes(term) ||
-      type.pricingMode?.toLowerCase().includes(term)
-    ));
-  }, [serviceTypes, searchTerm]);
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+
+      result = result.filter((type) => (
+        type.name?.toLowerCase().includes(term) ||
+        type.category?.toLowerCase().includes(term) ||
+        type.pricingMode?.toLowerCase().includes(term)
+      ));
+    }
+
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
+
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null / undefined safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [serviceTypes, searchTerm, sortConfig]);
 
   /* =========================
-     PAGINACIÓN (CORREGIDA)
+    PAGINACIÓN
   ========================== */
 
-  const totalPages = Math.ceil(filteredServiceTypes.length / rowsPerPage);
+  const totalPages = Math.ceil(processedServiceTypes.length / rowsPerPage);
 
   const currentServiceTypes = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
-    return filteredServiceTypes.slice(start, start + rowsPerPage);
-  }, [filteredServiceTypes, currentPage, rowsPerPage]);
+    return processedServiceTypes.slice(start, start + rowsPerPage);
+  }, [processedServiceTypes, currentPage, rowsPerPage]);
 
   /* =========================
      FORM
@@ -638,94 +689,86 @@ const ServiceTypesSection = () => {
 
       {/* ================= TABLA ================= */}
 
-      <div className="serviceTypes-content">
 
-        {serviceTypes.length === 0 ? (
-          <p>No hay tipos registrados.</p>
-        ) : (
-          <>
-            <div className="serviceTypes-table-wrapper">
-              <table className="serviceTypes-table">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Modo</th>
-                    <th>Precio</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
+    <div className="serviceTypes-content">
 
-                <tbody>
-                  {currentServiceTypes.map(type => (
-                    <tr key={type.id}>
+      {serviceTypes.length === 0 ? (
+        <p>No hay tipos registrados.</p>
+      ) : (
+        <DataTable
+          data={processedServiceTypes} // 🔥 ya filtrado + ordenado
+          rowsPerPage={rowsPerPage}
+          columns={[
+            { key: "name", label: "Nombre", sortable: true },
+            { key: "category", label: "Categoría", sortable: true },
+            { key: "pricingMode", label: "Modo", sortable: true },
+            { key: "basePrice", label: "Precio", sortable: true },
+            { key: "isActive", label: "Estado", sortable: true },
+            { key: "actions", label: "Acciones", sortable: false },
+          ]}
+          renderRow={(type) => (
+            <>
+              <td>
+                <div className="service-name-cell">
+                  <span
+                    className="color-dot"
+                    style={{ backgroundColor: type.color || "#3B82F6" }}
+                  />
+                  {type.name}
+                </div>
+              </td>
 
-                      <td>
-                        <div className="service-name-cell">
-                          <span
-                            className="color-dot"
-                            style={{ backgroundColor: type.color || "#3B82F6" }}
-                          />
-                          {type.name}
-                        </div>
-                      </td>
+              <td>
+                {type.category === "transportation"
+                  ? "Transporte"
+                  : "Aventura"}
+              </td>
 
-                      <td>
-                        {type.category === "transportation"
-                          ? "Transporte"
-                          : "Aventura"}
-                      </td>
+              <td>
+                {type.pricingMode === "fixed"
+                  ? "Precio fijo"
+                  : "Manual"}
+              </td>
 
-                      <td>
-                        {type.pricingMode === "fixed"
-                          ? "Precio fijo"
-                          : "Manual"}
-                      </td>
+              <td>
+                {type.pricingMode === "fixed"
+                  ? `${type.symbol ?? ""} ${type.basePrice ?? 0}`
+                  : "-"}
+              </td>
 
-                      <td>
-                        {type.pricingMode === "fixed"
-                          ? `${type.symbol ?? ""} ${type.basePrice ?? 0}`
-                          : "-"}
-                      </td>
+              <td>
+                <span
+                  className={
+                    type.isActive
+                      ? "badge-active"
+                      : "badge-inactive"
+                  }
+                >
+                  {type.isActive ? "Activo" : "Inactivo"}
+                </span>
+              </td>
 
-                      <td>
-                        {type.isActive ? "Activo" : "Inactivo"}
-                      </td>
+              <td>
+                <button
+                  className="btn-link"
+                  onClick={() => handleEdit(type)}
+                >
+                  Editar
+                </button>
 
-                      <td>
-                        <button
-                          className="btn-link"
-                          onClick={() => handleEdit(type)}
-                        >
-                          Editar
-                        </button>
+                <button
+                  className="btn-link"
+                  onClick={() => handleToggle(type)}
+                >
+                  {type.isActive ? "Desactivar" : "Activar"}
+                </button>
+              </td>
+            </>
+          )}
+        />
+      )}
 
-                        <button
-                          className="btn-link"
-                          onClick={() => handleToggle(type)}
-                        >
-                          {type.isActive ? "Desactivar" : "Activar"}
-                        </button>
-                      </td>
-
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              rowsPerPage={rowsPerPage}
-              onPageChange={setCurrentPage}
-              onRowsChange={setRowsPerPage}
-            />
-          </>
-        )}
-
-      </div>
+    </div>
 
     </div>
   );

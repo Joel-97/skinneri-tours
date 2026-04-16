@@ -9,6 +9,8 @@ import {
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
+import DataTable from "../../../components/general/dataTable";
+
 import {
   notifySuccess,
   notifyError,
@@ -28,6 +30,21 @@ const LocationsSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
+
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -35,30 +52,58 @@ const LocationsSection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  /* =========================
-     FILTRO
-  ========================== */
-
-  const filteredLocations = useMemo(() => {
-    if (!searchTerm) return locations;
-
-    const term = searchTerm.toLowerCase();
-
-    return locations.filter((loc) =>
-      loc.name?.toLowerCase().includes(term)
-    );
-  }, [locations, searchTerm]);
 
   /* =========================
-     PAGINACIÓN (CORREGIDA)
+    PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const totalPages = Math.ceil(filteredLocations.length / rowsPerPage);
+  const processedLocations = useMemo(() => {
 
-  const currentLocations = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage;
-    return filteredLocations.slice(start, start + rowsPerPage);
-  }, [filteredLocations, currentPage, rowsPerPage]);
+    let result = locations;
+
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+
+      result = result.filter((loc) =>
+        loc.name?.toLowerCase().includes(term)
+      );
+    }
+
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
+
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [locations, searchTerm, sortConfig]);
+
+  /* =========================
+    FORM
+  ========================== */
 
   const [form, setForm] = useState({
     name: "",
@@ -279,66 +324,53 @@ const LocationsSection = () => {
 
       <div className="locations-content">
 
-        { locations.length === 0 ? (
+        {locations.length === 0 ? (
           <div className="locations-empty">
             <p>No hay lugares registrados todavía.</p>
           </div>
         ) : (
-        <>
-          <div className="locations-table-wrapper">
-            <table className="locations-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+          <DataTable
+            data={processedLocations}
+            rowsPerPage={rowsPerPage}
+            columns={[
+              { key: "name", label: "Nombre", sortable: true },
+              { key: "isActive", label: "Estado", sortable: true },
+              { key: "actions", label: "Acciones", sortable: false },
+            ]}
+            renderRow={(location) => (
+              <>
+                <td>{location.name}</td>
 
-              <tbody>
-                {currentLocations.map(location => (
-                  <tr key={location.id}>
-                    <td>{location.name}</td>
+                <td>
+                  <span
+                    className={
+                      location.isActive
+                        ? "badge-active"
+                        : "badge-inactive"
+                    }
+                  >
+                    {location.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                </td>
 
-                    <td>
-                      <span className={location.isActive ? "badge-active" : "badge-inactive"}>
-                        {location.isActive ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
+                <td>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(location)}
+                  >
+                    Editar
+                  </button>
 
-                    <td>
-                      <button
-                        className="btn-link"
-                        onClick={() => handleEdit(location)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        className="btn-link"
-                        onClick={() => handleToggle(location)}
-                      >
-                        {location.isActive ? "Desactivar" : "Activar"}
-                      </button>
-                    </td>
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 🔥 PAGINACIÓN */}
-
-          <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              rowsPerPage={rowsPerPage}
-              onPageChange={setCurrentPage}
-              onRowsChange={setRowsPerPage}
-            />
-
-        </>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleToggle(location)}
+                  >
+                    {location.isActive ? "Desactivar" : "Activar"}
+                  </button>
+                </td>
+              </>
+            )}
+          />
         )}
 
       </div>

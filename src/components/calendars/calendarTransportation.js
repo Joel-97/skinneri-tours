@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import TransportationModal from "../general/transportationModal";
+import TransportationModal from "../reservations/transportation/transportationModal";
 import {
   getTransportation,
   createTransportation,

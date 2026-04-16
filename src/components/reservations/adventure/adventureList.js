@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import AdventureModal from "../../general/adventureModal";
+import AdventureModal from "./adventureModal";
 import {
   getAdventures,
   createAdventure,

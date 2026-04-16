@@ -4,22 +4,22 @@ import Select from "react-select";
 import {
   createClient,
   searchClientsByName
-} from "../../services/clients/clientService";
+} from "../../../services/clients/clientService";
 
-import { getServiceTypes } from "../../services/settings/general/serviceTypeService";
-import { getLocations } from "../../services/settings/transportation/locationsService";
-import { getTaxes } from "../../services/settings/general/taxService";
-import { getDiscounts } from "../../services/settings/transportation/discountService";
-import { getCurrencies } from "../../services/settings/general/currencyService";
-import { getStaff } from "../../services/settings/general/staffService";
+import { getServiceTypes } from "../../../services/settings/general/serviceTypeService";
+import { getLocations } from "../../../services/settings/transportation/locationsService";
+import { getTaxes } from "../../../services/settings/general/taxService";
+import { getDiscounts } from "../../../services/settings/transportation/discountService";
+import { getCurrencies } from "../../../services/settings/general/currencyService";
+import { getStaff } from "../../../services/settings/general/staffService";
 
-import { reservationNumberExists } from "../../services/adventure/adventureService";
+import { reservationNumberExists } from "../../../services/adventure/adventureService";
 
-import { getEndDate, generateReservationNumber, safe } from "../../services/Tools";
-import { getPaymentTypes } from "../../services/settings/general/paymentTypeService";
+import { getEndDate, generateReservationNumber, safe } from "../../../services/Tools";
+import { getPaymentTypes } from "../../../services/settings/general/paymentTypeService";
 
-import { notifySuccess, notifyError } from "../../services/notificationService";
-import "../../style/general/adventureModal.css";
+import { notifySuccess, notifyError } from "../../../services/notificationService";
+import "../../../style/general/adventureModal.css";
 
 export default function AdventureModal({
   isOpen,

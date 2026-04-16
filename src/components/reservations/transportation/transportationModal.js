@@ -3,19 +3,19 @@ import Select from "react-select";
 import {
   createClient,
   searchClientsByName
-} from "../../services/clients/clientService";
-import { getServiceTypes } from "../../services/settings/general/serviceTypeService";
-import { getLocations } from "../../services/settings/transportation/locationsService";
-import { getTaxes } from "../../services/settings/general/taxService";
-import { getDiscounts } from "../../services/settings/transportation/discountService";
-import { getCurrencies } from "../../services/settings/general/currencyService";
-import { getStaff } from "../../services/settings/general/staffService";
-import { reservationNumberExists } from "../../services/transportation/transportationService";
-import { getEndDate, generateReservationNumber, safe } from "../../services/Tools";
-import { getPaymentTypes } from "../../services/settings/general/paymentTypeService";
+} from "../../../services/clients/clientService";
+import { getServiceTypes } from "../../../services/settings/general/serviceTypeService";
+import { getLocations } from "../../../services/settings/transportation/locationsService";
+import { getTaxes } from "../../../services/settings/general/taxService";
+import { getDiscounts } from "../../../services/settings/transportation/discountService";
+import { getCurrencies } from "../../../services/settings/general/currencyService";
+import { getStaff } from "../../../services/settings/general/staffService";
+import { reservationNumberExists } from "../../../services/transportation/transportationService";
+import { getEndDate, generateReservationNumber, safe } from "../../../services/Tools";
+import { getPaymentTypes } from "../../../services/settings/general/paymentTypeService";
 
-import { notifySuccess, notifyError } from "../../services/notificationService";
-import "../../style/general/transportationModal.css";
+import { notifySuccess, notifyError } from "../../../services/notificationService";
+import "../../../style/general/transportationModal.css";
 
 export default function TransportationModal({
   isOpen,

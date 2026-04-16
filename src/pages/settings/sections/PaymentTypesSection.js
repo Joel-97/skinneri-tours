@@ -9,6 +9,7 @@ import {
 import Loading from "../../../components/general/loading";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
+import DataTable from "../../../components/general/dataTable";
 import { UserAuth } from "../../../context/AuthContext";
 import {
   notifySuccess,
@@ -28,6 +29,21 @@ const PaymentTypesSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
+
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -36,30 +52,53 @@ const PaymentTypesSection = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   /* =========================
-     FILTRO
+    PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const filteredPaymentTypes = useMemo(() => {
-    if (!searchTerm) return paymentTypes;
+  const processedPaymentTypes = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    let result = paymentTypes;
 
-    return paymentTypes.filter((p) =>
-      p.name?.toLowerCase().includes(term) ||
-      p.description?.toLowerCase().includes(term)
-    );
-  }, [paymentTypes, searchTerm]);
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
 
-  /* =========================
-     PAGINACIÓN (CORREGIDA)
-  ========================== */
+      result = result.filter((p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term)
+      );
+    }
 
-  const totalPages = Math.ceil(filteredPaymentTypes.length / rowsPerPage);
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
 
-  const currentPaymentTypes = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage;
-    return filteredPaymentTypes.slice(start, start + rowsPerPage);
-  }, [filteredPaymentTypes, currentPage, rowsPerPage]);
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [paymentTypes, searchTerm, sortConfig]);
 
   const [form, setForm] = useState({
     name: "",
@@ -314,67 +353,57 @@ const PaymentTypesSection = () => {
 
       )}
     
-      <div className="payment-types-table-wrapper">
-        <table className="payment-types-table">
 
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+    <div className="payment-types-table-wrapper">
 
-          <tbody>
-            {currentPaymentTypes.map(paymentType => (
-              <tr key={paymentType.id}>
-
-                <td>{paymentType.name}</td>
-
-                <td>{paymentType.description}</td>
-
-                <td>
-                  <span className={
-                    paymentType.isActive
-                      ? "badge-active"
-                      : "badge-inactive"
-                  }>
-                    {paymentType.isActive ? "Activo" : "Inactivo"}
-                  </span>
-                </td>
-
-                <td>
-                  <button
-                    className="btn-link"
-                    onClick={() => handleEdit(paymentType)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="btn-link"
-                    onClick={() => handleToggle(paymentType)}
-                  >
-                    {paymentType.isActive ? "Desactivar" : "Activar"}
-                  </button>
-                </td>
-
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
-
-      {/* 🔥 PAGINACIÓN */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
+      <DataTable
+        data={processedPaymentTypes}
         rowsPerPage={rowsPerPage}
-        onPageChange={setCurrentPage}
-        onRowsChange={setRowsPerPage}
+        columns={[
+          { key: "name", label: "Nombre", sortable: true },
+          { key: "description", label: "Descripción", sortable: true },
+          { key: "isActive", label: "Estado", sortable: true },
+          { key: "actions", label: "Acciones", sortable: false },
+        ]}
+        renderRow={(paymentType) => (
+          <>
+            <td>{paymentType.name}</td>
+
+            <td>{paymentType.description}</td>
+
+            <td>
+              <span
+                className={
+                  paymentType.isActive
+                    ? "badge-active"
+                    : "badge-inactive"
+                }
+              >
+                {paymentType.isActive ? "Activo" : "Inactivo"}
+              </span>
+            </td>
+
+            <td>
+              <button
+                className="btn-link"
+                onClick={() => handleEdit(paymentType)}
+              >
+                Editar
+              </button>
+
+              <button
+                className="btn-link"
+                onClick={() => handleToggle(paymentType)}
+              >
+                {paymentType.isActive ? "Desactivar" : "Activar"}
+              </button>
+            </td>
+          </>
+        )}
       />
+
+    </div>
+    
 
     </div>
 

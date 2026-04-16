@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import TransportationModal from "../../general/transportationModal";
+import TransportationModal from "./transportationModal";
 import {
   getTransportation,
   createTransportation,

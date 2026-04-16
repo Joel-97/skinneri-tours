@@ -11,6 +11,7 @@ import Loading from "../../../components/general/loading";
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
+import DataTable from "../../../components/general/dataTable";
 import {
   notifySuccess,
   notifyError,
@@ -29,6 +30,21 @@ const StaffSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
+
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -37,34 +53,57 @@ const StaffSection = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   /* =========================
-     FILTRO
+    PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const filteredStaff = useMemo(() => {
-    if (!searchTerm) return staff;
+  const processedStaff = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    let result = staff;
 
-    return staff.filter((s) =>
-      s.name?.toLowerCase().includes(term) ||
-      s.phone?.toLowerCase().includes(term) ||
-      s.email?.toLowerCase().includes(term) ||
-      s.licenseNumber?.toLowerCase().includes(term) ||
-      s.staffType?.toLowerCase().includes(term) ||
-      s.role?.toLowerCase().includes(term)
-    );
-  }, [staff, searchTerm]);
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
 
-  /* =========================
-     PAGINACIÓN (CORREGIDA)
-  ========================== */
+      result = result.filter((s) =>
+        s.name?.toLowerCase().includes(term) ||
+        s.phone?.toLowerCase().includes(term) ||
+        s.email?.toLowerCase().includes(term) ||
+        s.licenseNumber?.toLowerCase().includes(term) ||
+        s.staffType?.toLowerCase().includes(term) ||
+        s.role?.toLowerCase().includes(term)
+      );
+    }
 
-  const totalPages = Math.ceil(filteredStaff.length / rowsPerPage);
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
 
-  const currentStaff = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage;
-    return filteredStaff.slice(start, start + rowsPerPage);
-  }, [filteredStaff, currentPage, rowsPerPage]);
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [staff, searchTerm, sortConfig]);
 
   const [form, setForm] = useState({
     name: "",
@@ -351,61 +390,62 @@ const StaffSection = () => {
         </Modal>
       )}
 
-      <div className="staff-table-wrapper">
-        <table className="staff-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Rol</th> {/* 🔥 NUEVO */}
-              <th>Tipo</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            {currentStaff.map(staff => (
-              <tr key={staff.id}>
-                <td>{staff.name}</td>
-                <td>{staff.phone}</td>
-                <td>{staff.role}</td> {/* 🔥 NUEVO */}
-                <td>{staff.staffType}</td>
+<div className="staff-table-wrapper">
 
-                <td>
-                  <span className={staff.isActive ? "badge-active" : "badge-inactive"}>
-                    {staff.isActive ? "Activo" : "Inactivo"}
-                  </span>
-                </td>
+  <DataTable
+    data={processedStaff}
+    rowsPerPage={rowsPerPage}
+    columns={[
+      { key: "name", label: "Nombre", sortable: true },
+      { key: "phone", label: "Teléfono", sortable: true },
+      { key: "role", label: "Rol", sortable: true },
+      { key: "staffType", label: "Tipo", sortable: true },
+      { key: "isActive", label: "Estado", sortable: true },
+      { key: "actions", label: "Acciones", sortable: false },
+    ]}
+    renderRow={(staff) => (
+      <>
+        <td>{staff.name}</td>
 
-                <td>
-                  <button
-                    className="btn-link"
-                    onClick={() => handleEdit(staff)}
-                  >
-                    Editar
-                  </button>
+        <td>{staff.phone}</td>
 
-                  <button
-                    className="btn-link"
-                    onClick={() => handleToggle(staff)}
-                  >
-                    {staff.isActive ? "Desactivar" : "Activar"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <td>{staff.role}</td>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        rowsPerPage={rowsPerPage}
-        onPageChange={setCurrentPage}
-        onRowsChange={setRowsPerPage}
-      />
+        <td>{staff.staffType}</td>
+
+        <td>
+          <span
+            className={
+              staff.isActive
+                ? "badge-active"
+                : "badge-inactive"
+            }
+          >
+            {staff.isActive ? "Activo" : "Inactivo"}
+          </span>
+        </td>
+
+        <td>
+          <button
+            className="btn-link"
+            onClick={() => handleEdit(staff)}
+          >
+            Editar
+          </button>
+
+          <button
+            className="btn-link"
+            onClick={() => handleToggle(staff)}
+          >
+            {staff.isActive ? "Desactivar" : "Activar"}
+          </button>
+        </td>
+      </>
+    )}
+  />
+
+</div>
 
     </div>
   );

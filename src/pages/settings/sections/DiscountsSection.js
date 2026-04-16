@@ -13,6 +13,7 @@ import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
 import Loading from "../../../components/general/loading";
+import DataTable from "../../../components/general/dataTable";
 
 import {
   notifySuccess,
@@ -34,6 +35,21 @@ const DiscountsSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
+
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,29 +57,73 @@ const DiscountsSection = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  /* ================= FILTRO ================= */
+  /* =========================
+    PROCESAMIENTO (FILTRO + ORDEN)
+  ========================== */
 
-  const filteredDiscounts = useMemo(() => {
-    if (!searchTerm) return discounts;
+  const processedDiscounts = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    let result = discounts;
 
-    return discounts.filter((d) => (
-      d.name?.toLowerCase().includes(term) ||
-      d.type?.toLowerCase().includes(term) ||
-      d.value?.toString().includes(term) ||
-      d.currency?.toLowerCase().includes(term)
-    ));
-  }, [discounts, searchTerm]);
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
 
-  /* ================= PAGINACIÓN ================= */
+      result = result.filter((d) => (
+        d.name?.toLowerCase().includes(term) ||
+        d.type?.toLowerCase().includes(term) ||
+        d.value?.toString().includes(term) ||
+        d.currency?.toLowerCase().includes(term)
+      ));
+    }
 
-  const totalPages = Math.ceil(filteredDiscounts.length / rowsPerPage);
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
+
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // 🔥 Manejo especial fechas (Firestore)
+      if (sortConfig.key === "expirationDate") {
+        aValue = a.expirationDate?.toDate?.() || new Date(0);
+        bValue = b.expirationDate?.toDate?.() || new Date(0);
+      }
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [discounts, searchTerm, sortConfig]);
+
+  /* =========================
+    PAGINACIÓN
+  ========================== */
+
+  const totalPages = Math.ceil(processedDiscounts.length / rowsPerPage);
 
   const currentDiscounts = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
-    return filteredDiscounts.slice(start, start + rowsPerPage);
-  }, [filteredDiscounts, currentPage, rowsPerPage]);
+    return processedDiscounts.slice(start, start + rowsPerPage);
+  }, [processedDiscounts, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -347,104 +407,89 @@ const DiscountsSection = () => {
         </Modal>
       )}
 
-      <div className="discounts-content">
 
-        {discounts.length === 0 ? (
-          <p>No hay descuentos registrados.</p>
-        ) : (
-        <>
-          <div className="discounts-table-wrapper">
-            <table className="discounts-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Tipo</th>
-                  <th>Valor</th>
-                  <th>Expira</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+    <div className="discounts-content">
 
-              <tbody>
-                {currentDiscounts.map(discount => {
+      {discounts.length === 0 ? (
+        <p>No hay descuentos registrados.</p>
+      ) : (
+        <DataTable
+          data={processedDiscounts} // 🔥 IMPORTANTE (ya filtrado + ordenado)
+          rowsPerPage={rowsPerPage}
+          columns={[
+            { key: "name", label: "Nombre", sortable: true },
+            { key: "type", label: "Tipo", sortable: true },
+            { key: "value", label: "Valor", sortable: true },
+            { key: "expirationDate", label: "Expira", sortable: true },
+            { key: "isActive", label: "Estado", sortable: true },
+            { key: "actions", label: "Acciones", sortable: false },
+          ]}
+          renderRow={(discount) => {
 
-                  const expired =
-                    discount.expirationDate &&
-                    discount.expirationDate.toDate() < new Date();
+            const expired =
+              discount.expirationDate &&
+              discount.expirationDate.toDate() < new Date();
 
-                  return (
-                    <tr key={discount.id}>
-                      <td>{discount.name}</td>
+            return (
+              <>
+                <td>{discount.name}</td>
 
-                      <td>
-                        {discount.type === "percentage"
-                          ? "Porcentaje"
-                          : "Fijo"}
-                      </td>
+                <td>
+                  {discount.type === "percentage"
+                    ? "Porcentaje"
+                    : "Fijo"}
+                </td>
 
-                      <td>
-                        {discount.type === "percentage"
-                          ? `${discount.value}%`
-                          : `${discount.currency} ${discount.value}`}
-                      </td>
+                <td>
+                  {discount.type === "percentage"
+                    ? `${discount.value}%`
+                    : `${discount.currency} ${discount.value}`}
+                </td>
 
-                      <td>
-                        {discount.expirationDate
-                          ? discount.expirationDate.toDate().toLocaleDateString()
-                          : "-"}
-                      </td>
+                <td>
+                  {discount.expirationDate
+                    ? discount.expirationDate.toDate().toLocaleDateString()
+                    : "-"}
+                </td>
 
-                      <td>
-                        <span className={
-                          discount.isActive && !expired
-                            ? "badge-active"
-                            : "badge-inactive"
-                        }>
-                          {expired
-                            ? "Expirado"
-                            : discount.isActive
-                              ? "Activo"
-                              : "Inactivo"}
-                        </span>
-                      </td>
+                <td>
+                  <span
+                    className={
+                      discount.isActive && !expired
+                        ? "badge-active"
+                        : "badge-inactive"
+                    }
+                  >
+                    {expired
+                      ? "Expirado"
+                      : discount.isActive
+                        ? "Activo"
+                        : "Inactivo"}
+                  </span>
+                </td>
 
-                      <td>
-                        <button
-                          className="btn-link"
-                          onClick={() => handleEdit(discount)}
-                        >
-                          Editar
-                        </button>
+                <td>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(discount)}
+                  >
+                    Editar
+                  </button>
 
-                        <button
-                          className="btn-link"
-                          onClick={() => handleToggle(discount)}
-                        >
-                          {discount.isActive ? "Desactivar" : "Activar"}
-                        </button>
-                      </td>
+                  <button
+                    className="btn-link"
+                    onClick={() => handleToggle(discount)}
+                  >
+                    {discount.isActive ? "Desactivar" : "Activar"}
+                  </button>
+                </td>
+              </>
+            );
+          }}
+        />
+      )}
 
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 🔥 PAGINACIÓN REUTILIZABLE */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setCurrentPage}
-            onRowsChange={setRowsPerPage}
-          />
-
-        </>
-        )}
-
-      </div>
+    </div>
 
     </div>
   );

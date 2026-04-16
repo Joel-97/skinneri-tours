@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 
-import AdventureModal from "../general/adventureModal";
+import AdventureModal from "../reservations/adventure/adventureModal";
 
 import {
   getAdventures,

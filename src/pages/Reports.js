@@ -1,57 +1,78 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
 import { UserAuth } from '../context/AuthContext';
 
-import '../style/reports.css';
+import "../style/settings/settings.css";
 import '../style/style.css';
 
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-
 import TransportationReport from './reports/transportationReport';
-// import TransportationList from '../components/reservations/transportation/transportationList';
+// futuro:
+// import AdventureReport from './reports/adventureReport';
 
 const Reports = () => {
 
-    const { tap } = useParams();
-    const { companyId, user } = UserAuth();
+  const { companyId } = UserAuth();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+  const [view, setView] = useState("transport-report");
 
-    const defaultTabIndex =
-        token || !tap
-            ? 0
-            : tap.length === 1
-            ? 1
-            : parseInt(tap, 10) || 0;
+  const renderContent = () => {
+    switch (view) {
+      case "transport-report":
+        return <TransportationReport companyId={companyId} />;
 
-    return (
-        <div className="container-dashboard">
-            <div className='row'>
-                <div className='col-12'>
+      case "transport-summary":
+        return <div>Resumen de transportes (próximamente)</div>;
 
-                    <Tabs defaultIndex={defaultTabIndex === 0 ? 0 : 1}>
+      case "adventure-report":
+        return <div>Reportes de aventuras (próximamente)</div>;
 
-                        <TabList>
-                            <Tab>Reportes de Transportes</Tab>
-                            {/* <Tab>Lista de reservas</Tab> */}
-                        </TabList>
+      default:
+        return <div>Selecciona un reporte</div>;
+    }
+  };
 
-                        <TabPanel>
-                            <TransportationReport companyId={companyId} />
-                        </TabPanel>
+  return (
+    <div className="settings-layout">
 
-                        {/* <TabPanel>
-                            <TransportationList companyId={companyId} user={user}/>
-                        </TabPanel> */}
+      {/* SIDEBAR */}
+      <aside className="settings-sidebar">
 
-                    </Tabs>
+        <h4 className="sidebar-title">Transport</h4>
 
-                </div>
-            </div>
-        </div>
-    );
+        <button
+          className={view === "transport-report" ? "active" : ""}
+          onClick={() => setView("transport-report")}
+        >
+          Reporte general
+        </button>
+
+        <button
+          className={view === "transport-summary" ? "active" : ""}
+          onClick={() => setView("transport-summary")}
+        >
+          Resumen
+        </button>
+
+        <h4 className="sidebar-title">Adventure</h4>
+
+        <button
+          className={view === "adventure-report" ? "active" : ""}
+          onClick={() => setView("adventure-report")}
+          disabled
+        >
+          Próximamente
+        </button>
+
+      </aside>
+
+      {/* CONTENIDO */}
+      <main className="settings-content">
+
+        {renderContent()}
+
+      </main>
+
+    </div>
+  );
 };
 
 export default Reports;

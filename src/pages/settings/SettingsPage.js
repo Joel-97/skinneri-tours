@@ -6,86 +6,135 @@ import ServiceTypesSection from "./sections/ServiceTypesSection";
 import DiscountsSection from "./sections/DiscountsSection";
 import StaffSection from "./sections/StaffSection";
 import PaymentTypesSection from "./sections/PaymentTypesSection";
+
 import "../../style/settings/settings.css";
 
 const SettingsPage = () => {
 
-  const [activeTab, setActiveTab] = useState("taxes");
+  const [view, setView] = useState("taxes");
+
+  const renderContent = () => {
+    switch (view) {
+      case "taxes":
+        return <TaxesSection />;
+
+      case "serviceTypes":
+        return <ServiceTypesSection />;
+
+      case "discounts":
+        return <DiscountsSection />;
+
+      case "currency":
+        return <CurrenciesSection />;
+
+      case "staff":
+        return <StaffSection />;
+
+      case "paymentTypes":
+        return <PaymentTypesSection />;
+
+      case "locations":
+        return <LocationsSection />;
+
+      case "vehicles":
+        return <div>Vehículos próximamente</div>;
+
+      case "adventure":
+        return <div style={{ opacity: 0.6 }}>Próximamente</div>;
+
+      default:
+        return <div>Selecciona una opción</div>;
+    }
+  };
 
   return (
-    <div className="settings-container">
+    <div className="settings-layout">
 
-      <h2>Configuración</h2>
+      {/* SIDEBAR */}
+      <aside className="settings-sidebar">
 
-      <div className="settings-tabs">
+        <h4 className="sidebar-title">General</h4>
+
         <button
-          className={activeTab === "taxes" ? "active" : ""}
-          onClick={() => setActiveTab("taxes")}
+          className={view === "taxes" ? "active" : ""}
+          onClick={() => setView("taxes")}
         >
           Impuestos
         </button>
 
         <button
-          className={activeTab === "pickups" ? "active" : ""}
-          onClick={() => setActiveTab("pickups")}
+          className={view === "serviceTypes" ? "active" : ""}
+          onClick={() => setView("serviceTypes")}
         >
-          Lugares
+          Tipos de servicio
         </button>
 
         <button
-          className={activeTab === "serviceType" ? "active" : ""}
-          onClick={() => setActiveTab("serviceType")}
-        >
-          Tipo de servicio
-        </button>
-
-        <button
-          className={activeTab === "vehicles" ? "active" : ""}
-          onClick={() => setActiveTab("vehicles")}
-        >
-          Vehículos
-        </button>
-
-        <button
-          className={activeTab === "discounts" ? "active" : ""}
-          onClick={() => setActiveTab("discounts")}
+          className={view === "discounts" ? "active" : ""}
+          onClick={() => setView("discounts")}
         >
           Descuentos
         </button>
 
         <button
-          className={activeTab === "currency" ? "active" : ""}
-          onClick={() => setActiveTab("currency")}
+          className={view === "currency" ? "active" : ""}
+          onClick={() => setView("currency")}
         >
           Moneda
         </button>
 
         <button
-          className={activeTab === "staff" ? "active" : ""}
-          onClick={() => setActiveTab("staff")}
+          className={view === "staff" ? "active" : ""}
+          onClick={() => setView("staff")}
         >
-          Staff
+          Colaboradores
         </button>
 
         <button
-          className={activeTab === "paymentTypes" ? "active" : ""}
-          onClick={() => setActiveTab("paymentTypes")}
+          className={view === "paymentTypes" ? "active" : ""}
+          onClick={() => setView("paymentTypes")}
         >
           Tipos de pago
         </button>
 
-      </div>
+        <h4 className="sidebar-title">Transporte</h4>
 
-      <div className="settings-content">
-        {activeTab === "taxes" && < TaxesSection />}
-        {activeTab === "pickups" && < LocationsSection />}
-        {activeTab === "serviceType" && < ServiceTypesSection />}
-        {activeTab === "vehicles" && <div>Vehículos próximamente</div>}
-        {activeTab === "discounts" && < DiscountsSection />}
-        {activeTab === "currency" && < CurrenciesSection />}
-        {activeTab === "staff" && < StaffSection />}
-        {activeTab === "paymentTypes" && < PaymentTypesSection />}
-      </div>
+        <button
+          className={view === "locations" ? "active" : ""}
+          onClick={() => setView("locations")}
+        >
+          Lugares
+        </button>
+
+        <button
+          className={view === "vehicles" ? "active" : ""}
+          onClick={() => setView("vehicles")}
+        >
+          Vehículos
+        </button>
+
+        <h4 className="sidebar-title">Aventuras</h4>
+
+        <button
+          className={view === "adventure" ? "active" : ""}
+          onClick={() => setView("adventure")}
+          disabled
+        >
+          Próximamente
+        </button>
+
+      </aside>
+
+      {/* CONTENIDO */}
+      <main className="settings-content">
+
+        <div className="settings-header">
+          <h2>Configuración</h2>
+        </div>
+
+        {renderContent()}
+
+      </main>
 
     </div>
   );

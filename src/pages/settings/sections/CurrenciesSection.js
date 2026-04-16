@@ -9,6 +9,7 @@ import {
 import { UserAuth } from "../../../context/AuthContext";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
+import DataTable from "../../../components/general/dataTable";
 import {
   notifySuccess,
   notifyError,
@@ -27,6 +28,21 @@ const CurrenciesSection = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
+
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -35,31 +51,54 @@ const CurrenciesSection = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   /* =========================
-     FILTRO
+    PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const filteredCurrencies = useMemo(() => {
-    if (!searchTerm) return currencies;
+  const processedCurrencies = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    let result = currencies;
 
-    return currencies.filter((c) => (
-      c.code?.toLowerCase().includes(term) ||
-      c.name?.toLowerCase().includes(term) ||
-      c.symbol?.toLowerCase().includes(term)
-    ));
-  }, [currencies, searchTerm]);
+    // 🔎 FILTRO
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
 
-  /* =========================
-     PAGINACIÓN (CORREGIDA)
-  ========================== */
+      result = result.filter((c) => (
+        c.code?.toLowerCase().includes(term) ||
+        c.name?.toLowerCase().includes(term) ||
+        c.symbol?.toLowerCase().includes(term)
+      ));
+    }
 
-  const totalPages = Math.ceil(filteredCurrencies.length / rowsPerPage);
+    // 🔽 ORDEN
+    result = [...result].sort((a, b) => {
 
-  const currentCurrencies = useMemo(() => {
-    const start = (currentPage - 1) * rowsPerPage;
-    return filteredCurrencies.slice(start, start + rowsPerPage);
-  }, [filteredCurrencies, currentPage, rowsPerPage]);
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      // null safety
+      if (aValue == null) aValue = "";
+      if (bValue == null) bValue = "";
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [currencies, searchTerm, sortConfig]);
 
   const [form, setForm] = useState({
     code: "",
@@ -263,88 +302,83 @@ const CurrenciesSection = () => {
       )}
 
 
-      { currencies.length === 0 ? (
+      {currencies.length === 0 ? (
         <p>No hay monedas creadas.</p>
       ) : (
-      <>
-        <div className="currencies-table-wrapper">
-          <table className="currencies-table">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Símbolo</th>
-                <th>Predeterminada</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {currentCurrencies.map((currency) => (
-                <tr key={currency.id}>
-                  <td>{currency.code}</td>
-                  <td>{currency.name}</td>
-                  <td>{currency.symbol}</td>
-
-                  <td>
-                    {currency.isDefault && (
-                      <span className="badge-default">⭐ Sí</span>
-                    )}
-                  </td>
-
-                  <td>
-                    <span className={currency.isActive ? "badge-active" : "badge-inactive"}>
-                      {currency.isActive ? "Activa" : "Inactiva"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <button
-                      className="btn-link"
-                      onClick={() => handleEdit(currency)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-link"
-                      onClick={async () => {
-                        try {
-                          await toggleCurrencyStatus(
-                            companyId,
-                            currency.id,
-                            currency.isActive
-                          );
-
-                          notifySuccess("Moneda actualizada", "Los cambios fueron guardados.");
-                          loadCurrencies();
-
-                        } catch (error) {
-                          notifyError("Error", "Debe existir al menos una moneda activa");
-                        }
-                      }}
-                    >
-                      {currency.isActive ? "Desactivar" : "Activar"}
-                    </button>
-
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 🔥 PAGINACIÓN REUTILIZABLE */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+        <DataTable
+          data={processedCurrencies}
           rowsPerPage={rowsPerPage}
-          onPageChange={setCurrentPage}
-          onRowsChange={setRowsPerPage}
-        />
+          columns={[
+            { key: "code", label: "Código", sortable: true },
+            { key: "name", label: "Nombre", sortable: true },
+            { key: "symbol", label: "Símbolo", sortable: true },
+            { key: "isDefault", label: "Predeterminada", sortable: true },
+            { key: "isActive", label: "Estado", sortable: true },
+            { key: "actions", label: "Acciones", sortable: false },
+          ]}
+          renderRow={(currency) => (
+            <>
+              <td>{currency.code}</td>
+              <td>{currency.name}</td>
+              <td>{currency.symbol}</td>
 
-      </>
+              <td>
+                {currency.isDefault && (
+                  <span className="badge-default">⭐ Sí</span>
+                )}
+              </td>
+
+              <td>
+                <span
+                  className={
+                    currency.isActive
+                      ? "badge-active"
+                      : "badge-inactive"
+                  }
+                >
+                  {currency.isActive ? "Activa" : "Inactiva"}
+                </span>
+              </td>
+
+              <td>
+                <button
+                  className="btn-link"
+                  onClick={() => handleEdit(currency)}
+                >
+                  Editar
+                </button>
+
+                <button
+                  className="btn-link"
+                  onClick={async () => {
+                    try {
+                      await toggleCurrencyStatus(
+                        companyId,
+                        currency.id,
+                        currency.isActive
+                      );
+
+                      notifySuccess(
+                        "Moneda actualizada",
+                        "Los cambios fueron guardados."
+                      );
+
+                      loadCurrencies();
+
+                    } catch (error) {
+                      notifyError(
+                        "Error",
+                        "Debe existir al menos una moneda activa"
+                      );
+                    }
+                  }}
+                >
+                  {currency.isActive ? "Desactivar" : "Activar"}
+                </button>
+              </td>
+            </>
+          )}
+        />
       )}
 
     </div>

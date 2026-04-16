@@ -11,6 +11,7 @@ import { UserAuth } from "../../../context/AuthContext";
 import "../../../style/settings/general/taxSettings.css";
 import Modal from "../../../components/general/modal";
 import Pagination from "../../../components/general/pagination";
+import DataTable from "../../../components/general/dataTable";
 import { getCurrencies } from "../../../services/settings/general/currencyService";
 import {
   notifySuccess,
@@ -28,6 +29,20 @@ const TaxesSettings = () => {
   const [loading, setLoading] = useState(true);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [currencies, setCurrencies] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+        prev.key === key && prev.direction === "asc"
+          ? "desc"
+          : "asc"
+    }));
+  };
 
   // 🔍 SEARCH
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,29 +55,59 @@ const TaxesSettings = () => {
      FILTRO
   ========================== */
 
-  const filteredTaxes = useMemo(() => {
-    if (!searchTerm) return taxes;
+  const processedTaxes = useMemo(() => {
 
-    const term = searchTerm.toLowerCase();
+    // 1. FILTRAR
+    let result = taxes;
 
-    return taxes.filter((t) =>
-      t.name?.toLowerCase().includes(term) ||
-      t.type?.toLowerCase().includes(term) ||
-      t.rate?.toString().includes(term) ||
-      t.currency?.toLowerCase().includes(term)
-    );
-  }, [taxes, searchTerm]);
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+
+      result = result.filter((t) =>
+        t.name?.toLowerCase().includes(term) ||
+        t.type?.toLowerCase().includes(term) ||
+        t.rate?.toString().includes(term) ||
+        t.currency?.toLowerCase().includes(term)
+      );
+    }
+
+    // 2. ORDENAR
+    result = [...result].sort((a, b) => {
+
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // boolean → número
+      if (typeof aValue === "boolean") {
+        aValue = aValue ? 1 : 0;
+        bValue = bValue ? 1 : 0;
+      }
+
+      // string → lowercase
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+
+  }, [taxes, searchTerm, sortConfig]);
 
   /* =========================
      PAGINACIÓN (CORREGIDA)
   ========================== */
 
-  const totalPages = Math.ceil(filteredTaxes.length / rowsPerPage);
+  const totalPages = Math.ceil(processedTaxes.length / rowsPerPage);
 
   const currentTaxes = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
-    return filteredTaxes.slice(start, start + rowsPerPage);
-  }, [filteredTaxes, currentPage, rowsPerPage]);
+    return processedTaxes.slice(start, start + rowsPerPage);
+  }, [processedTaxes, currentPage, rowsPerPage]);
 
   const [form, setForm] = useState({
     name: "",
@@ -409,125 +454,106 @@ const TaxesSettings = () => {
       )}
 
       {/* LISTADO */}
-      <div className="taxes-list">
 
-        { taxes.length === 0 ? (
-          <p>No hay impuestos creados todavía.</p>
-        ) : (
-        <>
-          <div className="taxes-table-wrapper">
-            <table className="taxes-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Tasa</th>
-                  <th>Predeterminado</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
+    <div className="taxes-list">
 
-              <tbody>
-                {currentTaxes.map((tax) => (
-                  <tr key={tax.id}>
-                    <td>{tax.name}</td>
+      {taxes.length === 0 ? (
+        <p>No hay impuestos creados todavía.</p>
+      ) : (
+        <DataTable
+          data={processedTaxes} // 🔥 filtro + sort aplicado antes
+          rowsPerPage={rowsPerPage}
+          columns={[
+            { key: "name", label: "Nombre", sortable: true },
+            { key: "rate", label: "Tasa", sortable: true },
+            { key: "isDefault", label: "Predeterminado", sortable: true },
+            { key: "isActive", label: "Estado", sortable: true },
+            { key: "actions", label: "Acciones", sortable: false },
+          ]}
+          renderRow={(tax) => (
+            <>
+              <td>{tax.name}</td>
 
-                    <td>
-                      {tax.type === "percentage"
-                        ? `${tax.rate}%`
-                        : `${getCurrencySymbol(tax.currency)}${tax.rate}`
-                      }
-                    </td>
+              <td>
+                {tax.type === "percentage"
+                  ? `${tax.rate}%`
+                  : `${getCurrencySymbol(tax.currency)}${tax.rate}`
+                }
+              </td>
 
-                    <td>
-                      {tax.isDefault && (
-                        <span className="badge-default">
-                          ⭐ Sí
-                        </span>
-                      )}
-                    </td>
+              <td>
+                {tax.isDefault && (
+                  <span className="badge-default">
+                    ⭐ Sí
+                  </span>
+                )}
+              </td>
 
-                    <td>
-                      <span
-                        className={
-                          tax.isActive
-                            ? "badge-active"
-                            : "badge-inactive"
-                        }
-                      >
-                        {tax.isActive ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
+              <td>
+                <span
+                  className={
+                    tax.isActive
+                      ? "badge-active"
+                      : "badge-inactive"
+                  }
+                >
+                  {tax.isActive ? "Activo" : "Inactivo"}
+                </span>
+              </td>
 
-                    <td>
-                      <button
-                        className="btn-link"
-                        onClick={() => handleEdit(tax)}
-                      >
-                        Editar
-                      </button>
+              <td>
+                <button
+                  className="btn-link"
+                  onClick={() => handleEdit(tax)}
+                >
+                  Editar
+                </button>
 
-                      <button
-                        className="btn-link"
-                        onClick={async () => {
+                <button
+                  className="btn-link"
+                  onClick={async () => {
 
-                          const confirmed = await notifyConfirm(
-                            `¿Deseas ${tax.isActive ? "desactivar" : "activar"} este impuesto?`
-                          );
+                    const confirmed = await notifyConfirm(
+                      `¿Deseas ${tax.isActive ? "desactivar" : "activar"} este impuesto?`
+                    );
 
-                          if (!confirmed) return;
+                    if (!confirmed) return;
 
-                          try {
+                    try {
 
-                            await toggleTaxStatus(
-                              companyId,
-                              tax.id,
-                              tax.isActive
-                            );
+                      await toggleTaxStatus(
+                        companyId,
+                        tax.id,
+                        tax.isActive
+                      );
 
-                            notifySuccess(
-                              "Estado actualizado",
-                              `El impuesto fue ${tax.isActive ? "desactivado" : "activado"} correctamente.`
-                            );
+                      notifySuccess(
+                        "Estado actualizado",
+                        `El impuesto fue ${tax.isActive ? "desactivado" : "activado"} correctamente.`
+                      );
 
-                            cargarImpuestos();
+                      cargarImpuestos();
 
-                          } catch (error) {
+                    } catch (error) {
 
-                            console.error("Error cambiando estado:", error);
+                      notifyError(
+                        "No se pudo actualizar",
+                        error.message || "Ocurrió un error inesperado."
+                      );
 
-                            notifyError(
-                              "No se pudo actualizar",
-                              error.message || "Ocurrió un error inesperado."
-                            );
+                    }
 
-                          }
+                  }}
+                >
+                  {tax.isActive ? "Desactivar" : "Activar"}
+                </button>
+              </td>
+            </>
+          )}
+        />
+      )}
 
-                        }}
-                      >
-                        {tax.isActive ? "Desactivar" : "Activar"}
-                      </button>
-
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 🔥 PAGINACIÓN REUTILIZABLE */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setCurrentPage}
-            onRowsChange={setRowsPerPage}
-          />
-
-        </>
-        )}
-
-      </div>
+    </div>
 
     </div>
 
