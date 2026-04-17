@@ -48,6 +48,7 @@ const Reports = () => {
         <button
           className={view === "transport-summary" ? "active" : ""}
           onClick={() => setView("transport-summary")}
+          disabled
         >
           Resumen
         </button>

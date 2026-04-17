@@ -5,6 +5,7 @@ import { notifyError } from "../../services/notificationService";
 import Loading from "../../components/general/loading";
 import "../../style/reports/transportationReport.css";
 import Pagination from "../../components/general/pagination";
+import { formatDateCustom } from "../../services/Tools";
 
 // 📥 EXPORTS
 import * as XLSX from "xlsx";
@@ -376,7 +377,7 @@ const TransportationReport = ({ companyId }) => {
               <tr key={b.id || i}>
                 <td>{(currentPage - 1) * rowsPerPage + i + 1}</td>
                 <td>{b.clientName}</td>
-                <td>{b.dateStr}</td>
+                <td>{formatDateCustom(b.dateStr)}</td>
                 <td>{b.staffName || "-"}</td>
                 <td>{b.paymentTypeName || "-"}</td>
                 <td>{formatCurrency(b.subtotal)}</td>

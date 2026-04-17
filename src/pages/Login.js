@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 import logoWord from '../assets/Flor_morada.png';
 import Loading from "../components/general/loading"; 
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 import "../style/login.css";
 
@@ -20,6 +21,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // 👁️ NUEVO
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -98,16 +102,30 @@ const Login = () => {
           />
         </div>
 
+        {/* 👁️ PASSWORD CON TOGGLE */}
         <div className="form-group">
           <label>Contraseña</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="login-input"
-            required
-          />
+
+          <div className="password-wrapper">
+
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="login-input"
+              required
+            />
+
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(prev => !prev)}
+            >
+              {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+            </button>
+
+          </div>
         </div>
 
         <button

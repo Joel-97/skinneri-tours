@@ -104,6 +104,39 @@
 }
 
 /* ======================================================
+   INPUT PASSWORD STYLE EYES
+====================================================== */
+
+/* wrapper para posicionar el icono */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* input ocupa todo */
+.password-wrapper .login-input {
+  width: 100%;
+  padding-right: 40px; /* espacio para el icono */
+}
+
+/* botón del ojo */
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* hover */
+.toggle-password:hover {
+  color: #111827;
+}
+
+/* ======================================================
    BUTTON PRIMARY
 ====================================================== */
 
