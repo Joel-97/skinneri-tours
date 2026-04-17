@@ -46,63 +46,63 @@ const dayOfWeekNames = [
   "Wednesday", "Thursday", "Friday", "Saturday"
 ];
 
-function formatDate(date, patternStr) {
-  try {
-    if (!patternStr) {
-      patternStr = 'yyyy-MM-dd';
-    }
-    var day = date.getDate(),
-      month = date.getMonth(),
-      year = date.getFullYear(),
-      hour = date.getHours(),
-      minute = date.getMinutes(),
-      second = date.getSeconds(),
-      miliseconds = date.getMilliseconds(),
-      h = hour % 12,
-      hh = twoDigitPad(h),
-      HH = twoDigitPad(hour),
-      mm = twoDigitPad(minute),
-      ss = twoDigitPad(second),
-      aaa = hour < 12 ? 'AM' : 'PM',
-      EEEE = dayOfWeekNames[date.getDay()],
-      EEE = EEEE.substr(0, 3),
-      dd = twoDigitPad(day),
-      M = month + 1,
-      MM = twoDigitPad(M),
-      MMMM = monthNames[month],
-      MMM = MMMM.substr(0, 3),
-      yyyy = year + "",
-      yy = yyyy.substr(2, 2)
-      ;
-    // checks to see if month name will be used
-    patternStr = patternStr
-      .replace('hh', hh).replace('h', h)
-      .replace('HH', HH).replace('H', hour)
-      .replace('mm', mm).replace('m', minute)
-      .replace('ss', ss).replace('s', second)
-      .replace('S', miliseconds)
-      .replace('dd', dd).replace('d', day)
+// function formatDate(date, patternStr) {
+//   try {
+//     if (!patternStr) {
+//       patternStr = 'yyyy-MM-dd';
+//     }
+//     var day = date.getDate(),
+//       month = date.getMonth(),
+//       year = date.getFullYear(),
+//       hour = date.getHours(),
+//       minute = date.getMinutes(),
+//       second = date.getSeconds(),
+//       miliseconds = date.getMilliseconds(),
+//       h = hour % 12,
+//       hh = twoDigitPad(h),
+//       HH = twoDigitPad(hour),
+//       mm = twoDigitPad(minute),
+//       ss = twoDigitPad(second),
+//       aaa = hour < 12 ? 'AM' : 'PM',
+//       EEEE = dayOfWeekNames[date.getDay()],
+//       EEE = EEEE.substr(0, 3),
+//       dd = twoDigitPad(day),
+//       M = month + 1,
+//       MM = twoDigitPad(M),
+//       MMMM = monthNames[month],
+//       MMM = MMMM.substr(0, 3),
+//       yyyy = year + "",
+//       yy = yyyy.substr(2, 2)
+//       ;
+//     // checks to see if month name will be used
+//     patternStr = patternStr
+//       .replace('hh', hh).replace('h', h)
+//       .replace('HH', HH).replace('H', hour)
+//       .replace('mm', mm).replace('m', minute)
+//       .replace('ss', ss).replace('s', second)
+//       .replace('S', miliseconds)
+//       .replace('dd', dd).replace('d', day)
 
-      .replace('EEEE', EEEE).replace('EEE', EEE)
-      .replace('yyyy', yyyy)
-      .replace('yy', yy)
-      .replace('aaa', aaa);
-    if (patternStr.indexOf('MMM') > -1) {
-      patternStr = patternStr
-        .replace('MMMM', MMMM)
-        .replace('MMM', MMM);
-    }
-    else {
-      patternStr = patternStr
-        .replace('MM', MM)
-        .replace('M', M);
-    }
+//       .replace('EEEE', EEEE).replace('EEE', EEE)
+//       .replace('yyyy', yyyy)
+//       .replace('yy', yy)
+//       .replace('aaa', aaa);
+//     if (patternStr.indexOf('MMM') > -1) {
+//       patternStr = patternStr
+//         .replace('MMMM', MMMM)
+//         .replace('MMM', MMM);
+//     }
+//     else {
+//       patternStr = patternStr
+//         .replace('MM', MM)
+//         .replace('M', M);
+//     }
 
-    return patternStr;
-  } catch (error) {
+//     return patternStr;
+//   } catch (error) {
 
-  }
-}
+//   }
+// }
 
 function twoDigitPad(num) {
   return num < 10 ? "0" + num : num;
@@ -162,13 +162,24 @@ function twoDigitPad(num) {
   };
 
   /* =============================================================== 
+  * FORMATEAR LA FECHA PARA QUE SE VEA DD/MM/YYYY
+  =============================================================== */
+  const formatDateCustom = (dateStr) => {
+    if (!dateStr) return "-";
+
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+
+  /* =============================================================== 
   * A LOS NUMEROS LES PONE SOLO DOS DECIMALES
   =============================================================== */
   
   const safe = (value) => Number(value || 0).toFixed(2);
 
 
-export { numtoDate, monthNames, dayOfWeekNames, formatDate, twoDigitPad, columnsNotifications, getEndDate, generateReservationNumber, safe}
+export { numtoDate, monthNames, dayOfWeekNames, formatDateCustom, twoDigitPad, columnsNotifications, getEndDate, generateReservationNumber, safe}
 
   export const roleVisit = 'visit';
   export const roleSuperAdmin = 'superAdmin';

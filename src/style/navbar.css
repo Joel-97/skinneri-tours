@@ -36,6 +36,14 @@
   transform: translateX(-50%);
 }
 
+
+/*Darle color a la opcion del navbar seleccionada*/
+.active-item {
+  background-color: #5a2d8be8 !important;
+  font-weight: 600;
+  color: #ffffff !important;
+}
+
 /* ======================================================
    LOGO / EMPRESA
 ====================================================== */
