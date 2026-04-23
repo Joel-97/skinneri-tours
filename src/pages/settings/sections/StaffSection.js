@@ -391,61 +391,61 @@ const StaffSection = () => {
       )}
 
 
-<div className="staff-table-wrapper">
+    <div className="staff-table-wrapper">
 
-  <DataTable
-    data={processedStaff}
-    rowsPerPage={rowsPerPage}
-    columns={[
-      { key: "name", label: "Nombre", sortable: true },
-      { key: "phone", label: "Teléfono", sortable: true },
-      { key: "role", label: "Rol", sortable: true },
-      { key: "staffType", label: "Tipo", sortable: true },
-      { key: "isActive", label: "Estado", sortable: true },
-      { key: "actions", label: "Acciones", sortable: false },
-    ]}
-    renderRow={(staff) => (
-      <>
-        <td>{staff.name}</td>
+      <DataTable
+        data={processedStaff}
+        rowsPerPage={rowsPerPage}
+        columns={[
+          { key: "name", label: "Nombre", sortable: true },
+          { key: "phone", label: "Teléfono", sortable: true },
+          { key: "role", label: "Rol", sortable: true },
+          { key: "staffType", label: "Tipo", sortable: true },
+          { key: "isActive", label: "Estado", sortable: true },
+          { key: "actions", label: "Acciones", sortable: false },
+        ]}
+        renderRow={(staff) => (
+          <>
+            <td>{staff.name}</td>
 
-        <td>{staff.phone}</td>
+            <td>{staff.phone}</td>
 
-        <td>{staff.role}</td>
+            <td>{staff.role}</td>
 
-        <td>{staff.staffType}</td>
+            <td>{staff.staffType}</td>
 
-        <td>
-          <span
-            className={
-              staff.isActive
-                ? "badge-active"
-                : "badge-inactive"
-            }
-          >
-            {staff.isActive ? "Activo" : "Inactivo"}
-          </span>
-        </td>
+            <td>
+              <span
+                className={
+                  staff.isActive
+                    ? "badge-active"
+                    : "badge-inactive"
+                }
+              >
+                {staff.isActive ? "Activo" : "Inactivo"}
+              </span>
+            </td>
 
-        <td>
-          <button
-            className="btn-link"
-            onClick={() => handleEdit(staff)}
-          >
-            Editar
-          </button>
+            <td>
+              <button
+                className="btn-link"
+                onClick={() => handleEdit(staff)}
+              >
+                Editar
+              </button>
 
-          <button
-            className="btn-link"
-            onClick={() => handleToggle(staff)}
-          >
-            {staff.isActive ? "Desactivar" : "Activar"}
-          </button>
-        </td>
-      </>
-    )}
-  />
+              <button
+                className="btn-link"
+                onClick={() => handleToggle(staff)}
+              >
+                {staff.isActive ? "Desactivar" : "Activar"}
+              </button>
+            </td>
+          </>
+        )}
+      />
 
-</div>
+    </div>
 
     </div>
   );

@@ -5,6 +5,7 @@ import "../style/settings/settings.css";
 import '../style/style.css';
 
 import TransportationReport from './reports/transportationReport';
+import CommissionReport from './reports/commissionReport';
 // futuro:
 // import AdventureReport from './reports/adventureReport';
 
@@ -18,6 +19,9 @@ const Reports = () => {
     switch (view) {
       case "transport-report":
         return <TransportationReport companyId={companyId} />;
+      
+      case "commission-report":
+        return <CommissionReport companyId={companyId} />;
 
       case "transport-summary":
         return <div>Resumen de transportes (próximamente)</div>;
@@ -46,11 +50,10 @@ const Reports = () => {
         </button>
 
         <button
-          className={view === "transport-summary" ? "active" : ""}
-          onClick={() => setView("transport-summary")}
-          disabled
+          className={view === "commission-report" ? "active" : ""}
+          onClick={() => setView("commission-report")}
         >
-          Resumen
+          Reporte de comisiones
         </button>
 
         <h4 className="sidebar-title">Adventure</h4>

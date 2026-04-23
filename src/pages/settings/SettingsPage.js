@@ -5,6 +5,7 @@ import LocationsSection from "./sections/LocationsSection";
 import ServiceTypesSection from "./sections/ServiceTypesSection";
 import DiscountsSection from "./sections/DiscountsSection";
 import StaffSection from "./sections/StaffSection";
+import CommissionAgents from "./sections/CommissionAgentsSection";
 import PaymentTypesSection from "./sections/PaymentTypesSection";
 
 import "../../style/settings/settings.css";
@@ -29,6 +30,9 @@ const SettingsPage = () => {
 
       case "staff":
         return <StaffSection />;
+
+      case "commissionAgents":
+      return <CommissionAgents />;
 
       case "paymentTypes":
         return <PaymentTypesSection />;
@@ -88,6 +92,13 @@ const SettingsPage = () => {
           onClick={() => setView("staff")}
         >
           Colaboradores
+        </button>
+
+        <button
+          className={view === "commissionAgents" ? "active" : ""}
+          onClick={() => setView("commissionAgents")}
+        >
+          Comisionistas
         </button>
 
         <button

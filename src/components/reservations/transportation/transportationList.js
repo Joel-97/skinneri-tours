@@ -7,6 +7,13 @@ import {
   deleteTransportation
 } from "../../../services/transportation/transportationService";
 import { notifySuccess, notifyError, notifyConfirm } from "../../../services/notificationService";
+import { 
+  createCommission, 
+  updateCommission,
+  deleteCommission,
+  getCommissionByBooking 
+} from "../../../services/settings/general/commissionService";
+
 import Loading from "../../../components/general/loading"; 
 import "../../../style/transportation/transportationList.css";
 
@@ -79,16 +86,81 @@ const TransportationList = ({ companyId, user }) => {
 
   const handleSave = async (formData) => {
     try {
+
+      let savedBooking;
+
       if (mode === "create") {
-        await createTransportation(companyId, formData, user);
+        savedBooking = await createTransportation(companyId, formData, user);
+
         notifySuccess("Reserva creada", "La reserva fue creada correctamente.");
       } else {
         await updateTransportation(companyId, selectedReservation.id, formData, user);
+
+        savedBooking = {
+          id: selectedReservation.id,
+          ...formData
+        };
+
         notifySuccess("Reserva actualizada", "Los cambios fueron guardados.");
+      }
+
+      /* =========================
+        🔥 COMISIONES AQUÍ (CORRECTO)
+      ========================== */
+
+      if (!savedBooking?.id) return;
+
+      const existingList = await getCommissionByBooking(companyId, savedBooking.id);
+      const existing = existingList?.[0];
+
+      const price = Number(formData.price || 0);
+      const discount = Number(formData.discountAmount || 0);
+
+      const base = Number((price - discount).toFixed(2));
+
+      if (
+        formData.commissionEnabled &&
+        formData.commissionBeneficiaryId
+      ) {
+
+        const amount =
+          formData.commissionType === "percentage"
+            ? base * (formData.commissionValue / 100)
+            : formData.commissionValue;
+
+        const commissionData = {
+          bookingId: savedBooking.id,
+
+          beneficiaryId: formData.commissionBeneficiaryId,
+          beneficiaryName: formData.commissionBeneficiaryName,
+          beneficiaryType: formData.commissionBeneficiaryType,
+
+          serviceTypeId: formData.serviceTypeId,
+          serviceTypeName: formData.serviceTypeName,
+
+          amount: Number(amount.toFixed(2)),
+          baseAmount: Number(base),
+
+          type: formData.commissionType,
+          value: formData.commissionValue,
+
+          bookingDate: formData.date
+        };
+
+        if (existing) {
+          await updateCommission(companyId, existing.id, commissionData, user);
+        } else {
+          await createCommission(companyId, commissionData, user);
+        }
+
+      } else if (!formData.commissionEnabled && existing) {
+
+        await deleteCommission(companyId, existing.id);
       }
 
       setModalOpen(false);
       loadReservations();
+
     } catch (error) {
       console.error("Error guardando reserva:", error);
       notifyError("Error", error);

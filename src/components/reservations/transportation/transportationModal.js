@@ -13,7 +13,8 @@ import { getStaff } from "../../../services/settings/general/staffService";
 import { reservationNumberExists } from "../../../services/transportation/transportationService";
 import { getEndDate, generateReservationNumber, safe } from "../../../services/Tools";
 import { getPaymentTypes } from "../../../services/settings/general/paymentTypeService";
-
+import { getCommissionAgents  } from "../../../services/settings/general/agentsService";
+import { getCommissionByBooking } from "../../../services/settings/general/commissionService";
 import { notifySuccess, notifyError } from "../../../services/notificationService";
 import "../../../style/general/transportationModal.css";
 
@@ -39,7 +40,7 @@ export default function TransportationModal({
 
     serviceTypeId: "",
     serviceTypeName: "",
-    serviceCategory: "", // 🔥 NUEVO
+    serviceCategory: "",
 
     locationFromId: "",
     locationToId: "",
@@ -63,7 +64,7 @@ export default function TransportationModal({
     activeTaxIds: [],
     taxAmount: 0,
 
-    // 🧮 RESULTADOS (CLAVE PARA REPORTES)
+    // 🧮 RESULTADOS
     subtotal: 0,
     total: 0,
 
@@ -72,7 +73,20 @@ export default function TransportationModal({
     staffName: "",
 
     paymentTypeId: "",
-    paymentTypeName: ""
+    paymentTypeName: "",
+
+    // 💸 COMISIONES
+    commissionEnabled: false,
+    commissionType: "percentage",
+    commissionValue: 0,
+
+    commissionBeneficiaryId: "",
+    commissionBeneficiaryName: "",
+    commissionBeneficiaryType: "person",
+
+    // 🔥 NUEVOS (PRO)
+    commissionId: null,
+    commissionAmount: 0
   };
 
   /* =======================
@@ -103,6 +117,8 @@ export default function TransportationModal({
   const [currencies, setCurrencies] = useState([]);
   const [staff, setStaff] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
+  const [commissionAgents, setCommissionAgents] = useState([]);
+  const [existingCommission, setExistingCommission] = useState(null);
 
   useEffect(() => {
     if (!companyId) return;
@@ -116,7 +132,8 @@ export default function TransportationModal({
         ds,
         cur,
         dr,
-        pt
+        pt,
+        ca // 🔥 NUEVO
       ] = await Promise.all([
         getServiceTypes(companyId, "transportation"),
         getLocations(companyId),
@@ -124,7 +141,8 @@ export default function TransportationModal({
         getDiscounts(companyId),
         getCurrencies(companyId),
         getStaff(companyId),
-        getPaymentTypes(companyId)
+        getPaymentTypes(companyId),
+        getCommissionAgents(companyId) // 🔥 NUEVO
       ]);
 
       setServiceTypes(st.filter(s => s.isActive));
@@ -134,6 +152,9 @@ export default function TransportationModal({
       setCurrencies(cur.filter(c => c.isActive));
       setStaff(dr.filter(d => d.isActive));
       setPaymentTypes(pt.filter(p => p.isActive));
+
+      // 🔥 NUEVO
+      setCommissionAgents(ca.filter(c => c.isActive));
     };
 
     load();
@@ -187,12 +208,12 @@ export default function TransportationModal({
     // =========================
     if (!reservation) return;
 
-setForm({
-  ...reservation,
-  date: formatDate(reservation.date),
-  endDate: formatDate(reservation.endDate),
-  activeTaxIds: reservation.activeTaxIds || []
-});
+  setForm({
+    ...reservation,
+    date: formatDate(reservation.date),
+    endDate: formatDate(reservation.endDate),
+    activeTaxIds: reservation.activeTaxIds || []
+  });
 
   }, [reservation, mode, taxes]);
 
@@ -220,6 +241,27 @@ setForm({
       }));
     }
   }, [selectedServiceType]);
+
+  /* =======================
+    CARGA LAS COMISIONES LO BUSCA POR RESERVA
+  ======================== */
+
+  useEffect(() => {
+    const loadCommission = async () => {
+      if (!reservation?.id) return;
+
+      const data = await getCommissionByBooking(companyId, reservation.id);
+
+      if (data.length > 0) {
+        setExistingCommission(data[0]);
+      }
+    };
+
+    if (mode === "edit") {
+      loadCommission();
+    }
+
+  }, [reservation, mode]);
 
   /* =======================
      DESCUENTO
@@ -287,9 +329,16 @@ setForm({
     0
   );
 
+  const price = Number(form.price || 0);
+
+  const discount = Number(discountAmount || 0);
+
+  const baseForCommission = Number(
+    (price - discount).toFixed(2)
+  );
+
   const total = Number(
-    (Number(subtotalAfterDiscount || 0) + Number(totalTax || 0))
-      .toFixed(2)
+    (baseForCommission + Number(totalTax || 0)).toFixed(2)
   );
 
 
@@ -331,7 +380,7 @@ setForm({
     setForm(prev => {
       let newValue = value;
 
-      // Solo price es número
+      // 🔢 convertir price a número
       if (name === "price") {
         newValue = value === "" ? "" : Number(value);
       }
@@ -341,7 +390,10 @@ setForm({
         [name]: newValue
       };
 
-      // Actualizar nombre del servicio (IDs tipo string)
+      /* =========================
+        SERVICIO
+      ========================== */
+
       if (name === "serviceTypeId") {
         const selectedService = serviceTypes.find(
           s => s.id === newValue
@@ -350,7 +402,10 @@ setForm({
         updatedForm.serviceTypeName = selectedService?.name || "";
       }
 
-      // Recalcular endDate
+      /* =========================
+        END DATE AUTO
+      ========================== */
+
       if (name === "date" || name === "serviceTypeId") {
 
         const date = name === "date" ? newValue : prev.date;
@@ -369,6 +424,26 @@ setForm({
           );
         } else {
           updatedForm.endDate = "";
+        }
+      }
+
+      /* =========================
+        🔥 COMISIONISTA AUTO (CLAVE)
+      ========================== */
+
+      if (name === "commissionBeneficiaryId") {
+
+        const agent = commissionAgents.find(
+          a => a.id === newValue
+        );
+
+        if (agent) {
+          updatedForm.commissionBeneficiaryName = agent.name;
+          updatedForm.commissionBeneficiaryType = agent.type;
+
+          // 🔥 AUTO CONFIGURACIÓN
+          updatedForm.commissionType = agent.commissionType || "percentage";
+          updatedForm.commissionValue = Number(agent.commissionValue || 0);
         }
       }
 
@@ -400,6 +475,11 @@ setForm({
       return;
     }
 
+    if (!form.locationFromId) {
+      notifyError("Lugar de recogida requerido");
+      return;
+    }
+
     if (!form.locationToId) {
       notifyError("Lugar de destino requerido");
       return;
@@ -417,7 +497,10 @@ setForm({
 
     let updatedForm = { ...form };
 
-    // 🔹 Generar número si es nueva
+    /* =========================
+      GENERAR NÚMERO
+    ========================== */
+
     if (mode === "create") {
       let newNumber;
       let exists = true;
@@ -430,41 +513,48 @@ setForm({
       updatedForm.reservationNumber = newNumber;
     }
 
-    // 🔥 SNAPSHOTS (CLAVE PARA REPORTES)
+    /* =========================
+      SNAPSHOTS
+    ========================== */
+
     const selectedStaff = staff.find(d => d.id === form.staffId);
     const selectedPayment = paymentTypes.find(p => p.id === form.paymentTypeId);
     const selectedService = serviceTypes.find(s => s.id === form.serviceTypeId);
 
-    // 🔥 DATOS FINANCIEROS (CONGELADOS)
+    /* =========================
+      DATOS FINANCIEROS
+    ========================== */
+
     const financialData = {
       ...updatedForm,
 
-      // 💰 BASE
       subtotal: Number(form.price || 0),
-
-      // 🔻 DESCUENTO
       discountAmount: Number(discountAmount.toFixed(2)),
-
-      // 🧾 IMPUESTOS
       taxAmount: Number(totalTax.toFixed(2)),
-
-      // 🧮 TOTAL FINAL
       total: Number(total.toFixed(2)),
 
-      // 🔍 SNAPSHOTS
       staffName: selectedStaff?.name || "",
       paymentTypeName: selectedPayment?.name || "",
       serviceCategory: selectedService?.category || "transport",
+      serviceTypeName: selectedService?.name || "",
 
-      // 🔎 OPCIONAL (muy útil después)
       dateString: form.date ? form.date.slice(0, 10) : "",
       month: form.date ? form.date.slice(0, 7) : "",
       year: form.date ? form.date.slice(0, 4) : ""
     };
 
-    onSave(financialData);
-  };
+    try {
 
+      // 🔥 SOLO GUARDAR → delega TODO al padre
+      await onSave(financialData);
+
+    } catch (error) {
+
+      console.error(error);
+      notifyError("Error guardando reserva");
+
+    }
+  };
 
   const handleSelectClient = (client) => {
     setForm(prev => ({
@@ -567,6 +657,14 @@ setForm({
     label: staff.name
   }));
 
+  const commissionOptions = useMemo(() => {
+    return commissionAgents.map(a => ({
+      value: a.id,
+      label: a.name,
+      type: a.type
+    }));
+  }, [commissionAgents]);
+
   const paymentTypeOptions = paymentTypes.map(p => ({
     value: p.id,
     label: p.name
@@ -578,6 +676,13 @@ setForm({
     styles: {
       menuPortal: base => ({ ...base, zIndex: 9999 })
     }
+  };
+
+  const formatCurrency = (value, currency = "USD") => {
+    return new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency
+    }).format(Number(value || 0));
   };
 
   if (!isOpen) return null;
@@ -934,9 +1039,155 @@ setForm({
             ))}
           </div>
 
+          {/* ================= COMISIONES ================= */}
+          <div className="modal-section section-card m-top">
+            <h4>Comisión</h4>
+
+            {/* ACTIVAR */}
+            <div className="form-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.commissionEnabled}
+                  onChange={(e) =>
+                    setForm(prev => ({
+                      ...prev,
+                      commissionEnabled: e.target.checked,
+
+                      // 🔥 reset si se desactiva
+                      ...(e.target.checked === false && {
+                        commissionBeneficiaryId: "",
+                        commissionBeneficiaryName: "",
+                        commissionBeneficiaryType: "",
+                        commissionType: "percentage",
+                        commissionValue: 0
+                      })
+                    }))
+                  }
+                />
+                Aplicar comisión
+              </label>
+            </div>
+
+            {form.commissionEnabled && (
+              <div className="form-grid two-columns">
+
+                {/* COMISIONISTA */}
+                <div className="form-field">
+                  <label className="field-label">
+                    Comisionista
+                  </label>
+
+                  <Select
+                    options={commissionOptions}
+                    value={
+                      commissionOptions.find(
+                        o => o.value === form.commissionBeneficiaryId
+                      ) || null
+                    }
+                    onChange={(selected) => {
+
+                      // 🔥 buscar agente completo
+                      const agent = commissionAgents.find(a => a.id === selected?.value);
+
+                      setForm(prev => ({
+                        ...prev,
+
+                        commissionBeneficiaryId: selected?.value || "",
+                        commissionBeneficiaryName: selected?.label || "",
+                        commissionBeneficiaryType: selected?.type || "",
+
+                        // 🔥 AUTO-SET (CLAVE)
+                        commissionType: agent?.commissionType || "percentage",
+                        commissionValue: agent?.commissionValue || 0
+                      }));
+                    }}
+                    placeholder="Seleccionar"
+                    isClearable
+                  />
+                </div>
+
+                {/* TIPO (AUTO PERO EDITABLE) */}
+                {/* <div className="form-field">
+                  <label className="field-label">
+                    Tipo de comisión
+                  </label>
+
+                  <Select
+                    options={[
+                      { value: "percentage", label: "Porcentaje (%)" },
+                      { value: "fixed", label: "Monto fijo" }
+                    ]}
+                    value={{
+                      value: form.commissionType,
+                      label:
+                        form.commissionType === "percentage"
+                          ? "Porcentaje (%)"
+                          : "Monto fijo"
+                    }}
+                    onChange={(selected) =>
+                      setForm(prev => ({
+                        ...prev,
+                        commissionType: selected.value
+                      }))
+                    }
+                    isSearchable={false}
+                  />
+                </div> */}
+
+                {/* VALOR */}
+                {/* <div className="form-field">
+                  <label className="field-label">
+                    Valor
+                  </label>
+
+                  <input
+                    type="number"
+                    value={form.commissionValue}
+                    onChange={(e) =>
+                      setForm(prev => ({
+                        ...prev,
+                        commissionValue: Number(e.target.value)
+                      }))
+                    }
+                    placeholder={
+                      form.commissionType === "percentage"
+                        ? "Ej: 10 (%)"
+                        : "Ej: 5000"
+                    }
+                  />
+                </div> */}
+
+                {/* 🔥 PREVIEW (MUY IMPORTANTE UX) */}
+                <div className="form-field full-width">
+                  <label className="field-label">Comisión estimada</label>
+
+                  <div className="commission-preview">
+
+                    {form.commissionType === "percentage"
+                      ? `${form.commissionValue || 0}% de ${formatCurrency(baseForCommission)}`
+                      : `${formatCurrency(form.commissionValue || 0)} fijo`
+                    }
+
+                    <strong>
+                      {" → "}
+                      {formatCurrency(
+                        form.commissionType === "percentage"
+                          ? (baseForCommission * (form.commissionValue || 0)) / 100
+                          : form.commissionValue || 0
+                      )}
+                    </strong>
+
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+
           {/* RESUMEN */}
           <div className="financial-summary">
-            <p>Subtotal: {console.log(form)} {safe(form.price)}</p>
+            <p>Subtotal: {form.symbol} {safe(form.price)}</p>
             <p>Descuento: - {form.symbol} {safe(discountAmount)}</p>
             <p>Impuestos: {form.symbol} {safe(totalTax)}</p>
             <hr />
