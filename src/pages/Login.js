@@ -76,7 +76,7 @@ const Login = () => {
 
         <img
           src={logoWord}
-          alt="Skinneri Tours"
+          alt="Skinneri"
           className="login-logo"
         />
 

@@ -11,7 +11,7 @@ import { getDiscounts } from "../../../services/settings/transportation/discount
 import { getCurrencies } from "../../../services/settings/general/currencyService";
 import { getStaff } from "../../../services/settings/general/staffService";
 import { reservationNumberExists } from "../../../services/transportation/transportationService";
-import { getEndDate, generateReservationNumber, safe } from "../../../services/Tools";
+import { getEndDate, generateReservationNumber, safe, formatCurrency } from "../../../services/Tools";
 import { getPaymentTypes } from "../../../services/settings/general/paymentTypeService";
 import { getCommissionAgents  } from "../../../services/settings/general/agentsService";
 import { getCommissionByBooking } from "../../../services/settings/general/commissionService";
@@ -676,13 +676,6 @@ export default function TransportationModal({
     styles: {
       menuPortal: base => ({ ...base, zIndex: 9999 })
     }
-  };
-
-  const formatCurrency = (value, currency = "USD") => {
-    return new Intl.NumberFormat("es-CR", {
-      style: "currency",
-      currency
-    }).format(Number(value || 0));
   };
 
   if (!isOpen) return null;

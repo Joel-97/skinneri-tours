@@ -1,0 +1,59 @@
+/* ================= VIEW TOGGLE ================= */
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 2px;
+  width: fit-content;
+  overflow: hidden; /* evita cortes visuales */
+}
+
+/* botones */
+.view-toggle .toggle-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.2s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* estado activo */
+.view-toggle .toggle-btn.active {
+  background: #08204B;
+  color: white;
+}
+
+/* hover */
+.view-toggle .toggle-btn:hover {
+  background: #e2e8f0;
+}
+
+.view-toggle .toggle-btn.active:hover {
+  background: #08204B;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-toggle .toggle-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+}

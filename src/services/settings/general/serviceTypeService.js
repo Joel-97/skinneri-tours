@@ -140,7 +140,7 @@ export const createServiceType = async (
     ...d.data()
   }));
 
-  // 🚫 Evitar duplicados por nombre + categoría
+  // 🚫 Evitar duplicados
   const duplicate = types.find(
     t =>
       t.name.toLowerCase() === data.name.trim().toLowerCase() &&
@@ -158,15 +158,20 @@ export const createServiceType = async (
     collection(db, "companies", companyId, "serviceTypes"),
     {
       name: data.name.trim(),
-      category: data.category, // 🔥 CLAVE
+      category: data.category,
+
       pricingMode: data.pricingMode,
+
+      // 🔥 NUEVO (CLAVE)
+      pricingType: data.pricingType || "per_booking",
+
       basePrice,
       currency,
       symbol,
+
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
 
-      // 🔥 preparado para comisiones
       staffPayment,
 
       isActive: data.isActive ?? true,
@@ -217,7 +222,7 @@ export const updateServiceType = async (
     throw new Error("Ya existe un tipo de servicio con ese nombre.");
   }
 
-  // 🚫 mínimo 1 activo por categoría
+  // 🚫 mínimo 1 activo
   if (data.isActive === false) {
     const activeTypes = types.filter(
       t => t.isActive && t.category === data.category
@@ -238,14 +243,23 @@ export const updateServiceType = async (
     {
       name: data.name.trim(),
       category: data.category,
+
       pricingMode: data.pricingMode,
+
+      // 🔥 NUEVO (CLAVE)
+      pricingType: data.pricingType || "per_booking",
+
       basePrice,
       currency,
       symbol,
+
       durationMinutes: data.durationMinutes ?? null,
       color: data.color,
+
       staffPayment,
+
       isActive: data.isActive,
+
       updatedAt: Timestamp.now(),
       updatedBy: user.uid
     }

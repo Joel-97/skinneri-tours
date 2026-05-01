@@ -1,3 +1,29 @@
+/* ================= VARIABLES ================= */
+
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+
+  --color-primary: #08204B;
+  --color-border: #e2e8f0;
+  --color-bg-soft: #f8fafc;
+}
+
+/* ================= CONTAINER ================= */
+
+.transportation-container {
+  padding: 20px;
+}
+
+/* ================= HEADER ================= */
+
+.reservation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* ================= HEADER ACTIONS ================= */
 
 .header-actions {
@@ -6,34 +32,14 @@
   gap: 16px;
 }
 
-.view-toggle {
-  display: flex;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.view-toggle button {
-  padding: 6px 14px;
-  border: none;
-  background: white;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.view-toggle button.active {
-  background: #08204B;
-  color: white;
-}
-
 /* ================= TABLE VIEW ================= */
 
 .reservations-table-wrapper {
   margin-top: 20px;
   background: white;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
 }
 
 .reservations-table {
@@ -43,7 +49,7 @@
 }
 
 .reservations-table thead {
-  background: #f8fafc;
+  background: var(--color-bg-soft);
 }
 
 .reservations-table th {
@@ -51,7 +57,7 @@
   padding: 12px;
   font-weight: 600;
   color: #334155;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .reservations-table td {
@@ -61,7 +67,7 @@
 }
 
 .reservations-table tbody tr:hover {
-  background: #f9fafb;
+  background: #f1f5f9;
 }
 
 .table-actions {
@@ -69,35 +75,15 @@
   gap: 8px;
 }
 
-.transportation-container {
-  padding: 20px;
-}
+/* ================= PAGINATION ================= */
 
-.transportation-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.transportation-header h2 {
-  margin: 0;
-}
-
-.transportation-header p {
-  font-size: 14px;
-  color: #777;
-  margin-top: 4px;
-}
-
-/*TABLE FILTER STYLE*/
 .table-pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-soft);
 }
 
 .rows-selector {
@@ -107,9 +93,9 @@
 }
 
 .rows-selector select {
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
 }
 
 .page-controls {
@@ -119,11 +105,11 @@
 }
 
 .page-controls button {
-  padding: 4px 10px;
-  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
   background: white;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .page-controls button:disabled {
@@ -131,9 +117,9 @@
   cursor: not-allowed;
 }
 
+/* ================= FILTROS ================= */
 
-/* FILTROS */
-
+/* 🔵 DESKTOP FILTERS */
 .filters-bar {
   display: flex;
   gap: 20px;
@@ -142,9 +128,30 @@
   flex-wrap: wrap;
   background: #f8f9fb;
   padding: 15px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
+/* 🔴 MOBILE FILTERS */
+.filters-collapsible {
+  display: none;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+/* contenido */
+.filters-content {
+  display: none;
+}
+
+.filters-content.open {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* inputs */
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -159,32 +166,63 @@
 .filter-group input,
 .filter-group select {
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  width: 100%;
 }
 
+/* búsqueda */
 .filter-group.search {
   flex: 1;
 }
 
 .search-input {
   width: 100%;
-  min-width: 300px;
+  min-width: 260px;
 }
 
-/* CARDS */
+/* ================= SELECT CUSTOM ================= */
+
+.filter-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: white;
+
+  font-size: 14px;
+  color: #111;
+
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+
+  padding-right: 35px;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ================= CARDS ================= */
 
 .reservations-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
 }
 
 .reservation-card {
   background: white;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 18px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border: 1px solid #f1f5f9;
   transition: 0.2s ease;
 }
 
@@ -208,7 +246,7 @@
   font-size: 14px;
 }
 
-/* STATUS */
+/* ================= STATUS ================= */
 
 .status {
   padding: 5px 10px;
@@ -232,22 +270,26 @@
   color: #b42318;
 }
 
-/* BOTONES */
+/* ================= BOTONES ================= */
 
 .btn-primary {
-  background: #08204B;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+}
+
+.btn-primary.full {
+  width: 100%;
 }
 
 .btn-secondary {
   background: #e5e7eb;
   border: none;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
@@ -255,7 +297,7 @@
   background: #f1f5f9;
   border: none;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
@@ -263,7 +305,7 @@
   background: #fee2e2;
   border: none;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   color: #b91c1c;
 }
@@ -272,4 +314,43 @@
   display: flex;
   gap: 10px;
   margin-top: 10px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .reservation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* filtros */
+  .filters-bar {
+    display: none;
+  }
+
+  .filters-collapsible {
+    display: block;
+  }
+}
+
+/* ================= ANIMATION ================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

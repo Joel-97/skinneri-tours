@@ -35,7 +35,7 @@ const Bookings = () => {
 
                         <TabList>
                             <Tab>Calendario</Tab>
-                            <Tab>Lista de reservas</Tab>
+                            <Tab>Lista de transportes</Tab>
                         </TabList>
 
                         <TabPanel>

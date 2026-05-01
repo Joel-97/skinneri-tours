@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import Select from "react-select";
 import TransportationModal from "./transportationModal";
 import {
   getTransportation,
@@ -15,6 +16,8 @@ import {
 } from "../../../services/settings/general/commissionService";
 
 import Loading from "../../../components/general/loading"; 
+import ViewToggle from "../../../components/general/viewToggle"; 
+import DataTable from "../../../components/general/dataTable";
 import "../../../style/transportation/transportationList.css";
 
 const TransportationList = ({ companyId, user }) => {
@@ -23,6 +26,7 @@ const TransportationList = ({ companyId, user }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // "grid" | "table"
+  const [showFilters, setShowFilters] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [mode, setMode] = useState("create");
@@ -195,25 +199,20 @@ const TransportationList = ({ companyId, user }) => {
         ? new Date(r.date.seconds * 1000)
         : new Date(r.date);
 
-      // filtro fecha inicio
       if (startDateFilter) {
         const start = new Date(startDateFilter);
         if (reservationDate < start) return false;
       }
 
-      // filtro fecha fin
       if (endDateFilter) {
         const end = new Date(endDateFilter);
         end.setHours(23, 59, 59, 999);
         if (reservationDate > end) return false;
       }
 
-      // filtro estado
       if (statusFilter && r.status !== statusFilter) return false;
 
-      // 🔎 SEARCH
       if (term) {
-
         const name = r.clientName?.toLowerCase() || "";
         const service = r.serviceTypeName?.toLowerCase() || "";
         const booking = r.reservationNumber?.toLowerCase() || "";
@@ -225,7 +224,6 @@ const TransportationList = ({ companyId, user }) => {
         ) {
           return false;
         }
-
       }
 
       return true;
@@ -240,51 +238,61 @@ const TransportationList = ({ companyId, user }) => {
     searchTerm
   ]);
 
-  const indexOfLast = currentPage * rowsPerPage;
-  const indexOfFirst = indexOfLast - rowsPerPage;
-
-  const currentRows = filteredReservations.slice(
-    indexOfFirst,
-    indexOfLast
-  );
-
   const totalPages = Math.ceil(
     filteredReservations.length / rowsPerPage
   );
 
+  const hasFilters =
+    startDateFilter ||
+    endDateFilter ||
+    statusFilter ||
+    searchTerm;
+
+  const rowsOptions = [
+    { value: 10, label: "10" },
+    { value: 25, label: "25" },
+    { value: 50, label: "50" },
+    { value: 100, label: "100" }
+  ];
+
+  const statusOptions = [
+    { value: "", label: "Todos" },
+    { value: "pending", label: "Pendiente" },
+    { value: "confirmed", label: "Confirmada" },
+    { value: "cancelled", label: "Cancelada" }
+  ];
+
   return (
     <div className="transportation-container">
 
-      <div className="transportation-header">
-        <div>
+      {/* ================= HEADER ================= */}
+      <div className="reservation-header">
+
+        <div className="mobile-header">
           <h2>Reservas de transporte</h2>
-          <p>{filteredReservations.length} resultados encontrados</p>
+          <p className="results">
+            {filteredReservations.length} resultados encontrados
+          </p>
         </div>
 
-        <div className="header-actions">
-          <div className="view-toggle">
-            <button
-              className={viewMode === "grid" ? "active" : ""}
-              onClick={() => setViewMode("grid")}
-            >
-              Grid
-            </button>
-            <button
-              className={viewMode === "table" ? "active" : ""}
-              onClick={() => setViewMode("table")}
-            >
-              Lista
-            </button>
-          </div>
+        <div className="header-actions mobile-actions">
+
+          <ViewToggle
+            value={viewMode}
+            onChange={setViewMode}
+          />
 
           <button className="btn-primary" onClick={handleCreate}>
             + Nueva reserva
           </button>
+
         </div>
+
       </div>
 
-      {/* 🔎 FILTROS */}
+      {/* ================= FILTROS DESKTOP ================= */}
       <div className="filters-bar">
+
         <div className="filter-group">
           <label>Desde</label>
           <input
@@ -305,15 +313,14 @@ const TransportationList = ({ companyId, user }) => {
 
         <div className="filter-group">
           <label>Estado</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">Todos</option>
-            <option value="pending">Pendiente</option>
-            <option value="confirmed">Confirmada</option>
-            <option value="cancelled">Cancelada</option>
-          </select>
+          <Select
+            options={statusOptions}
+            value={statusOptions.find(opt => opt.value === statusFilter)}
+            onChange={(selected) => setStatusFilter(selected?.value || "")}
+            isSearchable={false}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
+          />
         </div>
 
         <div className="filter-group search">
@@ -329,7 +336,7 @@ const TransportationList = ({ companyId, user }) => {
             }}
           />
         </div>
-        
+
         <button
           className="btn-secondary"
           onClick={() => {
@@ -341,24 +348,101 @@ const TransportationList = ({ companyId, user }) => {
         >
           Limpiar
         </button>
+
       </div>
 
+      {/* ================= FILTROS MOBILE ================= */}
+      <div className="filters-collapsible">
+
+        <button
+          className={`filters-toggle ${hasFilters ? "active" : ""}`}
+          onClick={() => setShowFilters(prev => !prev)}
+        >
+          🔍 Filtros {hasFilters && "•"}
+        </button>
+
+        <div className={`filters-content ${showFilters ? "open" : ""}`}>
+
+          <div className="filter-group">
+            <label>Desde</label>
+            <input
+              type="date"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Hasta</label>
+            <input
+              type="date"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Estado</label>
+            <Select
+              options={statusOptions}
+              value={statusOptions.find(opt => opt.value === statusFilter)}
+              onChange={(selected) => {
+                setStatusFilter(selected?.value || "");
+              }}
+              isSearchable={false}
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>Buscar</label>
+            <input
+              type="text"
+              placeholder="Cliente, servicio o # reserva"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
+          <button
+            className="btn-secondary full"
+            onClick={() => {
+              setStartDateFilter("");
+              setEndDateFilter("");
+              setStatusFilter("");
+              setSearchTerm("");
+              setShowFilters(false);
+            }}
+          >
+            Limpiar
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* ================= LOADING ================= */}
       {loading && (
         <div style={{ textAlign: "center" }}>
           <Loading />
         </div>
       )}
 
-      {!loading && currentRows.length === 0 && (
+      {/* ================= EMPTY ================= */}
+      {!loading && filteredReservations.length === 0 && (
         <div className="empty-state">
           <p>No hay reservas en este rango.</p>
         </div>
       )}
 
-      {/* ================= GRID VIEW ================= */}
+      {/* ================= GRID ================= */}
       {!loading && viewMode === "grid" && (
         <div className="reservations-grid">
-          {currentRows.map(r => (
+          {filteredReservations.map(r => (
             <div key={r.id} className="reservation-card">
 
               <div className="reservation-top">
@@ -396,94 +480,65 @@ const TransportationList = ({ companyId, user }) => {
         </div>
       )}
 
-      {/* ================= TABLE VIEW ================= */}
+      {/* ================= TABLE ================= */}
       {!loading && viewMode === "table" && (
         <div className="reservations-table-wrapper">
-          <table className="reservations-table">
-            <thead>
-              <tr>
-                <th>Booking ID</th>
-                <th>Cliente</th>
-                <th>Servicio</th>
-                <th>Fecha</th>
-                {/* <th>Fin</th> */}
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentRows.map(r => (
-                <tr key={r.id}>
-                  <td onClick={() => handleEdit(r)}>{r.reservationNumber}</td>
-                  <td onClick={() => handleEdit(r)}>{r.clientName}</td>
-                  <td onClick={() => handleEdit(r)}>{r.serviceTypeName}</td>
-                  <td onClick={() => handleEdit(r)}>{formatDate(r.date)}</td>
-                  {/* <td onClick={() => handleEdit(r)}>
-                    {r.endDate ? formatDate(r.endDate) : "-"}
-                  </td> */}
-                  <td>
-                    <span className={getStatusClass(r.status)}>
-                      {r.status}
-                    </span>
-                  </td>
-                  <td className="table-actions">
-                    <button
-                      className="btn-edit"
-                      onClick={() => handleEdit(r)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDelete(r.id)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="table-pagination">
 
-          <div className="rows-selector">
-            <span>Mostrar</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-            <span>registros</span>
-          </div>
+          <DataTable
+            data={filteredReservations} 
+            columns={[
+              { key: "reservationNumber", label: "Booking ID", sortable: true },
+              { key: "clientName", label: "Cliente", sortable: true },
+              { key: "serviceTypeName", label: "Servicio", sortable: true },
+              { key: "date", label: "Fecha", sortable: true },
+              { key: "status", label: "Estado", sortable: true },
+              { key: "actions", label: "Acciones", sortable: false },
+            ]}
+            renderRow={(r) => (
+              <>
+                <td onClick={() => handleEdit(r)}>
+                  {r.reservationNumber}
+                </td>
 
-          <div className="page-controls">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-            >
-              ◀
-            </button>
+                <td onClick={() => handleEdit(r)}>
+                  {r.clientName}
+                </td>
 
-            <span>
-              Página {currentPage} de {totalPages}
-            </span>
+                <td onClick={() => handleEdit(r)}>
+                  {r.serviceTypeName}
+                </td>
 
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-            >
-              ▶
-            </button>
-          </div>
+                <td onClick={() => handleEdit(r)}>
+                  {formatDate(r.date)}
+                </td>
 
-        </div>
+                <td>
+                  <span className={getStatusClass(r.status)}>
+                    {r.status}
+                  </span>
+                </td>
+
+                <td className="table-actions">
+                  <button
+                    className="btn-link"
+                    onClick={() => handleEdit(r)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="btn-link"
+                    onClick={() => handleDelete(r.id)}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </>
+            )}
+            rowsPerPageOptions={[5, 10, 20, 50]} // opcional
+            defaultRowsPerPage={10} // opcional
+          />
+
         </div>
       )}
 

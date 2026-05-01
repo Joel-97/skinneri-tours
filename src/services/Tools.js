@@ -178,8 +178,20 @@ function twoDigitPad(num) {
   
   const safe = (value) => Number(value || 0).toFixed(2);
 
+ /* =============================================================== 
+  * FORMATEA LA MONEDA QUE SE INGRESE, CR - USD
+  =============================================================== */
 
-export { numtoDate, monthNames, dayOfWeekNames, formatDateCustom, twoDigitPad, columnsNotifications, getEndDate, generateReservationNumber, safe}
+  const formatCurrency = (value, currency = "USD") => {
+    return new Intl.NumberFormat("es-CR", {
+      style: "currency",
+      currency
+    }).format(Number(value || 0));
+  };
+
+
+export { numtoDate, monthNames, dayOfWeekNames, formatDateCustom, twoDigitPad, columnsNotifications, 
+  getEndDate, generateReservationNumber, safe, formatCurrency }
 
   export const roleVisit = 'visit';
   export const roleSuperAdmin = 'superAdmin';

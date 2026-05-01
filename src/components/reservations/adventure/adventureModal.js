@@ -12,10 +12,12 @@ import { getTaxes } from "../../../services/settings/general/taxService";
 import { getDiscounts } from "../../../services/settings/transportation/discountService";
 import { getCurrencies } from "../../../services/settings/general/currencyService";
 import { getStaff } from "../../../services/settings/general/staffService";
+import { getCommissionAgents  } from "../../../services/settings/general/agentsService";
 
 import { reservationNumberExists } from "../../../services/adventure/adventureService";
 
-import { getEndDate, generateReservationNumber, safe } from "../../../services/Tools";
+import { getEndDate, generateReservationNumber, safe, formatCurrency } from "../../../services/Tools";
+
 import { getPaymentTypes } from "../../../services/settings/general/paymentTypeService";
 
 import { notifySuccess, notifyError } from "../../../services/notificationService";
@@ -52,6 +54,9 @@ export default function AdventureModal({
 
     currency: "",
     price: 0,
+
+    // 🔥 NUEVO (CLAVE)
+    pricingType: "per_booking", // per_booking | per_person
 
     discountId: "",
     discountAmount: 0,
@@ -96,6 +101,7 @@ export default function AdventureModal({
   const [currencies, setCurrencies] = useState([]);
   const [staff, setStaff] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
+  const [commissionAgents, setCommissionAgents] = useState([]);
 
   /* ================= LOAD SETTINGS ================= */
 
@@ -103,14 +109,16 @@ export default function AdventureModal({
     if (!companyId) return;
 
     const load = async () => {
-      const [st, loc, tx, ds, cur, sf, pt] = await Promise.all([
+      const [st, loc, tx, ds, cur, sf, pt, ca] = await Promise.all([
         getServiceTypes(companyId, "adventure"),
         getLocations(companyId),
         getTaxes(companyId),
         getDiscounts(companyId),
         getCurrencies(companyId),
         getStaff(companyId),
-        getPaymentTypes(companyId)
+        getPaymentTypes(companyId),
+        getCommissionAgents(companyId) 
+        
       ]);
 
       setServiceTypes(st.filter(s => s.isActive));
@@ -120,6 +128,7 @@ export default function AdventureModal({
       setCurrencies(cur.filter(c => c.isActive));
       setStaff(sf.filter(s => s.isActive));
       setPaymentTypes(pt.filter(p => p.isActive));
+      setCommissionAgents(ca.filter(c => c.isActive));
     };
 
     load();
@@ -180,6 +189,9 @@ export default function AdventureModal({
         price: selectedServiceType.basePrice,
         currency: selectedServiceType.currency,
         symbol: selectedServiceType.symbol,
+
+        // 🔥 FALTA ESTO
+        pricingType: selectedServiceType.pricingType || "per_booking"
       }));
     }
   }, [selectedServiceType]);
@@ -200,19 +212,43 @@ export default function AdventureModal({
     return selectedDiscount.value;
   }, [selectedDiscount, baseTotal]);
 
-  const subtotalAfterDiscount = Math.max(baseTotal - discountAmount, 0);
+  //const subtotalAfterDiscount = Math.max(baseTotal - discountAmount, 0);
 
   /* ================= IMPUESTOS ================= */
 
+  // 🔥 PRECIO BASE
+  const price = Number(form.price || 0);
+  const pax = Number(form.pax || 1);
+
+  // 🔥 BASE SEGÚN TIPO DE PRECIO
+  const basePrice =
+    form.pricingType === "per_person"
+      ? price * pax
+      : price;
+
+  // 🔥 DESCUENTO
+  const discount = Number(discountAmount || 0);
+
+  // 🔥 SUBTOTAL DESPUÉS DE DESCUENTO
+  const subtotalAfterDiscount = Number(
+    (basePrice - discount).toFixed(2)
+  );
+
+  // 🔥 IMPUESTOS ACTIVOS
   const activeTaxes = taxes.filter(t =>
     form.activeTaxIds.includes(t.id)
   );
 
+  // 🔥 TOTAL IMPUESTOS
   const totalTax = activeTaxes.reduce(
     (sum, t) => sum + (subtotalAfterDiscount * (t.rate / 100)),
     0
   );
 
+  // 🔥 BASE PARA COMISIÓN (SIN IMPUESTOS)
+  const baseForCommission = subtotalAfterDiscount;
+
+  // 🔥 TOTAL FINAL
   const total = subtotalAfterDiscount + totalTax;
 
   /* ================= CLIENT SEARCH ================= */
@@ -242,8 +278,9 @@ export default function AdventureModal({
   }, [searchTerm, companyId]);
 
   /* ================= HANDLERS ================= */
-
   const handleChange = (e) => {
+
+    console.log(form);
 
     const { name, value } = e.target;
 
@@ -251,17 +288,20 @@ export default function AdventureModal({
 
       let newValue = value;
 
-      // 🔥 Manejo correcto de números
+      // 🔢 números
       if (name === "price" || name === "pax") {
         newValue = value === "" ? "" : Number(value);
       }
 
-      const updatedForm = {
+      let updatedForm = {
         ...prev,
         [name]: newValue
       };
 
-      // 🔥 Recalcular endDate automáticamente
+      /* =========================
+        END DATE AUTO
+      ========================== */
+
       if (name === "date" || name === "serviceTypeId") {
 
         const date = name === "date" ? newValue : prev.date;
@@ -275,13 +315,47 @@ export default function AdventureModal({
           s => s.id === serviceId
         );
 
-        if (date && selectedService?.durationMinutes) {
+        if (selectedService) {
 
-          updatedForm.endDate = getEndDate(
-            date,
-            selectedService.durationMinutes
-          );
+          // 🔥 IMPORTANTE: traer pricingType desde el servicio
+          updatedForm.pricingType =
+            selectedService.pricingType || "per_booking";
 
+          if (selectedService.pricingMode === "fixed") {
+            updatedForm.price = selectedService.basePrice || 0;
+            updatedForm.currency = selectedService.currency || "";
+            updatedForm.symbol = selectedService.symbol || "";
+          }
+
+          if (date && selectedService?.durationMinutes) {
+            updatedForm.endDate = getEndDate(
+              date,
+              selectedService.durationMinutes
+            );
+          }
+        }
+      }
+
+      /* =========================
+        🔥 COMISIONISTA AUTO
+      ========================== */
+
+      if (name === "commissionBeneficiaryId") {
+
+        const agent = commissionAgents.find(
+          a => a.id === newValue
+        );
+
+        if (agent) {
+          updatedForm.commissionBeneficiaryName = agent.name;
+          updatedForm.commissionBeneficiaryType = agent.type;
+
+          updatedForm.commissionType = agent.commissionType || "percentage";
+          updatedForm.commissionValue = Number(agent.commissionValue || 0);
+
+          updatedForm.commissionEnabled = true;
+        } else {
+          updatedForm.commissionEnabled = false;
         }
       }
 
@@ -290,22 +364,16 @@ export default function AdventureModal({
     });
   };
 
-  const toggleTax = (taxId) => {
-    setForm(prev => ({
-      ...prev,
-      activeTaxIds: prev.activeTaxIds.includes(taxId)
-        ? prev.activeTaxIds.filter(id => id !== taxId)
-        : [...prev.activeTaxIds, taxId]
-    }));
-  };
-
   const handleSubmit = async () => {
 
     if (!form.clientId) return notifyError("Cliente requerido");
-    // if (!form.locationId) return notifyError("Ubicación requerida");
     if (!form.serviceTypeId) return notifyError("Selecciona el tour");
 
     let updatedForm = { ...form };
+
+    /* =========================
+      GENERAR NÚMERO
+    ========================== */
 
     if (mode === "create") {
       let exists = true;
@@ -317,23 +385,62 @@ export default function AdventureModal({
       }
     }
 
+    /* =========================
+      SNAPSHOTS
+    ========================== */
+
     const selectedStaff = staff.find(s => s.id === form.staffId);
     const selectedPayment = paymentTypes.find(p => p.id === form.paymentTypeId);
     const selectedService = serviceTypes.find(s => s.id === form.serviceTypeId);
 
-    onSave({
+    /* =========================
+      🔥 BASE SEGÚN pricingType
+    ========================== */
+
+    const price = Number(form.price || 0);
+    const pax = Number(form.pax || 1);
+
+    const basePrice =
+      form.pricingType === "per_person"
+        ? price * pax
+        : price;
+
+    /* =========================
+      DATOS FINANCIEROS
+    ========================== */
+
+    const financialData = {
       ...updatedForm,
-      subtotal: baseTotal,
-      discountAmount,
-      taxAmount: totalTax,
-      total,
+
+      // 🔥 CLAVE: ahora sí respeta pricingType
+      subtotal: Number(basePrice || 0),
+
+      discountAmount: Number(discountAmount || 0),
+      taxAmount: Number(totalTax || 0),
+      total: Number(total || 0),
+
       staffName: selectedStaff?.name || "",
       paymentTypeName: selectedPayment?.name || "",
+
       serviceCategory: selectedService?.category || "adventure",
-      dateString: form.date?.slice(0, 10),
-      month: form.date?.slice(0, 7),
-      year: form.date?.slice(0, 4)
-    });
+      serviceTypeName: selectedService?.name || "",
+
+      dateString: form.date ? form.date.slice(0, 10) : "",
+      month: form.date ? form.date.slice(0, 7) : "",
+      year: form.date ? form.date.slice(0, 4) : ""
+    };
+
+    try {
+
+      // 🔥 delega todo (incluye comisiones)
+      await onSave(financialData);
+
+    } catch (error) {
+
+      console.error(error);
+      notifyError("Error guardando reserva");
+
+    }
   };
 
   const handleSelectClient = (client) => {
@@ -385,6 +492,15 @@ export default function AdventureModal({
     }
   };
 
+  const toggleTax = (taxId) => {
+    setForm(prev => ({
+      ...prev,
+      activeTaxIds: prev.activeTaxIds.includes(taxId)
+        ? prev.activeTaxIds.filter(id => id !== taxId)
+        : [...prev.activeTaxIds, taxId]
+    }));
+  };
+
   /* ================= OPTIONS ================= */
 
   // const locationOptions = locations.map(l => ({
@@ -401,6 +517,14 @@ export default function AdventureModal({
     value: s.id,
     label: s.name
   }));
+
+  const commissionOptions = useMemo(() => {
+    return commissionAgents.map(a => ({
+      value: a.id,
+      label: a.name,
+      type: a.type
+    }));
+  }, [commissionAgents]);
 
   const paymentTypeOptions = paymentTypes.map(p => ({
     value: p.id,
@@ -565,18 +689,21 @@ export default function AdventureModal({
 
           <div className="form-grid two-columns">
 
-            <div className="form-field">
-              <label className="field-label">
-                Personas <span className="required">*</span>
-              </label>
+          <div className="form-field">
+          <label className="field-label">
+            {form.pricingType === "per_person"
+              ? "Cantidad de personas *"
+              : "Personas (no afecta el precio)"}
+          </label>
 
-              <input
-                type="number"
-                name="pax"
-                value={form.pax ?? 1}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              type="number"
+              name="pax"
+              value={form.pax ?? 1}
+              onChange={handleChange}
+              min="1"
+            />
+          </div>
 
             <div className="form-field">
               <label className="field-label">
@@ -709,16 +836,128 @@ export default function AdventureModal({
             ))}
           </div>
 
+          {/* ================= COMISIONES ================= */}
+          <div className="modal-section section-card m-top">
+            <h4>Comisión</h4>
+
+            {/* ACTIVAR */}
+            <div className="form-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={form.commissionEnabled}
+                  onChange={(e) =>
+                    setForm(prev => ({
+                      ...prev,
+                      commissionEnabled: e.target.checked,
+
+                      // 🔥 reset si se desactiva
+                      ...(e.target.checked === false && {
+                        commissionBeneficiaryId: "",
+                        commissionBeneficiaryName: "",
+                        commissionBeneficiaryType: "",
+                        commissionType: "percentage",
+                        commissionValue: 0
+                      })
+                    }))
+                  }
+                />
+                Aplicar comisión
+              </label>
+            </div>
+
+            {form.commissionEnabled && (
+              <div className="form-grid two-columns">
+
+                {/* COMISIONISTA */}
+                <div className="form-field">
+                  <label className="field-label">
+                    Comisionista
+                  </label>
+
+                  <Select
+                    options={commissionOptions}
+                    value={
+                      commissionOptions.find(
+                        o => o.value === form.commissionBeneficiaryId
+                      ) || null
+                    }
+                    onChange={(selected) => {
+
+                      // 🔥 buscar agente completo
+                      const agent = commissionAgents.find(a => a.id === selected?.value);
+
+                      setForm(prev => ({
+                        ...prev,
+
+                        commissionBeneficiaryId: selected?.value || "",
+                        commissionBeneficiaryName: selected?.label || "",
+                        commissionBeneficiaryType: selected?.type || "",
+
+                        // 🔥 AUTO-SET (CLAVE)
+                        commissionType: agent?.commissionType || "percentage",
+                        commissionValue: agent?.commissionValue || 0
+                      }));
+                    }}
+                    placeholder="Seleccionar"
+                    isClearable
+                  />
+                </div>
+
+                {/* 🔥 PREVIEW (MUY IMPORTANTE UX) */}
+                <div className="form-field full-width">
+                  <label className="field-label">Comisión estimada</label>
+
+                  <div className="commission-preview">
+
+                    {form.commissionType === "percentage"
+                      ? `${form.commissionValue || 0}% de ${formatCurrency(baseForCommission)}`
+                      : `${formatCurrency(form.commissionValue || 0)} fijo`
+                    }
+
+                    <strong>
+                      {" → "}
+                      {formatCurrency(
+                        form.commissionType === "percentage"
+                          ? (baseForCommission * (form.commissionValue || 0)) / 100
+                          : form.commissionValue || 0
+                      )}
+                    </strong>
+
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+
           {/* SUMMARY */}
           <div className="financial-summary">
-            <p>Subtotal: {safe(form.price * form.pax)}</p>
-            <p>Descuento: - {safe(discountAmount)}</p>
-            <p>Impuestos: {safe(totalTax)}</p>
-            <hr />
-            <p className="total">
-              Total: {safe(total)}
+
+            <p>
+              Subtotal: $ {
+                safe(basePrice)
+              }
             </p>
+
+            {form.pricingType === "per_person" && (
+              <p className="hint">
+                {form.pax} x $ {safe(form.price)} = $ {safe(basePrice)}
+              </p>
+            )}
+
+            <p>Descuento: - $ {safe(discountAmount)}</p>
+
+            <p>Impuestos: $ {safe(totalTax)}</p>
+
+            <hr />
+
+            <p className="total">
+              Total: $ {safe(total)}
+            </p>
+
           </div>
+          
         </div>
 
         {/* NOTAS */}

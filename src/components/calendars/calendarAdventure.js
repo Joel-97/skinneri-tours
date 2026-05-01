@@ -12,6 +12,14 @@ import {
 
 import { getServiceTypes } from "../../services/settings/general/serviceTypeService";
 
+// 🔥 COMISIONES
+import {
+  createCommission,
+  updateCommission,
+  deleteCommission,
+  getCommissionByBooking
+} from "../../services/settings/general/commissionService";
+
 import Loading from "../../components/general/loading";
 import { notifySuccess, notifyError } from "../../services/notificationService";
 
@@ -38,11 +46,21 @@ const CalendarAdventures = ({ companyId, user }) => {
       setLoading(true);
 
       const data = await getAdventures(companyId);
-
-      // 🔥 SOLO ADVENTURES
       const types = await getServiceTypes(companyId, "adventure");
 
-      const formatted = data.map(r => {
+      /* =========================
+        🔥 FILTRAR CANCELADOS
+      ========================== */
+
+      const activeReservations = data.filter(r => {
+        return (r.status || "").toLowerCase() !== "cancelled";
+      });
+
+      /* =========================
+        FORMATEAR
+      ========================== */
+
+      const formatted = activeReservations.map(r => {
 
         const serviceType = types.find(
           t => t.id === r.serviceTypeId
@@ -56,7 +74,7 @@ const CalendarAdventures = ({ companyId, user }) => {
           ? (r.endDate.toDate
               ? r.endDate.toDate()
               : new Date(r.endDate))
-          : startDate; // 🔥 fallback
+          : startDate;
 
         return {
           ...r,
@@ -101,7 +119,7 @@ const CalendarAdventures = ({ companyId, user }) => {
   };
 
   /* =========================
-     SAVE
+     SAVE (🔥 CON COMISIONES)
   ========================== */
 
   const handleSave = async (formData) => {
@@ -109,13 +127,97 @@ const CalendarAdventures = ({ companyId, user }) => {
     try {
       setLoading(true);
 
+      let savedBooking;
+
+      /* =========================
+         1. GUARDAR RESERVA
+      ========================== */
+
       if (modalMode === "edit") {
-        await updateAdventure(companyId, selectedReservation.id, formData, user);
+
+        await updateAdventure(
+          companyId,
+          selectedReservation.id,
+          formData,
+          user
+        );
+
+        savedBooking = {
+          id: selectedReservation.id,
+          ...formData
+        };
+
         notifySuccess("Reserva actualizada", "Los cambios fueron guardados.");
+
       } else {
-        await createAdventure(companyId, formData, user);
+
+        const docRef = await createAdventure(companyId, formData, user);
+
+        savedBooking = {
+          id: docRef.id,
+          ...formData
+        };
+
         notifySuccess("Reserva creada", "La reserva fue creada correctamente.");
       }
+
+      if (!savedBooking?.id) return;
+
+      /* =========================
+         2. COMISIONES
+      ========================== */
+
+      const existingList = await getCommissionByBooking(companyId, savedBooking.id);
+      const existing = existingList?.[0];
+
+      // 🔥 BASE = price - descuento (SIN impuestos)
+      const price = Number(formData.price || 0);
+      const discount = Number(formData.discountAmount || 0);
+      const base = Number((price - discount).toFixed(2));
+
+      if (
+        formData.commissionEnabled &&
+        formData.commissionBeneficiaryId
+      ) {
+
+        const amount =
+          formData.commissionType === "percentage"
+            ? base * (formData.commissionValue / 100)
+            : formData.commissionValue;
+
+        const commissionData = {
+          bookingId: savedBooking.id,
+
+          beneficiaryId: formData.commissionBeneficiaryId,
+          beneficiaryName: formData.commissionBeneficiaryName,
+          beneficiaryType: formData.commissionBeneficiaryType,
+
+          serviceTypeId: formData.serviceTypeId,
+          serviceTypeName: formData.serviceTypeName,
+
+          amount: Number(amount.toFixed(2)),
+          baseAmount: base,
+
+          type: formData.commissionType,
+          value: formData.commissionValue,
+
+          bookingDate: formData.date
+        };
+
+        if (existing) {
+          await updateCommission(companyId, existing.id, commissionData, user);
+        } else {
+          await createCommission(companyId, commissionData, user);
+        }
+
+      } else if (!formData.commissionEnabled && existing) {
+
+        await deleteCommission(companyId, existing.id);
+      }
+
+      /* =========================
+         FINAL
+      ========================== */
 
       setModalOpen(false);
       await loadReservations();
@@ -147,13 +249,11 @@ const CalendarAdventures = ({ companyId, user }) => {
         ? end.format("YYYY-MM-DDTHH:mm")
         : "",
 
-      // 🔥 ADVENTURE BASE
       serviceTypeId: "",
       locationId: "",
       pax: 1,
       clientId: null,
 
-      // 🔥 FUTURO (OPERADOR)
       operatorId: "",
       operatorName: ""
     });
@@ -181,7 +281,7 @@ const CalendarAdventures = ({ companyId, user }) => {
           startAccessor="start"
           endAccessor="end"
           selectable
-          defaultView="month" // 🔥 mejora UX
+          defaultView="month"
           onSelectEvent={handleSelectEvent}
           onSelectSlot={handleSelectSlot}
           eventPropGetter={(event) => ({

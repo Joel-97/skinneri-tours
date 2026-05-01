@@ -113,7 +113,7 @@ const Register = () => {
 
           <img
             src={logoWord}
-            alt="Skinneri Tours"
+            alt="Skinneri"
             className="register-logo"
           />
 

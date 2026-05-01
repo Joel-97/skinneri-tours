@@ -1,13 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import Select from "react-select";
 
 const DataTable = ({
   data = [],
   columns = [],
-  rowsPerPage = 10,
+  rowsPerPageOptions = [5, 10, 20, 50],
+  defaultRowsPerPage = 10,
   renderRow,
+  customSelectStyles,
 }) => {
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -26,31 +30,28 @@ const DataTable = ({
 
   // 🔄 PROCESAMIENTO
   const processedData = useMemo(() => {
-
     let result = [...data];
 
-    // SORT
     if (sortConfig.key) {
       result.sort((a, b) => {
-
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
 
-        // fechas Firestore
         if (aValue?.toDate) aValue = aValue.toDate();
         if (bValue?.toDate) bValue = bValue.toDate();
 
-        // boolean
         if (typeof aValue === "boolean") {
           aValue = aValue ? 1 : 0;
           bValue = bValue ? 1 : 0;
         }
 
-        // string
         if (typeof aValue === "string") {
           aValue = aValue.toLowerCase();
           bValue = bValue.toLowerCase();
         }
+
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
 
         if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
         if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
@@ -59,16 +60,69 @@ const DataTable = ({
     }
 
     return result;
-
   }, [data, sortConfig]);
 
   // 📄 PAGINACIÓN
-  const totalPages = Math.ceil(processedData.length / rowsPerPage);
+  const totalPages = Math.max(1, Math.ceil(processedData.length / rowsPerPage));
 
   const currentData = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
     return processedData.slice(start, start + rowsPerPage);
   }, [processedData, currentPage, rowsPerPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data, rowsPerPage]);
+
+  const rowsOptions = rowsPerPageOptions.map(v => ({
+    value: v,
+    label: v
+  }));
+
+  // 🎨 ESTILOS POR DEFECTO
+  const defaultSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "36px",
+      borderRadius: "6px",
+      borderColor: state.isFocused ? "#08204B" : "#cbd5e1",
+      boxShadow: "none",
+      cursor: "pointer",
+      "&:hover": {
+        borderColor: "#08204B"
+      }
+    }),
+
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0 8px"
+    }),
+
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999
+    }),
+
+    menu: (base) => ({
+      ...base,
+      borderRadius: "8px",
+      overflow: "hidden"
+    }),
+
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused
+        ? "#eef2ff"
+        : state.isSelected
+        ? "#08204B"
+        : "white",
+      color: state.isSelected ? "white" : "#111",
+      padding: "8px 10px"
+    })
+  };
+
+  // 👉 usar custom si existe, si no usar default
+  const selectStyles = customSelectStyles || defaultSelectStyles;
 
   return (
     <div>
@@ -91,39 +145,67 @@ const DataTable = ({
                     (sortConfig.direction === "asc" ? "↑" : "↓")}
                 </th>
               ))}
-
             </tr>
           </thead>
 
           <tbody>
-            {currentData.map((row, i) => (
-              <tr key={row.id || i}>
-                <td>{(currentPage - 1) * rowsPerPage + i + 1}</td>
-                {renderRow(row)}
+            {currentData.length > 0 ? (
+              currentData.map((row, i) => (
+                <tr key={row.id || i}>
+                  <td>{(currentPage - 1) * rowsPerPage + i + 1}</td>
+                  {renderRow(row)}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length + 1} style={{ textAlign: "center" }}>
+                  No hay datos
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
 
         </table>
       </div>
 
-      {/* PAGINACIÓN SIMPLE */}
-      <div className="pagination">
-        <button
-          onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          ←
-        </button>
+      <div className="table-pagination">
 
-        <span>{currentPage} / {totalPages}</span>
+        <div className="rows-selector">
+          <span>Mostrar</span>
 
-        <button
-          onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          →
-        </button>
+          <Select
+            options={rowsOptions}
+            value={rowsOptions.find(opt => opt.value === rowsPerPage)}
+            onChange={(selected) => setRowsPerPage(selected.value)}
+            isSearchable={false}
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+            menuPosition="fixed"
+          />
+
+          <span>registros</span>
+        </div>
+
+        <div className="page-controls">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => p - 1)}
+          >
+            ◀
+          </button>
+
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => p + 1)}
+          >
+            ▶
+          </button>
+        </div>
+
       </div>
 
     </div>

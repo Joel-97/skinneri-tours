@@ -125,11 +125,12 @@ const ServiceTypesSection = () => {
     name: "",
     category: "",
     pricingMode: "fixed",
+    pricingType: "per_booking",
     basePrice: "",
     currency: "",
     symbol: "",
     durationValue: "",
-    durationUnit: "minutes",
+    durationUnit: "hours",
     durationMinutes: null,
     color: "#0a2a63",
     staffPayment: {
@@ -224,7 +225,6 @@ const ServiceTypesSection = () => {
   /* =========================
      SUBMIT
   ========================== */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -250,7 +250,12 @@ const ServiceTypesSection = () => {
         }
       }
 
-      const finalForm = { ...form, durationMinutes };
+      // 🔥 SOLO agregamos pricingType aquí
+      const finalForm = {
+        ...form,
+        durationMinutes,
+        pricingType: form.pricingType || "per_booking"
+      };
 
       if (editingId) {
         await updateServiceType(companyId, editingId, finalForm, user);
@@ -269,8 +274,8 @@ const ServiceTypesSection = () => {
   };
 
   /* =========================
-     EDIT
-  ========================== */
+    EDIT
+  ========================= */
 
   const handleEdit = (type) => {
 
@@ -293,6 +298,10 @@ const ServiceTypesSection = () => {
       name: type.name || "",
       category: type.category || "",
       pricingMode: type.pricingMode || "fixed",
+
+      // 🔥 SOLO agregamos pricingType aquí
+      pricingType: type.pricingType || "per_booking",
+
       basePrice: type.basePrice ?? "",
       currency: type.currency || "",
       symbol: type.symbol || "",
@@ -444,42 +453,88 @@ const ServiceTypesSection = () => {
               />
             </div>
 
-            {/* ================= MODO PRECIO ================= */}
-            <div className="form-group">
-              <label>Modo de precio</label>
-              <Select
-                options={pricingOptions}
-                value={
-                  pricingOptions.find(
-                    (option) => option.value === form.pricingMode
-                  ) || null
-                }
-                onChange={handlePricingModeChange}
-                isClearable={false}
-              />
-            </div>
+            <div className="form-row two-columns">
 
-            {/* ================= PRECIO BASE ================= */}
-            {form.pricingMode === "fixed" && (
+              {/* ================= MODO PRECIO ================= */}
               <div className="form-group">
-                <label>
-                  Precio base {form.symbol && `(${form.symbol})`}
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.basePrice}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      basePrice:
-                        e.target.value === "" ? "" : Number(e.target.value)
-                    })
+                <label>Modo de precio</label>
+                <Select
+                  options={pricingOptions}
+                  value={
+                    pricingOptions.find(
+                      (option) => option.value === form.pricingMode
+                    ) || null
                   }
+                  onChange={handlePricingModeChange}
+                  isClearable={false}
                 />
               </div>
-            )}
+
+              {/* ================= PRECIO BASE ================= */}
+              {form.pricingMode === "fixed" && (
+                <div className="form-group">
+                  <label>
+                    Precio base {form.symbol && `(${form.symbol})`}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.basePrice}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        basePrice:
+                          e.target.value === "" ? "" : Number(e.target.value)
+                      })
+                    }
+                  />
+                </div>
+              )}
+
+            </div>
+
+            {/* ================= TIPO DE PRECIO ================= */}
+            <div className="form-group">
+
+              <label>Tipo de precio</label>
+
+              <div className="toggle-group">
+
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    value="per_booking"
+                    checked={form.pricingType === "per_booking"}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        pricingType: e.target.value
+                      })
+                    }
+                  />
+                  <span>Por evento</span>
+                </label>
+
+                <label className="radio-option">
+                  <input
+                    type="radio"
+                    value="per_person"
+                    checked={form.pricingType === "per_person"}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        pricingType: e.target.value
+                      })
+                    }
+                  />
+                  <span>Por persona</span>
+                </label>
+
+              </div>
+
+            </div>
+
 
             {/* ================= STAFF PAYMENT ================= */}
             <div className="form-group">
@@ -547,7 +602,7 @@ const ServiceTypesSection = () => {
                           })
                         }
                       />
-                      <span>Comisión (%)</span>
+                      <span>Porcentaje (%)</span>
                     </label>
 
                   </div>
