@@ -1,0 +1,149 @@
+/* -------------------------------------------------- */
+/* TOOLBAR */
+/* -------------------------------------------------- */
+
+.sign-toolbar {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+
+  align-items: flex-end;
+}
+
+/* -------------------------------------------------- */
+/* SECTION */
+/* -------------------------------------------------- */
+
+.sign-toolbar-section {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+/* -------------------------------------------------- */
+/* TITLE */
+/* -------------------------------------------------- */
+
+.sign-toolbar-title {
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  opacity: 0.6;
+}
+
+/* -------------------------------------------------- */
+/* GROUP */
+/* -------------------------------------------------- */
+
+.sign-toolbar-group {
+  display: flex;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  justify-content: flex-end;
+}
+
+/* -------------------------------------------------- */
+/* BUTTON */
+/* -------------------------------------------------- */
+
+.sign-toolbar-button {
+  border: none;
+
+  background: #5b2ca0;
+
+  color: #fff;
+
+  padding: 10px 14px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  font-size: 13px;
+
+  transition: 0.2s ease;
+}
+
+.sign-toolbar-button:hover {
+  opacity: 0.9;
+
+  transform: translateY(-1px);
+}
+
+/* -------------------------------------------------- */
+/* REACT SELECT */
+/* -------------------------------------------------- */
+
+.sign-toolbar-select-wrapper {
+  min-width: 320px;
+}
+
+.sign-select__control {
+  min-height: 46px !important;
+
+  border-radius: 10px !important;
+
+  border: 1px solid #d1d5db !important;
+
+  box-shadow: none !important;
+}
+
+.sign-select__control:hover {
+  border-color: #5b2ca0 !important;
+}
+
+.sign-select__option--is-focused {
+  background: #f3f4f6 !important;
+
+  color: #111827 !important;
+}
+
+.sign-select__option--is-selected {
+  background: #5b2ca0 !important;
+}
+
+.sign-select__placeholder {
+  color: #6b7280 !important;
+}
+
+/* -------------------------------------------------- */
+/* RESPONSIVE */
+/* -------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  .sign-toolbar-select-wrapper {
+    min-width: 100%;
+  }
+}
+
+/* -------------------------------------------------- */
+/* RESPONSIVE */
+/* -------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  .sign-toolbar {
+    align-items: stretch;
+  }
+
+  .sign-toolbar-group {
+    justify-content: flex-start;
+  }
+
+  .sign-toolbar-button {
+    flex: 1;
+  }
+}

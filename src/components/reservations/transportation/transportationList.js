@@ -18,6 +18,7 @@ import {
 import Loading from "../../../components/general/loading"; 
 import ViewToggle from "../../../components/general/viewToggle"; 
 import DataTable from "../../../components/general/dataTable";
+import ExportTemplateModal from "./ExportTemplateModal";
 import "../../../style/transportation/transportationList.css";
 
 const TransportationList = ({ companyId, user }) => {
@@ -31,6 +32,8 @@ const TransportationList = ({ companyId, user }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [mode, setMode] = useState("create");
   const [loading, setLoading] = useState(true);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [selectedExportReservation, setSelectedExportReservation] = useState(null);
 
   // 🔎 FILTROS
   const [startDateFilter, setStartDateFilter] = useState("");
@@ -68,6 +71,17 @@ const TransportationList = ({ companyId, user }) => {
     setSelectedReservation(reservation);
     setMode("edit");
     setModalOpen(true);
+  };
+
+  const handleExport = (
+    reservation
+  ) => {
+
+    setSelectedExportReservation(
+      reservation
+    );
+
+    setExportModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -521,6 +535,13 @@ const TransportationList = ({ companyId, user }) => {
                 <td className="table-actions">
                   <button
                     className="btn-link"
+                    onClick={() => handleExport(r)}
+                  >
+                    Exportar
+                  </button>
+
+                  <button
+                    className="btn-link"
                     onClick={() => handleEdit(r)}
                   >
                     Editar
@@ -550,6 +571,20 @@ const TransportationList = ({ companyId, user }) => {
         mode={mode}
         companyId={companyId}
         user={user}
+      />
+
+      <ExportTemplateModal
+        isOpen={exportModalOpen}
+
+        onClose={() =>
+          setExportModalOpen(false)
+        }
+
+        companyId={companyId}
+
+        reservation={
+          selectedExportReservation
+        }
       />
 
     </div>

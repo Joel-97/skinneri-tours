@@ -1,0 +1,409 @@
+/* -------------------------------------------------- */
+/* OVERLAY */
+/* -------------------------------------------------- */
+
+.export-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    rgba(15, 23, 42, 0.42);
+
+  backdrop-filter: blur(4px);
+
+  z-index: 99999;
+
+  animation:
+    exportFadeIn 0.18s ease;
+}
+
+/* -------------------------------------------------- */
+/* MODAL */
+/* -------------------------------------------------- */
+
+.export-modal {
+  width: 100%;
+
+  max-width: 600px;
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.12);
+
+  overflow: hidden;
+
+  animation:
+    exportModalEnter 0.2s ease;
+}
+
+/* -------------------------------------------------- */
+/* HEADER */
+/* -------------------------------------------------- */
+
+.export-modal-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding:
+    28px
+    30px
+    24px;
+
+  border-bottom:
+    1px solid #f1f5f9;
+
+  background: #ffffff;
+}
+
+.export-modal-header h2 {
+  margin: 0;
+
+  font-size: 1.6rem;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+  letter-spacing: -0.02em;
+}
+
+.export-modal-header p {
+  margin:
+    10px
+    0
+    0;
+
+  color: #64748b;
+
+  line-height: 1.6;
+
+  font-size: 0.95rem;
+}
+
+/* -------------------------------------------------- */
+/* CLOSE BUTTON */
+/* -------------------------------------------------- */
+
+.export-modal-close {
+  width: 42px;
+
+  min-width: 42px;
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 1rem;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.export-modal-close:hover {
+  background: #e2e8f0;
+
+  color: #0f172a;
+
+  transform: translateY(-1px);
+}
+
+/* -------------------------------------------------- */
+/* CONTENT */
+/* -------------------------------------------------- */
+
+.export-modal-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+
+  padding:
+    28px
+    30px;
+}
+
+/* -------------------------------------------------- */
+/* FORM */
+/* -------------------------------------------------- */
+
+.export-modal .form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.export-modal .form-group label {
+  font-size: 0.9rem;
+
+  font-weight: 600;
+
+  color: #475569;
+}
+
+/* -------------------------------------------------- */
+/* PREVIEW */
+/* -------------------------------------------------- */
+
+.export-modal-preview {
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 18px;
+
+  padding: 20px;
+}
+
+.export-modal-preview-title {
+  font-size: 0.82rem;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  color: #64748b;
+
+  margin-bottom: 18px;
+}
+
+.export-modal-preview-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(180px, 1fr)
+    );
+
+  gap: 18px;
+}
+
+.export-modal-preview-grid div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.export-modal-preview-grid span {
+  font-size: 0.78rem;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+
+  color: #94a3b8;
+}
+
+.export-modal-preview-grid strong {
+  font-size: 1rem;
+
+  font-weight: 700;
+
+  color: #0f172a;
+}
+
+/* -------------------------------------------------- */
+/* ACTIONS */
+/* -------------------------------------------------- */
+
+.export-modal-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  padding:
+    22px
+    30px
+    28px;
+
+  border-top:
+    1px solid #f1f5f9;
+
+  background: #fcfcfd;
+}
+
+/* -------------------------------------------------- */
+/* BUTTONS */
+/* -------------------------------------------------- */
+
+.export-modal-cancel-btn,
+.export-modal-export-btn {
+  border: none;
+
+  min-width: 135px;
+
+  height: 48px;
+
+  padding: 0 20px;
+
+  border-radius: 14px;
+
+  font-size: 0.92rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+
+.export-modal-cancel-btn:hover,
+.export-modal-export-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* CANCEL */
+
+.export-modal-cancel-btn {
+  background: #eef2f7;
+
+  color: #0f172a;
+}
+
+.export-modal-cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+/* EXPORT */
+
+.export-modal-export-btn {
+  background: #0f172a;
+
+  color: #ffffff;
+}
+
+.export-modal-export-btn:hover {
+  background: #1e293b;
+}
+
+.export-modal-export-btn {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+/* DISABLED */
+
+.export-modal-export-btn:disabled {
+  background: #d1d5db;
+
+  color: #6b7280;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  opacity: 0.8;
+}
+
+/* -------------------------------------------------- */
+/* ANIMATIONS */
+/* -------------------------------------------------- */
+
+@keyframes exportFadeIn {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes exportModalEnter {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(10px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* -------------------------------------------------- */
+/* RESPONSIVE */
+/* -------------------------------------------------- */
+
+@media (max-width: 640px) {
+
+  .export-modal {
+    max-width: 100%;
+  }
+
+  .export-modal-header,
+  .export-modal-content,
+  .export-modal-actions {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .export-modal-actions {
+    flex-direction: column;
+  }
+
+  .export-modal-cancel-btn,
+  .export-modal-export-btn {
+    width: 100%;
+  }
+
+  .export-modal-preview-grid {
+    grid-template-columns: 1fr;
+  }
+}

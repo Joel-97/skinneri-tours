@@ -1,0 +1,65 @@
+.sign-layer-properties {
+  padding: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+.sign-layer-properties-empty {
+  padding: 20px;
+}
+
+.sign-layer-properties-empty-text {
+  opacity: 0.6;
+}
+
+.sign-layer-properties-id {
+  opacity: 0.5;
+
+  margin-top: 6px;
+}
+
+.slp-section {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.slp-input {
+  width: 100%;
+
+  padding: 10px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+}
+
+.slp-textarea {
+  min-height: 120px;
+
+  resize: vertical;
+}
+
+.slp-color-input {
+  width: 100%;
+
+  height: 50px;
+
+  border: none;
+
+  background: transparent;
+}
+
+.slp-range {
+  width: 100%;
+}
+
+.slp-image-text {
+  opacity: 0.6;
+}

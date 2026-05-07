@@ -7,12 +7,15 @@ import DiscountsSection from "./sections/DiscountsSection";
 import StaffSection from "./sections/StaffSection";
 import CommissionAgents from "./sections/CommissionAgentsSection";
 import PaymentTypesSection from "./sections/PaymentTypesSection";
+import SignTemplatesSection from "./sections/SignTemplatesSection";
+import { UserAuth } from '../../context/AuthContext';
 
 import "../../style/settings/settings.css";
 
 const SettingsPage = () => {
 
   const [view, setView] = useState("taxes");
+  const { companyId, user } = UserAuth();
 
   const renderContent = () => {
     switch (view) {
@@ -39,6 +42,12 @@ const SettingsPage = () => {
 
       case "locations":
         return <LocationsSection />;
+      
+      case "SignTemplates":
+        return <SignTemplatesSection
+          companyId={companyId}
+          user={user}
+        />;
 
       case "vehicles":
         return <div>Vehículos próximamente</div>;
@@ -115,6 +124,13 @@ const SettingsPage = () => {
           onClick={() => setView("locations")}
         >
           Lugares
+        </button>
+
+        <button
+          className={view === "SignTemplates" ? "active" : ""}
+          onClick={() => setView("SignTemplates")}
+        >
+          Plantillas 
         </button>
 
         <button
