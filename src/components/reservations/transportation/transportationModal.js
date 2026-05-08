@@ -468,6 +468,52 @@ export default function TransportationModal({
 
   };
 
+  /*
+  -----------------------------------------------------------
+  LE DA FORMATO A LOS MINUTOS PARA GUARDARLOS EN FIREBASE
+  -----------------------------------------------------------
+  */
+  const formatDuration = (minutes = 0) => {
+
+    const totalMinutes = Number(minutes);
+
+    if (!totalMinutes) {
+      return "";
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+
+    const remainingMinutes = totalMinutes % 60;
+
+    /*
+    -----------------------------------
+    ONLY MINUTES
+    -----------------------------------
+    */
+
+    if (hours === 0) {
+      return `${remainingMinutes}m`;
+    }
+
+    /*
+    -----------------------------------
+    ONLY HOURS
+    -----------------------------------
+    */
+
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    }
+
+    /*
+    -----------------------------------
+    HOURS + MINUTES
+    -----------------------------------
+    */
+
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
   const handleSubmit = async () => {
 
     if (!form.clientId) {
@@ -520,6 +566,8 @@ export default function TransportationModal({
     const selectedStaff = staff.find(d => d.id === form.staffId);
     const selectedPayment = paymentTypes.find(p => p.id === form.paymentTypeId);
     const selectedService = serviceTypes.find(s => s.id === form.serviceTypeId);
+    const selectedLocationFrom = locations.find(l => l.id === form.locationFromId);
+    const selectedLocationTo = locations.find(l => l.id === form.locationToId);
 
     /* =========================
       DATOS FINANCIEROS
@@ -537,6 +585,12 @@ export default function TransportationModal({
       paymentTypeName: selectedPayment?.name || "",
       serviceCategory: selectedService?.category || "transport",
       serviceTypeName: selectedService?.name || "",
+     
+      durationMinutes: Number(selectedService?.durationMinutes || 0),
+      durationLabel: formatDuration(selectedService?.durationMinutes || 0),
+
+      locationFromName: selectedLocationFrom?.name || "",
+      locationToName: selectedLocationTo?.name || "",
 
       dateString: form.date ? form.date.slice(0, 10) : "",
       month: form.date ? form.date.slice(0, 7) : "",

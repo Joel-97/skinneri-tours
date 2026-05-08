@@ -12,6 +12,7 @@ import {
   deleteSignTemplate,
   getSignTemplates,
   uploadTemplateImage,
+  deleteTemplateImage,
 } from "../../../services/sign/signTemplatesService";
 
 import {
@@ -30,6 +31,9 @@ const SignTemplatesSection = ({ companyId, user }) => {
   const [templates, setTemplates] = useState([]);
   const [templateName, setTemplateName] = useState("Plantilla sin título");
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [copiedLayer, setCopiedLayer] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [future,  setFuture] = useState([]);
   const hasReachedTemplateLimit = templates.length >= 5;
   /*
   |--------------------------------------------------------------------------
@@ -37,23 +41,74 @@ const SignTemplatesSection = ({ companyId, user }) => {
   |--------------------------------------------------------------------------
   */
 
-  const reservation = {
-    clientName: "Nombre cliente",
+    const reservation = {
 
-    reservationDate: "April 13, 2026",
+    clientName:
+        "Nombre del cliente",
 
-    pickupLocation: "Liberia Airport",
+    clientEmail:
+        "Correo electrónico",
 
-    reservationNumber: "TR-0804-8202178",
+    phone:
+        "Número de teléfono",
 
-    dropOff: "Lugar dejada",
+    reservationNumber:
+        "Número de reserva",
 
-    passengers: "4",
-  };
+    reservationDate:
+        "Fecha de reserva",
 
-  const company = {
-    companyName: "Nombre de la empresa",
-  };
+    passengers:
+        "# de pasajeros",
+
+    serviceTypeName:
+        "Tipo de servicio",
+
+    serviceCategory:
+        "Categoría del servicio",
+
+    locationFromName:
+        "Lugar de recogida",
+
+    locationToName:
+        "Lugar de destino",
+
+    durationLabel:
+        "Duración",
+
+    subtotal:
+        "Subtotal",
+
+    taxAmount:
+        "Impuestos",
+
+    total:
+        "Total",
+
+    currency:
+        "Moneda",
+
+    symbol:
+        "$",
+
+    status:
+        "Estado de la reserva",
+
+    notes:
+        "Notas adicionales",
+
+    staffName:
+        "Nombre del staff",
+
+    title:
+        "Título de la reserva",
+    };
+
+    const company = {
+
+    companyName:
+        "Nombre de la empresa",
+    };
 
   /*
   |--------------------------------------------------------------------------
@@ -77,12 +132,114 @@ const SignTemplatesSection = ({ companyId, user }) => {
 
   /*
   |--------------------------------------------------------------------------
+  | GUARDA EL HISTORIAL DEL LAYER
+  |--------------------------------------------------------------------------
+  */
+  const saveHistory = () => {
+
+    setHistory((prev) => [
+        ...prev,
+        structuredClone(template),
+    ]);
+
+    /*
+    -----------------------------------
+    CLEAR FUTURE
+    -----------------------------------
+    */
+
+    setFuture([]);
+  };
+
+    const undo = () => {
+
+        if (history.length === 0) {
+            return;
+        }
+
+        /*
+        -----------------------------------
+        LAST HISTORY
+        -----------------------------------
+        */
+
+        const previousState = history[history.length - 1];
+
+        /*
+        -----------------------------------
+        SAVE CURRENT TO FUTURE
+        -----------------------------------
+        */
+
+        setFuture((prev) => [
+            structuredClone(template),
+            ...prev,
+        ]);
+
+        /*
+        -----------------------------------
+        REMOVE LAST HISTORY
+        -----------------------------------
+        */
+
+        setHistory((prev) =>  prev.slice(0, -1));
+
+        /*
+        -----------------------------------
+        RESTORE
+        -----------------------------------
+        */
+
+        setTemplate(previousState);
+    };
+
+    const redo = () => {
+
+        if (future.length === 0) {
+            return;
+        }
+
+        /*
+        -----------------------------------
+        NEXT STATE
+        -----------------------------------
+        */
+        const nextState = future[0];
+        /*
+        -----------------------------------
+        SAVE CURRENT
+        -----------------------------------
+        */
+
+        setHistory((prev) => [
+            ...prev,
+            structuredClone(template),
+        ]);
+
+        /*
+        -----------------------------------
+        REMOVE FUTURE
+        -----------------------------------
+        */
+
+        setFuture((prev) => prev.slice(1));
+
+        /*
+        -----------------------------------
+        RESTORE
+        -----------------------------------
+        */
+
+        setTemplate(nextState);
+    };
+  /*
+  |--------------------------------------------------------------------------
   | UPDATE LAYER
   |--------------------------------------------------------------------------
   */
 
   const updateLayer = (layerId, updates) => {
-
+    saveHistory();
     const updatedLayers = template.layers.map((layer) => {
 
       if (layer.id === layerId) {
@@ -153,98 +310,108 @@ const SignTemplatesSection = ({ companyId, user }) => {
 
     const loadTemplates = async () => {
 
-    try {
+        try {
 
-        /*
-        -----------------------------------
-        GET TEMPLATES
-        -----------------------------------
-        */
+            /*
+            -----------------------------------
+            GET TEMPLATES
+            -----------------------------------
+            */
 
-        const data =
-        await getSignTemplates(
-            companyId
-        );
+            const data = await getSignTemplates(companyId);
 
-        /*
-        -----------------------------------
-        SET LIST
-        -----------------------------------
-        */
+            /*
+            -----------------------------------
+            SORT BY UPDATED DATE
+            -----------------------------------
+            */
 
-        setTemplates(data);
+            const sortedTemplates =
+                [...data].sort((a, b) => {
 
-        /*
-        -----------------------------------
-        AUTO OPEN TEMPLATE
-        -----------------------------------
-        */
+                const aDate = a.updatedAt?.seconds || 0;
+                const bDate = b.updatedAt?.seconds || 0;
 
-        if (
-        data.length > 0
-        ) {
+                return bDate - aDate;
+            });
 
-        const firstTemplate =
-            data[0];
+            /*
+            -----------------------------------
+            SET LIST
+            -----------------------------------
+            */
 
-        setTemplate({
+            setTemplates(sortedTemplates);
 
-            canvas:
-            firstTemplate.canvas ||
-            defaultSignTemplate.canvas,
+            /*
+            -----------------------------------
+            AUTO OPEN TEMPLATE
+            -----------------------------------
+            */
 
-            layers:
-            firstTemplate.layers || [],
-        });
+            if (sortedTemplates.length > 0) {
 
-        setTemplateName(
-            firstTemplate.name ||
-            "Plantilla sin título"
-        );
+            const firstTemplate = sortedTemplates[0];
 
-        setSelectedTemplateId(
-            firstTemplate.id
-        );
+            setTemplate({
 
-        /*
-        -----------------------------------
-        RESET SELECTED LAYER
-        -----------------------------------
-        */
+                canvas:
+                firstTemplate.canvas ||
+                defaultSignTemplate.canvas,
 
-        setSelectedLayerId(
-            null
-        );
+                layers:
+                firstTemplate.layers || [],
+            });
 
-        } else {
+            setTemplateName(
 
-        /*
-        -----------------------------------
-        EMPTY STATE
-        -----------------------------------
-        */
+                firstTemplate.name ||
+                "Plantilla sin título"
+            );
 
-        setTemplate(
-            defaultSignTemplate
-        );
+            setSelectedTemplateId(
+                firstTemplate.id
+            );
 
-        setTemplateName(
-            "Plantilla sin título"
-        );
+            /*
+            -----------------------------------
+            RESET SELECTED LAYER
+            -----------------------------------
+            */
 
-        setSelectedTemplateId(
-            null
-        );
+            setSelectedLayerId(
+                null
+            );
 
-        setSelectedLayerId(
-            null
-        );
+            } else {
+
+            /*
+            -----------------------------------
+            EMPTY STATE
+            -----------------------------------
+            */
+
+            setTemplate(
+                defaultSignTemplate
+            );
+
+            setTemplateName(
+                "Plantilla sin título"
+            );
+
+            setSelectedTemplateId(
+                null
+            );
+
+            setSelectedLayerId(
+                null
+            );
+            }
+
+        } catch (error) {
+
+            console.error(error);
         }
-
-    } catch (error) {
-
-        console.error(error);
-    }
     };
 
     useEffect(() => {
@@ -254,6 +421,25 @@ const SignTemplatesSection = ({ companyId, user }) => {
         loadTemplates();
 
     }, [companyId]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | USE EFFECT PARA VER CUANDO SE TOCA EL TECLADO
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+
+        }, [
+        selectedLayerId,
+        template,
+    ]);
 
     /*
     |--------------------------------------------------------------------------
@@ -358,42 +544,65 @@ const SignTemplatesSection = ({ companyId, user }) => {
 
     try {
 
-        /*
-        -----------------------------------
-        DELETE TEMPLATE
-        -----------------------------------
-        */
+    /*
+    -----------------------------------
+    GET TEMPLATE IMAGES
+    -----------------------------------
+    */
 
-        await deleteSignTemplate(
-        companyId,
-        selectedTemplateId
+    const templateImages =
+        template.layers.filter(
+        (layer) =>
+
+            layer.type === "image" &&
+            layer.storagePath
         );
 
-        /*
-        -----------------------------------
-        RELOAD TEMPLATES
-        -----------------------------------
-        */
+    /*
+    -----------------------------------
+    DELETE STORAGE IMAGES
+    -----------------------------------
+    */
 
-        await loadTemplates();
+    for (const imageLayer of templateImages) {
 
-        /*
-        -----------------------------------
-        SUCCESS
-        -----------------------------------
-        */
+        try {
 
-        notifySuccess(
-        "Plantilla eliminada"
-        );
+            await deleteTemplateImage(imageLayer.storagePath);
+
+        } catch (error) {
+            console.error("Error deleting image:", error);
+        }
+    }
+
+    /*
+    -----------------------------------
+    DELETE TEMPLATE
+    -----------------------------------
+    */
+
+    await deleteSignTemplate(companyId, selectedTemplateId);
+
+    /*
+    -----------------------------------
+    RELOAD TEMPLATES
+    -----------------------------------
+    */
+
+    await loadTemplates();
+
+    /*
+    -----------------------------------
+    SUCCESS
+    -----------------------------------
+    */
+
+    notifySuccess("Plantilla eliminada");
 
     } catch (error) {
 
         console.error(error);
-
-        notifyError(
-        "Error eliminando plantilla"
-        );
+        notifyError("Error eliminando plantilla");
     }
     };
 
@@ -410,9 +619,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
 
         setSelectedLayerId(null);
 
-        setTemplateName(
-            "Plantilla sin título"
-        );
+        setTemplateName("Plantilla sin título");
     };
 
     /*
@@ -523,7 +730,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const createTextLayer = (textValue) => {
-
+    saveHistory();
     const newLayer = {
       id: generateLayerId(),
 
@@ -578,7 +785,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const addStaticTextLayer = () => {
-    createTextLayer("WELCOME");
+    createTextLayer("Nuevo texto");
   };
 
   /*
@@ -588,6 +795,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const addShapeLayer = () => {
+    saveHistory();
 
     const newLayer = {
       id: generateLayerId(),
@@ -613,7 +821,6 @@ const SignTemplatesSection = ({ companyId, user }) => {
     });
 
     setSelectedLayerId(newLayer.id);
-
     setRightPanelTab("properties");
   };
 
@@ -623,100 +830,83 @@ const SignTemplatesSection = ({ companyId, user }) => {
   |--------------------------------------------------------------------------
   */
 
-    const addImageLayer =
-        async (event) => {
+    const addImageLayer = async (event) => {
+        saveHistory();
+        try {
 
-    try {
+            /*
+            -----------------------------------
+            FILE
+            -----------------------------------
+            */
 
-        /*
-        -----------------------------------
-        FILE
-        -----------------------------------
-        */
+            const file = event.target.files[0];
 
-        const file =
-        event.target.files[0];
+            if (!file) {
+            return;
+            }
 
-        if (!file) {
-        return;
+            /*
+            -----------------------------------
+            UPLOAD TO FIREBASE STORAGE
+            -----------------------------------
+            */
+
+            const result = await uploadTemplateImage({ companyId, file,});
+
+            /*
+            -----------------------------------
+            CREATE IMAGE LAYER
+            -----------------------------------
+            */
+
+            const newLayer = {
+            id: generateLayerId(),
+
+            type: "image",
+
+            src: result.url,
+
+            storagePath:
+                result.path,
+
+            x: 200,
+            y: 200,
+
+            width: 300,
+            height: 300,
+            };
+
+            /*
+            -----------------------------------
+            UPDATE TEMPLATE
+            -----------------------------------
+            */
+
+            setTemplate({
+            ...template,
+
+            layers: [
+                ...template.layers,
+                newLayer,
+            ],
+            });
+
+            /*
+            -----------------------------------
+            SELECT LAYER
+            -----------------------------------
+            */
+
+            setSelectedLayerId(newLayer.id);
+            setRightPanelTab("properties");
+            //notifySuccess("Imagen subida");
+
+        } catch (error) {
+
+            console.error(error);
+            notifyError("Error cargando imagen");
         }
-
-        /*
-        -----------------------------------
-        UPLOAD TO FIREBASE STORAGE
-        -----------------------------------
-        */
-
-        const result =
-        await uploadTemplateImage({
-            companyId,
-            file,
-        });
-
-        /*
-        -----------------------------------
-        CREATE IMAGE LAYER
-        -----------------------------------
-        */
-
-        const newLayer = {
-        id: generateLayerId(),
-
-        type: "image",
-
-        src: result.url,
-
-        storagePath:
-            result.path,
-
-        x: 200,
-        y: 200,
-
-        width: 300,
-        height: 300,
-        };
-
-        /*
-        -----------------------------------
-        UPDATE TEMPLATE
-        -----------------------------------
-        */
-
-        setTemplate({
-        ...template,
-
-        layers: [
-            ...template.layers,
-            newLayer,
-        ],
-        });
-
-        /*
-        -----------------------------------
-        SELECT LAYER
-        -----------------------------------
-        */
-
-        setSelectedLayerId(
-        newLayer.id
-        );
-
-        setRightPanelTab(
-        "properties"
-        );
-
-        notifySuccess(
-        "Imagen subida"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        notifyError(
-        "Error subiendo imagen"
-        );
-    }
     };
 
   /*
@@ -725,21 +915,78 @@ const SignTemplatesSection = ({ companyId, user }) => {
   |--------------------------------------------------------------------------
   */
 
-  const deleteLayer = (layerId) => {
+    const deleteLayer = async (layerId) => {
+    saveHistory();
+    /*
+    -----------------------------------
+    FIND LAYER
+    -----------------------------------
+    */
+
+    const layerToDelete =
+        template.layers.find(
+        (layer) =>
+            layer.id === layerId
+        );
+
+    /*
+    -----------------------------------
+    DELETE IMAGE FROM STORAGE
+    -----------------------------------
+    */
+
+    if (
+        layerToDelete?.type === "image" &&
+        layerToDelete?.storagePath
+    ) {
+
+        try {
+
+        await deleteTemplateImage(
+            layerToDelete.storagePath
+        );
+
+        } catch (error) {
+
+        console.error(
+            "Error deleting image:",
+            error
+        );
+        }
+    }
+
+    /*
+    -----------------------------------
+    REMOVE LAYER
+    -----------------------------------
+    */
 
     const updatedLayers = template.layers.filter(
-      (layer) => layer.id !== layerId
-    );
+        (layer) =>
+            layer.id !== layerId
+        );
 
     setTemplate({
-      ...template,
-      layers: updatedLayers,
+        ...template,
+
+        layers: updatedLayers,
     });
 
-    if (selectedLayerId === layerId) {
-      setSelectedLayerId(null);
+    /*
+    -----------------------------------
+    RESET SELECTED
+    -----------------------------------
+    */
+
+    if (
+        selectedLayerId === layerId
+    ) {
+
+        setSelectedLayerId(
+        null
+        );
     }
-  };
+    };
 
   /*
   |--------------------------------------------------------------------------
@@ -748,6 +995,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const duplicateLayer = (layer) => {
+    saveHistory();
 
     const duplicatedLayer = {
       ...layer,
@@ -775,7 +1023,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const moveLayerUp = (index) => {
-
+    saveHistory();
     if (index >= template.layers.length - 1) {
       return;
     }
@@ -803,6 +1051,7 @@ const SignTemplatesSection = ({ companyId, user }) => {
   */
 
   const moveLayerDown = (index) => {
+    saveHistory();
 
     if (index <= 0) {
       return;
@@ -822,6 +1071,321 @@ const SignTemplatesSection = ({ companyId, user }) => {
       ...template,
       layers: updatedLayers,
     });
+  };
+  
+  const moveSelectedLayer = (deltaX, deltaY ) => {
+    saveHistory();
+
+    /*
+    -----------------------------------
+    VALIDATE
+    -----------------------------------
+    */
+
+    if (!selectedLayerId) {
+        return;
+    }
+
+    /*
+    -----------------------------------
+    FIND LAYER
+    -----------------------------------
+    */
+
+    const selectedLayer =
+        template.layers.find(
+        (layer) =>
+            layer.id === selectedLayerId
+        );
+
+    if (!selectedLayer) {
+        return;
+    }
+
+    /*
+    -----------------------------------
+    UPDATE POSITION
+    -----------------------------------
+    */
+
+    updateLayer(
+        selectedLayerId,
+        {
+            x: selectedLayer.x + deltaX,
+            y: selectedLayer.y + deltaY,
+        }
+    );
+  };
+
+  const pasteLayer = () => {
+
+    /*
+    -----------------------------------
+    VALIDATE
+    -----------------------------------
+    */
+
+    if (!copiedLayer) {
+        return;
+    }
+
+    /*
+    -----------------------------------
+    DUPLICATE
+    -----------------------------------
+    */
+
+    const duplicatedLayer = {
+        ...copiedLayer,
+        id: generateLayerId(),
+        x: copiedLayer.x + 40,
+        y: copiedLayer.y + 40,
+    };
+
+    /*
+    -----------------------------------
+    UPDATE TEMPLATE
+    -----------------------------------
+    */
+
+    setTemplate({
+        ...template,
+
+        layers: [
+        ...template.layers,
+        duplicatedLayer,
+        ],
+    });
+
+    /*
+    -----------------------------------
+    SELECT
+    -----------------------------------
+    */
+
+    setSelectedLayerId(duplicatedLayer.id );
+
+    setRightPanelTab("properties");
+    };
+
+  const handleKeyDown = (
+    event
+    ) => {
+
+    /*
+    -----------------------------------
+    ACTIVE ELEMENT
+    -----------------------------------
+    */
+
+    const activeElement = document.activeElement;
+
+    const isTyping =
+        activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA";
+
+    /*
+    -----------------------------------
+    PREVENT SHORTCUTS
+    WHILE TYPING
+    -----------------------------------
+    */
+
+    if (isTyping) {
+        return;
+    }
+
+    /*
+    -----------------------------------
+    VALIDATE LAYER
+    -----------------------------------
+    */
+
+    const selectedLayer =
+        template.layers.find(
+        (layer) => layer.id === selectedLayerId);
+
+    /*
+    -----------------------------------
+    DELETE
+    -----------------------------------
+    */
+
+    if (
+        event.key === "Delete" ||
+        event.key === "Backspace"
+    ) {
+
+        if (!selectedLayerId) {
+        return;
+        }
+
+        event.preventDefault();
+        deleteLayer(selectedLayerId);
+
+        return;
+    }
+
+    /*
+    -----------------------------------
+    ESC
+    -----------------------------------
+    */
+
+    if (event.key === "Escape") {
+        setSelectedLayerId(null);
+        return;
+    }
+
+    /*
+    -----------------------------------
+    CTRL + D
+    -----------------------------------
+    */
+
+    if (
+        event.ctrlKey &&
+        event.key.toLowerCase() === "d"
+    ) {
+        event.preventDefault();
+
+        if (!selectedLayer) {
+        return;
+        }
+
+        duplicateLayer(selectedLayer);
+        return;
+    }
+
+    /*
+    -----------------------------------
+    CTRL + S
+    -----------------------------------
+    */
+
+    if ( event.ctrlKey && event.key.toLowerCase() === "s" ) {
+
+        event.preventDefault();
+        handleSaveTemplate();
+
+    return;
+    }
+
+    /*
+    -----------------------------------
+    CTRL + Z
+    -----------------------------------
+    */
+
+    if (event.ctrlKey && !event.shiftKey &&
+        event.key.toLowerCase() === "z") {
+
+        event.preventDefault();
+        undo();
+        return;
+    }
+
+    /*
+    -----------------------------------
+    REDO
+    CTRL + SHIFT + Z
+    CTRL + Y
+    -----------------------------------
+    */
+
+    if (
+        (
+            event.ctrlKey && event.shiftKey &&
+            event.key.toLowerCase() === "z"
+        ) 
+        ||
+        (
+            event.ctrlKey &&
+            event.key.toLowerCase() === "y"
+        )
+
+    ) {
+
+        event.preventDefault();
+        redo();
+        return;
+    }
+
+    /*
+    -----------------------------------
+    CTRL + C
+    -----------------------------------
+    */
+
+    if (event.ctrlKey && event.key.toLowerCase() === "c") {
+
+        if (!selectedLayer) {
+            return;
+        }
+
+        event.preventDefault();
+        setCopiedLayer(selectedLayer);
+
+        //notifySuccess("Layer copiado");
+
+        return;
+        }
+
+    /*
+    -----------------------------------
+    CTRL + V
+    -----------------------------------
+    */
+
+    if (
+    event.ctrlKey &&
+    event.key.toLowerCase() === "v"
+    ) {
+
+    event.preventDefault();
+
+    pasteLayer();
+
+    return;
+    }
+
+    /*
+    -----------------------------------
+    MOVEMENT
+    -----------------------------------
+    */
+
+    const moveAmount = event.shiftKey ? 10 : 1;
+
+    switch (event.key) {
+
+        case "ArrowUp":
+            event.preventDefault();
+            moveSelectedLayer(0, -moveAmount);
+
+        break;
+
+        case "ArrowDown":
+            event.preventDefault();
+            moveSelectedLayer(0, moveAmount);
+
+        break;
+
+        case "ArrowLeft":
+            event.preventDefault();
+            moveSelectedLayer(-moveAmount, 0);
+
+        break;
+
+        case "ArrowRight":
+            event.preventDefault();
+            moveSelectedLayer(moveAmount, 0);
+
+        break;
+
+        default:
+        break;
+    }
   };
 
   return (
@@ -1057,9 +1621,8 @@ const SignTemplatesSection = ({ companyId, user }) => {
 
         <SignCanvas
             template={template}
-
             setTemplate={setTemplate}
-
+            saveHistory={saveHistory}
             signData={signData}
 
             selectedLayerId={

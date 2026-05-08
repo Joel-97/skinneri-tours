@@ -1,15 +1,20 @@
 import React from "react";
 
-import SignLayerRenderer from "./SignLayerRenderer";
+import SignLayerRenderer
+  from "./SignLayerRenderer";
 
 import "../../style/settings/template/signCanvas.css";
 
 const SignCanvas = ({
   template,
   setTemplate,
+
   signData,
+
   selectedLayerId,
   setSelectedLayerId,
+
+  saveHistory,
 }) => {
 
   /*
@@ -22,13 +27,16 @@ const SignCanvas = ({
     return null;
   }
 
-  const canvas = template.canvas || {};
+  const canvas =
+    template.canvas || {};
 
-  const background = template.background || {};
+  const background =
+    template.background || {};
 
-  const layers = Array.isArray(template.layers)
-    ? template.layers
-    : [];
+  const layers =
+    Array.isArray(template.layers)
+      ? template.layers
+      : [];
 
   /*
   |--------------------------------------------------------------------------
@@ -36,46 +44,67 @@ const SignCanvas = ({
   |--------------------------------------------------------------------------
   */
 
-  const updateLayer = (layerId, updates) => {
+  const updateLayer = (
+    layerId,
+    updates
+  ) => {
 
-    const updatedLayers = layers.map((layer) => {
+    const updatedLayers =
+      layers.map((layer) => {
 
-      if (layer.id === layerId) {
+        if (
+          layer.id === layerId
+        ) {
 
-        return {
-          ...layer,
-          ...updates,
-        };
-      }
+          return {
+            ...layer,
 
-      return layer;
-    });
+            ...updates,
+          };
+        }
+
+        return layer;
+      });
 
     setTemplate({
       ...template,
+
       layers: updatedLayers,
     });
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | RENDER
+  |--------------------------------------------------------------------------
+  */
+
   return (
+
     <div
       className="sign-canvas"
 
       style={{
-        width: canvas.width || 900,
+        width:
+          canvas.width || 900,
 
-        height: canvas.height || 1400,
+        height:
+          canvas.height || 1400,
 
         background:
-          background.color || "#ffffff",
+          background.color ||
+          "#ffffff",
       }}
     >
 
       {layers.map((layer) => {
 
-        if (!layer) return null;
+        if (!layer) {
+          return null;
+        }
 
         return (
+
           <SignLayerRenderer
             key={layer.id}
 
@@ -87,9 +116,8 @@ const SignCanvas = ({
 
             selectedLayerId={selectedLayerId}
 
-            setSelectedLayerId={
-              setSelectedLayerId
-            }
+            setSelectedLayerId={setSelectedLayerId}
+            saveHistory={saveHistory}
           />
         );
       })}

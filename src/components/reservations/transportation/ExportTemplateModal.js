@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, } from "react";
 import Select from "react-select";
 import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 
 import { getSignTemplates, } from "../../../services/sign/signTemplatesService";
 import HiddenTemplateRenderer from "../../signs/HiddenTemplateRenderer";
@@ -10,12 +11,12 @@ import "../../../style/transportation/exportTemplateModal.css";
 const formatOptions = [
   {
     value: "png",
-    label: "PNG Image",
+    label: "Imagen PNG",
   },
 
   {
     value: "pdf",
-    label: "PDF Document",
+    label: "Documento PDF",
   },
 ];
 
@@ -177,27 +178,104 @@ const ExportTemplateModal = ({
             return;
         }
 
-        setIsExporting(true);
+          setIsExporting(true);
 
-        const dataUrl =
-            await toPng(
-            exportRef.current,
-            {
-                cacheBust: true,
-            }
+          /*
+          -----------------------------------
+          GENERATE IMAGE
+          -----------------------------------
+          */
+
+          const dataUrl = await toPng(exportRef.current, {cacheBust: true, pixelRatio: 2, });
+
+          /*
+          -----------------------------------
+          PNG EXPORT
+          -----------------------------------
+          */
+
+          if ( selectedFormat.value === "png" ) {
+
+            const link = document.createElement("a");
+
+            link.download = `${reservation?.reservationNumber || "template"}.png`;
+
+            link.href =  dataUrl;
+
+            link.click();
+          }
+
+          /*
+          -----------------------------------
+          PDF EXPORT
+          -----------------------------------
+          */
+
+          if ( selectedFormat.value === "pdf") {
+
+            /*
+            -----------------------------------
+            TEMPLATE SIZE
+            -----------------------------------
+            */
+
+            const canvasWidth = selectedTemplate?.canvas ?.width || 900;
+
+            const canvasHeight = selectedTemplate?.canvas ?.height || 1400;
+
+            /*
+            -----------------------------------
+            ORIENTATION
+            -----------------------------------
+            */
+
+            const orientation = canvasWidth > canvasHeight ? "landscape" : "portrait";
+
+            /*
+            -----------------------------------
+            CREATE PDF
+            -----------------------------------
+            */
+
+            const pdf = new jsPDF({
+                orientation,
+                unit: "px",
+                format: [
+                  canvasWidth,
+                  canvasHeight,
+                ],
+              });
+
+            /*
+            -----------------------------------
+            ADD IMAGE
+            -----------------------------------
+            */
+
+            pdf.addImage(dataUrl,
+              "PNG",
+              0,
+              0,
+              canvasWidth,
+              canvasHeight
             );
 
-        const link =
-            document.createElement(
-            "a"
-            );
+            /*
+            -----------------------------------
+            FILE NAME
+            -----------------------------------
+            */
 
-        link.download =
-            `${reservation?.reservationNumber || "template"}.png`;
+            const fileName = `${reservation?.reservationNumber || "template"}.pdf`;
 
-        link.href = dataUrl;
+            /*
+            -----------------------------------
+            SAVE
+            -----------------------------------
+            */
 
-        link.click();
+            pdf.save(fileName);
+          }
 
         } catch (error) {
 
@@ -233,9 +311,9 @@ const ExportTemplateModal = ({
   }
 
   return (
-    <div className="export-modal-overlay">
+    <div className="export-modal-overlay" onClick={onClose}>
 
-      <div className="export-modal">
+      <div className="export-modal" onClick={(e) => e.stopPropagation()}>
 
         {/* HEADER */}
         <div className="export-modal-header">

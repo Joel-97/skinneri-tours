@@ -1,7 +1,7 @@
 import React from "react";
 
 import Select from "react-select";
-
+import { dynamicFields } from "../signs/config/dynamicFields";
 import "../../style/settings/template/signLayerProperties.css";
 
 const fontOptions = [
@@ -74,6 +74,12 @@ const SignLayerProperties = ({
   const isImageLayer =
     selectedLayer.type === "image";
 
+  const dynamicFieldLabel =
+    dynamicFields.find(
+      (field) =>
+        field.value === selectedLayer.text
+    )?.label;
+
   return (
 
     <div className="sign-layer-properties">
@@ -107,9 +113,18 @@ const SignLayerProperties = ({
             </label>
 
             <textarea
-              value={selectedLayer.text}
+
+              value={
+                dynamicFieldLabel ||
+                selectedLayer.text
+              }
+
+              readOnly={
+                !!dynamicFieldLabel
+              }
 
               onChange={(e) =>
+
                 updateLayer(selectedLayer.id, {
                   text: e.target.value,
                 })

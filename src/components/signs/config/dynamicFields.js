@@ -6,18 +6,18 @@ export const dynamicFields = [
   },
 
   {
-    label: "Numero de resevación",
+    label: "Correo electrónico",
+    value: "{{clientEmail}}",
+  },
+
+  {
+    label: "Número de teléfono",
+    value: "{{phone}}",
+  },
+
+  {
+    label: "Número de reservación",
     value: "{{reservationNumber}}",
-  },
-
-  {
-    label: "Lugar de recogida",
-    value: "{{pickupLocation}}",
-  },
-
-  {
-    label: "Lugar de entrega",
-    value: "{{dropOff}}",
   },
 
   {
@@ -26,18 +26,23 @@ export const dynamicFields = [
   },
 
   {
-    label: "Pasageros",
+    label: "Número de pasajeros",
     value: "{{passengers}}",
   },
 
   {
-    label: "Nombre del conductor",
-    value: "{{driverName}}",
+    label: "Lugar de recogida",
+    value: "{{locationFromName}}",
   },
 
   {
-    label: "Telefono",
-    value: "{{phone}}",
+    label: "Lugar de destino",
+    value: "{{locationToName}}",
+  },
+
+  {
+    label: "Duración",
+    value: "{{durationLabel}}",
   },
 
   {
@@ -46,13 +51,33 @@ export const dynamicFields = [
   },
 
   {
+    label: "Categoría del servicio",
+    value: "{{serviceCategory}}",
+  },
+
+  {
     label: "Estado",
     value: "{{status}}",
   },
 
   {
-    label: "Monneda",
+    label: "Moneda",
     value: "{{currency}}",
+  },
+
+  {
+    label: "Símbolo de moneda",
+    value: "{{symbol}}",
+  },
+
+  {
+    label: "Subtotal",
+    value: "{{subtotal}}",
+  },
+
+  {
+    label: "Impuestos",
+    value: "{{taxAmount}}",
   },
 
   {
@@ -61,8 +86,18 @@ export const dynamicFields = [
   },
 
   {
+    label: "Nombre del colaborador",
+    value: "{{staffName}}",
+  },
+
+  {
     label: "Notas",
     value: "{{notes}}",
+  },
+
+  {
+    label: "Título de la reserva",
+    value: "{{title}}",
   },
 
   {

@@ -6,14 +6,18 @@ import TextLayer from "./layers/TextLayer";
 import ShapeLayer from "./layers/ShapeLayer";
 import ImageLayer from "./layers/ImageLayer";
 
-import { replacePlaceholders } from "./utils/replacePlaceholders";
+import { replacePlaceholders }
+  from "./utils/replacePlaceholders";
 
 const SignLayerRenderer = ({
   layer,
   signData,
   updateLayer,
+
   selectedLayerId,
   setSelectedLayerId,
+
+  saveHistory,
 }) => {
 
   /*
@@ -41,7 +45,9 @@ const SignLayerRenderer = ({
   */
 
   return (
+
     <Rnd
+
       size={{
         width:
           layer.width || 300,
@@ -62,14 +68,49 @@ const SignLayerRenderer = ({
         isImageLayer
       }
 
+      /*
+      -----------------------------------
+      DRAG START
+      -----------------------------------
+      */
+
+      onDragStart={() => {
+
+        saveHistory();
+      }}
+
+      /*
+      -----------------------------------
+      DRAG STOP
+      -----------------------------------
+      */
+
       onDragStop={(e, d) => {
 
         updateLayer(layer.id, {
+
           x: d.x,
 
           y: d.y,
         });
       }}
+
+      /*
+      -----------------------------------
+      RESIZE START
+      -----------------------------------
+      */
+
+      onResizeStart={() => {
+
+        saveHistory();
+      }}
+
+      /*
+      -----------------------------------
+      RESIZE STOP
+      -----------------------------------
+      */
 
       onResizeStop={(
         e,
@@ -80,6 +121,7 @@ const SignLayerRenderer = ({
       ) => {
 
         updateLayer(layer.id, {
+
           width:
             parseInt(
               ref.style.width
@@ -94,6 +136,12 @@ const SignLayerRenderer = ({
         });
       }}
 
+      /*
+      -----------------------------------
+      SELECT
+      -----------------------------------
+      */
+
       onClick={() => {
 
         setSelectedLayerId(
@@ -102,6 +150,7 @@ const SignLayerRenderer = ({
       }}
 
       style={{
+
         border: isSelected
           ? "2px solid #2563eb"
           : "1px dashed transparent",
