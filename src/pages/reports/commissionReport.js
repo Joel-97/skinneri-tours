@@ -10,6 +10,7 @@ import Loading from "../../components/general/loading";
 import "../../style/reports/transportationReport.css";
 import Pagination from "../../components/general/pagination";
 import { formatDateCustom } from "../../services/Tools";
+import { generateCommissionPDF } from "../../pdf/reports/generateCommissionPDF";
 import { UserAuth } from "../../context/AuthContext";
 
 // 📥 EXPORTS
@@ -20,7 +21,7 @@ import autoTable from "jspdf-autotable";
 
 const CommissionReport = ({ companyId }) => {
 
-  const { user } = UserAuth();
+  const { user, company } = UserAuth();
 
   const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -202,27 +203,6 @@ const CommissionReport = ({ companyId }) => {
     saveAs(new Blob([buffer]), "commission_report.xlsx");
   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-
-    const tableData = filtered.map((c, i) => [
-      i + 1,
-      formatDateCustom(c.dateStr),
-      c.beneficiaryName,
-      c.type,
-      formatCurrency(c.baseAmount),
-      formatCurrency(c.amount),
-      c.status
-    ]);
-
-    autoTable(doc, {
-      head: [["#", "Fecha", "Comisionista", "Tipo", "Base", "Comisión", "Estado"]],
-      body: tableData
-    });
-
-    doc.save("commission_report.pdf");
-  };
-
   /* ================= ACTION ================= */
 
   const handleMarkPaid = async (c) => {
@@ -271,7 +251,20 @@ const CommissionReport = ({ companyId }) => {
             <span>Excel</span>
           </button>
 
-          <button className="action-btn pdf" onClick={exportToPDF}>
+          <button 
+            className="action-btn pdf"
+            onClick={() =>
+              generateCommissionPDF({
+                company,
+                commissions: filtered,
+                totals,
+                filters: {
+                  startDateFilter,
+                  endDateFilter
+                }
+              })
+            }
+          >
             <FaFilePdf />
             <span>PDF</span>
           </button>

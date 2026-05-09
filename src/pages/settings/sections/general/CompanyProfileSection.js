@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-
 import { useAuth } from "../../../../context/AuthContext";
 import { updateCompanyData } from "../../../../services/superAdmin/companyProfile";
 import { locationData, identificationOptions, timezoneOptions } from "../../../../constants/locationData";
-import { notifySuccess, notifyError } from "../../../../services/notificationService";
+import { uploadCompanyLogo, removeCompanyLogo } from "../../../../services/superAdmin/uploadCompanyLogo";
+
+import {
+  notifySuccess,
+  notifyError
+} from "../../../../services/notificationService";
 
 import "../../../../style/settings/general/companyProfile.css";
 
@@ -17,132 +21,342 @@ const countryOptions =
 );
 
 const CompanyProfileSection = () => {
-    const {company, companyId, setCompany} = useAuth();
-    const [loading, setLoading] = useState(false);
 
-    const [formData, setFormData] = useState({
+  const {
+    company,
+    companyId,
+    setCompany
+  } = useAuth();
 
-    name: "",
-    legalName: "",
+  const [loading, setLoading] =
+    useState(false);
 
-    identificationType: "",
-    identificationNumber: "",
+  const [uploadingLogo, setUploadingLogo] =
+    useState(false);
 
-    email: "",
-    phone: "",
-    website: "",
+  const [formData, setFormData] =
+    useState({
 
-    address: "",
+      // ==================================================
+      // GENERAL
+      // ==================================================
 
-    country: "",
-    province: "",
-    city: "",
+      name: "",
 
-    postalCode: "",
+      legalName: "",
 
-    timezone: "",
+      identificationType: "",
 
-    primaryColor: "#0A1E5E"
+      identificationNumber: "",
+
+      email: "",
+
+      phone: "",
+
+      website: "",
+
+      // ==================================================
+      // ADDRESS
+      // ==================================================
+
+      address: "",
+
+      country: "",
+
+      province: "",
+
+      city: "",
+
+      postalCode: "",
+
+      // ==================================================
+      // SYSTEM
+      // ==================================================
+
+      timezone: "",
+
+      primaryColor: "#0A1E5E",
+
+      // ==================================================
+      // LOGO
+      // ==================================================
+
+      logoURL: ""
+
     });
 
-    const provinceOptions =
-        formData.country
-        ? Object.keys(
-            locationData[
+  // ======================================================
+  // PROVINCES
+  // ======================================================
+
+  const provinceOptions =
+    formData.country
+      ? Object.keys(
+          locationData[
             formData.country
-            ]?.provinces || {}
+          ]?.provinces || {}
         ).map((province) => ({
-            value: province,
-            label: province
+          value: province,
+          label: province
         }))
-    : [];
+      : [];
 
-    const cityOptions =
-        formData.country &&
-        formData.province
-            ? (
-                locationData[
-                formData.country
-                ]?.provinces[
-                formData.province
-                ] || []
-            ).map((city) => ({
-                value: city,
-                label: city
-            }))
-    : [];
+  // ======================================================
+  // CITIES
+  // ======================================================
 
-    // ======================================================
-    // LOAD COMPANY DATA
-    // ======================================================
+  const cityOptions =
+    formData.country &&
+    formData.province
 
-    useEffect(() => {
+      ? (
+          locationData[
+            formData.country
+          ]?.provinces[
+            formData.province
+          ] || []
+        ).map((city) => ({
+          value: city,
+          label: city
+        }))
+
+      : [];
+
+  // ======================================================
+  // LOAD COMPANY DATA
+  // ======================================================
+
+  useEffect(() => {
 
     if (!company) return;
 
     setFormData({
-        // ==================================================
-        // GENERAL
-        // ==================================================
 
-        name: company.name || "",
+      // ==================================================
+      // GENERAL
+      // ==================================================
 
-        legalName: company.legalName || "",
+      name:
+        company.name || "",
 
-        identificationType: company.identificationType || "",
+      legalName:
+        company.legalName || "",
 
-        identificationNumber: company.identificationNumber || "",
+      identificationType:
+        company.identificationType || "",
 
-        email: company.email || "",
+      identificationNumber:
+        company.identificationNumber || "",
 
-        phone: company.phone || "",
+      email:
+        company.email || "",
 
-        website: company.website || "",
+      phone:
+        company.phone || "",
 
-        // ==================================================
-        // ADDRESS
-        // ==================================================
+      website:
+        company.website || "",
 
-        address: company.address || "",
+      // ==================================================
+      // ADDRESS
+      // ==================================================
 
-        country: company.country || "",
+      address:
+        company.address || "",
 
-        province: company.province || "",
+      country:
+        company.country || "",
 
-        city: company.city || "",
+      province:
+        company.province || "",
 
-        postalCode: company.postalCode || "",
+      city:
+        company.city || "",
 
-        // ==================================================
-        // SYSTEM
-        // ==================================================
+      postalCode:
+        company.postalCode || "",
 
-        timezone: company.timezone || "",
+      // ==================================================
+      // SYSTEM
+      // ==================================================
 
-        primaryColor: company.primaryColor || "#0A1E5E"
+      timezone:
+        company.timezone || "",
+
+      primaryColor:
+        company.primaryColor || "#0A1E5E",
+
+      // ==================================================
+      // LOGO
+      // ==================================================
+
+      logoURL:
+        company.logoURL || "",
+
     });
 
-    }, [company]);
+  }, [company]);
 
   // ======================================================
   // HANDLE CHANGE
   // ======================================================
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+
+    const {
+      name,
+      value
+    } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
+
   };
+
+  // ======================================================
+  // HANDLE LOGO UPLOAD
+  // ======================================================
+
+    const handleLogoUpload = async (
+    e
+    ) => {
+
+    try {
+
+        const file =
+        e.target.files?.[0];
+
+        if (!file) return;
+
+        setUploadingLogo(true);
+
+        // ==================================================
+        // UPLOAD LOGO
+        // ==================================================
+
+        const updatedCompany =
+        await uploadCompanyLogo({
+
+            companyId,
+
+            file
+
+        });
+
+        // ==================================================
+        // UPDATE CONTEXT
+        // ==================================================
+
+        setCompany(updatedCompany);
+
+        // ==================================================
+        // UPDATE LOCAL FORM
+        // ==================================================
+
+        setFormData((prev) => ({
+        ...prev,
+        logoURL:
+            updatedCompany.logoURL || ""
+        }));
+
+        // ==================================================
+        // SUCCESS
+        // ==================================================
+
+        notifySuccess(
+
+        "Logo actualizado",
+
+        "El logo fue cargado correctamente."
+
+        );
+
+    } catch (error) {
+
+        console.error(
+        "Error subiendo logo:",
+        error
+        );
+
+        notifyError(
+
+        "Error",
+
+        "No se pudo subir el logo."
+
+        );
+
+    } finally {
+
+        setUploadingLogo(false);
+
+    }
+
+    };
+
+    // ======================================================
+    // REMOVE LOGO
+    // ======================================================
+
+    const handleRemoveLogo = async () => {
+        try {
+
+            setUploadingLogo(true);
+
+            // ==================================================
+            // REMOVE LOGO
+            // ==================================================
+
+            const updatedCompany =
+            await removeCompanyLogo({
+                companyId,
+                logoURL:
+                formData.logoURL
+
+            });
+
+            // ==================================================
+            // UPDATE CONTEXT
+            // ==================================================
+
+            setCompany(updatedCompany);
+
+            // ==================================================
+            // UPDATE FORM
+            // ==================================================
+
+            setFormData((prev) => ({
+            ...prev,
+            logoURL: ""
+            }));
+
+            // ==================================================
+            // SUCCESS
+            // ==================================================
+
+            notifySuccess("Logo eliminado","El logo fue eliminado correctamente.");
+
+        } catch (error) {
+
+            console.error("Error removing logo:", error );
+            notifyError("Error","No se pudo eliminar el logo.");
+
+        } finally {
+            setUploadingLogo(false);
+        }
+
+    };
 
   // ======================================================
   // SAVE
   // ======================================================
 
   const handleSave = async () => {
+
     try {
+
       setLoading(true);
 
       await updateCompanyData(
@@ -155,100 +369,117 @@ const CompanyProfileSection = () => {
         ...formData
       }));
 
-      notifySuccess(
-        "Perfil actualizado",
-        "La información de la empresa fue actualizada correctamente."
+      notifySuccess("Perfil actualizado","La información de la empresa fue actualizada correctamente."
       );
 
     } catch (error) {
-      console.error(
-        "Error actualizando empresa:",
-        error
-      );
 
-      notifyError(
-        "Error",
-        "No se pudo actualizar la información de la empresa."
-      );
+      console.error("Error actualizando empresa:", error);
+      notifyError("Error", "No se pudo actualizar la información de la empresa.");
 
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
-    return (
+  return (
+
     <div className="company-profile-container">
 
-        {/* ======================================================
-            PAGE INTRO
-        ====================================================== */}
+      {/* ======================================================
+          PAGE INTRO
+      ====================================================== */}
 
-        <div className="company-page-intro">
+      <div className="company-page-intro">
 
         <div className="company-page-intro-content">
 
-            <h3>
+          <h3>
             Perfil de empresa
-            </h3>
+          </h3>
 
-            <p>
+          <p>
             Configuración general y branding
             de la empresa.
-            </p>
+          </p>
 
         </div>
 
-        </div>
+      </div>
 
-        {/* ======================================================
-            HEADER
-        ====================================================== */}
+      {/* ======================================================
+          HEADER
+      ====================================================== */}
 
-        <div className="company-profile-header">
+      <div className="company-profile-header">
 
         <div className="company-top-info">
 
-            <div
+          {/* ==================================================
+              LOGO
+          ================================================== */}
+
+          <div
             className="company-avatar"
             style={{
-                background:
-                formData.primaryColor
+              background:
+                formData.logoURL
+                  ? "transparent"
+                  : formData.primaryColor
             }}
-            >
-            {formData.name?.charAt(0) || "C"}
-            </div>
+          >
 
-            <div>
+            {formData.logoURL ? (
+
+              <img
+                src={formData.logoURL}
+                alt="Company Logo"
+                className="company-logo-preview"
+                draggable={false}
+              />
+
+            ) : (
+
+              formData.name?.charAt(0) || "C"
+
+            )}
+
+          </div>
+
+          <div>
 
             <h3>
-                {formData.name || "Company Name"}
+              {formData.name || "Company Name"}
             </h3>
 
             <span>
-                Empresa activa
+              Empresa activa
             </span>
 
-            </div>
+          </div>
 
         </div>
 
         <button
-            className="btn-primary"
-            onClick={handleSave}
-            disabled={loading}
+          className="btn-primary"
+          onClick={handleSave}
+          disabled={loading}
         >
-            {loading
+          {loading
             ? "Guardando..."
             : "Guardar cambios"}
         </button>
 
-        </div>
+      </div>
 
-        {/* ======================================================
-            MAIN GRID
-        ====================================================== */}
+      {/* ======================================================
+          MAIN GRID
+      ====================================================== */}
 
-        <div className="company-main-grid">
+      <div className="company-main-grid">
 
         {/* ======================================================
             GENERAL
@@ -256,45 +487,49 @@ const CompanyProfileSection = () => {
 
         <div className="company-card company-card-large">
 
-            <div className="company-card-header">
+          <div className="company-card-header">
 
             <h4>
-                Información general
+              Información general
             </h4>
 
             <p>
-                Datos principales de la empresa.
+              Datos principales de la empresa.
             </p>
 
-            </div>
+          </div>
 
-            <div className="company-form-grid">
+          <div className="company-form-grid">
 
             {/* ROW 1 */}
 
             <div className="company-form-group">
 
-                <label>Nombre empresa</label>
+              <label>
+                Nombre empresa
+              </label>
 
-                <input
+              <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                />
+              />
 
             </div>
 
             <div className="company-form-group">
 
-                <label>Razón social</label>
+              <label>
+                Razón social
+              </label>
 
-                <input
+              <input
                 type="text"
                 name="legalName"
                 value={formData.legalName}
                 onChange={handleChange}
-                />
+              />
 
             </div>
 
@@ -302,48 +537,52 @@ const CompanyProfileSection = () => {
 
             <div className="company-form-group">
 
-                <label>
+              <label>
                 Tipo identificación
-                </label>
+              </label>
 
-                <Select
-                options={identificationOptions}
+              <Select
+                options={
+                  identificationOptions
+                }
                 isSearchable={false}
                 value={
-                    identificationOptions.find(
+                  identificationOptions.find(
                     (option) =>
-                        option.value ===
-                        formData.identificationType
-                    ) || null
+                      option.value ===
+                      formData.identificationType
+                  ) || null
                 }
-                onChange={(selectedOption) =>
-                    setFormData((prev) => ({
+                onChange={(
+                  selectedOption
+                ) =>
+                  setFormData((prev) => ({
                     ...prev,
                     identificationType:
-                        selectedOption?.value || ""
-                    }))
+                      selectedOption?.value || ""
+                  }))
                 }
                 placeholder="Seleccionar..."
                 className="react-select-container"
                 classNamePrefix="react-select"
-                />
+              />
 
             </div>
 
             <div className="company-form-group">
 
-                <label>
+              <label>
                 Número identificación
-                </label>
+              </label>
 
-                <input
+              <input
                 type="text"
                 name="identificationNumber"
                 value={
-                    formData.identificationNumber
+                  formData.identificationNumber
                 }
                 onChange={handleChange}
-                />
+              />
 
             </div>
 
@@ -351,31 +590,31 @@ const CompanyProfileSection = () => {
 
             <div className="company-form-group">
 
-                <label>Email</label>
+              <label>Email</label>
 
-                <input
+              <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                />
+              />
 
             </div>
 
             <div className="company-form-group">
 
-                <label>Teléfono</label>
+              <label>Teléfono</label>
 
-                <input
+              <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                />
+              />
 
             </div>
 
-            </div>
+          </div>
 
         </div>
 
@@ -385,226 +624,339 @@ const CompanyProfileSection = () => {
 
         <div className="company-card">
 
-            <div className="company-card-header">
+          <div className="company-card-header">
 
-            <h4>Apariencia</h4>
+            <h4>
+              Apariencia
+            </h4>
 
             <p>
-                Configuración visual.
+              Configuración visual.
             </p>
+
+          </div>
+
+          <div className="company-form-grid">
+
+            {/* ==================================================
+                LOGO
+            ================================================== */}
+
+            <div className="company-form-group company-full-width">
+
+              <label>
+                Logo empresa
+              </label>
+
+              <div className="company-logo-upload">
+
+                {formData.logoURL && (
+
+                  <img
+                    src={formData.logoURL}
+                    alt="Company Logo"
+                    className="company-logo-large-preview"
+                  />
+
+                )}
+
+                <div className="company-logo-actions">
+
+                    <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() =>
+                        document
+                        .getElementById("companyLogoInput")
+                        ?.click()
+                    }
+                    >
+
+                    {
+                        uploadingLogo
+                        ? "Subiendo..."
+                        : "Subir logo"
+                    }
+
+                    </button>
+
+                    <input
+                    id="companyLogoInput"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={
+                        handleLogoUpload
+                    }
+                    />
+
+                    <button
+                        type="button"
+                        className="company-remove-btn"
+                        onClick={handleRemoveLogo}
+                    >
+                        Eliminar
+                    </button>
+                    
+
+                </div>
+
+              </div>
 
             </div>
 
-            <div className="company-form-grid">
+            {/* ==================================================
+                TIMEZONE
+            ================================================== */}
 
             <div className="company-form-group">
 
-                <label>Timezone</label>
+              <label>
+                Timezone
+              </label>
 
-                <Select
-                options={timezoneOptions}
+              <Select
+                options={
+                  timezoneOptions
+                }
                 isSearchable={false}
                 value={
-                    timezoneOptions.find(
+                  timezoneOptions.find(
                     (option) =>
-                        option.value ===
-                        formData.timezone
-                    ) || null
+                      option.value ===
+                      formData.timezone
+                  ) || null
                 }
-                onChange={(selectedOption) =>
-                    setFormData((prev) => ({
+                onChange={(
+                  selectedOption
+                ) =>
+                  setFormData((prev) => ({
                     ...prev,
                     timezone:
-                        selectedOption?.value || ""
-                    }))
+                      selectedOption?.value || ""
+                  }))
                 }
                 placeholder="Seleccionar..."
                 className="react-select-container"
                 classNamePrefix="react-select"
-                />
+              />
 
             </div>
 
+            {/* ==================================================
+                WEBSITE
+            ================================================== */}
+
             <div className="company-form-group">
 
-                <label>Website</label>
+              <label>
+                Website
+              </label>
 
-                <input
+              <input
                 type="text"
                 name="website"
                 value={formData.website}
                 onChange={handleChange}
-                />
+              />
 
             </div>
+
+            {/* ==================================================
+                PRIMARY COLOR
+            ================================================== */}
 
             <div className="company-form-group">
 
-                <label>Color principal</label>
+              <label>
+                Color principal
+              </label>
 
-                <div className="company-color-wrapper">
+              <div className="company-color-wrapper">
 
                 <input
-                    type="color"
-                    name="primaryColor"
-                    value={formData.primaryColor}
-                    onChange={handleChange}
-                    className="company-color-input"
+                  type="color"
+                  name="primaryColor"
+                  value={formData.primaryColor}
+                  onChange={handleChange}
+                  className="company-color-input"
                 />
 
                 <span>
-                    {formData.primaryColor}
+                  {formData.primaryColor}
                 </span>
 
-                </div>
+              </div>
 
             </div>
 
-            </div>
+          </div>
 
         </div>
 
-        </div>
+      </div>
 
-        {/* ======================================================
-            ADDRESS
-        ====================================================== */}
+      {/* ======================================================
+          ADDRESS
+      ====================================================== */}
 
-        <div className="company-card company-address-card">
+      <div className="company-card company-address-card">
 
         <div className="company-card-header">
 
-            <h4>Dirección</h4>
+          <h4>
+            Dirección
+          </h4>
 
-            <p>
+          <p>
             Ubicación principal de la empresa.
-            </p>
+          </p>
 
         </div>
 
         <div className="company-form-grid address-grid">
 
-            <div className="company-form-group">
+          {/* COUNTRY */}
+
+          <div className="company-form-group">
 
             <label>País</label>
 
             <Select
-                options={countryOptions}
-                isSearchable={false}
-                value={
+              options={countryOptions}
+              isSearchable={false}
+              value={
                 countryOptions.find(
-                    (option) =>
+                  (option) =>
                     option.value ===
                     formData.country
                 ) || null
-                }
-                onChange={(selectedOption) =>
+              }
+              onChange={(selectedOption) =>
                 setFormData((prev) => ({
-                    ...prev,
-                    country:
+                  ...prev,
+                  country:
                     selectedOption?.value || "",
-                    province: "",
-                    city: ""
+                  province: "",
+                  city: ""
                 }))
-                }
-                placeholder="Seleccionar..."
-                className="react-select-container"
-                classNamePrefix="react-select"
+              }
+              placeholder="Seleccionar..."
+              className="react-select-container"
+              classNamePrefix="react-select"
             />
 
-            </div>
+          </div>
 
-            <div className="company-form-group">
+          {/* PROVINCE */}
 
-            <label>Provincia</label>
+          <div className="company-form-group">
+
+            <label>
+              Provincia
+            </label>
 
             <Select
-                options={provinceOptions}
-                isSearchable={false}
-                isDisabled={!formData.country}
-                value={
+              options={provinceOptions}
+              isSearchable={false}
+              isDisabled={!formData.country}
+              value={
                 provinceOptions.find(
-                    (option) =>
+                  (option) =>
                     option.value ===
                     formData.province
                 ) || null
-                }
-                onChange={(selectedOption) =>
+              }
+              onChange={(selectedOption) =>
                 setFormData((prev) => ({
-                    ...prev,
-                    province:
+                  ...prev,
+                  province:
                     selectedOption?.value || "",
-                    city: ""
+                  city: ""
                 }))
-                }
-                placeholder="Seleccionar..."
-                className="react-select-container"
-                classNamePrefix="react-select"
+              }
+              placeholder="Seleccionar..."
+              className="react-select-container"
+              classNamePrefix="react-select"
             />
 
-            </div>
+          </div>
 
-            <div className="company-form-group">
+          {/* CITY */}
 
-            <label>Ciudad</label>
+          <div className="company-form-group">
+
+            <label>
+              Ciudad
+            </label>
 
             <Select
-                options={cityOptions}
-                isSearchable={false}
-                isDisabled={!formData.province}
-                value={
+              options={cityOptions}
+              isSearchable={false}
+              isDisabled={!formData.province}
+              value={
                 cityOptions.find(
-                    (option) =>
+                  (option) =>
                     option.value ===
                     formData.city
                 ) || null
-                }
-                onChange={(selectedOption) =>
+              }
+              onChange={(selectedOption) =>
                 setFormData((prev) => ({
-                    ...prev,
-                    city:
+                  ...prev,
+                  city:
                     selectedOption?.value || ""
                 }))
-                }
-                placeholder="Seleccionar..."
-                className="react-select-container"
-                classNamePrefix="react-select"
+              }
+              placeholder="Seleccionar..."
+              className="react-select-container"
+              classNamePrefix="react-select"
             />
 
-            </div>
+          </div>
 
-            <div className="company-form-group">
+          {/* POSTAL CODE */}
 
-            <label>Código postal</label>
+          <div className="company-form-group">
+
+            <label>
+              Código postal
+            </label>
 
             <input
-                type="text"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleChange}
+              type="text"
+              name="postalCode"
+              value={formData.postalCode}
+              onChange={handleChange}
             />
 
-            </div>
+          </div>
 
-            <div className="company-form-group company-full-width">
+          {/* ADDRESS */}
 
-            <label>Dirección exacta</label>
+          <div className="company-form-group company-full-width">
+
+            <label>
+              Dirección exacta
+            </label>
 
             <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
             />
 
-            </div>
+          </div>
 
         </div>
 
-        </div>
+      </div>
 
     </div>
-    );
+
+  );
+
 };
 
 export default CompanyProfileSection;
