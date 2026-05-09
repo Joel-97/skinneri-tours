@@ -5,22 +5,22 @@ import {
   createServiceType,
   updateServiceType,
   toggleServiceTypeStatus
-} from "../../../services/settings/general/serviceTypeService";
+} from "../../../../services/settings/general/serviceTypeService";
 
-import { getCurrencies } from "../../../services/settings/general/currencyService";
-import DataTable from "../../../components/general/dataTable";
+import { getCurrencies } from "../../../../services/settings/general/currencyService";
+import DataTable from "../../../../components/general/dataTable";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/transportation/serviceTypesSection.css";
-import Loading from "../../../components/general/loading";
+import "../../../../style/settings/transportation/serviceTypesSection.css";
+import Loading from "../../../../components/general/loading";
 
 const ServiceTypesSection = () => {
 

@@ -4,19 +4,19 @@ import {
   createCurrency,
   updateCurrency,
   toggleCurrencyStatus
-} from "../../../services/settings/general/currencyService";
+} from "../../../../services/settings/general/currencyService";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import DataTable from "../../../components/general/dataTable";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import DataTable from "../../../../components/general/dataTable";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
-import "../../../style/settings/general/currenciesSection.css";
-import Loading from "../../../components/general/loading"; 
+} from "../../../../services/notificationService";
+import "../../../../style/settings/general/currenciesSection.css";
+import Loading from "../../../../components/general/loading"; 
 
 const CurrenciesSection = () => {
 

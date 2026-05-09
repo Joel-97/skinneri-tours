@@ -1,30 +1,31 @@
 import React, { useEffect, useState, useMemo } from "react";
+import Select from "react-select";
 import {
-  getPaymentTypes,
-  createPaymentType,
-  updatePaymentType,
-  togglePaymentTypeStatus
-} from "../../../services/settings/general/paymentTypeService";
+  getStaff,
+  createStaff,
+  updateStaff,
+  toggleStaffStatus
+} from "../../../../services/settings/general/staffService";
+import Loading from "../../../../components/general/loading";
 
-import Loading from "../../../components/general/loading";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import DataTable from "../../../components/general/dataTable";
-import { UserAuth } from "../../../context/AuthContext";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import DataTable from "../../../../components/general/dataTable";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/general/paymentTypesSection.css";
+import "../../../../style/settings/general/staffSection.css";
 
-const PaymentTypesSection = () => {
+const StaffSection = () => {
 
   const { user, adminData } = UserAuth();
   const companyId = adminData?.companyId;
 
-  const [paymentTypes, setPaymentTypes] = useState([]);
+  const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -55,17 +56,21 @@ const PaymentTypesSection = () => {
     PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const processedPaymentTypes = useMemo(() => {
+  const processedStaff = useMemo(() => {
 
-    let result = paymentTypes;
+    let result = staff;
 
     // 🔎 FILTRO
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
 
-      result = result.filter((p) =>
-        p.name?.toLowerCase().includes(term) ||
-        p.description?.toLowerCase().includes(term)
+      result = result.filter((s) =>
+        s.name?.toLowerCase().includes(term) ||
+        s.phone?.toLowerCase().includes(term) ||
+        s.email?.toLowerCase().includes(term) ||
+        s.licenseNumber?.toLowerCase().includes(term) ||
+        s.staffType?.toLowerCase().includes(term) ||
+        s.role?.toLowerCase().includes(term)
       );
     }
 
@@ -98,31 +103,47 @@ const PaymentTypesSection = () => {
 
     return result;
 
-  }, [paymentTypes, searchTerm, sortConfig]);
+  }, [staff, searchTerm, sortConfig]);
 
   const [form, setForm] = useState({
     name: "",
-    description: "",
+    phone: "",
+    email: "",
+    licenseNumber: "",
+    staffType: "Empleado",
+    role: "",
     isActive: true
   });
+
+  /* =========================
+     OPTIONS
+  ========================== */
+
+  const staffTypeOptions = [
+    { value: "Empleado", label: "Empleado" },
+    { value: "Freelance", label: "Freelance" }
+  ];
+
+  const roleOptions = [
+    { value: "driver", label: "Chofer" },
+    { value: "guide", label: "Guía turístico" },
+    { value: "instructor", label: "Instructor" }
+  ];
 
   /* =========================
      LOAD
   ========================== */
 
-  const loadPaymentTypes = async () => {
-
+  const loadStaff = async () => {
     if (!companyId) return;
 
-    const data = await getPaymentTypes(companyId);
-
-    setPaymentTypes(data);
+    const data = await getStaff(companyId);
+    setStaff(data);
     setLoading(false);
-
   };
 
   useEffect(() => {
-    loadPaymentTypes();
+    loadStaff();
   }, [companyId]);
 
   /* =========================
@@ -138,16 +159,17 @@ const PaymentTypesSection = () => {
   ========================== */
 
   const resetForm = () => {
-
     setForm({
       name: "",
-      description: "",
+      phone: "",
+      email: "",
+      licenseNumber: "",
+      staffType: "Empleado",
+      role: "",
       isActive: true
     });
-
     setEditingId(null);
     setShowForm(false);
-
   };
 
   /* =========================
@@ -155,7 +177,6 @@ const PaymentTypesSection = () => {
   ========================== */
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     if (!form.name.trim()) {
@@ -163,73 +184,57 @@ const PaymentTypesSection = () => {
       return;
     }
 
+    if (!form.role) {
+      notifyError("Selecciona el rol del colaborador.");
+      return;
+    }
+
     try {
-
       if (editingId) {
-
-        await updatePaymentType(companyId, editingId, form, user);
-        notifySuccess("Tipo de pago actualizado");
-
+        await updateStaff(companyId, editingId, form, user);
+        notifySuccess("Colaborador actualizado");
       } else {
-
-        await createPaymentType(companyId, form, user);
-        notifySuccess("Tipo de pago creado correctamente");
-
+        await createStaff(companyId, form, user);
+        notifySuccess("Colaborador creado");
       }
 
       resetForm();
-      loadPaymentTypes();
+      loadStaff();
 
     } catch (error) {
-
       notifyError(error.message || "Error inesperado.");
-
     }
-
   };
 
   /* =========================
      EDIT
   ========================== */
 
-  const handleEdit = (paymentType) => {
-
-    setForm(paymentType);
-    setEditingId(paymentType.id);
+  const handleEdit = (staff) => {
+    setForm(staff);
+    setEditingId(staff.id);
     setShowForm(true);
-
   };
 
   /* =========================
      TOGGLE
   ========================== */
 
-  const handleToggle = async (paymentType) => {
+  const handleToggle = async (staff) => {
 
     const confirmed = await notifyConfirm(
-      `¿Deseas ${paymentType.isActive ? "desactivar" : "activar"} este tipo de pago?`
+      `¿Deseas ${staff.isActive ? "desactivar" : "activar"} este colaborador?`
     );
 
     if (!confirmed) return;
 
     try {
-
-      await togglePaymentTypeStatus(
-        companyId,
-        paymentType.id,
-        paymentType.isActive
-      );
-
+      await toggleStaffStatus(companyId, staff.id, staff.isActive);
       notifySuccess("Estado actualizado");
-
-      loadPaymentTypes();
-
+      loadStaff();
     } catch (error) {
-
       notifyError("No se pudo actualizar.");
-
     }
-
   };
 
   if (loading) return <Loading />;
@@ -239,24 +244,23 @@ const PaymentTypesSection = () => {
   ========================== */
 
   return (
+    <div className="staff-container">
 
-    <div className="payment-types-container">
-
-    <div className="payment-types-header">
+    <div className="staff-header">
 
       {/* IZQUIERDA */}
-      <div className="payment-types-header-left">
-        <h3>Tipos de pago</h3>
-        <p>Administra los métodos de pago disponibles.</p>
+      <div className="staff-header-left">
+        <h3>Colaboradores</h3>
+        <p>Administra los colaboradores disponibles.</p>
       </div>
 
       {/* DERECHA */}
-      <div className="payment-types-header-right">
+      <div className="staff-header-right">
 
         <input
           type="text"
           className="search-input"
-          placeholder="Buscar tipo de pago..."
+          placeholder="Buscar colaborador..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -268,7 +272,7 @@ const PaymentTypesSection = () => {
           className="btn-primary"
           onClick={() => setShowForm(true)}
         >
-          + Agregar tipo de pago
+          + Agregar colaborador
         </button>
 
       </div>
@@ -276,11 +280,9 @@ const PaymentTypesSection = () => {
     </div>
 
       {showForm && (
-
         <Modal onClose={resetForm}>
-
           <div className="app-modal-header">
-            <h4>{editingId ? "Editar tipo de pago" : "Nuevo tipo de pago"}</h4>
+            <h4>{editingId ? "Editar colaborador" : "Nuevo colaborador"}</h4>
             <button className="close-btn" onClick={resetForm}>✕</button>
           </div>
 
@@ -291,23 +293,66 @@ const PaymentTypesSection = () => {
               <input
                 value={form.name}
                 onChange={(e) =>
-                  setForm(prev => ({
-                    ...prev,
-                    name: e.target.value
-                  }))
+                  setForm({ ...form, name: e.target.value })
                 }
               />
             </div>
 
             <div className="form-group">
-              <label>Descripción</label>
+              <label>Teléfono</label>
               <input
-                value={form.description}
+                value={form.phone}
                 onChange={(e) =>
-                  setForm(prev => ({
-                    ...prev,
-                    description: e.target.value
-                  }))
+                  setForm({ ...form, phone: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                value={form.email}
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
+              />
+            </div>
+
+            {/* 🔥 NUEVO: ROL */}
+            <div className="form-group">
+              <label>Rol del colaborador</label>
+              <Select
+                options={roleOptions}
+                value={roleOptions.find(
+                  option => option.label === form.role
+                )}
+                onChange={(selectedOption) =>
+                  setForm({ ...form, role: selectedOption.label })
+                }
+                placeholder="Seleccionar rol"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Tipo de colaborador</label>
+              <Select
+                options={staffTypeOptions}
+                value={staffTypeOptions.find(
+                  option => option.value === form.staffType
+                )}
+                onChange={(selectedOption) =>
+                  setForm({ ...form, staffType: selectedOption.value })
+                }
+                isSearchable={false}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Licencia (opcional)</label>
+              <input
+                value={form.licenseNumber}
+                onChange={(e) =>
+                  setForm({ ...form, licenseNumber: e.target.value })
                 }
               />
             </div>
@@ -318,10 +363,7 @@ const PaymentTypesSection = () => {
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(e) =>
-                    setForm(prev => ({
-                      ...prev,
-                      isActive: e.target.checked
-                    }))
+                    setForm({ ...form, isActive: e.target.checked })
                   }
                 />
                 Activo
@@ -338,64 +380,65 @@ const PaymentTypesSection = () => {
                 Cancelar
               </button>
 
-              <button
-                className="btn-primary"
-                type="submit"
-              >
+              <button className="btn-primary" type="submit">
                 {editingId ? "Actualizar" : "Crear"}
               </button>
 
             </div>
 
           </form>
-
         </Modal>
-
       )}
-    
 
-    <div className="payment-types-table-wrapper">
+
+    <div className="staff-table-wrapper">
 
       <DataTable
-        data={processedPaymentTypes}
+        data={processedStaff}
         rowsPerPage={rowsPerPage}
         columns={[
           { key: "name", label: "Nombre", sortable: true },
-          { key: "description", label: "Descripción", sortable: true },
+          { key: "phone", label: "Teléfono", sortable: true },
+          { key: "role", label: "Rol", sortable: true },
+          { key: "staffType", label: "Tipo", sortable: true },
           { key: "isActive", label: "Estado", sortable: true },
           { key: "actions", label: "Acciones", sortable: false },
         ]}
-        renderRow={(paymentType) => (
+        renderRow={(staff) => (
           <>
-            <td>{paymentType.name}</td>
+            <td>{staff.name}</td>
 
-            <td>{paymentType.description}</td>
+            <td>{staff.phone}</td>
+
+            <td>{staff.role}</td>
+
+            <td>{staff.staffType}</td>
 
             <td>
               <span
                 className={
-                  paymentType.isActive
+                  staff.isActive
                     ? "badge-active"
                     : "badge-inactive"
                 }
               >
-                {paymentType.isActive ? "Activo" : "Inactivo"}
+                {staff.isActive ? "Activo" : "Inactivo"}
               </span>
             </td>
 
             <td>
               <button
                 className="btn-link"
-                onClick={() => handleEdit(paymentType)}
+                onClick={() => handleEdit(staff)}
               >
                 Editar
               </button>
 
               <button
                 className="btn-link"
-                onClick={() => handleToggle(paymentType)}
+                onClick={() => handleToggle(staff)}
               >
-                {paymentType.isActive ? "Desactivar" : "Activar"}
+                {staff.isActive ? "Desactivar" : "Activar"}
               </button>
             </td>
           </>
@@ -403,12 +446,9 @@ const PaymentTypesSection = () => {
       />
 
     </div>
-    
 
     </div>
-
   );
-
 };
 
-export default PaymentTypesSection;
+export default StaffSection;

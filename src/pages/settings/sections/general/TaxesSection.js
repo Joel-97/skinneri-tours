@@ -5,20 +5,20 @@ import {
   createTax,
   updateTax,
   toggleTaxStatus
-} from "../../../services/settings/general/taxService";
+} from "../../../../services/settings/general/taxService";
 
-import { UserAuth } from "../../../context/AuthContext";
-import "../../../style/settings/general/taxSettings.css";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import DataTable from "../../../components/general/dataTable";
-import { getCurrencies } from "../../../services/settings/general/currencyService";
+import { UserAuth } from "../../../../context/AuthContext";
+import "../../../../style/settings/general/taxSettings.css";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import DataTable from "../../../../components/general/dataTable";
+import { getCurrencies } from "../../../../services/settings/general/currencyService";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
-import Loading from "../../../components/general/loading"; 
+} from "../../../../services/notificationService";
+import Loading from "../../../../components/general/loading"; 
 
 const TaxesSettings = () => {
 

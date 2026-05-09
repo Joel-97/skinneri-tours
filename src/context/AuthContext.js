@@ -1,14 +1,22 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
+
 import {
   onAuthStateChanged,
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import {
+  doc,
+  getDoc,
+  setDoc
+} from "firebase/firestore";
+
 import Swal from "sweetalert2";
-import { server } from '../services/serverName/Server';
+
+import { server } from "../services/serverName/Server";
 
 const AuthContext = createContext();
 
@@ -16,110 +24,220 @@ export const useAuth = () => useContext(AuthContext);
 export const UserAuth = useAuth;
 
 export const AuthProvider = ({ children }) => {
+
+  // ======================================================
+  // STATES
+  // ======================================================
+
   const [user, setUser] = useState(null);
+
   const [adminData, setAdminData] = useState(null);
+
   const [company, setCompany] = useState(null);
+
   const [companyId, setCompanyId] = useState(null);
+
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
+  // ======================================================
+  // AUTH STATE
+  // ======================================================
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
 
-      try {
-        if (!firebaseUser) {
-          setUser(null);
-          setAdminData(null);
-          setCompany(null);
-          setCompanyId(null);
-          setIsSuperAdmin(false);
-          return;
-        }
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (firebaseUser) => {
 
-        setUser(firebaseUser);
+        setLoading(true);
 
-        // ===== OBTENER ADMIN =====
-        const adminRef = doc(db, "admins", firebaseUser.uid);
-        const adminSnap = await getDoc(adminRef);
+        try {
 
-        if (!adminSnap.exists()) {
-          setAdminData(null);
-          setCompany(null);
-          setCompanyId(null);
-          setIsSuperAdmin(false);
-          return;
-        }
+          // ==================================================
+          // NO USER
+          // ==================================================
 
-        const admin = adminSnap.data();
-        setAdminData(admin);
+          if (!firebaseUser) {
 
-        // ===== SUPERADMIN =====
-        const superAdmin =
-          admin.role === "superadmin" ||
-          firebaseUser.email === "gomez.joel.0709@gmail.com";
+            setUser(null);
 
-        setIsSuperAdmin(superAdmin);
+            setAdminData(null);
 
-        // ===== SI NO ESTÁ APROBADO =====
-        if (admin.status !== "approved") {
-          setCompany(null);
-          setCompanyId(null);
-          return;
-        }
-
-        // ===== CARGAR COMPANY =====
-        if (admin.companyId) {
-          setCompanyId(admin.companyId);
-
-          const companyRef = doc(db, "companies", admin.companyId);
-          const companySnap = await getDoc(companyRef);
-
-          if (companySnap.exists()) {
-            setCompany(companySnap.data());
-          } else {
             setCompany(null);
-          }
-        } else {
-          setCompany(null);
-          setCompanyId(null);
-        }
 
-      } catch (error) {
-        console.error("Error cargando admin:", error);
-        setAdminData(null);
-        setCompany(null);
-        setCompanyId(null);
-        setIsSuperAdmin(false);
-      } finally {
-        setLoading(false);
+            setCompanyId(null);
+
+            setIsSuperAdmin(false);
+
+            return;
+          }
+
+          // ==================================================
+          // USER
+          // ==================================================
+
+          setUser(firebaseUser);
+
+          // ==================================================
+          // GET ADMIN
+          // ==================================================
+
+          const adminRef = doc(
+            db,
+            "admins",
+            firebaseUser.uid
+          );
+
+          const adminSnap = await getDoc(adminRef);
+
+          if (!adminSnap.exists()) {
+
+            setAdminData(null);
+
+            setCompany(null);
+
+            setCompanyId(null);
+
+            setIsSuperAdmin(false);
+
+            return;
+          }
+
+          const admin = adminSnap.data();
+
+          setAdminData(admin);
+
+          // ==================================================
+          // SUPER ADMIN
+          // ==================================================
+
+          const superAdmin =
+            admin.role === "superadmin" ||
+            firebaseUser.email ===
+              "gomez.joel.0709@gmail.com";
+
+          setIsSuperAdmin(superAdmin);
+
+          // ==================================================
+          // NOT APPROVED
+          // ==================================================
+
+          if (admin.status !== "approved") {
+
+            setCompany(null);
+
+            setCompanyId(null);
+
+            return;
+          }
+
+          // ==================================================
+          // LOAD COMPANY
+          // ==================================================
+
+          if (admin.companyId) {
+
+            setCompanyId(admin.companyId);
+
+            const companyRef = doc(
+              db,
+              "companies",
+              admin.companyId
+            );
+
+            const companySnap = await getDoc(companyRef);
+
+            if (companySnap.exists()) {
+
+              setCompany(companySnap.data());
+
+            } else {
+
+              setCompany(null);
+            }
+
+          } else {
+
+            setCompany(null);
+
+            setCompanyId(null);
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Error cargando admin:",
+            error
+          );
+
+          setAdminData(null);
+
+          setCompany(null);
+
+          setCompanyId(null);
+
+          setIsSuperAdmin(false);
+
+        } finally {
+
+          setLoading(false);
+        }
       }
-    });
+    );
 
     return unsubscribe;
+
   }, []);
 
-  /* ================= LOGIN ================= */
-  const loginAdmin = async (email, password) => {
+  // ======================================================
+  // LOGIN
+  // ======================================================
+
+  const loginAdmin = async (
+    email,
+    password
+  ) => {
+
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      const result =
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
       return result.user;
 
     } catch (error) {
-      console.error("Error login:", error.code);
+
+      console.error(
+        "Error login:",
+        error.code
+      );
 
       if (
-        error.code === "auth/invalid-credential" ||
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
+        error.code ===
+          "auth/invalid-credential" ||
+        error.code ===
+          "auth/user-not-found" ||
+        error.code ===
+          "auth/wrong-password"
       ) {
+
         Swal.fire({
           icon: "error",
           title: "Datos incorrectos",
           text: "Correo o contraseña inválidos"
         });
 
-      } else if (error.code === "auth/too-many-requests") {
+      } else if (
+        error.code ===
+        "auth/too-many-requests"
+      ) {
+
         Swal.fire({
           icon: "warning",
           title: "Demasiados intentos",
@@ -127,6 +245,7 @@ export const AuthProvider = ({ children }) => {
         });
 
       } else {
+
         Swal.fire({
           icon: "error",
           title: "Error al iniciar sesión",
@@ -138,44 +257,66 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /* ================= REGISTER ================= */
-  const registerAdmin = async (email, password) => {
+  // ======================================================
+  // REGISTER
+  // ======================================================
+
+  const registerAdmin = async (
+    email,
+    password
+  ) => {
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+
+      const userCredential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
       const newUser = userCredential.user;
 
-      await setDoc(doc(db, "admins", newUser.uid), {
-        email: newUser.email,
-        role: "admin",
-        status: "pending",
-        companyId: null,
-        createdAt: new Date()
-      });
+      await setDoc(
+        doc(db, "admins", newUser.uid),
+        {
+          email: newUser.email,
 
-      // Swal.fire({
-      //   icon: "success",
-      //   title: "Solicitud enviada",
-      //   text: "Tu cuenta está pendiente de aprobación"
-      // });
+          role: "admin",
+
+          status: "pending",
+
+          companyId: null,
+
+          createdAt: new Date()
+        }
+      );
 
       return true;
 
     } catch (error) {
-      console.error("Error creando admin:", error.code);
 
-      if (error.code === "auth/email-already-in-use") {
+      console.error(
+        "Error creando admin:",
+        error.code
+      );
+
+      if (
+        error.code ===
+        "auth/email-already-in-use"
+      ) {
+
         Swal.fire({
           icon: "error",
           title: "Correo en uso",
           text: "Este correo ya está registrado"
         });
 
-      } else if (error.code === "auth/weak-password") {
+      } else if (
+        error.code ===
+        "auth/weak-password"
+      ) {
+
         Swal.fire({
           icon: "warning",
           title: "Contraseña débil",
@@ -183,6 +324,7 @@ export const AuthProvider = ({ children }) => {
         });
 
       } else {
+
         Swal.fire({
           icon: "error",
           title: "Error al registrarse",
@@ -194,22 +336,42 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /* ================= LOGOUT ================= */
+  // ======================================================
+  // LOGOUT
+  // ======================================================
+
   const logout = async () => {
     await signOut(auth);
   };
 
+  // ======================================================
+  // CONTEXT VALUE
+  // ======================================================
+
   const value = {
     user,
+
     adminData,
+
     company,
+    setCompany,
+
     companyId,
+
     isSuperAdmin,
+
     loading,
+
     loginAdmin,
+
     logout,
+
     registerAdmin
   };
+
+  // ======================================================
+  // PROVIDER
+  // ======================================================
 
   return (
     <AuthContext.Provider value={value}>

@@ -12,7 +12,7 @@ import {
   enableAdmin,
   changeAdminRole,
   changeAdminCompany
-} from "../services/superAdmin/adminActions";
+} from "../services/superAdmin/companyProfile";
 
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";

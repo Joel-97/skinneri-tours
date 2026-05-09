@@ -5,23 +5,23 @@ import {
   createDiscount,
   updateDiscount,
   toggleDiscountStatus
-} from "../../../services/settings/transportation/discountService";
+} from "../../../../services/settings/transportation/discountService";
 
-import { getCurrencies } from "../../../services/settings/general/currencyService";
+import { getCurrencies } from "../../../../services/settings/general/currencyService";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import Loading from "../../../components/general/loading";
-import DataTable from "../../../components/general/dataTable";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import Loading from "../../../../components/general/loading";
+import DataTable from "../../../../components/general/dataTable";
 
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/transportation/discountsSection.css";
+import "../../../../style/settings/transportation/discountsSection.css";
 
 const DiscountsSection = () => {
 

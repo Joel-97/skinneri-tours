@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { defaultSignTemplate } from "../../../components/signs/signTemplateDefault";
-import { generateLayerId } from "../../../components/signs/utils/generateLayerId";
-import SignLayerProperties from "../../../components/signs/SignLayerProperties";
-import SignToolbar from "../../../components/signs/SignToolbar";
-import SignCanvas from "../../../components/signs/SignCanvas";
-import SignLayersPanel from "../../../components/signs/SignLayersPanel";
-import TemplatesList from "../../../components/signs/TemplatesList";
+import { defaultSignTemplate } from "../../../../components/signs/signTemplateDefault";
+import { generateLayerId } from "../../../../components/signs/utils/generateLayerId";
+import SignLayerProperties from "../../../../components/signs/SignLayerProperties";
+import SignToolbar from "../../../../components/signs/SignToolbar";
+import SignCanvas from "../../../../components/signs/SignCanvas";
+import SignLayersPanel from "../../../../components/signs/SignLayersPanel";
+import TemplatesList from "../../../../components/signs/TemplatesList";
 import {
   createSignTemplate,
   updateSignTemplate,
@@ -13,15 +13,15 @@ import {
   getSignTemplates,
   uploadTemplateImage,
   deleteTemplateImage,
-} from "../../../services/sign/signTemplatesService";
+} from "../../../../services/sign/signTemplatesService";
 
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/template/signTemplates.css";
+import "../../../../style/settings/template/signTemplates.css";
 
 const SignTemplatesSection = ({ companyId, user }) => {
 

@@ -1,31 +1,30 @@
 import React, { useEffect, useState, useMemo } from "react";
-import Select from "react-select";
 import {
-  getStaff,
-  createStaff,
-  updateStaff,
-  toggleStaffStatus
-} from "../../../services/settings/general/staffService";
-import Loading from "../../../components/general/loading";
+  getPaymentTypes,
+  createPaymentType,
+  updatePaymentType,
+  togglePaymentTypeStatus
+} from "../../../../services/settings/general/paymentTypeService";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import DataTable from "../../../components/general/dataTable";
+import Loading from "../../../../components/general/loading";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import DataTable from "../../../../components/general/dataTable";
+import { UserAuth } from "../../../../context/AuthContext";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/general/staffSection.css";
+import "../../../../style/settings/general/paymentTypesSection.css";
 
-const StaffSection = () => {
+const PaymentTypesSection = () => {
 
   const { user, adminData } = UserAuth();
   const companyId = adminData?.companyId;
 
-  const [staff, setStaff] = useState([]);
+  const [paymentTypes, setPaymentTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -56,21 +55,17 @@ const StaffSection = () => {
     PROCESAMIENTO (FILTRO + ORDEN)
   ========================== */
 
-  const processedStaff = useMemo(() => {
+  const processedPaymentTypes = useMemo(() => {
 
-    let result = staff;
+    let result = paymentTypes;
 
     // 🔎 FILTRO
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
 
-      result = result.filter((s) =>
-        s.name?.toLowerCase().includes(term) ||
-        s.phone?.toLowerCase().includes(term) ||
-        s.email?.toLowerCase().includes(term) ||
-        s.licenseNumber?.toLowerCase().includes(term) ||
-        s.staffType?.toLowerCase().includes(term) ||
-        s.role?.toLowerCase().includes(term)
+      result = result.filter((p) =>
+        p.name?.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term)
       );
     }
 
@@ -103,47 +98,31 @@ const StaffSection = () => {
 
     return result;
 
-  }, [staff, searchTerm, sortConfig]);
+  }, [paymentTypes, searchTerm, sortConfig]);
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
-    email: "",
-    licenseNumber: "",
-    staffType: "Empleado",
-    role: "",
+    description: "",
     isActive: true
   });
-
-  /* =========================
-     OPTIONS
-  ========================== */
-
-  const staffTypeOptions = [
-    { value: "Empleado", label: "Empleado" },
-    { value: "Freelance", label: "Freelance" }
-  ];
-
-  const roleOptions = [
-    { value: "driver", label: "Chofer" },
-    { value: "guide", label: "Guía turístico" },
-    { value: "instructor", label: "Instructor" }
-  ];
 
   /* =========================
      LOAD
   ========================== */
 
-  const loadStaff = async () => {
+  const loadPaymentTypes = async () => {
+
     if (!companyId) return;
 
-    const data = await getStaff(companyId);
-    setStaff(data);
+    const data = await getPaymentTypes(companyId);
+
+    setPaymentTypes(data);
     setLoading(false);
+
   };
 
   useEffect(() => {
-    loadStaff();
+    loadPaymentTypes();
   }, [companyId]);
 
   /* =========================
@@ -159,17 +138,16 @@ const StaffSection = () => {
   ========================== */
 
   const resetForm = () => {
+
     setForm({
       name: "",
-      phone: "",
-      email: "",
-      licenseNumber: "",
-      staffType: "Empleado",
-      role: "",
+      description: "",
       isActive: true
     });
+
     setEditingId(null);
     setShowForm(false);
+
   };
 
   /* =========================
@@ -177,6 +155,7 @@ const StaffSection = () => {
   ========================== */
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!form.name.trim()) {
@@ -184,57 +163,73 @@ const StaffSection = () => {
       return;
     }
 
-    if (!form.role) {
-      notifyError("Selecciona el rol del colaborador.");
-      return;
-    }
-
     try {
+
       if (editingId) {
-        await updateStaff(companyId, editingId, form, user);
-        notifySuccess("Colaborador actualizado");
+
+        await updatePaymentType(companyId, editingId, form, user);
+        notifySuccess("Tipo de pago actualizado");
+
       } else {
-        await createStaff(companyId, form, user);
-        notifySuccess("Colaborador creado");
+
+        await createPaymentType(companyId, form, user);
+        notifySuccess("Tipo de pago creado correctamente");
+
       }
 
       resetForm();
-      loadStaff();
+      loadPaymentTypes();
 
     } catch (error) {
+
       notifyError(error.message || "Error inesperado.");
+
     }
+
   };
 
   /* =========================
      EDIT
   ========================== */
 
-  const handleEdit = (staff) => {
-    setForm(staff);
-    setEditingId(staff.id);
+  const handleEdit = (paymentType) => {
+
+    setForm(paymentType);
+    setEditingId(paymentType.id);
     setShowForm(true);
+
   };
 
   /* =========================
      TOGGLE
   ========================== */
 
-  const handleToggle = async (staff) => {
+  const handleToggle = async (paymentType) => {
 
     const confirmed = await notifyConfirm(
-      `¿Deseas ${staff.isActive ? "desactivar" : "activar"} este colaborador?`
+      `¿Deseas ${paymentType.isActive ? "desactivar" : "activar"} este tipo de pago?`
     );
 
     if (!confirmed) return;
 
     try {
-      await toggleStaffStatus(companyId, staff.id, staff.isActive);
+
+      await togglePaymentTypeStatus(
+        companyId,
+        paymentType.id,
+        paymentType.isActive
+      );
+
       notifySuccess("Estado actualizado");
-      loadStaff();
+
+      loadPaymentTypes();
+
     } catch (error) {
+
       notifyError("No se pudo actualizar.");
+
     }
+
   };
 
   if (loading) return <Loading />;
@@ -244,23 +239,24 @@ const StaffSection = () => {
   ========================== */
 
   return (
-    <div className="staff-container">
 
-    <div className="staff-header">
+    <div className="payment-types-container">
+
+    <div className="payment-types-header">
 
       {/* IZQUIERDA */}
-      <div className="staff-header-left">
-        <h3>Colaboradores</h3>
-        <p>Administra los colaboradores disponibles.</p>
+      <div className="payment-types-header-left">
+        <h3>Tipos de pago</h3>
+        <p>Administra los métodos de pago disponibles.</p>
       </div>
 
       {/* DERECHA */}
-      <div className="staff-header-right">
+      <div className="payment-types-header-right">
 
         <input
           type="text"
           className="search-input"
-          placeholder="Buscar colaborador..."
+          placeholder="Buscar tipo de pago..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -272,7 +268,7 @@ const StaffSection = () => {
           className="btn-primary"
           onClick={() => setShowForm(true)}
         >
-          + Agregar colaborador
+          + Agregar tipo de pago
         </button>
 
       </div>
@@ -280,9 +276,11 @@ const StaffSection = () => {
     </div>
 
       {showForm && (
+
         <Modal onClose={resetForm}>
+
           <div className="app-modal-header">
-            <h4>{editingId ? "Editar colaborador" : "Nuevo colaborador"}</h4>
+            <h4>{editingId ? "Editar tipo de pago" : "Nuevo tipo de pago"}</h4>
             <button className="close-btn" onClick={resetForm}>✕</button>
           </div>
 
@@ -293,66 +291,23 @@ const StaffSection = () => {
               <input
                 value={form.name}
                 onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
+                  setForm(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))
                 }
               />
             </div>
 
             <div className="form-group">
-              <label>Teléfono</label>
+              <label>Descripción</label>
               <input
-                value={form.phone}
+                value={form.description}
                 onChange={(e) =>
-                  setForm({ ...form, phone: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                value={form.email}
-                onChange={(e) =>
-                  setForm({ ...form, email: e.target.value })
-                }
-              />
-            </div>
-
-            {/* 🔥 NUEVO: ROL */}
-            <div className="form-group">
-              <label>Rol del colaborador</label>
-              <Select
-                options={roleOptions}
-                value={roleOptions.find(
-                  option => option.label === form.role
-                )}
-                onChange={(selectedOption) =>
-                  setForm({ ...form, role: selectedOption.label })
-                }
-                placeholder="Seleccionar rol"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Tipo de colaborador</label>
-              <Select
-                options={staffTypeOptions}
-                value={staffTypeOptions.find(
-                  option => option.value === form.staffType
-                )}
-                onChange={(selectedOption) =>
-                  setForm({ ...form, staffType: selectedOption.value })
-                }
-                isSearchable={false}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Licencia (opcional)</label>
-              <input
-                value={form.licenseNumber}
-                onChange={(e) =>
-                  setForm({ ...form, licenseNumber: e.target.value })
+                  setForm(prev => ({
+                    ...prev,
+                    description: e.target.value
+                  }))
                 }
               />
             </div>
@@ -363,7 +318,10 @@ const StaffSection = () => {
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(e) =>
-                    setForm({ ...form, isActive: e.target.checked })
+                    setForm(prev => ({
+                      ...prev,
+                      isActive: e.target.checked
+                    }))
                   }
                 />
                 Activo
@@ -380,65 +338,64 @@ const StaffSection = () => {
                 Cancelar
               </button>
 
-              <button className="btn-primary" type="submit">
+              <button
+                className="btn-primary"
+                type="submit"
+              >
                 {editingId ? "Actualizar" : "Crear"}
               </button>
 
             </div>
 
           </form>
+
         </Modal>
+
       )}
+    
 
-
-    <div className="staff-table-wrapper">
+    <div className="payment-types-table-wrapper">
 
       <DataTable
-        data={processedStaff}
+        data={processedPaymentTypes}
         rowsPerPage={rowsPerPage}
         columns={[
           { key: "name", label: "Nombre", sortable: true },
-          { key: "phone", label: "Teléfono", sortable: true },
-          { key: "role", label: "Rol", sortable: true },
-          { key: "staffType", label: "Tipo", sortable: true },
+          { key: "description", label: "Descripción", sortable: true },
           { key: "isActive", label: "Estado", sortable: true },
           { key: "actions", label: "Acciones", sortable: false },
         ]}
-        renderRow={(staff) => (
+        renderRow={(paymentType) => (
           <>
-            <td>{staff.name}</td>
+            <td>{paymentType.name}</td>
 
-            <td>{staff.phone}</td>
-
-            <td>{staff.role}</td>
-
-            <td>{staff.staffType}</td>
+            <td>{paymentType.description}</td>
 
             <td>
               <span
                 className={
-                  staff.isActive
+                  paymentType.isActive
                     ? "badge-active"
                     : "badge-inactive"
                 }
               >
-                {staff.isActive ? "Activo" : "Inactivo"}
+                {paymentType.isActive ? "Activo" : "Inactivo"}
               </span>
             </td>
 
             <td>
               <button
                 className="btn-link"
-                onClick={() => handleEdit(staff)}
+                onClick={() => handleEdit(paymentType)}
               >
                 Editar
               </button>
 
               <button
                 className="btn-link"
-                onClick={() => handleToggle(staff)}
+                onClick={() => handleToggle(paymentType)}
               >
-                {staff.isActive ? "Desactivar" : "Activar"}
+                {paymentType.isActive ? "Desactivar" : "Activar"}
               </button>
             </td>
           </>
@@ -446,9 +403,12 @@ const StaffSection = () => {
       />
 
     </div>
+    
 
     </div>
+
   );
+
 };
 
-export default StaffSection;
+export default PaymentTypesSection;

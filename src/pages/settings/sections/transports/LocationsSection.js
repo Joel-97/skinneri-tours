@@ -4,21 +4,21 @@ import {
   createLocations,
   updateLocations,
   toggleLocationStatus
-} from "../../../services/settings/transportation/locationsService";
+} from "../../../../services/settings/transportation/locationsService";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import Pagination from "../../../components/general/pagination";
-import DataTable from "../../../components/general/dataTable";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import Pagination from "../../../../components/general/pagination";
+import DataTable from "../../../../components/general/dataTable";
 
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/transportation/locationsSection.css";
-import Loading from "../../../components/general/loading"; 
+import "../../../../style/settings/transportation/locationsSection.css";
+import Loading from "../../../../components/general/loading"; 
 
 const LocationsSection = () => {
 

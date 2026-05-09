@@ -5,19 +5,19 @@ import {
   createCommissionAgent,
   updateCommissionAgent,
   toggleCommissionAgentStatus
-} from "../../../services/settings/general/agentsService";
-import Loading from "../../../components/general/loading";
+} from "../../../../services/settings/general/agentsService";
+import Loading from "../../../../components/general/loading";
 
-import { UserAuth } from "../../../context/AuthContext";
-import Modal from "../../../components/general/modal";
-import DataTable from "../../../components/general/dataTable";
+import { UserAuth } from "../../../../context/AuthContext";
+import Modal from "../../../../components/general/modal";
+import DataTable from "../../../../components/general/dataTable";
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
-} from "../../../services/notificationService";
+} from "../../../../services/notificationService";
 
-import "../../../style/settings/general/staffSection.css"; // puedes reutilizar
+import "../../../../style/settings/general/staffSection.css"; // puedes reutilizar
 
 const CommissionAgentsSection = () => {
 
