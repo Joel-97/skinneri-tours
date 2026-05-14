@@ -1,0 +1,421 @@
+.alert-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  border-radius: 12px;
+
+  font-size: 1.25rem;
+}
+
+.alert-card-modern.warning .alert-card-icon {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.alert-card-modern.info .alert-card-icon {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.alert-card-modern.neutral .alert-card-icon {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+}
+
+.alert-card-modern.success .alert-card-icon {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.widget-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 72px;
+  height: 72px;
+
+  margin: 0 auto 1rem;
+
+  border-radius: 20px;
+
+  background: rgba(37, 99, 235, 0.08);
+
+  color: #2563eb;
+
+  font-size: 2rem;
+}
+
+
+
+
+
+
+.dashboard-widget-base {
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.06);
+
+  border: 1px solid rgba(226, 232, 240, 0.7);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dashboard-widget-base:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-widget-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+}
+
+.dashboard-widget-header h2 {
+  margin: 0;
+
+  font-size: 20px;
+
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.dashboard-widget-header p {
+  margin-top: 6px;
+
+  font-size: 14px;
+
+  color: #64748b;
+}
+
+.dashboard-widget-content {
+  min-width: 0;
+}
+
+
+
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.widget-empty-state {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 50px 20px;
+}
+
+.widget-empty-icon {
+  font-size: 40px;
+
+  margin-bottom: 18px;
+}
+
+.widget-empty-state h3 {
+  margin: 0;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.widget-empty-state p {
+  margin-top: 10px;
+
+  color: #64748b;
+}
+
+
+/* ======================================================
+   ALERTS
+====================================================== */
+
+.alerts-widget-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.alert-card-modern {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 16px;
+
+  border-radius: 18px;
+
+  border-left: 5px solid transparent;
+}
+
+.alert-card-modern.warning {
+  background: #fffbeb;
+
+  border-color: #f59e0b;
+}
+
+.alert-card-modern.info {
+  background: #eff6ff;
+
+  border-color: #2563eb;
+}
+
+.alert-card-modern.success {
+  background: #ecfdf5;
+
+  border-color: #10b981;
+}
+
+.alert-card-modern.neutral {
+  background: #f8fafc;
+
+  border-color: #94a3b8;
+}
+
+.alert-card-icon {
+  font-size: 20px;
+}
+
+.alert-card-content {
+  font-size: 14px;
+
+  font-weight: 500;
+
+  color: #1e293b;
+}
+
+/* ======================================================
+   MINI AGENDA
+====================================================== */
+
+.mini-agenda-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.mini-agenda-item {
+  display: flex;
+
+  gap: 14px;
+
+  align-items: flex-start;
+
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.mini-agenda-hour {
+  min-width: 80px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  color: #2563eb;
+}
+
+.mini-agenda-content h4 {
+  margin: 0;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.mini-agenda-content p {
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   OPERATIONS
+====================================================== */
+
+.operations-status-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.operations-status-item {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.operations-status-item span {
+  font-size: 14px;
+}
+
+.operations-status-item strong {
+  color: #111827;
+
+  font-size: 16px;
+
+  font-weight: 700;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.table-scroll-modern {
+  overflow-x: auto;
+}
+
+.trips-table-modern {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.trips-table-modern th {
+  text-align: left;
+
+  padding: 14px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  color: #64748b;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.trips-table-modern td {
+  padding: 18px 14px;
+
+  border-bottom: 1px solid #f1f5f9;
+
+  font-size: 14px;
+
+  color: #1e293b;
+}
+
+.trips-table-modern tbody tr {
+  transition: background 0.2s ease;
+}
+
+.trips-table-modern tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* ======================================================
+   STATUS BADGES
+====================================================== */
+
+.status-badge-modern {
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.status-badge-modern.confirmed {
+  background: #dcfce7;
+
+  color: #166534;
+}
+
+.status-badge-modern.pending {
+  background: #fef3c7;
+
+  color: #92400e;
+}
+
+.status-badge-modern.cancelled {
+  background: #fee2e2;
+
+  color: #991b1b;
+}
+
+/* ======================================================
+   PAGINATION
+====================================================== */
+
+.pagination-modern {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 16px;
+
+  margin-top: 24px;
+}
+
+.pagination-modern button {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #f1f5f9;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.pagination-modern button:hover {
+  background: #e2e8f0;
+}

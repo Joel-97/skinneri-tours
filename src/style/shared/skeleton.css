@@ -1,0 +1,179 @@
+/* ======================================================
+   BASE
+====================================================== */
+
+.skeleton {
+  position: relative;
+
+  overflow: hidden;
+
+  background: #e2e8f0;
+
+  border-radius: 12px;
+}
+
+/* ======================================================
+   SHIMMER EFFECT
+====================================================== */
+
+.shimmer::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  transform: translateX(-100%);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.55),
+      transparent
+    );
+
+  animation: shimmer-animation 1.5s infinite;
+}
+
+@keyframes shimmer-animation {
+
+  100% {
+    transform: translateX(100%);
+  }
+
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.skeleton-card {
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 22px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+    0 8px 24px rgba(15,23,42,0.04);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+}
+
+.skeleton-line-sm {
+  width: 90px;
+
+  height: 14px;
+}
+
+.skeleton-line-md {
+  width: 70%;
+
+  height: 16px;
+}
+
+.skeleton-line-lg {
+  width: 50%;
+
+  height: 42px;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.skeleton-table-wrapper {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.skeleton-table-row {
+  display: grid;
+
+  grid-template-columns:
+    120px
+    1.4fr
+    1fr
+    120px;
+
+  gap: 16px;
+
+  align-items: center;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid #f1f5f9;
+}
+
+.skeleton-cell-sm {
+  width: 80px;
+
+  height: 16px;
+}
+
+.skeleton-cell-md {
+  width: 120px;
+
+  height: 16px;
+}
+
+.skeleton-cell-lg {
+  width: 100%;
+
+  height: 16px;
+}
+
+/* ======================================================
+   CHART
+====================================================== */
+
+.skeleton-chart-wrapper {
+  width: 100%;
+
+  border-radius: 24px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+.skeleton-chart-area {
+  width: 100%;
+
+  height: 100%;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #dbeafe 0%,
+      #eff6ff 100%
+    );
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .skeleton-table-row {
+    grid-template-columns: 1fr;
+  }
+
+}

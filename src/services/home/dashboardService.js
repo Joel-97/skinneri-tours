@@ -9,61 +9,272 @@ import {
 import { db } from "../../firebase";
 import { server } from '../serverName/Server';
 
-// 🔹 Obtener rango de hoy (00:00 - 23:59)
+/* ======================================================
+   TODAY RANGE
+====================================================== */
+
 const getTodayRange = () => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  const now = new Date();
 
-  return {
-    start: Timestamp.fromDate(today),
-    end: Timestamp.fromDate(tomorrow)
-  };
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+
 };
 
-// 🔹 Obtener métricas del dashboard
+/* ======================================================
+   YESTERDAY RANGE
+====================================================== */
+
+const getYesterdayRange = () => {
+
+  const now = new Date();
+
+  const start = new Date(now);
+  start.setDate(now.getDate() - 1);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(now);
+  end.setDate(now.getDate() - 1);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+
+};
+
+/* ======================================================
+   DASHBOARD METRICS
+====================================================== */
+
 export const getDashboardMetrics = async (companyId) => {
-  const { start, end } = getTodayRange();
-
-  const bookingsRef = collection(db, `companies/${companyId}/transportation`);
-
-  const todayQuery = query(
-    bookingsRef,
-    where("date", ">=", start),
-    where("date", "<", end)
-  );
 
   try {
 
+    /* =========================================
+       DATE RANGES
+    ========================================= */
 
-  const snapshot = await getDocs(todayQuery);
+    const {
+      start: todayStart,
+      end: todayEnd
+    } = getTodayRange();
 
-  let bookingsToday = 0;
-  let revenueToday = 0;
-  let unassignedTrips = 0;
+    const {
+      start: yesterdayStart,
+      end: yesterdayEnd
+    } = getYesterdayRange();
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    bookingsToday++;
+    /* =========================================
+       COLLECTION REFERENCE
+    ========================================= */
 
-    revenueToday += data.total || 0;
+    const bookingsRef = collection(
+      db,
+      `companies/${companyId}/transportation`
+    );
 
-    if (!data.driverId) {
-      unassignedTrips++;
-    }
-  });
+    /* =========================================
+       TODAY QUERY
+    ========================================= */
 
-  return {
-    bookingsToday,
-    revenueToday,
-    unassignedTrips
-  };
+    const todayQuery = query(
+      bookingsRef,
+      where("date", ">=", todayStart),
+      where("date", "<=", todayEnd)
+    );
 
-} catch (error) {
-   console.log("Error in todayQuery:", error);
-}
+    /* =========================================
+       YESTERDAY QUERY
+    ========================================= */
+
+    const yesterdayQuery = query(
+      bookingsRef,
+      where("date", ">=", yesterdayStart),
+      where("date", "<=", yesterdayEnd)
+    );
+
+    /* =========================================
+       EXECUTE QUERIES
+    ========================================= */
+
+    const [
+      todaySnapshot,
+      yesterdaySnapshot
+    ] = await Promise.all([
+      getDocs(todayQuery),
+      getDocs(yesterdayQuery)
+    ]);
+
+    /* =========================================
+       TODAY METRICS
+    ========================================= */
+
+    let bookingsToday = 0;
+    let revenueToday = 0;
+    let unassignedTrips = 0;
+
+    todaySnapshot.forEach((doc) => {
+
+      const data = doc.data();
+
+      /* =====================================
+         VALIDATE BOOKING
+      ===================================== */
+
+      if (!data) return;
+
+      if (!data.date) return;
+
+      /*
+        Solo contamos reservas válidas.
+      */
+
+      bookingsToday++;
+
+      /* =====================================
+         REVENUE
+      ===================================== */
+
+      revenueToday += Number(data.total || 0);
+
+      /* =====================================
+         UNASSIGNED TRIPS
+      ===================================== */
+
+      if (!data.staffId) {
+        unassignedTrips++;
+      }
+
+    });
+
+    /* =========================================
+       YESTERDAY METRICS
+    ========================================= */
+
+    let bookingsYesterday = 0;
+    let revenueYesterday = 0;
+
+    yesterdaySnapshot.forEach((doc) => {
+
+      const data = doc.data();
+
+      if (!data) return;
+
+      if (!data.date) return;
+
+      bookingsYesterday++;
+
+      revenueYesterday += Number(data.total || 0);
+
+    });
+
+    /* =========================================
+       SAFE TREND CALCULATOR
+    ========================================= */
+
+    const calculateTrend = (current, previous) => {
+
+      /*
+        Si ambos son 0:
+        no hubo movimiento.
+      */
+
+      if (current === 0 && previous === 0) {
+        return 0;
+      }
+
+      /*
+        Si ayer fue 0 y hoy hay datos:
+        crecimiento total.
+      */
+
+      if (previous === 0 && current > 0) {
+        return 100;
+      }
+
+      /*
+        Fórmula estándar:
+        ((actual - anterior) / anterior) * 100
+      */
+
+      return Math.round(
+        ((current - previous) / previous) * 100
+      );
+
+    };
+
+    /* =========================================
+       TRENDS
+    ========================================= */
+
+    const bookingsTrend = calculateTrend(
+      bookingsToday,
+      bookingsYesterday
+    );
+
+    const revenueTrend = calculateTrend(
+      revenueToday,
+      revenueYesterday
+    );
+
+    /* =========================================
+       RETURN METRICS
+    ========================================= */
+
+    return {
+
+      /* =====================================
+         TODAY
+      ===================================== */
+
+      bookingsToday,
+      revenueToday,
+      unassignedTrips,
+
+      /* =====================================
+         YESTERDAY
+      ===================================== */
+
+      bookingsYesterday,
+      revenueYesterday,
+
+      /* =====================================
+         TRENDS
+      ===================================== */
+
+      bookingsTrend,
+      revenueTrend
+
+    };
+
+  } catch (error) {
+
+    console.log(
+      "Error getting dashboard metrics:",
+      error
+    );
+
+    return {
+
+      bookingsToday: 0,
+      revenueToday: 0,
+      unassignedTrips: 0,
+
+      bookingsYesterday: 0,
+      revenueYesterday: 0,
+
+      bookingsTrend: 0,
+      revenueTrend: 0
+
+    };
+
+  }
+
 };
 
 // 🔹 Próximos servicios (hoy en adelante)

@@ -1,0 +1,155 @@
+/* ======================================================
+   SIDEBAR
+====================================================== */
+
+.analytics-sidebar {
+  width: 240px;
+
+  flex-shrink: 0;
+
+  border-right: 1px solid #e5e7eb;
+
+  padding: 24px 16px;
+
+  background: #ffffff;
+
+  /* =====================================
+     STICKY
+  ===================================== */
+
+  position: sticky;
+
+  top: 24px;
+
+  align-self: flex-start;
+
+  height: fit-content;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.analytics-sidebar-header {
+  margin-bottom: 28px;
+}
+
+.analytics-sidebar-header h3 {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+/* ======================================================
+   NAV
+====================================================== */
+
+.analytics-sidebar-nav {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.analytics-sidebar-item {
+  width: 100%;
+
+  border: none;
+
+  background: transparent;
+
+  border-radius: 14px;
+
+  padding: 14px 16px;
+
+  text-align: left;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #4b5563;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* ======================================================
+   HOVER
+====================================================== */
+
+.analytics-sidebar-item:hover {
+  background: #f3f4f6;
+
+  transform: translateX(2px);
+}
+
+/* ======================================================
+   ACTIVE
+====================================================== */
+
+.analytics-sidebar-item.active {
+  background: #0A1E5E;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 6px 14px rgba(10, 30, 94, 0.16);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 992px) {
+
+  .analytics-sidebar {
+    position: static;
+
+    width: 100%;
+
+    border-right: none;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    padding: 14px 16px;
+
+    background: #ffffff;
+  }
+
+  .analytics-sidebar-header {
+    display: none;
+  }
+
+  .analytics-sidebar-nav {
+    flex-direction: row;
+
+    overflow-x: auto;
+
+    scrollbar-width: none;
+  }
+
+  .analytics-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .analytics-sidebar-item {
+    width: auto;
+
+    white-space: nowrap;
+
+    flex-shrink: 0;
+  }
+
+}

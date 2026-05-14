@@ -1,0 +1,154 @@
+/* ======================================================
+   CARD
+====================================================== */
+
+.dashboard-insights-card {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ======================================================
+   LIST
+====================================================== */
+
+.dashboard-insights-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+
+  flex: 1;
+
+  max-height: 470px;
+
+  overflow-y: auto;
+
+  padding-right: 6px;
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.dashboard-insight-item {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  padding: 14px;
+
+  border-radius: 18px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   ICON
+====================================================== */
+
+.dashboard-insight-icon {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   TYPES
+====================================================== */
+
+.dashboard-insight-item.success .dashboard-insight-icon {
+  background: #dcfce7;
+
+  color: #16a34a;
+}
+
+.dashboard-insight-item.warning .dashboard-insight-icon {
+  background: #fef3c7;
+
+  color: #d97706;
+}
+
+.dashboard-insight-item.info .dashboard-insight-icon {
+  background: #dbeafe;
+
+  color: #2563eb;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.dashboard-insight-content {
+  min-width: 0;
+}
+
+.dashboard-insight-content h4 {
+  margin: 0 0 6px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.dashboard-insight-content p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.dashboard-insights-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-insights-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-insights-list::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.16);
+
+  border-radius: 999px;
+}
+
+.dashboard-insights-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .dashboard-insights-list {
+    max-height: unset;
+
+    overflow: visible;
+  }
+
+}

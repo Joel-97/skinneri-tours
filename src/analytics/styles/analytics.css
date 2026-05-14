@@ -1,0 +1,488 @@
+/* ======================================================
+   ANALYTICS CARD
+====================================================== */
+
+.analytics-card {
+  position: relative;
+
+  background: #ffffff;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 18px;
+
+  padding: 22px;
+
+  min-height: 140px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.analytics-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+/* ======================================================
+   ACCENT
+====================================================== */
+
+.analytics-card-accent {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.analytics-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* ======================================================
+   TITLE
+====================================================== */
+
+.analytics-card-title {
+  margin: 0 0 10px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   VALUE
+====================================================== */
+
+.analytics-card-value {
+  margin: 0;
+
+  font-size: 34px;
+  font-weight: 700;
+
+  line-height: 1.1;
+
+  color: #0f172a;
+}
+
+/* ======================================================
+   ICON
+====================================================== */
+
+.analytics-card-icon {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #0f172a;
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.analytics-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+/* ======================================================
+   SUBTITLE
+====================================================== */
+
+.analytics-card-subtitle {
+  font-size: 13px;
+
+  color: #94a3b8;
+}
+
+/* ======================================================
+   TREND
+====================================================== */
+
+.analytics-card-trend {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.analytics-card-trend.positive {
+  color: #16a34a;
+}
+
+.analytics-card-trend.negative {
+  color: #dc2626;
+}
+
+/* ======================================================
+   DASHBOARD GRID
+====================================================== */
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(260px, 1fr));
+
+  gap: 20px;
+
+  width: 100%;
+}
+
+/* ======================================================
+   DASHBOARD SECTION
+====================================================== */
+
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+/* ======================================================
+   DASHBOARD HEADER
+====================================================== */
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 24px;
+}
+
+.dashboard-header-left h2 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  color: #0f172a;
+}
+
+.dashboard-header-left p {
+  margin: 6px 0 0;
+
+  font-size: 14px;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   CHART CARD
+====================================================== */
+
+.chart-card {
+  background: #ffffff;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 18px;
+
+  padding: 24px;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* ======================================================
+   CHART HEADER
+====================================================== */
+
+.chart-card-header {
+  margin-bottom: 24px;
+}
+
+.chart-card-header h3 {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #0f172a;
+}
+
+.chart-card-header p {
+  margin: 6px 0 0;
+
+  font-size: 14px;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   CHART WRAPPER
+====================================================== */
+
+.chart-wrapper {
+  width: 100%;
+  height: 320px;
+}
+
+/* ======================================================
+   ANALYTICS CHART GRID
+====================================================== */
+
+.analytics-chart-grid {
+  display: grid;
+
+  grid-template-columns:
+    2fr 1fr;
+
+  gap: 20px;
+
+  margin-top: 24px;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1100px) {
+
+  .analytics-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* ======================================================
+   DATE FILTER WRAPPER
+====================================================== */
+
+.dashboard-date-filter-wrapper {
+  min-width: 220px;
+}
+
+/* ======================================================
+   RECENT ACTIVITY
+====================================================== */
+
+.recent-activity-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.recent-activity-item {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+}
+
+/* ======================================================
+   DOT
+====================================================== */
+
+.recent-activity-dot {
+  width: 10px;
+  height: 10px;
+
+  margin-top: 6px;
+
+  border-radius: 999px;
+
+  background: #0A1E5E;
+
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.recent-activity-content p {
+  margin: 0 0 6px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #0f172a;
+}
+
+.recent-activity-content span {
+  font-size: 13px;
+
+  color: #94a3b8;
+}
+
+/* ======================================================
+   TOP PERFORMANCE
+====================================================== */
+
+.top-performance-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.top-performance-item {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+}
+
+/* ======================================================
+   RANK
+====================================================== */
+
+.top-performance-rank {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+
+  background: #f1f5f9;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color: #0f172a;
+
+  flex-shrink: 0;
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.top-performance-content {
+  flex: 1;
+}
+
+.top-performance-content p {
+  margin: 0 0 4px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #0f172a;
+}
+
+.top-performance-content span {
+  font-size: 13px;
+
+  color: #94a3b8;
+}
+
+/* ======================================================
+   VALUE
+====================================================== */
+
+.top-performance-value {
+  font-size: 14px;
+  font-weight: 700;
+
+  color: #0A1E5E;
+}
+
+/* ======================================================
+   FINANCIAL SUMMARY
+====================================================== */
+
+.financial-summary-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.financial-summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding-bottom: 14px;
+
+  border-bottom:
+    1px solid #f1f5f9;
+}
+
+.financial-summary-item:last-child {
+  border-bottom: none;
+
+  padding-bottom: 0;
+}
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+.financial-summary-label {
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #64748b;
+}
+
+/* ======================================================
+   VALUE
+====================================================== */
+
+.financial-summary-value {
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #0f172a;
+}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Navbar, Dropdown } from 'react-bootstrap';
 import { useNavigate, useLocation } from "react-router-dom";
 
-import logoWord from '../../assets/Logo_izquierda_blanco_peq.png';
+import logoWord from '../../assets/Skinneri_Logo_izquierda_blanco.png';
 
 import { UserAuth } from '../../context/AuthContext';
 import { server } from '../../services/serverName/Server';
@@ -67,6 +67,13 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
         </Dropdown.Item>
 
         <Dropdown.Item
+          onClick={() => navigate("/analytics")}
+          className={isActive("/analytics") ? "active-item" : ""}
+        >
+          Analíticas
+        </Dropdown.Item>
+
+        <Dropdown.Item
           onClick={() => navigate("/settings")}
           className={isActive("/settings") ? "active-item" : ""}
         >
@@ -123,9 +130,17 @@ const Navbars = () => {
       <Container fluid className="navbar-content">
 
         <div className="navbar-left">
-          <h4 className="mb-0 text-white company-name">
-            {company?.name || "Sistema"}
-          </h4>
+          {company?.logoURL ? (
+            <img
+              src={company.logoURL}
+              alt={company?.name || "Company Logo"}
+              className="company-logo"
+            />
+          ) : (
+            <h4 className="mb-0 text-white company-name">
+              {company?.name || "Sistema"}
+            </h4>
+          )}
         </div>
 
         <div

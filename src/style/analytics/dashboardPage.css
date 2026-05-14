@@ -1,0 +1,228 @@
+/* ======================================================
+   LAYOUT
+====================================================== */
+
+.analytics-layout {
+  display: flex;
+
+  min-height: 100vh;
+
+  background: #f4f7fb;
+}
+
+/* ======================================================
+   PAGE
+====================================================== */
+
+.dashboard-page {
+  flex: 1;
+
+  padding: 28px;
+
+  overflow-x: hidden;
+}
+
+/* ======================================================
+   HERO
+====================================================== */
+
+.dashboard-hero {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+/* ======================================================
+   HERO LEFT
+====================================================== */
+
+.dashboard-hero-left {
+  max-width: 700px;
+}
+
+.dashboard-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  background: rgba(10, 30, 94, 0.08);
+
+  color: #0A1E5E;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  margin-bottom: 16px;
+}
+
+.dashboard-hero-left h1 {
+  margin: 0;
+
+  font-size: 40px;
+  font-weight: 800;
+
+  line-height: 1.1;
+
+  color: #111827;
+}
+
+.dashboard-hero-left p {
+  margin-top: 12px;
+
+  max-width: 620px;
+
+  font-size: 15px;
+  line-height: 1.7;
+
+  color: #6b7280;
+}
+
+/* ======================================================
+   KPI SECTION
+====================================================== */
+
+.dashboard-kpi-section {
+  margin-bottom: 24px;
+}
+
+/* ======================================================
+   PRIMARY GRID
+====================================================== */
+
+.dashboard-primary-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.6fr)
+    minmax(340px, 1fr)
+    minmax(340px, 1fr);
+
+  gap: 24px;
+
+  align-items: stretch;
+
+  margin-bottom: 24px;
+}
+
+/* ======================================================
+   PRIMARY CARD
+====================================================== */
+
+.dashboard-primary-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+
+  height: 100%;
+}
+
+/* ======================================================
+   SCROLL CARD
+====================================================== */
+
+.dashboard-primary-card-scroll {
+  overflow: hidden;
+}
+
+/* ======================================================
+   GLOBAL CARD FIX
+====================================================== */
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+}
+
+/* ======================================================
+   PERFORMANCE GRID
+====================================================== */
+
+.dashboard-performance-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+/* ======================================================
+   BOTTOM GRID
+====================================================== */
+
+.dashboard-bottom-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 24px;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1400px) {
+
+  .dashboard-primary-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 1200px) {
+
+  .dashboard-performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 992px) {
+
+  .analytics-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-primary-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .dashboard-page {
+    padding: 18px;
+  }
+
+  .dashboard-hero {
+    flex-direction: column;
+  }
+
+  .dashboard-hero-left h1 {
+    font-size: 32px;
+  }
+
+}

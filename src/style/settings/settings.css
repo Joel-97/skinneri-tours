@@ -1,145 +1,238 @@
-/* ===========================
+/* ======================================================
    LAYOUT PRINCIPAL
-=========================== */
+====================================================== */
 
 .settings-layout {
   display: flex;
+
   min-height: 80vh;
+
   background: #f9fafb;
 }
 
-/* ===========================
+/* ======================================================
    SIDEBAR
-=========================== */
+====================================================== */
 
 .settings-sidebar {
   width: 260px;
+
+  flex-shrink: 0;
+
   background: #ffffff;
+
   border-right: 1px solid #e5e7eb;
+
   padding: 20px;
+
   display: flex;
+
   flex-direction: column;
+
+  /* =====================================
+     STICKY
+  ===================================== */
+
+  position: sticky;
+
+  top: 24px;
+
+  align-self: flex-start;
+
+  height: fit-content;
 }
+
+/* ======================================================
+   SIDEBAR TITLE
+====================================================== */
 
 .sidebar-title {
   font-size: 12px;
+
   text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+
   color: #6b7280;
-  margin: 20px 0 8px;
+
+  margin: 20px 0 10px;
 }
 
-/* BOTONES SIDEBAR */
+/* ======================================================
+   SIDEBAR BUTTONS
+====================================================== */
 
 .settings-sidebar button {
   background: none;
+
   border: none;
+
   text-align: left;
-  padding: 10px 12px;
-  border-radius: 8px;
+
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
   cursor: pointer;
+
   font-size: 14px;
+
+  font-weight: 500;
+
   color: #374151;
-  transition: all 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
+
+/* ======================================================
+   HOVER
+====================================================== */
 
 .settings-sidebar button:hover {
   background: #f3f4f6;
+
+  transform: translateX(2px);
 }
+
+/* ======================================================
+   ACTIVE
+====================================================== */
 
 .settings-sidebar button.active {
   background: #08204B;
+
   color: #ffffff;
+
+  box-shadow:
+    0 6px 14px rgba(8, 32, 75, 0.14);
 }
+
+/* ======================================================
+   DISABLED
+====================================================== */
 
 .settings-sidebar button:disabled {
   opacity: 0.5;
+
   cursor: not-allowed;
 }
 
-/* ===========================
-   CONTENIDO
-=========================== */
+/* ======================================================
+   CONTENT
+====================================================== */
 
 .settings-content {
   flex: 1;
+
+  min-width: 0;
+
   padding: 24px;
-  overflow-y: auto;
+
+  overflow-x: hidden;
 }
+
+/* ======================================================
+   HEADER
+====================================================== */
 
 .settings-header {
   margin-bottom: 20px;
 }
 
 .settings-header h2 {
-  font-weight: 600;
+  margin: 0;
+
+  font-weight: 700;
+
+  color: #111827;
 }
 
-/* ===========================
-   TABLAS (se mantienen)
-=========================== */
+/* ======================================================
+   TABLES
+====================================================== */
 
 .settings-content table {
   width: 100%;
+
   border-collapse: collapse;
 }
 
 .settings-content th {
   text-align: left;
+
   padding: 12px;
+
   font-size: 14px;
+
   color: #374151;
+
   border-bottom: 1px solid #e5e7eb;
 }
 
 .settings-content td {
   padding: 12px;
+
   font-size: 14px;
+
   border-bottom: 1px solid #f3f4f6;
 }
 
-/* ===========================
+/* ======================================================
    BADGES
-=========================== */
+====================================================== */
+
+.badge-default,
+.badge-active,
+.badge-inactive {
+  padding: 4px 8px;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
 
 .badge-default {
   background: #facc15;
+
   color: #111827;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .badge-active {
   background: #dcfce7;
+
   color: #166534;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .badge-inactive {
   background: #fee2e2;
+
   color: #991b1b;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
-/* ===========================
-   BOTONES LINK
-=========================== */
+/* ======================================================
+   LINK BUTTONS
+====================================================== */
 
 .btn-link {
   background: none;
+
   border: none;
+
   color: #08204B;
+
   cursor: pointer;
+
   font-size: 13px;
+
   font-weight: 500;
+
   margin-right: 10px;
+
   transition: 0.2s ease;
 }
 
@@ -147,17 +240,17 @@
   text-decoration: underline;
 }
 
-/* ===========================
+/* ======================================================
    MODAL
-=========================== */
+====================================================== */
 
 body.modal-open {
   overflow: hidden;
 }
 
-/* ===========================
+/* ======================================================
    RESPONSIVE
-=========================== */
+====================================================== */
 
 @media (max-width: 768px) {
 
@@ -166,20 +259,28 @@ body.modal-open {
   }
 
   .settings-sidebar {
+    position: static;
+
     width: 100%;
+
     border-right: none;
+
     border-bottom: 1px solid #e5e7eb;
+
     flex-direction: row;
+
     overflow-x: auto;
+
     gap: 8px;
   }
 
   .sidebar-title {
-    display: none; /* ocultar títulos en mobile */
+    display: none;
   }
 
   .settings-sidebar button {
     flex: 0 0 auto;
+
     white-space: nowrap;
   }
 

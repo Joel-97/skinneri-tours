@@ -1,6 +1,9 @@
 import './App.css';
-import { Route, Routes } from "react-router-dom";
+
+import { Route, Routes, useLocation } from "react-router-dom";
+
 import { AuthProvider } from "./context/AuthContext";
+
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SuperAdminRoute from "./components/auth/SuperAdminRoute";
 import AdminRoute from "./components/auth/AdminRoute";
@@ -16,31 +19,61 @@ import Pending from "./pages/Pending";
 import SuperAdmin from "./pages/SuperAdmin";
 import ClientsPage from "./pages/clients/ClientsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
+import DashboardPage from "./pages/analytics/DashboardPage";
 import DashboardHome from "./pages/home/DashboardHome";
 import Reports from "./pages/Reports";
 
-function App() {
+function AppContent() {
+
+  const location = useLocation();
+
+  const hideNavbarRoutes = [
+    "/login",
+    "/register",
+    "/pending"
+  ];
+
+  const shouldHideNavbar =
+    hideNavbarRoutes.includes(location.pathname);
+
   return (
-    <AuthProvider>
+
+    <>
+
+      {
+
+        !shouldHideNavbar && (
+          <Navbar />
+        )
+
+      }
 
       <Routes>
 
         {/* PUBLICAS */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/pending" element={<Pending />} />
 
-        {/* PRIVADAS */}
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+        <Route
+          path="/pending"
+          element={<Pending />}
+        />
+
+        {/* HOME */}
 
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                {/* <Home /> */}
-                <DashboardHome />
-              </>
+              <DashboardHome />
             </ProtectedRoute>
           }
         />
@@ -49,93 +82,114 @@ function App() {
           path="/home"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                {/* <Home /> */}
-                <DashboardHome />
-              </>
+              <DashboardHome />
             </ProtectedRoute>
           }
         />
+
+        {/* TRANSPORT */}
 
         <Route
           path="/transport"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                <Transport />
-              </>
+              <Transport />
             </ProtectedRoute>
           }
         />
+
+        {/* ADVENTURE */}
 
         <Route
           path="/adventure"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                <Adventure />
-              </>
+              <Adventure />
             </ProtectedRoute>
           }
         />
+
+        {/* CLIENTS */}
 
         <Route
           path="/clients"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                <ClientsPage />
-              </>
+              <ClientsPage />
             </ProtectedRoute>
           }
         />
 
-        {/* 🔥 SETTINGS - (SOLO ADMIN) */}
+        {/* SETTINGS */}
+
         <Route
           path="/settings"
           element={
             <ProtectedRoute>
+
               <AdminRoute>
-                <>
-                  <Navbar />
-                  <SettingsPage />
-                </>
+
+                <SettingsPage />
+
               </AdminRoute>
+
             </ProtectedRoute>
           }
         />
+
+        {/* REPORTS */}
 
         <Route
           path="/reports"
           element={
             <ProtectedRoute>
-              <>
-                <Navbar />
-                <Reports />
-              </>
+              <Reports />
             </ProtectedRoute>
           }
         />
+
+        {/* ANALYTICS */}
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* SUPERADMIN */}
 
         <Route
           path="/superadmin"
           element={
             <SuperAdminRoute>
-              <>
-                <Navbar />
-                <SuperAdmin />
-              </>
+              <SuperAdmin />
             </SuperAdminRoute>
           }
         />
 
       </Routes>
-    </AuthProvider>
+
+    </>
+
   );
+
+}
+
+function App() {
+
+  return (
+
+    <AuthProvider>
+
+      <AppContent />
+
+    </AuthProvider>
+
+  );
+
 }
 
 export default App;

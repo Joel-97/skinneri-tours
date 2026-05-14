@@ -1,6 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
 import { useAuth } from "../../context/AuthContext";
+
 import "../../style/home/dashboard.css";
+
+/* ======================================================
+   SERVICES
+====================================================== */
+
 import {
   getDashboardMetrics,
   getUpcomingTrips,
@@ -8,270 +19,422 @@ import {
   getActiveDrivers
 } from "../../services/home/dashboardService";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid
-} from "recharts";
+/* ======================================================
+   COMPONENTS
+====================================================== */
+
+import KPIGrid from "../../components/home/KPIGrid";
+
+import UpcomingServicesWidget
+  from "../../components/home/UpcomingServicesWidget";
+
+import RevenueChartWidget
+  from "../../components/home/RevenueChartWidget";
+
+import AlertsWidget
+  from "../../components/home/AlertsWidget";
+
+import OperationsStatusWidget
+  from "../../components/home/OperationsStatusWidget";
+
+import MiniAgendaWidget
+  from "../../components/home/MiniAgendaWidget";
+
+/* ======================================================
+   DASHBOARD HOME
+====================================================== */
 
 const DashboardHome = () => {
 
-  const { adminData } = useAuth();
-  const companyId = adminData?.companyId;
-  const nombreEmpresa = adminData?.companyName || "";
+  const {
+    company,
+    companyId
+  } = useAuth();
+
+  const companyName =
+    company?.name || "";
+
+  /* ======================================================
+     STATE
+  ====================================================== */
 
   const [metrics, setMetrics] = useState(null);
-  const [activeDrivers, setActiveDrivers] = useState(null);
+
+  const [activeDrivers, setActiveDrivers] = useState(0);
+
   const [trips, setTrips] = useState([]);
+
   const [revenueData, setRevenueData] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
-  // 🔥 PAGINACIÓN
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  /* ======================================================
+     PAGINATION
+  ====================================================== */
 
-  /* ===============================
-     Helpers
-  =============================== */
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 6;
+
+  /* ======================================================
+     HELPERS
+  ====================================================== */
 
   const obtenerSaludo = () => {
+
     const hora = new Date().getHours();
-    if (hora < 12) return "Buenos días";
-    if (hora < 18) return "Buenas tardes";
+
+    if (hora < 12)
+      return "Buenos días";
+
+    if (hora < 18)
+      return "Buenas tardes";
+
     return "Buenas noches";
+
   };
 
   const formatDateTime = (timestamp) => {
-    if (!timestamp) return "-";
 
-    return new Date(timestamp.seconds * 1000).toLocaleString("es-CR", {
+    if (!timestamp)
+      return "-";
+
+    return new Date(
+      timestamp.seconds * 1000
+    ).toLocaleString("es-CR", {
       day: "2-digit",
       month: "short",
-      year: "numeric",
       hour: "2-digit",
       minute: "2-digit"
     });
+
   };
 
   const formatearMoneda = (monto) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD"
-    }).format(monto || 0);
+
+    return new Intl.NumberFormat(
+      "en-US",
+      {
+        style: "currency",
+        currency: "USD"
+      }
+    ).format(monto || 0);
+
   };
 
   const capitalizar = (texto) => {
-    if (!texto) return "";
-    return texto.charAt(0).toUpperCase() + texto.slice(1);
+
+    if (!texto)
+      return "";
+
+    return (
+      texto.charAt(0).toUpperCase() +
+      texto.slice(1)
+    );
+
   };
 
-  /* ===============================
-     Load Data
-  =============================== */
+  /* ======================================================
+     LOAD DATA
+  ====================================================== */
 
   useEffect(() => {
-    if (!companyId) return;
+
+    if (!companyId)
+      return;
 
     const loadData = async () => {
+
       try {
+
         setLoading(true);
 
-        const metricsData = await getDashboardMetrics(companyId);
-        const tripsData = await getUpcomingTrips(companyId);
-        const revenue7 = await getLast7DaysRevenue(companyId);
-        const activeDrivers = await getActiveDrivers(companyId);
+        const [
+          metricsData,
+          tripsData,
+          revenue7,
+          driversData
+        ] = await Promise.all([
+          getDashboardMetrics(companyId),
+          getUpcomingTrips(companyId),
+          getLast7DaysRevenue(companyId),
+          getActiveDrivers(companyId)
+        ]);
 
         setMetrics(metricsData);
-        setActiveDrivers(activeDrivers);
-        setTrips(tripsData);
-        setRevenueData(revenue7);
+        console.log("metricsData", metricsData);
+
+        setTrips(tripsData || []);
+
+        setRevenueData(revenue7 || []);
+
+        setActiveDrivers(driversData || 0);
 
       } catch (error) {
-        console.error("Error cargando dashboard:", error);
+
+        console.error(
+          "Error cargando dashboard:",
+          error
+        );
+
       } finally {
+
         setLoading(false);
+
       }
+
     };
 
     loadData();
+
   }, [companyId]);
 
-  // 🔥 RESET PAGINACIÓN cuando cambia trips
+  /* ======================================================
+     RESET PAGINATION
+  ====================================================== */
+
   useEffect(() => {
+
     setCurrentPage(1);
+
   }, [trips]);
 
-  // 🔥 LÓGICA PAGINACIÓN
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
-  const currentTrips = trips.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(trips.length / itemsPerPage);
+  /* ======================================================
+     PAGINATION LOGIC
+  ====================================================== */
+
+  const indexOfLast =
+    currentPage * itemsPerPage;
+
+  const indexOfFirst =
+    indexOfLast - itemsPerPage;
+
+  const currentTrips =
+    trips.slice(indexOfFirst, indexOfLast);
+
+  const totalPages =
+    Math.ceil(trips.length / itemsPerPage);
+
+  /* ======================================================
+     SECONDARY KPIS
+  ====================================================== */
+
+  const secondaryKPIs = useMemo(() => {
+
+    return [
+
+      {
+        title: "Confirmados",
+        value: metrics?.confirmedTrips || 0
+      },
+
+      {
+        title: "Pendientes",
+        value: metrics?.pendingTrips || 0
+      },
+
+      {
+        title: "Cancelados",
+        value: metrics?.cancelledTrips || 0
+      },
+
+      {
+        title: "Servicios Totales",
+        value: trips?.length || 0
+      }
+
+    ];
+
+  }, [metrics, trips]);
+
+  /* ======================================================
+     RENDER
+  ====================================================== */
 
   return (
+
     <div className="dashboard-container">
 
-      {/* ================= HEADER ================= */}
+      {/* =============================================
+          HERO
+      ============================================== */}
+
       <div className="dashboard-header">
-        <h1 className="dashboard-title">
-          {obtenerSaludo()} 👋
-        </h1>
-        <p className="dashboard-subtitle">
-          {nombreEmpresa
-            ? `Aquí tienes el resumen de ${nombreEmpresa} para hoy.`
-            : "Aquí tienes el resumen de tu empresa para hoy."}
-        </p>
-      </div>
 
-      {/* ================= KPI ================= */}
-      {loading ? (
-        <div className="kpi-grid">
-          <div className="kpi-card skeleton skeleton-card"></div>
-          <div className="kpi-card skeleton skeleton-card"></div>
-          <div className="kpi-card skeleton skeleton-card"></div>
-          <div className="kpi-card skeleton skeleton-card"></div>
-        </div>
-      ) : (
-        <div className="kpi-grid">
+        <div>
 
-          <div className="kpi-card">
-            <h3>Reservas de Hoy</h3>
-            <p>{metrics?.bookingsToday || 0}</p>
-            <span className="kpi-description">
-              Servicios programados para hoy
-            </span>
-          </div>
+          <h1 className="dashboard-title">
 
-          <div className="kpi-card">
-            <h3>Ingresos de Hoy</h3>
-            <p>{formatearMoneda(metrics?.revenueToday)}</p>
-            <span className="kpi-description">
-              Total generado hoy
-            </span>
-          </div>
+            {obtenerSaludo()} 👋
 
-          <div className="kpi-card">
-            <h3>Servicios sin Asignar</h3>
-            <p className={metrics?.unassignedTrips > 0 ? "danger" : ""}>
-              {metrics?.unassignedTrips || 0}
-            </p>
-            <span className="kpi-description">
-              Pendientes de asignar chofer
-            </span>
-          </div>
+          </h1>
 
-          <div className="kpi-card">
-            <h3>Choferes Activos</h3>
-            <p>{activeDrivers || 0}</p>
-            <span className="kpi-description">
-              Choferes activos hoy
-            </span>
-          </div> 
+          <p className="dashboard-subtitle">
+
+            {
+
+              companyName
+
+                ? `Aquí tienes el resumen operativo de ${companyName} para hoy.`
+
+                : "Aquí tienes el resumen operativo de tu empresa para hoy."
+
+            }
+
+          </p>
 
         </div>
-      )}
 
-      {/* ================= PRÓXIMOS SERVICIOS ================= */}
-      <div className="table-section">
-        <h2>Próximos Servicios</h2>
-
-        {loading ? (
-          <>
-            <div className="skeleton skeleton-table-row"></div>
-            <div className="skeleton skeleton-table-row"></div>
-            <div className="skeleton skeleton-table-row"></div>
-          </>
-        ) : trips.length === 0 ? (
-          <div className="empty-state">
-            <p>No hay servicios programados próximamente 🎉</p>
-          </div>
-        ) : (
-          <>
-            <table className="trips-table">
-              <thead>
-                <tr>
-                  <th>Hora</th>
-                  <th>Cliente</th>
-                  <th>Tipo de servicio</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {currentTrips.map((trip) => {
-                  const status = trip.status || "pendiente";
-
-                  return (
-                    <tr key={trip.id}>
-                      <td>{formatDateTime(trip.date)}</td>
-                      <td>{trip.clientName || "-"}</td>
-                      <td>{trip.serviceTypeName || "-"}</td>
-                      <td>
-                        <span className={`status-badge status-${status}`}>
-                          {capitalizar(status)}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {/* 🔥 PAGINACIÓN UI */}
-            <div className="pagination">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-              >
-                ←
-              </button>
-
-              <span>{currentPage} / {totalPages}</span>
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-              >
-                →
-              </button>
-            </div>
-          </>
-        )}
       </div>
 
-      {/* ================= GRÁFICO ================= */}
-      <div className="chart-section">
-        <h2>Ingresos – Últimos 7 Días</h2>
+      {/* =============================================
+          KPI GRID
+      ============================================== */}
 
-        {loading ? (
-          <div className="skeleton skeleton-chart"></div>
-        ) : revenueData.length === 0 ? (
-          <div className="empty-state">
-            <p>No hay datos suficientes para mostrar el gráfico.</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="revenue"
-                stroke="#2563eb"
-                strokeWidth={3}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
+      <KPIGrid
+
+        metrics={metrics}
+
+        activeDrivers={activeDrivers}
+
+        formatearMoneda={formatearMoneda}
+
+      />
+
+      {/* =============================================
+          MAIN GRID
+      ============================================== */}
+
+      <div className="dashboard-main-grid">
+
+        {/* =========================================
+            LEFT COLUMN
+        ========================================== */}
+
+        <div className="dashboard-left-column">
+
+          {/* =====================================
+              UPCOMING SERVICES
+          ====================================== */}
+
+          <UpcomingServicesWidget
+
+            loading={loading}
+
+            trips={trips}
+
+            currentTrips={currentTrips}
+
+            currentPage={currentPage}
+
+            totalPages={totalPages}
+
+            setCurrentPage={setCurrentPage}
+
+            formatDateTime={formatDateTime}
+
+            capitalizar={capitalizar}
+
+          />
+
+          {/* =====================================
+              REVENUE CHART
+          ====================================== */}
+
+          <RevenueChartWidget
+
+            loading={loading}
+
+            revenueData={revenueData}
+
+            formatearMoneda={formatearMoneda}
+
+          />
+
+          {/* =====================================
+              SECONDARY KPIS
+          ====================================== */}
+
+          {/* <div className="secondary-kpi-grid">
+
+            {
+
+              secondaryKPIs.map((item, index) => (
+
+                <div
+
+                  key={index}
+
+                  className="secondary-kpi-card"
+
+                >
+
+                  <span>
+                    {item.title}
+                  </span>
+
+                  <strong>
+                    {item.value}
+                  </strong>
+
+                </div>
+
+              ))
+
+            }
+
+          </div> */}
+
+        </div>
+
+        {/* =========================================
+            RIGHT COLUMN
+        ========================================== */}
+
+        <div className="dashboard-right-column">
+
+          {/* =====================================
+              ALERTS
+          ====================================== */}
+
+          <AlertsWidget
+            metrics={metrics}
+          />
+
+          {/* =====================================
+              OPERATIONS
+          ====================================== */}
+
+          <OperationsStatusWidget
+
+            metrics={metrics}
+
+            activeDrivers={activeDrivers}
+
+            formatearMoneda={formatearMoneda}
+
+          />
+
+          {/* =====================================
+              MINI AGENDA
+          ====================================== */}
+
+          {/* <MiniAgendaWidget
+
+            currentTrips={currentTrips}
+
+            formatDateTime={formatDateTime}
+
+          /> */}
+
+        </div>
+
       </div>
 
     </div>
+
   );
+
 };
 
 export default DashboardHome;
