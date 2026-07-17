@@ -9,6 +9,7 @@ import {
 import Loading from "../../../../components/general/loading";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import DataTable from "../../../../components/general/dataTable";
@@ -22,8 +23,9 @@ import "../../../../style/settings/general/staffSection.css";
 
 const StaffSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -9,6 +9,8 @@ import {
 import Loading from "../../../../components/general/loading";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
+
 import Modal from "../../../../components/general/modal";
 import DataTable from "../../../../components/general/dataTable";
 import {
@@ -21,8 +23,9 @@ import "../../../../style/settings/general/staffSection.css"; // puedes reutiliz
 
 const CommissionAgentsSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);

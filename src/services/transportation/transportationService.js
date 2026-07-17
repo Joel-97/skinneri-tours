@@ -11,7 +11,6 @@ import {
   Timestamp
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import { server } from '../serverName/Server';
 
 /* =========================================================
    OBTENER RESERVAS
@@ -26,7 +25,7 @@ export const getTransportation = async (companyId) => {
 
   const q = query(
     collection(db, "companies", companyId, "transportation"),
-    orderBy("date", "asc")
+    orderBy("date", "desc")
   );
 
   const snapshot = await getDocs(q);

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { UserAuth } from '../context/AuthContext';
+import { useCompany } from "../context/CompanyContext";
 
 import '../style/booking.css';
 import '../style/style.css';
@@ -14,7 +15,8 @@ import TransportationList from '../components/reservations/transportation/transp
 const Bookings = () => {
 
     const { tap } = useParams();
-    const { companyId, user } = UserAuth();
+    const { user } = UserAuth();
+    const { companyId } = useCompany();
 
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');

@@ -10,26 +10,10 @@ export const getTopActivities = (
   // ONLY ADVENTURES
   // ====================================================
 
-  console.log(
-
-  "ALL RESERVATIONS",
-
-  reservations
-
-);
-
 const adventures =
   reservations.filter(
 
     (reservation) => {
-
-      console.log(
-
-        "CATEGORY",
-
-        reservation.serviceCategory
-
-      );
 
       return (
 
@@ -53,8 +37,6 @@ const adventures =
   // ====================================================
 
   adventures.forEach((reservation) => {
-
-    console.log("reservation", reservation);
 
     const activityName =
 

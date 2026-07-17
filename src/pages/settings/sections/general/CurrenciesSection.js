@@ -7,6 +7,7 @@ import {
 } from "../../../../services/settings/general/currencyService";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import DataTable from "../../../../components/general/dataTable";
@@ -20,8 +21,9 @@ import Loading from "../../../../components/general/loading";
 
 const CurrenciesSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [currencies, setCurrencies] = useState([]);
   const [loading, setLoading] = useState(true);

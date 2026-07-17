@@ -1,152 +1,468 @@
-import React, { useEffect, useState } from "react";
-import { getClients, deleteClient } from "../../services/clients/clientService";
-import { UserAuth } from "../../context/AuthContext";
+import React, {
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
+import DataTable from "../general/dataTable";
+import ClientRow from "./ClientRow";
 import ClientCreateModal from "./CreateClientModal";
+
+import {
+  getClients,
+  deleteClient
+} from "../../services/clients/clientService";
+
+import {
+  UserAuth
+} from "../../context/AuthContext";
+
+import {
+  useCompany
+} from "../../context/CompanyContext";
+
 import {
   notifySuccess,
   notifyError,
   notifyConfirm
 } from "../../services/notificationService";
 
-const ClientsTable = ({ searchTerm, onSelectClient, refresh }) => {
+/* ======================================================
+   COMPONENT
+====================================================== */
 
-  const { companyId, adminData, isSuperAdmin } = UserAuth();
+const ClientsTable = ({
 
-  const [clients, setClients] = useState([]);
-  const [editingClient, setEditingClient] = useState(null);
+  searchTerm,
+
+  onSelectClient,
+
+  refresh
+
+}) => {
+
+  const {
+
+    adminData,
+
+    isSuperAdmin
+
+  } = UserAuth();
+
+  const {
+
+    companyId
+
+  } = useCompany();
+
+  /* ======================================================
+     STATE
+  ====================================================== */
+
+  const [
+
+    clients,
+
+    setClients
+
+  ] = useState([]);
+
+  const [
+
+    loading,
+
+    setLoading
+
+  ] = useState(true);
+
+  const [
+
+    editingClient,
+
+    setEditingClient
+
+  ] = useState(null);
+
+  const [
+
+    selectedClientId,
+
+    setSelectedClientId
+
+  ] = useState(null);
+
+  /* ======================================================
+     EFFECTS
+  ====================================================== */
 
   useEffect(() => {
+
     if (companyId) {
+
       loadClients();
+
     }
-  }, [refresh, companyId]);
+
+  }, [
+
+    companyId,
+
+    refresh
+
+  ]);
+
+  /* ======================================================
+     LOAD
+  ====================================================== */
 
   const loadClients = async () => {
+
     try {
+
+      setLoading(true);
+
       const data = await getClients(companyId);
+
       setClients(data);
+
     } catch (error) {
+
       console.error(error);
-      notifyError("Error", "No se pudieron cargar los clientes.");
+
+      notifyError(
+
+        "Error",
+
+        "No se pudieron cargar los clientes."
+
+      );
+
+    } finally {
+
+      setLoading(false);
+
     }
+
   };
 
+  /* ======================================================
+     PERMISSIONS
+  ====================================================== */
+
   const canDelete =
-    isSuperAdmin || adminData?.role === "admin";
 
-  /* ================= ELIMINAR CLIENTE ================= */
+    isSuperAdmin ||
 
-  const handleDelete = async (client, e) => {
-    e.stopPropagation();
+    adminData?.role === "admin";
+
+  /* ======================================================
+     DELETE
+  ====================================================== */
+
+  const handleDelete = async (
+
+    client,
+
+    event
+
+  ) => {
+
+    event.stopPropagation();
 
     if (!canDelete) return;
 
     const confirmed = await notifyConfirm(
+
       "¿Eliminar cliente?",
+
       `Esta acción eliminará a "${client.name}" permanentemente.`
+
     );
 
     if (!confirmed) return;
 
     try {
-      await deleteClient(client.id, companyId);
+
+      await deleteClient(
+
+        client.id,
+
+        companyId
+
+      );
+
       await loadClients();
 
       notifySuccess(
+
         "Cliente eliminado",
+
         "El cliente fue eliminado correctamente."
+
       );
 
     } catch (error) {
+
       console.error(error);
+
       notifyError(
+
         "Error",
+
         "No se pudo eliminar el cliente."
+
       );
+
     }
+
   };
 
-  const filteredClients = clients.filter(c =>
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+  /* ======================================================
+     SELECT
+  ====================================================== */
+
+  const handleSelectClient = (
+
+    client
+
+  ) => {
+
+    setSelectedClientId(
+
+      client.id
+
+    );
+
+    onSelectClient?.(
+
+      client
+
+    );
+
+  };
+
+  /* ======================================================
+     FILTER
+  ====================================================== */
+
+  const filteredClients = useMemo(() => {
+
+    if (!searchTerm) {
+
+      return clients;
+
+    }
+
+    const term =
+
+      searchTerm.toLowerCase();
+
+    return clients.filter(client =>
+
+      client.name?.toLowerCase().includes(term)
+
+      ||
+
+      client.email?.toLowerCase().includes(term)
+
+      ||
+
+      client.phone?.toLowerCase().includes(term)
+
+    );
+
+  }, [
+
+    clients,
+
+    searchTerm
+
+  ]);
+
+  /* ======================================================
+     COLUMNS
+  ====================================================== */
+
+  const columns = [
+
+    {
+
+      key: "name",
+
+      label: "Cliente",
+
+      sortable: true,
+
+      minWidth: "260px"
+
+    },
+
+    {
+
+      key: "email",
+
+      label: "Correo",
+
+      sortable: true,
+
+      minWidth: "240px"
+
+    },
+
+    {
+
+      key: "phone",
+
+      label: "Teléfono",
+
+      sortable: true,
+
+      width: "180px"
+
+    },
+
+    {
+
+      key: "type",
+
+      label: "Tipo",
+
+      sortable: true,
+
+      width: "140px",
+
+      align: "center"
+
+    },
+
+    {
+
+      key: "actions",
+
+      label: "Acciones",
+
+      width: "150px",
+
+      align: "center"
+
+    }
+
+  ];
+
+  /* ======================================================
+     RENDER ROW
+  ====================================================== */
+
+  const renderRow = (client) => (
+
+      <ClientRow
+
+          client={client}
+
+          canDelete={canDelete}
+
+          onEdit={setEditingClient}
+
+          onDelete={handleDelete}
+
+      />
+
   );
 
+    /* ======================================================
+     RETURN
+  ====================================================== */
+
   return (
+
     <>
-      <div className="card shadow-sm">
-        <div className="card-body">
 
-          <table className="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Tipo</th>
-                <th style={{ width: "120px" }}>Acciones</th>
-              </tr>
-            </thead>
+      <DataTable
 
-            <tbody>
-              {filteredClients.map(client => (
-                <tr key={client.id} onClick={() => onSelectClient(client)} style={{ cursor: "pointer" }}>
-                  <td>{client.name}</td>
-                  <td>{client.email}</td>
-                  <td>{client.phone}</td>
-                  <td>{client.type}</td>
+        /* ==========================================
+           DATA
+        ========================================== */
 
-                  <td className="d-flex gap-2">
+        data={filteredClients}
 
-                    {/* EDITAR */}
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingClient(client);
-                      }}
-                    >
-                      ✏️
-                    </button>
+        columns={columns}
 
-                    {/* ELIMINAR SOLO ADMIN */}
-                    {canDelete && (
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={(e) => handleDelete(client, e)}
-                      >
-                        🗑️
-                      </button>
-                    )}
+        renderRow={renderRow}
 
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+        /* ==========================================
+           SELECTION
+        ========================================== */
 
-          </table>
+        selectableRows
 
-        </div>
-      </div>
+        selectedRow={selectedClientId}
 
-      {/* MODAL CREAR / EDITAR CLIENTE */}
+        onRowClick={handleSelectClient}
+
+        /* ==========================================
+           LOADING
+        ========================================== */
+
+        loading={loading}
+
+        /* ==========================================
+           EMPTY STATE
+        ========================================== */
+
+        emptyTitle="No hay clientes registrados"
+
+        emptyDescription="Comienza creando el primer cliente para tu empresa."
+
+        /* ==========================================
+           PAGINATION
+        ========================================== */
+
+        defaultRowsPerPage={10}
+
+        rowsPerPageOptions={[5, 10, 20, 50]}
+
+      />
+
+      {/* ======================================================
+          EDIT CLIENT MODAL
+      ====================================================== */}
+
       <ClientCreateModal
+
         isOpen={!!editingClient}
-        onClose={() => setEditingClient(null)}
+
+        client={editingClient}
+
+        mode="edit"
+
+        onClose={() =>
+
+          setEditingClient(null)
+
+        }
+
         onClientCreated={() => {
+
           setEditingClient(null);
+
           loadClients();
 
           notifySuccess(
+
             "Cliente actualizado",
+
             "Los cambios se guardaron correctamente."
+
           );
+
         }}
-        client={editingClient}
-        mode="edit"
+
       />
+
     </>
+
   );
+
 };
 
 export default ClientsTable;

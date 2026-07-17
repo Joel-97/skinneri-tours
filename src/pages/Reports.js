@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserAuth } from '../context/AuthContext';
+import { useCompany } from "../context/CompanyContext";
 
 import "../style/settings/settings.css";
 import '../style/style.css';
@@ -11,7 +11,7 @@ import CommissionReport from './reports/commissionReport';
 
 const Reports = () => {
 
-  const { companyId } = UserAuth();
+  const { companyId } = useCompany();
 
   const [view, setView] = useState("transport-report");
 

@@ -21,7 +21,7 @@ import {
 import Loading from "../../components/general/loading";
 import Pagination from "../../components/general/pagination";
 import { formatDateCustom } from "../../services/Tools";
-import { UserAuth } from "../../context/AuthContext";
+import { useCompany } from "../../context/CompanyContext";
 
 // ======================================================
 // STYLES
@@ -49,7 +49,7 @@ const TransportationReport = ({
   companyId
 }) => {
 
-  const { company } = UserAuth();
+  const { company } = useCompany();
 
   const [bookings, setBookings] =
     useState([]);

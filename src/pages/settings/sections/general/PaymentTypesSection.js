@@ -11,6 +11,7 @@ import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import DataTable from "../../../../components/general/dataTable";
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import {
   notifySuccess,
   notifyError,
@@ -21,8 +22,9 @@ import "../../../../style/settings/general/paymentTypesSection.css";
 
 const PaymentTypesSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [paymentTypes, setPaymentTypes] = useState([]);
   const [loading, setLoading] = useState(true);

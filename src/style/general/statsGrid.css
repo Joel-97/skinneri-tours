@@ -1,0 +1,87 @@
+/* ======================================================
+   STATS GRID
+====================================================== */
+
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,minmax(220px,1fr));
+
+    gap:16px;
+
+    margin-bottom:22px;
+
+}
+
+.stats-card{
+
+    background:#fff;
+
+    border:1px solid #dbe2ea;
+
+    border-radius:12px;
+
+    padding:16px 18px;
+
+    transition:.2s ease;
+
+}
+
+.stats-card:hover{
+
+    border-color:#08204B;
+
+}
+
+.stats-label{
+
+    display:block;
+
+    font-size:.9rem;
+
+    color:#64748b;
+
+    margin-bottom:6px;
+
+}
+
+.stats-value{
+
+    margin:0;
+
+    font-size:2rem;
+
+    font-weight:700;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1200px){
+
+.stats-grid{
+
+    grid-template-columns:repeat(2,minmax(220px,1fr));
+
+}
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+.stats-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+}

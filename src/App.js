@@ -3,6 +3,7 @@ import './App.css';
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
+import { CompanyProvider } from "./context/CompanyContext";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SuperAdminRoute from "./components/auth/SuperAdminRoute";
@@ -17,7 +18,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Pending from "./pages/Pending";
 import SuperAdmin from "./pages/SuperAdmin";
-import ClientsPage from "./pages/clients/ClientsPage";
+import ClientsPage from "./components/clients/ClientsPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import DashboardPage from "./pages/analytics/DashboardPage";
 import DashboardHome from "./pages/home/DashboardHome";
@@ -182,11 +183,11 @@ function App() {
 
   return (
 
-    <AuthProvider>
-
-      <AppContent />
-
-    </AuthProvider>
+  <AuthProvider>
+      <CompanyProvider>
+          <AppContent />
+      </CompanyProvider>
+  </AuthProvider>
 
   );
 

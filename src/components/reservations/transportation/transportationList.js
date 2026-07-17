@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
-import TransportationModal from "./transportationModal";
+import TransportationModal from "./TransportationModal";
 import {
   getTransportation,
   createTransportation,
@@ -19,6 +19,7 @@ import Loading from "../../../components/general/loading";
 import ViewToggle from "../../../components/general/viewToggle"; 
 import DataTable from "../../../components/general/dataTable";
 import ExportTemplateModal from "./ExportTemplateModal";
+
 import "../../../style/transportation/transportationList.css";
 
 const TransportationList = ({ companyId, user }) => {

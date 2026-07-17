@@ -1,67 +1,213 @@
-/* ===== APP MODAL OVERLAY ===== */
+/* ======================================================
+   APP MODAL OVERLAY
+====================================================== */
 
-.app-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 20px;
-  animation: appFadeIn 0.2s ease-in-out;
+.app-modal-overlay{
+
+  position:fixed;
+  inset:0;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  padding:24px;
+
+  background:rgba(15,23,42,.75);
+
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+
+  z-index:10000;
+
+  animation:appFadeIn .2s ease-in-out;
+
 }
 
-/* ===== APP MODAL CONTENT ===== */
 
-.app-modal-content {
-  background: #ffffff;
-  width: 520px;
-  max-width: 95%;
-  max-height: 90vh;
-  overflow-y: auto;
+/* ======================================================
+   APP MODAL CONTENT
+====================================================== */
+
+.app-modal-content{
+
+  position:relative;
+
+  width:100%;
+  max-width:520px;
+
   padding: 35px;
-  border-radius: 16px;
-  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.35);
-  animation: appScaleIn 0.2s ease-in-out;
+
+  max-height:90vh;
+
+  overflow-y:auto;
+
+  background:#fff;
+
+  border-radius:16px;
+
+  box-shadow:0 35px 80px rgba(0,0,0,.35);
+
+  animation:appScaleIn .2s ease-in-out;
+
 }
 
-/* Scroll bonito dentro del modal */
 
-.app-modal-content::-webkit-scrollbar {
-  width: 6px;
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.app-modal-content::-webkit-scrollbar{
+
+  width:8px;
+
 }
 
-.app-modal-content::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+.app-modal-content::-webkit-scrollbar-thumb{
+
+  background:rgba(0,0,0,.18);
+
+  border-radius:20px;
+
 }
 
-/* ===== HEADER OPCIONAL ===== */
+.app-modal-content::-webkit-scrollbar-track{
 
-.app-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  background:transparent;
+
 }
 
-/* ===== ANIMACIONES ===== */
 
-@keyframes appFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* ======================================================
+   HEADER
+====================================================== */
+
+.app-modal-header{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:20px;
+
 }
 
-@keyframes appScaleIn {
-  from { 
-    transform: scale(0.95);
-    opacity: 0;
+
+/* ======================================================
+   MODAL SIZES
+====================================================== */
+
+.app-modal-sm{
+
+  max-width:450px;
+
+}
+
+.app-modal-md{
+
+  max-width:650px;
+
+}
+
+.app-modal-lg{
+
+  max-width:900px;
+
+}
+
+.app-modal-xl{
+
+  max-width:1150px;
+
+}
+
+.app-modal-full{
+
+  width:95vw;
+
+  max-width:95vw;
+
+  height:92vh;
+
+  max-height:92vh;
+
+}
+
+
+/* ======================================================
+   ANIMATIONS
+====================================================== */
+
+@keyframes appFadeIn{
+
+  from{
+
+    opacity:0;
+
   }
-  to { 
-    transform: scale(1);
-    opacity: 1;
+
+  to{
+
+    opacity:1;
+
   }
+
+}
+
+@keyframes appScaleIn{
+
+  from{
+
+    opacity:0;
+
+    transform:scale(.96);
+
+  }
+
+  to{
+
+    opacity:1;
+
+    transform:scale(1);
+
+  }
+
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media(max-width:768px){
+
+  .app-modal-overlay{
+
+    padding:16px;
+
+  }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media(max-width:480px){
+
+  .app-modal-overlay{
+
+    padding:12px;
+
+  }
+
+  .app-modal-content{
+
+    border-radius:12px;
+
+    max-height:95vh;
+
+  }
+
 }

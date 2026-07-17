@@ -1,0 +1,632 @@
+/* ======================================================
+   DATA TABLE
+====================================================== */
+
+.table-container{
+
+  display:flex;
+  flex-direction:column;
+
+  width:100%;
+
+  gap:20px;
+
+}
+
+
+/* ======================================================
+   TABLE WRAPPER
+====================================================== */
+
+.table-wrapper{
+
+  width:100%;
+
+  overflow-x:auto;
+  overflow-y:hidden;
+
+  border:1px solid #ECEFF3;
+
+  border-radius:14px;
+
+  background:#FFFFFF;
+
+}
+
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.table{
+
+  width:100%;
+
+  min-width:900px;
+
+  border-collapse:collapse;
+
+  table-layout:auto;
+
+}
+
+
+/* ======================================================
+   TABLE HEADER
+====================================================== */
+
+.table thead{
+
+  background:#F8FAFC;
+
+}
+
+.table thead tr{
+
+  border-bottom:1px solid #E5E7EB;
+
+}
+
+.table thead th{
+
+  padding:16px 20px;
+
+  font-size:.88rem;
+  font-weight:700;
+
+  color:#374151;
+
+  white-space:nowrap;
+
+  user-select:none;
+
+  transition:.2s;
+
+}
+
+.table thead th:hover{
+
+  background:#F1F5F9;
+
+}
+
+
+/* ======================================================
+   TABLE BODY
+====================================================== */
+
+.table tbody tr{
+
+  border-bottom:1px solid #F1F5F9;
+
+  transition:
+      background .18s ease,
+      color .18s ease,
+      box-shadow .18s ease;
+
+}
+
+.table tbody tr:last-child{
+
+  border-bottom:none;
+
+}
+
+
+/* ======================================================
+   ROW SELECTION
+====================================================== */
+
+.table-row-selectable{
+
+  cursor:pointer;
+
+}
+
+.table-row-selectable:hover{
+
+  background:#F8FAFC;
+
+}
+
+.table-row-selected{
+
+  background:#EEF4FF !important;
+
+}
+
+.table-row-selected td{
+
+  color:#08204B;
+
+  font-weight:500;
+
+}
+
+
+/* ======================================================
+   TABLE CELLS
+====================================================== */
+
+.table td{
+
+  padding:18px 20px;
+
+  vertical-align:middle;
+
+  color:#374151;
+
+  font-size:.92rem;
+
+}
+
+.table td strong{
+
+  font-weight:600;
+
+  color:#08204B;
+
+}
+
+
+/* ======================================================
+   COLUMN ALIGNMENT
+====================================================== */
+
+.table-left{
+
+  text-align:left;
+
+}
+
+.table-center{
+
+  text-align:center;
+
+}
+
+.table-right{
+
+  text-align:right;
+
+}
+
+
+/* ======================================================
+   INDEX COLUMN
+====================================================== */
+
+.table-index{
+
+  width:70px;
+
+  min-width:70px;
+
+  text-align:center;
+
+  color:#6B7280;
+
+  font-weight:600;
+
+}
+
+
+/* ======================================================
+   ACTIONS COLUMN
+====================================================== */
+
+.table-actions{
+
+  width:180px;
+
+  min-width:180px;
+
+  text-align:center;
+
+}
+
+
+/* ======================================================
+   DESCRIPTION COLUMN
+====================================================== */
+
+.table-description{
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+}
+
+.table-description span{
+
+  display:block;
+
+  overflow:hidden;
+
+  white-space:nowrap;
+
+  text-overflow:ellipsis;
+
+}
+
+
+/* ======================================================
+   SORTABLE
+====================================================== */
+
+.table-sortable{
+
+  cursor:pointer;
+
+}
+
+.table-sortable:hover{
+
+  color:#08204B;
+
+}
+
+.table-sort-indicator{
+
+  display:inline-flex;
+
+  margin-left:8px;
+
+  font-size:.72rem;
+
+}
+
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.table-empty{
+
+  padding:60px 30px !important;
+
+}
+
+.table-empty-state{
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:12px;
+
+  text-align:center;
+
+}
+
+.table-empty-icon{
+
+  width:64px;
+  height:64px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:#F1F5F9;
+
+  font-size:1.8rem;
+
+}
+
+.table-empty-state h4{
+
+  margin:0;
+
+  font-size:1.1rem;
+
+  font-weight:600;
+
+  color:#1E293B;
+
+}
+
+.table-empty-state p{
+
+  margin:0;
+
+  max-width:340px;
+
+  color:#64748B;
+
+  line-height:1.5;
+
+}
+
+.table-empty-action{
+
+  margin-top:10px;
+
+}
+
+
+/* ======================================================
+   TABLE PAGINATION
+====================================================== */
+
+.table-pagination{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  gap:20px;
+
+  padding:18px 24px;
+
+  border:1px solid #ECEFF3;
+
+  border-radius:14px;
+
+  background:#FFFFFF;
+
+}
+
+
+/* ======================================================
+   PAGE CONTROLS
+====================================================== */
+
+.page-controls{
+
+  display:flex;
+  align-items:center;
+
+  gap:18px;
+
+}
+
+.page-controls span{
+
+  font-size:.92rem;
+
+  font-weight:500;
+
+  color:#4B5563;
+
+}
+
+
+/* ======================================================
+   PAGINATION BUTTONS
+====================================================== */
+
+.page-controls button{
+
+  width:36px;
+  height:36px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid #D7DCE3;
+
+  border-radius:8px;
+
+  background:#FFFFFF;
+
+  color:#374151;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+}
+
+.page-controls button:hover:not(:disabled){
+
+  background:#08204B;
+
+  border-color:#08204B;
+
+  color:#FFFFFF;
+
+}
+
+.page-controls button:disabled{
+
+  opacity:.45;
+
+  cursor:not-allowed;
+
+}
+
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.table-wrapper::-webkit-scrollbar{
+
+  height:10px;
+
+}
+
+.table-wrapper::-webkit-scrollbar-track{
+
+  background:#F5F7FA;
+
+}
+
+.table-wrapper::-webkit-scrollbar-thumb{
+
+  background:#C8D0DB;
+
+  border-radius:20px;
+
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover{
+
+  background:#A8B3C2;
+
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1024px){
+
+  .table{
+
+    min-width:820px;
+
+  }
+
+  .table th,
+  .table td{
+
+    padding:15px 16px;
+
+  }
+
+  .table-pagination{
+
+    padding:16px 20px;
+
+  }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+  .table{
+
+    min-width:720px;
+
+  }
+
+  .table th,
+  .table td{
+
+    padding:14px 14px;
+
+    font-size:.88rem;
+
+  }
+
+  .table-pagination{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+  }
+
+  .rows-selector{
+
+    justify-content:center;
+
+  }
+
+  .page-controls{
+
+    justify-content:center;
+
+  }
+
+}
+
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+  .table{
+
+    min-width:650px;
+
+  }
+
+  .table th{
+
+    font-size:.82rem;
+
+  }
+
+  .table td{
+
+    font-size:.85rem;
+
+  }
+
+  .table-pagination{
+
+    padding:15px;
+
+    gap:16px;
+
+  }
+
+  .rows-selector{
+
+    flex-wrap:wrap;
+
+  }
+
+}
+
+/* ======================================================
+   SKELETON
+====================================================== */
+
+.table-skeleton{
+
+    width:100%;
+
+    height:16px;
+
+    border-radius:8px;
+
+    background:linear-gradient(
+        90deg,
+        #f1f5f9 25%,
+        #e2e8f0 50%,
+        #f1f5f9 75%
+    );
+
+    background-size:200% 100%;
+
+    animation:tableSkeleton 1.4s infinite;
+
+}
+
+@keyframes tableSkeleton{
+
+    0%{
+
+        background-position:200% 0;
+
+    }
+
+    100%{
+
+        background-position:-200% 0;
+
+    }
+
+}

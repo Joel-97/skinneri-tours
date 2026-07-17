@@ -9,10 +9,17 @@ import CompanyProfileSection from "./sections/general/CompanyProfileSection";
 import DiscountsSection from "./sections/general/DiscountsSection";
 import StaffSection from "./sections/general/StaffSection";
 
-import SignTemplatesSection from "./sections/transports/SignTemplatesSection";
-import LocationsSection from "./sections/transports/LocationsSection";
+import SignTemplatesSection from "./sections/template/SignTemplatesSection";
+import LocationsSection from "./sections/locations/LocationsSection";
+import VehiclesSection from "./sections/transports/vehicles/VehiclesSection";
+import BookingSourcesSection from "./sections/transports/bookingSource/BookingSourcesSection";
+import Routes from "./sections/transports/routes/RoutesSection";
+import Drivers from "./sections/transports/drivers/DriversSection";
+import PayersSection from "./sections/general/payer/PayersSection";
+import Maintenance from "./sections/transports/maintenance/MaintenanceSection";
 
 import { UserAuth } from "../../context/AuthContext";
+import { useCompany } from "../../context/CompanyContext";
 
 import "../../style/settings/settings.css";
 
@@ -20,7 +27,9 @@ const SettingsPage = () => {
 
   const [view, setView] = useState("companyProfile");
 
-  const { companyId, user } = UserAuth();
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   // ======================================================
   // RENDER CONTENT
@@ -57,6 +66,9 @@ const SettingsPage = () => {
       case "paymentTypes":
         return <PaymentTypesSection />;
 
+      case "payers":
+        return <PayersSection />;
+
       // ==================================================
       // TRANSPORT
       // ==================================================
@@ -73,11 +85,19 @@ const SettingsPage = () => {
         );
 
       case "vehicles":
-        return (
-          <div>
-            Vehículos próximamente
-          </div>
-        );
+        return <VehiclesSection />;
+
+      case "drivers":
+        return <Drivers />;
+
+      case "maintenance":
+        return <Maintenance />;
+
+      case "BookingSources":
+        return <BookingSourcesSection />;
+
+      case "routes":
+        return <Routes />;
 
       // ==================================================
       // ADVENTURE
@@ -220,6 +240,19 @@ const SettingsPage = () => {
           Tipos de pago
         </button>
 
+        <button
+          className={
+            view === "payers"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("payers")
+          }
+        >
+          Pagadores
+        </button>
+
         {/* TRANSPORT */}
 
         <h4 className="sidebar-title">
@@ -241,6 +274,76 @@ const SettingsPage = () => {
 
         <button
           className={
+            view === "vehicles"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("vehicles")
+          }
+          
+        >
+          Vehículos
+        </button>
+
+        <button
+          className={
+            view === "drivers"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("drivers")
+          }
+          
+        >
+          Conductores
+        </button>
+
+        {/* <button
+          className={
+            view === "maintenance"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("maintenance")
+          }
+          
+        >
+          Mantenimiento
+        </button> */}
+
+        <button
+          className={
+            view === "routes"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("routes")
+          }
+          
+        >
+          Codigo de rutas
+        </button>
+
+        <button
+          className={
+            view === "BookingSources"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("BookingSources")
+          }
+          
+        >
+          Origen de reserva
+        </button>
+
+        <button
+          className={
             view === "SignTemplates"
               ? "active"
               : ""
@@ -250,26 +353,6 @@ const SettingsPage = () => {
           }
         >
           Plantillas
-        </button>
-
-        <button
-          className={
-            view === "vehicles"
-              ? "active"
-              : ""
-          }
-          onClick={() =>
-            setView("vehicles")
-          }
-          disabled
-        >
-          Vehículos
-
-          <p>
-            <small>
-              Próximamente
-            </small>
-          </p>
         </button>
 
         {/* ADVENTURE */}

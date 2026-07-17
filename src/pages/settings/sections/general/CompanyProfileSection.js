@@ -4,7 +4,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import { updateCompanyData } from "../../../../services/superAdmin/companyProfile";
 import { locationData, identificationOptions, timezoneOptions } from "../../../../constants/locationData";
 import { uploadCompanyLogo, removeCompanyLogo } from "../../../../services/superAdmin/uploadCompanyLogo";
-
+import { useCompany } from "../../../../context/CompanyContext";
 import {
   notifySuccess,
   notifyError
@@ -25,8 +25,8 @@ const CompanyProfileSection = () => {
   const {
     company,
     companyId,
-    setCompany
-  } = useAuth();
+    updateCompany
+  } = useCompany();
 
   const [loading, setLoading] =
     useState(false);
@@ -249,7 +249,7 @@ const CompanyProfileSection = () => {
         // UPDATE CONTEXT
         // ==================================================
 
-        setCompany(updatedCompany);
+        updateCompany(updatedCompany);
 
         // ==================================================
         // UPDATE LOCAL FORM
@@ -321,7 +321,7 @@ const CompanyProfileSection = () => {
             // UPDATE CONTEXT
             // ==================================================
 
-            setCompany(updatedCompany);
+            updateCompany(updatedCompany);
 
             // ==================================================
             // UPDATE FORM
@@ -364,10 +364,7 @@ const CompanyProfileSection = () => {
         formData
       );
 
-      setCompany((prev) => ({
-        ...prev,
-        ...formData
-      }));
+      updateCompany(formData);
 
       notifySuccess("Perfil actualizado","La información de la empresa fue actualizada correctamente."
       );

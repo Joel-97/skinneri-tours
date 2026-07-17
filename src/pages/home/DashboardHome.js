@@ -5,6 +5,7 @@ import React, {
 } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { useCompany } from "../../context/CompanyContext";
 
 import "../../style/home/dashboard.css";
 
@@ -46,14 +47,12 @@ import MiniAgendaWidget
 
 const DashboardHome = () => {
 
-  const {
-    company,
-    companyId
-  } = useAuth();
+  const { company, companyId } = useCompany();
+
+  const {} = useAuth();
 
   const companyName =
     company?.name || "";
-
   /* ======================================================
      STATE
   ====================================================== */

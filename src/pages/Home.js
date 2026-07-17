@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
+import { useCompany } from "../context/CompanyContext";
 import "../style/home/home.css";
 import Swal from "sweetalert2";
 import Pending from "./Pending";
@@ -9,7 +10,14 @@ import Loading from "../components/general/loading";
 const Home = () => {
   const navigate = useNavigate();
 
-  const { user, adminData, companyId, isSuperAdmin, loading } = UserAuth();
+  const {
+    user,
+    adminData,
+    isSuperAdmin,
+    loading
+  } = UserAuth();
+
+  const { companyId } = useCompany();
   const [errorMessage, setErrorMessage] = useState(null);
 
   /* 🔐 SEGURIDAD DE ACCESO */

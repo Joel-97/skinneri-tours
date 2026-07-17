@@ -8,6 +8,7 @@ import {
 } from "../../../../services/settings/general/taxService";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import "../../../../style/settings/general/taxSettings.css";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
@@ -22,8 +23,9 @@ import Loading from "../../../../components/general/loading";
 
 const TaxesSettings = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [taxes, setTaxes] = useState([]);
   const [loading, setLoading] = useState(true);

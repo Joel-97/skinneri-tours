@@ -7,6 +7,7 @@ import {
 } from "../../../../services/settings/transportation/locationsService";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import DataTable from "../../../../components/general/dataTable";
@@ -22,8 +23,9 @@ import Loading from "../../../../components/general/loading";
 
 const LocationsSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);

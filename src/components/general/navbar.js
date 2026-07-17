@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logoWord from '../../assets/Skinneri_Logo_izquierda_blanco.png';
 
 import { UserAuth } from '../../context/AuthContext';
+import { useCompany } from "../../context/CompanyContext";
 import { server } from '../../services/serverName/Server';
 import '../../style/style.css';
 import '../../style/navbar.css';
@@ -120,7 +121,8 @@ const AvatarDropdown = ({ user, logout, isSuperAdmin }) => {
 /* -------------------------------------------------------------------------- */
 
 const Navbars = () => {
-  const { user, adminData, company, logout, isSuperAdmin } = UserAuth();
+  const { user, adminData, logout, isSuperAdmin } = UserAuth();
+  const { company } = useCompany();
   const navigate = useNavigate();
 
   if (!user || adminData?.status === "pending") return null;

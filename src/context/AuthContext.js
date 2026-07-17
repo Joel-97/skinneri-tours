@@ -16,8 +16,6 @@ import {
 
 import Swal from "sweetalert2";
 
-import { server } from "../services/serverName/Server";
-
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -25,25 +23,21 @@ export const UserAuth = useAuth;
 
 export const AuthProvider = ({ children }) => {
 
-  // ======================================================
-  // STATES
-  // ======================================================
+  /* ======================================================
+     STATES
+  ====================================================== */
 
   const [user, setUser] = useState(null);
 
   const [adminData, setAdminData] = useState(null);
 
-  const [company, setCompany] = useState(null);
-
-  const [companyId, setCompanyId] = useState(null);
-
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
-  // ======================================================
-  // AUTH STATE
-  // ======================================================
+  /* ======================================================
+     AUTH STATE
+  ====================================================== */
 
   useEffect(() => {
 
@@ -55,34 +49,28 @@ export const AuthProvider = ({ children }) => {
 
         try {
 
-          // ==================================================
-          // NO USER
-          // ==================================================
+          /* ===============================================
+             USER NOT LOGGED
+          =============================================== */
 
           if (!firebaseUser) {
 
             setUser(null);
-
             setAdminData(null);
-
-            setCompany(null);
-
-            setCompanyId(null);
-
             setIsSuperAdmin(false);
 
             return;
           }
 
-          // ==================================================
-          // USER
-          // ==================================================
+          /* ===============================================
+             FIREBASE USER
+          =============================================== */
 
           setUser(firebaseUser);
 
-          // ==================================================
-          // GET ADMIN
-          // ==================================================
+          /* ===============================================
+             ADMIN DOCUMENT
+          =============================================== */
 
           const adminRef = doc(
             db,
@@ -95,11 +83,6 @@ export const AuthProvider = ({ children }) => {
           if (!adminSnap.exists()) {
 
             setAdminData(null);
-
-            setCompany(null);
-
-            setCompanyId(null);
-
             setIsSuperAdmin(false);
 
             return;
@@ -109,81 +92,32 @@ export const AuthProvider = ({ children }) => {
 
           setAdminData(admin);
 
-          // ==================================================
-          // SUPER ADMIN
-          // ==================================================
+          /* ===============================================
+             SUPER ADMIN
+          =============================================== */
 
-          const superAdmin =
+          setIsSuperAdmin(
             admin.role === "superadmin" ||
-            firebaseUser.email ===
-              "gomez.joel.0709@gmail.com";
-
-          setIsSuperAdmin(superAdmin);
-
-          // ==================================================
-          // NOT APPROVED
-          // ==================================================
-
-          if (admin.status !== "approved") {
-
-            setCompany(null);
-
-            setCompanyId(null);
-
-            return;
-          }
-
-          // ==================================================
-          // LOAD COMPANY
-          // ==================================================
-
-          if (admin.companyId) {
-
-            setCompanyId(admin.companyId);
-
-            const companyRef = doc(
-              db,
-              "companies",
-              admin.companyId
-            );
-
-            const companySnap = await getDoc(companyRef);
-
-            if (companySnap.exists()) {
-
-              setCompany(companySnap.data());
-
-            } else {
-
-              setCompany(null);
-            }
-
-          } else {
-
-            setCompany(null);
-
-            setCompanyId(null);
-          }
+            firebaseUser.email === "gomez.joel.0709@gmail.com"
+          );
 
         } catch (error) {
 
           console.error(
-            "Error cargando admin:",
+            "Error loading auth data:",
             error
           );
 
+          setUser(null);
           setAdminData(null);
-
-          setCompany(null);
-
-          setCompanyId(null);
-
           setIsSuperAdmin(false);
 
         } finally {
 
           setLoading(false);
+
         }
+
       }
     );
 
@@ -191,9 +125,9 @@ export const AuthProvider = ({ children }) => {
 
   }, []);
 
-  // ======================================================
-  // LOGIN
-  // ======================================================
+  /* ======================================================
+     LOGIN
+  ====================================================== */
 
   const loginAdmin = async (
     email,
@@ -213,18 +147,12 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
 
-      console.error(
-        "Error login:",
-        error.code
-      );
+      console.error(error.code);
 
       if (
-        error.code ===
-          "auth/invalid-credential" ||
-        error.code ===
-          "auth/user-not-found" ||
-        error.code ===
-          "auth/wrong-password"
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password"
       ) {
 
         Swal.fire({
@@ -234,8 +162,7 @@ export const AuthProvider = ({ children }) => {
         });
 
       } else if (
-        error.code ===
-        "auth/too-many-requests"
+        error.code === "auth/too-many-requests"
       ) {
 
         Swal.fire({
@@ -251,15 +178,18 @@ export const AuthProvider = ({ children }) => {
           title: "Error al iniciar sesión",
           text: "Ocurrió un problema inesperado"
         });
+
       }
 
       return null;
+
     }
+
   };
 
-  // ======================================================
-  // REGISTER
-  // ======================================================
+  /* ======================================================
+     REGISTER
+  ====================================================== */
 
   const registerAdmin = async (
     email,
@@ -281,13 +211,9 @@ export const AuthProvider = ({ children }) => {
         doc(db, "admins", newUser.uid),
         {
           email: newUser.email,
-
           role: "admin",
-
           status: "pending",
-
           companyId: null,
-
           createdAt: new Date()
         }
       );
@@ -296,14 +222,10 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
 
-      console.error(
-        "Error creando admin:",
-        error.code
-      );
+      console.error(error.code);
 
       if (
-        error.code ===
-        "auth/email-already-in-use"
+        error.code === "auth/email-already-in-use"
       ) {
 
         Swal.fire({
@@ -313,8 +235,7 @@ export const AuthProvider = ({ children }) => {
         });
 
       } else if (
-        error.code ===
-        "auth/weak-password"
+        error.code === "auth/weak-password"
       ) {
 
         Swal.fire({
@@ -330,33 +251,34 @@ export const AuthProvider = ({ children }) => {
           title: "Error al registrarse",
           text: "Intenta nuevamente"
         });
+
       }
 
       throw error;
+
     }
+
   };
 
-  // ======================================================
-  // LOGOUT
-  // ======================================================
+  /* ======================================================
+     LOGOUT
+  ====================================================== */
 
   const logout = async () => {
+
     await signOut(auth);
+
   };
 
-  // ======================================================
-  // CONTEXT VALUE
-  // ======================================================
+  /* ======================================================
+     CONTEXT VALUE
+  ====================================================== */
 
   const value = {
+
     user,
 
     adminData,
-
-    company,
-    setCompany,
-
-    companyId,
 
     isSuperAdmin,
 
@@ -367,15 +289,17 @@ export const AuthProvider = ({ children }) => {
     logout,
 
     registerAdmin
+
   };
 
-  // ======================================================
-  // PROVIDER
-  // ======================================================
+  /* ======================================================
+     PROVIDER
+  ====================================================== */
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
+
 };

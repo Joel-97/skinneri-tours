@@ -1,0 +1,97 @@
+/* ======================================================
+   ACTION TOOLBAR
+====================================================== */
+
+.action-toolbar{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+
+}
+
+/* ======================================================
+   ACTION BUTTON
+====================================================== */
+
+.action-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    height:42px;
+
+    padding:0 16px;
+
+    background:#ffffff;
+
+    border:1px solid #dbe2ea;
+
+    border-radius:10px;
+
+    color:#374151;
+
+    font-size:.9rem;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+
+}
+
+.action-btn:hover{
+
+    border-color:#08204B;
+
+    color:#08204B;
+
+}
+
+.action-btn.primary{
+
+    background:#08204B;
+
+    color:#ffffff;
+
+    border-color:#08204B;
+
+}
+
+.action-btn.primary:hover{
+
+    background:#12316f;
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+.action-toolbar{
+
+    width:100%;
+
+}
+
+.action-btn{
+
+    flex:1;
+
+    justify-content:center;
+
+}
+
+}

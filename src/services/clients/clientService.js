@@ -12,201 +12,597 @@ import {
   limit,
   Timestamp
 } from "firebase/firestore";
+
 import { db } from "../../firebase";
-import { server } from '../serverName/Server';
 
 /* =========================================================
-   CREAR CLIENTE (POR EMPRESA)
+   OBTENER CLIENTES
 ========================================================= */
-export const createClient = async (data, user, companyId) => {
 
-  if (!companyId) throw new Error("company_required");
+export const getClients = async (companyId) => {
 
-  const clientsRef = collection(db, "companies", companyId, "clients");
+  if (!companyId) {
 
-  // Validar duplicado por nombre dentro de la empresa
-  const nameQuery = query(clientsRef, where("name", "==", data.name));
-  const nameSnap = await getDocs(nameQuery);
+    const error = new Error("company_required");
+    error.code = "company_required";
 
-  if (!nameSnap.empty) {
-    const error = new Error("duplicate_name");
-    error.code = "duplicate_name";
     throw error;
+
   }
 
-  return await addDoc(clientsRef, {
-    name: data.name,
-    nameLower: data.name.toLowerCase(),
-    email: data.email || "",
-    emailLower: data.email?.toLowerCase() || "",
-    phone: data.phone || "",
-    nationality: data.nationality || "",
-    birthday: data.birthday || "",
-    tags: data.tags || [],
-    type: data.type || "person",
-    status: data.status || "active",
-    source: data.source || "manual",
-    notes: data.notes || "",
-    createdBy: user.uid,
-    updatedBy: user.uid,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now()
-  });
+  const q = query(
+
+    collection(
+      db,
+      "companies",
+      companyId,
+      "clients"
+    ),
+
+    orderBy("createdAt", "desc"),
+
+    limit(50)
+
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map(doc => ({
+
+    id: doc.id,
+
+    ...doc.data()
+
+  }));
+
+};
+
+/* =========================================================
+   CREAR CLIENTE
+========================================================= */
+
+export const createClient = async (
+
+  companyId,
+
+  data,
+
+  user
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+  if (!user) {
+
+    const error = new Error("user_required");
+    error.code = "user_required";
+
+    throw error;
+
+  }
+
+  if (!data.name?.trim()) {
+
+    const error = new Error("client_name_required");
+    error.code = "client_name_required";
+
+    throw error;
+
+  }
+
+  const clientsRef = collection(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients"
+
+  );
+
+  /*
+  ==========================================================
+  VALIDAR DUPLICADO
+  ==========================================================
+  */
+
+  const duplicateQuery = query(
+
+    clientsRef,
+
+    where(
+
+      "nameLower",
+
+      "==",
+
+      data.nameLower
+
+    )
+
+  );
+
+  const duplicateSnapshot = await getDocs(
+
+    duplicateQuery
+
+  );
+
+  if (!duplicateSnapshot.empty) {
+
+    const error = new Error("duplicate_name");
+    error.code = "duplicate_name";
+
+    throw error;
+
+  }
+
+  /*
+  ==========================================================
+  CREATE
+  ==========================================================
+  */
+
+  return await addDoc(
+
+    clientsRef,
+
+    {
+
+      ...data,
+
+      createdBy: user.uid,
+
+      updatedBy: user.uid,
+
+      createdAt: Timestamp.now(),
+
+      updatedAt: Timestamp.now()
+
+    }
+
+  );
+
 };
 
 /* =========================================================
    ACTUALIZAR CLIENTE
 ========================================================= */
-export const updateClient = async (clientId, data, user, companyId) => {
 
-  if (!companyId) throw new Error("company_required");
+export const updateClient = async (
 
-  const ref = doc(db, "companies", companyId, "clients", clientId);
+  companyId,
 
-  await updateDoc(ref, {
-    ...data,
-    nameLower: data.name.toLowerCase(),
-    emailLower: data.email?.toLowerCase() || "",
-    updatedBy: user.uid,
-    updatedAt: Timestamp.now()
-  });
+  clientId,
+
+  data,
+
+  user
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+  if (!clientId) {
+
+    const error = new Error("client_required");
+    error.code = "client_required";
+
+    throw error;
+
+  }
+
+  if (!data.name?.trim()) {
+
+    const error = new Error("client_name_required");
+    error.code = "client_name_required";
+
+    throw error;
+
+  }
+
+  const ref = doc(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients",
+
+    clientId
+
+  );
+
+  return await updateDoc(
+
+    ref,
+
+    {
+
+      ...data,
+
+      updatedBy: user?.uid || null,
+
+      updatedAt: Timestamp.now()
+
+    }
+
+  );
+
 };
 
 /* =========================================================
    ELIMINAR CLIENTE
 ========================================================= */
-export const deleteClient = async (clientId, companyId) => {
 
-  if (!companyId) throw new Error("company_required");
+export const deleteClient = async (
 
-  const ref = doc(db, "companies", companyId, "clients", clientId);
-  await deleteDoc(ref);
+  companyId,
+
+  clientId
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+  if (!clientId) {
+
+    const error = new Error("client_required");
+    error.code = "client_required";
+
+    throw error;
+
+  }
+
+  const ref = doc(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients",
+
+    clientId
+
+  );
+
+  return await deleteDoc(ref);
+
 };
 
 /* =========================================================
    OBTENER CLIENTE POR ID
 ========================================================= */
-export const getClientById = async (clientId, companyId) => {
 
-  if (!companyId) throw new Error("company_required");
+export const getClientById = async (
 
-  const ref = doc(db, "companies", companyId, "clients", clientId);
-  const snap = await getDoc(ref);
+  companyId,
 
-  if (!snap.exists()) return null;
+  clientId
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+  if (!clientId) {
+
+    const error = new Error("client_required");
+    error.code = "client_required";
+
+    throw error;
+
+  }
+
+  const ref = doc(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients",
+
+    clientId
+
+  );
+
+  const snapshot = await getDoc(ref);
+
+  if (!snapshot.exists()) {
+
+    return null;
+
+  }
 
   return {
-    id: snap.id,
-    ...snap.data()
+
+    id: snapshot.id,
+
+    ...snapshot.data()
+
   };
+
 };
 
 /* =========================================================
    BUSCAR CLIENTES
 ========================================================= */
-export const searchClients = async (searchTerm, companyId) => {
 
-  if (!companyId) throw new Error("company_required");
+export const searchClients = async (
 
-  const clientsRef = collection(db, "companies", companyId, "clients");
+  searchTerm,
 
-  if (!searchTerm) {
-    const q = query(
-      clientsRef,
-      orderBy("createdAt", "desc"),
-      limit(20)
-    );
+  companyId
 
-    const snap = await getDocs(q);
+) => {
 
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
   }
 
-  const nameQuery = query(
-    clientsRef,
-    where("name", ">=", searchTerm),
-    where("name", "<=", searchTerm + "\uf8ff"),
-    limit(10)
+  const clientsRef = collection(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients"
+
   );
 
-  const snap = await getDocs(nameQuery);
+  if (!searchTerm) {
 
-  return snap.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  }));
-};
+    const q = query(
 
-/* =========================================================
-   LISTAR CLIENTES
-========================================================= */
-export const getClients = async (companyId) => {
+      clientsRef,
 
-  if (!companyId) throw new Error("company_required");
+      orderBy("createdAt", "desc"),
 
-  const clientsRef = collection(db, "companies", companyId, "clients");
+      limit(20)
+
+    );
+
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map(doc => ({
+
+      id: doc.id,
+
+      ...doc.data()
+
+    }));
+
+  }
 
   const q = query(
+
     clientsRef,
-    orderBy("createdAt", "desc"),
-    limit(50)
+
+    where(
+
+      "nameLower",
+
+      ">=",
+
+      searchTerm.toLowerCase()
+
+    ),
+
+    where(
+
+      "nameLower",
+
+      "<=",
+
+      searchTerm.toLowerCase() + "\uf8ff"
+
+    ),
+
+    limit(10)
+
   );
 
-  const snap = await getDocs(q);
+  const snapshot = await getDocs(q);
 
-  return snap.docs.map(doc => ({
+  return snapshot.docs.map(doc => ({
+
     id: doc.id,
-    ...doc.data()
-  }));
-};
 
+    ...doc.data()
+
+  }));
+
+};
 
 /* =========================================================
-   BUSCA CLIENTES POR NOMBRE Y CORREO ELECTRONICO
+   BUSCAR CLIENTES POR NOMBRE O EMAIL
 ========================================================= */
 
-export const searchClientsByName = async (companyId, searchTerm) => {
+export const searchClientsByName = async (
 
-  if (!companyId || !searchTerm) return [];
+  companyId,
 
-  const formattedTerm = searchTerm.toLowerCase();
+  searchTerm
 
-  const clientsRef = collection(db, "companies", companyId, "clients");
+) => {
 
-  // 🔎 Buscar por nombre
+  if (!companyId || !searchTerm) {
+
+    return [];
+
+  }
+
+  const formattedTerm =
+
+    searchTerm.toLowerCase();
+
+  const clientsRef = collection(
+
+    db,
+
+    "companies",
+
+    companyId,
+
+    "clients"
+
+  );
+
   const nameQuery = query(
+
     clientsRef,
-    where("nameLower", ">=", formattedTerm),
-    where("nameLower", "<=", formattedTerm + "\uf8ff"),
+
+    where(
+
+      "nameLower",
+
+      ">=",
+
+      formattedTerm
+
+    ),
+
+    where(
+
+      "nameLower",
+
+      "<=",
+
+      formattedTerm + "\uf8ff"
+
+    ),
+
     limit(10)
+
   );
 
-  // 🔎 Buscar por email
   const emailQuery = query(
+
     clientsRef,
-    where("emailLower", ">=", formattedTerm),
-    where("emailLower", "<=", formattedTerm + "\uf8ff"),
+
+    where(
+
+      "emailLower",
+
+      ">=",
+
+      formattedTerm
+
+    ),
+
+    where(
+
+      "emailLower",
+
+      "<=",
+
+      formattedTerm + "\uf8ff"
+
+    ),
+
     limit(10)
+
   );
 
-  const [nameSnap, emailSnap] = await Promise.all([
+  const [
+
+    nameSnapshot,
+
+    emailSnapshot
+
+  ] = await Promise.all([
+
     getDocs(nameQuery),
+
     getDocs(emailQuery)
+
   ]);
 
-  const resultsMap = new Map();
+  const results = new Map();
 
-  nameSnap.docs.forEach(doc => {
-    resultsMap.set(doc.id, { id: doc.id, ...doc.data() });
+  nameSnapshot.docs.forEach(doc => {
+
+    results.set(
+
+      doc.id,
+
+      {
+
+        id: doc.id,
+
+        ...doc.data()
+
+      }
+
+    );
+
   });
 
-  emailSnap.docs.forEach(doc => {
-    resultsMap.set(doc.id, { id: doc.id, ...doc.data() });
+  emailSnapshot.docs.forEach(doc => {
+
+    results.set(
+
+      doc.id,
+
+      {
+
+        id: doc.id,
+
+        ...doc.data()
+
+      }
+
+    );
+
   });
 
-  return Array.from(resultsMap.values()).slice(0, 10);
+  return Array.from(
+
+    results.values()
+
+  ).slice(0, 10);
+
 };
-

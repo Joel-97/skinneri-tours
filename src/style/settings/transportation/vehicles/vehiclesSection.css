@@ -1,0 +1,350 @@
+/* ======================================================
+   VEHICLES CONTAINER
+====================================================== */
+
+.vehicles-container{
+
+  display:flex;
+  flex-direction:column;
+
+  gap:25px;
+
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.vehicles-header{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+
+  gap:20px;
+
+}
+
+.vehicles-header-left{
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.vehicles-header-left h3{
+
+  margin:0;
+
+  font-size:1.5rem;
+  font-weight:700;
+
+  color:#08204B;
+
+}
+
+.vehicles-header-left p{
+
+  margin-top:6px;
+
+  color:#6b7280;
+
+  font-size:.95rem;
+
+}
+
+
+/* ======================================================
+   HEADER RIGHT
+====================================================== */
+
+.vehicles-header-right{
+
+  display:flex;
+  align-items:center;
+
+  gap:15px;
+
+  flex-wrap:wrap;
+
+}
+
+
+/* ======================================================
+   SEARCH
+====================================================== */
+
+.search-input{
+
+  width:260px;
+  min-width:260px;
+
+  padding:11px 14px;
+
+  border:1px solid #d8dee8;
+
+  border-radius:10px;
+
+  font-size:.95rem;
+
+  transition:.25s;
+
+}
+
+.search-input:focus{
+
+  outline:none;
+
+  border-color:#08204B;
+
+  box-shadow:0 0 0 3px rgba(8,32,75,.08);
+
+}
+
+
+/* ======================================================
+   REACT SELECT
+====================================================== */
+
+.vehicle-filter{
+
+  min-width:180px;
+
+  width:180px;
+
+}
+
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.vehicles-content{
+
+  background:#fff;
+
+  border:1px solid #ECEFF3;
+
+  border-radius:14px;
+
+  overflow:hidden;
+
+}
+
+
+/* ======================================================
+   EMPTY
+====================================================== */
+
+.vehicles-empty{
+
+  padding:70px 30px;
+
+  text-align:center;
+
+  color:#6b7280;
+
+}
+
+.vehicles-empty p{
+
+  margin:0;
+
+  font-size:1rem;
+
+}
+
+
+/* ======================================================
+   STATUS BADGES
+====================================================== */
+
+.badge-active,
+.badge-warning,
+.badge-inactive{
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:120px;
+
+  padding:6px 14px;
+
+  border-radius:50px;
+
+  font-size:.8rem;
+  font-weight:600;
+
+}
+
+.badge-active{
+
+  background:#e8f7ee;
+
+  color:#228b45;
+
+}
+
+.badge-warning{
+
+  background:#fff5df;
+
+  color:#d48806;
+
+}
+
+.badge-inactive{
+
+  background:#fdeaea;
+
+  color:#d32f2f;
+
+}
+
+
+/* ======================================================
+   ACTION BUTTONS
+====================================================== */
+
+.btn-link{
+
+  border:none;
+
+  background:none;
+
+  cursor:pointer;
+
+  font-size:.9rem;
+
+  color:#08204B;
+
+  font-weight:600;
+
+  margin-right:15px;
+
+  transition:.2s;
+
+}
+
+.btn-link:last-child{
+
+  margin-right:0;
+
+}
+
+.btn-link:hover{
+
+  color:#2154b8;
+
+}
+
+
+/* ======================================================
+   PAGINATION
+====================================================== */
+
+.vehicles-container .pagination{
+
+  margin-top:5px;
+
+}
+
+
+/* ======================================================
+   TABLE CELLS
+====================================================== */
+
+.vehicles-content td{
+
+  vertical-align:middle;
+
+}
+
+.vehicles-content strong{
+
+  font-weight:600;
+
+  color:#08204B;
+
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1024px){
+
+  .vehicles-header{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+  }
+
+  .vehicles-header-right{
+
+    width:100%;
+
+  }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+  .vehicles-header-right{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+  }
+
+  .search-input{
+
+    width:100%;
+
+  }
+
+  .vehicle-filter{
+
+    width:100%;
+
+  }
+
+  .btn-primary{
+
+    width:100%;
+
+  }
+
+}
+
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+  .vehicles-header-left h3{
+
+    font-size:1.3rem;
+
+  }
+
+  .vehicles-header-left p{
+
+    font-size:.9rem;
+
+  }
+
+}

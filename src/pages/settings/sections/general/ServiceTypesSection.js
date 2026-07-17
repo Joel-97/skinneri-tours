@@ -11,6 +11,7 @@ import { getCurrencies } from "../../../../services/settings/general/currencySer
 import DataTable from "../../../../components/general/dataTable";
 
 import { UserAuth } from "../../../../context/AuthContext";
+import { useCompany } from "../../../../context/CompanyContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import {
@@ -24,8 +25,9 @@ import Loading from "../../../../components/general/loading";
 
 const ServiceTypesSection = () => {
 
-  const { user, adminData } = UserAuth();
-  const companyId = adminData?.companyId;
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [serviceTypes, setServiceTypes] = useState([]);
   const [currencies, setCurrencies] = useState([]);
