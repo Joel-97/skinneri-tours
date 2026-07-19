@@ -5,162 +5,341 @@ FILTERS SECTION
 */
 
 import React from "react";
+import Select from "react-select";
 
-import ClientSearch from "../ClientSearchOld";
+import ModuleFilters from "../components/general/ModuleFilters/ModuleFilters";
 
-import {
+import { Search, Eraser } from "lucide-react";
 
-    CLIENT_STATUS_OPTIONS
+import { CLIENT_TYPE } from "../constants/clientTypeFilters";
+import { CLIENT_STATUS } from "../constants/clientStatusFilters";
 
-} from "../constants/clientStatus";
+/* ======================================================
+   SELECT STYLES
+====================================================== */
 
-const FiltersSection = ({
+const selectStyles = {
 
-    controller
+  control: (base, state) => ({
 
-}) => {
+    ...base,
 
-    const {
+    minHeight: 46,
 
-        filters
+    height: 46,
 
-    } = controller;
+    borderRadius: 12,
 
-    return (
+    borderColor: state.isFocused
+      ? "#08204B"
+      : "#DBE3EC",
 
-        <div className="clients-filters">
+    backgroundColor: "#FFFFFF",
 
-            {/* ==========================================
-                SEARCH
-            ========================================== */}
+    boxShadow: state.isFocused
+      ? "0 0 0 3px rgba(8,32,75,.08)"
+      : "none",
 
-            <div className="clients-filter-search">
+    cursor: "pointer",
 
-                <ClientSearch
+    transition: "all .2s ease",
 
-                    searchTerm={
+    "&:hover": {
 
-                        filters.searchTerm
+      borderColor: "#08204B"
 
-                    }
+    }
 
-                    setSearchTerm={
+  }),
 
-                        filters.setSearchTerm
+  valueContainer: (base) => ({
 
-                    }
+    ...base,
 
-                />
+    padding: "0 12px"
 
-            </div>
+  }),
 
-            {/* ==========================================
-                TYPE
-            ========================================== */}
+  input: (base) => ({
 
-            <select
+    ...base,
 
-                className="form-select"
+    margin: 0,
 
-                value={
+    padding: 0
 
-                    filters.selectedType
+  }),
 
-                }
+  placeholder: (base) => ({
 
-                onChange={event =>
+    ...base,
 
-                    filters.setSelectedType(
+    color: "#94A3B8"
 
-                        event.target.value
+  }),
 
-                    )
+  singleValue: (base) => ({
 
-                }
+    ...base,
 
-            >
+    color: "#0F172A",
 
-                <option value="">
+    fontSize: 14
 
-                    Todos los tipos
+  }),
 
-                </option>
+  indicatorsContainer: (base) => ({
 
-                <option value="person">
+    ...base,
 
-                    Personas
+    height: 44
 
-                </option>
+  }),
 
-                <option value="company">
+  dropdownIndicator: (base) => ({
 
-                    Empresas
+    ...base,
 
-                </option>
+    color: "#64748B",
 
-            </select>
+    "&:hover": {
 
-            {/* ==========================================
-                STATUS
-            ========================================== */}
+      color: "#08204B"
 
-            <select
+    }
 
-                className="form-select"
+  }),
 
-                value={
+  indicatorSeparator: () => ({
 
-                    filters.selectedStatus
+    display: "none"
 
-                }
+  }),
 
-                onChange={event =>
+  menuPortal: (base) => ({
 
-                    filters.setSelectedStatus(
+    ...base,
 
-                        event.target.value
+    zIndex: 9999
 
-                    )
+  }),
 
-                }
+  menu: (base) => ({
 
-            >
+    ...base,
 
-                <option value="">
+    marginTop: 6,
 
-                    Todos los estados
+    borderRadius: 12,
 
-                </option>
+    overflow: "hidden",
 
-                {
+    border: "1px solid #E2E8F0",
 
-                    CLIENT_STATUS_OPTIONS.map(
+    boxShadow: "0 12px 30px rgba(15,23,42,.12)"
 
-                        option => (
+  }),
 
-                            <option
+  option: (base, state) => ({
 
-                                key={option.value}
+    ...base,
 
-                                value={option.value}
+    fontSize: 14,
 
-                            >
+    cursor: "pointer",
 
-                                {option.label}
+    backgroundColor:
 
-                            </option>
+      state.isSelected
 
-                        )
+        ? "#08204B"
 
-                    )
+        : state.isFocused
 
-                }
+          ? "#EEF4FF"
 
-            </select>
+          : "#FFFFFF",
+
+    color:
+
+      state.isSelected
+
+        ? "#FFFFFF"
+
+        : "#0F172A"
+
+  })
+
+};
+
+const FiltersSection = ({ controller }) => {
+
+  const { filters } = controller;
+
+  return (
+
+    <ModuleFilters>
+
+      {/* ==========================================
+          SEARCH
+      ========================================== */}
+
+      <div className="filter-group filter-search">
+
+        <label>
+
+          Buscar cliente
+
+        </label>
+
+        <div className="filter-input-wrapper">
+
+          <Search
+              size={18}
+              className="filter-search-icon"
+          />
+
+          <input
+            type="text"
+            placeholder="Nombre, email o teléfono..."
+            value={filters.searchTerm}
+            onChange={(event) =>
+              filters.setSearchTerm(event.target.value)
+            }
+          />
 
         </div>
 
-    );
+      </div>
+
+      {/* ==========================================
+          TYPE
+      ========================================== */}
+
+      <div className="filter-group">
+
+        <label>
+
+          Tipo
+
+        </label>
+
+        <Select
+
+          options={CLIENT_TYPE}
+
+          menuPortalTarget={document.body}
+
+          menuPosition="fixed"
+
+          styles={selectStyles}
+
+          isSearchable={false}
+
+          value={
+
+            CLIENT_TYPE.find(
+
+              option =>
+
+                option.value === filters.selectedType
+
+            )
+
+          }
+
+          onChange={(option) =>
+
+            filters.setSelectedType(
+
+              option?.value || ""
+
+            )
+
+          }
+
+        />
+
+      </div>
+
+      {/* ==========================================
+          STATUS
+      ========================================== */}
+
+      <div className="filter-group">
+
+        <label>
+
+          Estado
+
+        </label>
+
+        <Select
+
+          options={CLIENT_STATUS}
+
+          menuPortalTarget={document.body}
+
+          menuPosition="fixed"
+
+          styles={selectStyles}
+
+          isSearchable={false}
+
+          value={
+
+            CLIENT_STATUS.find(
+
+              option =>
+
+                option.value === filters.selectedStatus
+
+            )
+
+          }
+
+          onChange={(option) =>
+
+            filters.setSelectedStatus(
+
+              option?.value || ""
+
+            )
+
+          }
+
+        />
+
+      </div>
+
+      {/* ==========================================
+          CLEAR
+      ========================================== */}
+
+      <div className="filter-group filter-action">
+
+        <label>
+
+          Acción
+
+        </label>
+
+        <button
+          className="filter-clear-btn"
+          onClick={filters.handleClearFilters}
+        >
+
+          <Eraser size={17} />
+
+          Limpiar
+
+        </button>
+
+      </div>
+
+    </ModuleFilters>
+
+  );
 
 };
 

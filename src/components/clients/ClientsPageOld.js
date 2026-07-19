@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import ClientsTable from "./ClientsTable";
-import ClientSidePanel from "./ClientSidePanel";
+import ClientSidePanel from "./ClientSidePanelOld";
 import ClientSearch from "./ClientSearchOld";
 // import CreateClientModal from "./CreateClientModal";
 import CreateClientModal from "./components/ClientModal";

@@ -6,65 +6,75 @@ TABLE SECTION
 
 import React from "react";
 
-import ClientsTable from "../ClientsTable";
+import ClientsTable from "../components/table/ClientsTable";
+
+/*
+==========================================================
+COMPONENT
+==========================================================
+*/
 
 const TableSection = ({
 
-    controller
+  controller
 
 }) => {
 
-    const {
+  /*
+  ==========================================================
+  CONTROLLER
+  ==========================================================
+  */
 
-        clients,
+  const {
 
-        loading,
+    clients,
 
-        filters,
+    loading,
 
-        selection,
+    selection,
 
-        actions
+    actions
 
-    } = controller;
+  } = controller;
 
-    return (
+  /*
+  ==========================================================
+  RETURN
+  ==========================================================
+  */
 
-        <ClientsTable
+  return (
 
-            clients={
+    <ClientsTable
 
-                filters.filteredClients
+      /* ==========================================
+         DATA
+      ========================================== */
 
-            }
+      clients={clients}
 
-            loading={
+      loading={loading}
 
-                loading
+      /* ==========================================
+         SELECTION
+      ========================================== */
 
-            }
+      selectedClient={selection.selectedClient}
 
-            selectedClient={
+      onSelectClient={actions.handleSelectClient}
 
-                selection.selectedClient
+      /* ==========================================
+         ACTIONS
+      ========================================== */
 
-            }
+      onEdit={actions.handleEdit}
 
-            onSelectClient={
+      onDelete={actions.handleDelete}
 
-                actions.handleSelectClient
+    />
 
-            }
-
-            onRefresh={
-
-                actions.handleClientCreated
-
-            }
-
-        />
-
-    );
+  );
 
 };
 

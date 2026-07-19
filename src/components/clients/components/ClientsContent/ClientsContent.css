@@ -1,0 +1,105 @@
+/* ======================================================
+   CLIENTS CONTENT
+====================================================== */
+
+.clients-content{
+
+    display:grid;
+
+    grid-template-columns:1fr;
+
+    gap:24px;
+
+    align-items:stretch;
+
+    transition:grid-template-columns .30s ease;
+
+}
+
+/* ======================================================
+   WITH PREVIEW
+====================================================== */
+
+.clients-content.has-preview{
+
+    grid-template-columns:minmax(0,2fr) 400px;
+
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.clients-table-container{
+
+    min-width:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    transition:all .30s ease;
+
+}
+
+/* ======================================================
+   PREVIEW
+====================================================== */
+
+.client-preview-container{
+
+    min-width:0;
+
+    height:100%;
+
+    display:flex;
+
+    animation:fadePreview .25s ease;
+
+}
+
+/* ======================================================
+   ANIMATION
+====================================================== */
+
+@keyframes fadePreview{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(16px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateX(0);
+
+    }
+
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media(max-width:1200px){
+
+    .clients-content.has-preview{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .client-preview-container{
+
+        order:-1;
+
+        height:auto;
+
+    }
+
+}

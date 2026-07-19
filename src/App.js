@@ -18,7 +18,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Pending from "./pages/Pending";
 import SuperAdmin from "./pages/SuperAdmin";
-import ClientsPage from "./components/clients/ClientsPage";
+import Clients from "./pages/Clients";
 import SettingsPage from "./pages/settings/SettingsPage";
 import DashboardPage from "./pages/analytics/DashboardPage";
 import DashboardHome from "./pages/home/DashboardHome";
@@ -116,7 +116,7 @@ function AppContent() {
           path="/clients"
           element={
             <ProtectedRoute>
-              <ClientsPage />
+              <Clients />
             </ProtectedRoute>
           }
         />

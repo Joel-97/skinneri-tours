@@ -6,59 +6,100 @@ STATS SECTION
 
 import React from "react";
 
-import StatsGrid from "../../general/StatsGrid";
+import {
+  Users,
+  User,
+  Building2,
+  CircleCheck
+} from "lucide-react";
 
-const StatsSection = ({
+import DashboardStats from "../components/general/DashboardStats/DashboardStats";
+
+const StatsSection = ({ controller }) => {
+
+  const {
 
     stats
 
-}) => {
+  } = controller;
 
-    const items = [
+  const items = [
 
-        {
+    {
 
-            label: "Clientes",
+      title: "Clientes",
 
-            value: stats.totalClients
+      value: stats.totalClients,
 
-        },
+      subtitle: "Total registrados",
 
-        {
+      badge: `${stats.totalClients}`,
 
-            label: "Personas",
+      icon: Users,
 
-            value: stats.people
+      color: "blue"
 
-        },
+    },
 
-        {
+    {
 
-            label: "Empresas",
+      title: "Personas",
 
-            value: stats.companies
+      value: stats.people,
 
-        },
+      subtitle: "Clientes individuales",
 
-        {
+      badge: `${stats.people}`,
 
-            label: "Activos",
+      icon: User,
 
-            value: stats.active
+      color: "purple"
 
-        }
+    },
 
-    ];
+    {
 
-    return (
+      title: "Empresas",
 
-        <StatsGrid
+      value: stats.companies,
 
-            items={items}
+      subtitle: "Clientes corporativos",
 
-        />
+      badge: `${stats.companies}`,
 
-    );
+      icon: Building2,
+
+      color: "cyan"
+
+    },
+
+    {
+
+      title: "Activos",
+
+      value: stats.active,
+
+      subtitle: "Actualmente activos",
+
+      badge: `${stats.active}`,
+
+      icon: CircleCheck,
+
+      color: "green"
+
+    }
+
+  ];
+
+  return (
+
+    <DashboardStats
+
+      items={items}
+
+    />
+
+  );
 
 };
 
