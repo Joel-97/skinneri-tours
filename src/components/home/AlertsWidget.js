@@ -9,81 +9,202 @@ import {
 
 import DashboardWidget from "./DashboardWidget";
 
-const AlertsWidget = ({ metrics }) => {
+const AlertsWidget = ({
+
+  dashboard
+
+}) => {
+
+  /*
+  ==========================================================
+  DOMAINS
+  ==========================================================
+  */
+
+  const operational =
+
+    dashboard?.operational || {};
+
+  const trips =
+
+    dashboard?.trips || {};
+
+  /*
+  ==========================================================
+  ALERTS
+  ==========================================================
+  */
 
   const alerts = [];
 
-  if ((metrics?.unassignedTrips || 0) > 0) {
-
-    alerts.push({
-      type: "warning",
-      icon: <HiOutlineExclamationTriangle />,
-      text: `${metrics?.unassignedTrips} servicios requieren asignación`
-    });
-
-  }
-
-  if ((metrics?.pendingTrips || 0) > 0) {
-
-    alerts.push({
-      type: "info",
-      icon: <HiOutlineClock />,
-      text: `${metrics?.pendingTrips} servicios pendientes`
-    });
-
-  }
-
-  if ((metrics?.bookingsToday || 0) === 0) {
-
-    alerts.push({
-      type: "neutral",
-      icon: <HiOutlineInbox />,
-      text: `No hay reservas programadas hoy`
-    });
-
-  }
+  /*
+  ==========================================================
+  UNASSIGNED SERVICES
+  ==========================================================
+  */
 
   if (
-    (metrics?.unassignedTrips || 0) === 0 &&
-    (metrics?.bookingsToday || 0) > 0
+
+    operational.unassignedServices > 0
+
   ) {
 
     alerts.push({
-      type: "success",
-      icon: <HiOutlineCheckCircle />,
-      text: `Todo opera con normalidad`
+
+      type: "warning",
+
+      icon: <HiOutlineExclamationTriangle />,
+
+      text: `${operational.unassignedServices} servicios requieren asignación`
+
     });
 
   }
+
+  /*
+  ==========================================================
+  PENDING SERVICES
+  ==========================================================
+  */
+
+  if (
+
+    trips.pending?.length > 0
+
+  ) {
+
+    alerts.push({
+
+      type: "info",
+
+      icon: <HiOutlineClock />,
+
+      text: `${trips.pending.length} servicios pendientes`
+
+    });
+
+  }
+
+  /*
+  ==========================================================
+  NO SERVICES TODAY
+  ==========================================================
+  */
+
+  if (
+
+    trips.today?.length === 0
+
+  ) {
+
+    alerts.push({
+
+      type: "neutral",
+
+      icon: <HiOutlineInbox />,
+
+      text: "No hay reservas programadas hoy"
+
+    });
+
+  }
+
+  /*
+  ==========================================================
+  EVERYTHING OK
+  ==========================================================
+  */
+
+  if (
+
+    operational.unassignedServices === 0 &&
+
+    trips.today?.length > 0
+
+  ) {
+
+    alerts.push({
+
+      type: "success",
+
+      icon: <HiOutlineCheckCircle />,
+
+      text: "Todo opera con normalidad"
+
+    });
+
+  }
+
+  /*
+  ==========================================================
+  EMPTY
+  ==========================================================
+  */
+
+  if (
+
+    alerts.length === 0
+
+  ) {
+
+    alerts.push({
+
+      type: "success",
+
+      icon: <HiOutlineCheckCircle />,
+
+      text: "No existen alertas operativas."
+
+    });
+
+  }
+
+  /*
+  ==========================================================
+  RENDER
+  ==========================================================
+  */
 
   return (
 
     <DashboardWidget
+
       title="Alertas Operativas"
+
       subtitle="Estado general de operación"
+
     >
 
       <div className="alerts-widget-list">
 
         {
+
           alerts.map((alert, index) => (
 
             <div
+
               key={index}
+
               className={`alert-card-modern ${alert.type}`}
+
             >
 
               <div className="alert-card-icon">
+
                 {alert.icon}
+
               </div>
 
               <div className="alert-card-content">
+
                 {alert.text}
+
               </div>
 
             </div>
 
           ))
+
         }
 
       </div>

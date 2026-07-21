@@ -15,9 +15,13 @@ import {
 
 import { formatDate } from "../../../utils/formatDate";
 
+const MAX_RECENT_ACTIVITY = 3;
+
 const ClientServicesCard = ({
 
-  activity = []
+  activity = [],
+
+  onViewHistory
 
 }) => {
 
@@ -27,7 +31,13 @@ const ClientServicesCard = ({
   ==========================================================
   */
 
-  const recentActivity = activity.slice(0, 3);
+  const recentActivity = activity.slice(
+
+    0,
+
+    MAX_RECENT_ACTIVITY
+
+  );
 
   return (
 
@@ -89,13 +99,21 @@ const ClientServicesCard = ({
 
                 >
 
-                  <div className="client-service-icon">
+                  <div
+
+                    className="client-service-icon"
+
+                  >
 
                     <Briefcase size={18} />
 
                   </div>
 
-                  <div className="client-service-content">
+                  <div
+
+                    className="client-service-content"
+
+                  >
 
                     <strong>
 
@@ -162,22 +180,24 @@ const ClientServicesCard = ({
       }
 
       {/* ======================================================
-          VIEW HISTORY
+          VIEW ALL ACTIVITY
       ====================================================== */}
 
       {
 
-        activity.length > 3 && (
+        activity.length > MAX_RECENT_ACTIVITY && (
 
           <button
 
+            type="button"
+
             className="client-services-more"
 
-            type="button"
+            onClick={onViewHistory}
 
           >
 
-            Ver historial
+            Ver toda la actividad
 
           </button>
 

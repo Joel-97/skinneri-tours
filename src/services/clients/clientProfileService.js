@@ -5,6 +5,7 @@ CLIENT PROFILE SERVICE
 */
 
 import { getClientActivity } from "./clientActivityService";
+import { getClientFinancialSummary } from "./clientFinancialSummaryService";
 
 /*
 ==========================================================
@@ -42,6 +43,18 @@ export async function getClientProfile(
 
   /*
   ==========================================================
+  FINANCIAL SUMMARY
+  ==========================================================
+  */
+
+  const financialSummary = getClientFinancialSummary(
+
+    activity
+
+  );
+
+  /*
+  ==========================================================
   PROFILE
   ==========================================================
   */
@@ -54,7 +67,7 @@ export async function getClientProfile(
 
     stats: null,
 
-    financialSummary: []
+    financialSummary
 
   };
 

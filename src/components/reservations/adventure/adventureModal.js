@@ -280,8 +280,6 @@ export default function AdventureModal({
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
 
-    console.log(form);
-
     const { name, value } = e.target;
 
     setForm(prev => {

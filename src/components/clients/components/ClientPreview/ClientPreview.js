@@ -12,6 +12,7 @@ import ClientPreviewHeader from "./sections/ClientPreviewHeader";
 import ClientInfoCard from "./sections/ClientInfoCard";
 import ClientServicesCard from "./sections/ClientServicesCard";
 import ClientStatsCard from "./sections/ClientStatsCard";
+import ClientActivityModal from "../ClientActivityModal/ClientActivityModal";
 
 const ClientPreview = ({
 
@@ -38,6 +39,20 @@ const ClientPreview = ({
     animate,
 
     setAnimate
+
+  ] = useState(false);
+
+  /*
+  ==========================================================
+  ACTIVITY MODAL
+  ==========================================================
+  */
+
+  const [
+
+    showActivityModal,
+
+    setShowActivityModal
 
   ] = useState(false);
 
@@ -96,6 +111,24 @@ const ClientPreview = ({
 
   /*
   ==========================================================
+  ACTIVITY MODAL
+  ==========================================================
+  */
+
+  const handleOpenActivityModal = () => {
+
+    setShowActivityModal(true);
+
+  };
+
+  const handleCloseActivityModal = () => {
+
+    setShowActivityModal(false);
+
+  };
+
+  /*
+  ==========================================================
   NO CLIENT SELECTED
   ==========================================================
   */
@@ -150,19 +183,35 @@ const ClientPreview = ({
 
           activity={activity}
 
+          onViewHistory={handleOpenActivityModal}
+
         />
 
         {/* ======================================================
             STATISTICS
         ====================================================== */}
 
-        <ClientStatsCard
+        {/* <ClientStatsCard
 
           client={client}
 
           stats={stats}
 
           financialSummary={financialSummary}
+
+        /> */}
+
+        {/* ======================================================
+            ACTIVITY MODAL
+        ====================================================== */}
+
+        <ClientActivityModal
+
+          isOpen={showActivityModal}
+
+          profile={profile}
+
+          onClose={handleCloseActivityModal}
 
         />
 

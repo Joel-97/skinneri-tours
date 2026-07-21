@@ -1,55 +1,204 @@
 import React from "react";
 
 import {
+
   HiOutlineCalendarDays,
   HiOutlineBanknotes,
   HiOutlineExclamationTriangle,
   HiOutlineTruck
+
 } from "react-icons/hi2";
 
 import KPICard from "./KPICard";
 
+import { formatCurrency }
+
+  from "../../utils/formatCurrency";
+
+import {
+
+  useCurrency
+
+} from "../../context/CurrencyContext";
+
+/* ======================================================
+   KPI GRID
+====================================================== */
+
 const KPIGrid = ({
-  metrics,
-  activeDrivers,
-  formatearMoneda
+
+  dashboard
+
 }) => {
+
+  /*
+  ==========================================================
+  CONTEXT
+  ==========================================================
+  */
+
+  const {
+
+    selectedCurrency
+
+  } = useCurrency();
+
+  /*
+  ==========================================================
+  DOMAINS
+  ==========================================================
+  */
+
+  const operational =
+
+    dashboard?.operational || {};
+
+  /*
+  ==========================================================
+  REVENUE
+  ==========================================================
+  */
+
+  const revenue =
+
+    selectedCurrency
+
+      ?.todayRevenue || 0;
+
+  const symbol =
+
+    selectedCurrency
+
+      ?.currencySymbol || "";
+
+  const code =
+
+    selectedCurrency
+
+      ?.currencyCode || "";
+
+  /*
+  ==========================================================
+  RENDER
+  ==========================================================
+  */
 
   return (
 
-    <div className="kpi-grid-modern">
+    <div className="kpi-grid">
+
+      {/* ==========================================
+          BOOKINGS
+      =========================================== */}
 
       <KPICard
+
         title="Reservas"
-        value={metrics?.bookingsToday || 0}
+
+        value={
+
+          operational.reservationsToday || 0
+
+        }
+
         description="Servicios programados hoy"
-        trend={metrics?.bookingsTrend}
-        icon={<HiOutlineCalendarDays />}
+
+        icon={
+
+          <HiOutlineCalendarDays />
+
+        }
+
       />
 
+      {/* ==========================================
+          REVENUE
+      =========================================== */}
+
       <KPICard
+
         title="Ingresos"
-        value={formatearMoneda(metrics?.revenueToday)}
-        description="Total generado hoy"
-        trend={metrics?.revenueTrend}
+
+        value={
+
+          formatCurrency(
+
+            revenue,
+
+            symbol
+
+          )
+
+        }
+
+        description={
+
+          code ||
+
+          "Moneda"
+
+        }
+
         type="success"
-        icon={<HiOutlineBanknotes />}
+
+        icon={
+
+          <HiOutlineBanknotes />
+
+        }
+
       />
 
+      {/* ==========================================
+          UNASSIGNED
+      =========================================== */}
+
       <KPICard
+
         title="Sin asignar"
-        value={metrics?.unassignedTrips || 0}
+
+        value={
+
+          operational.unassignedServices || 0
+
+        }
+
         description="Servicios requieren atención"
+
         type="danger"
-        icon={<HiOutlineExclamationTriangle />}
+
+        icon={
+
+          <HiOutlineExclamationTriangle />
+
+        }
+
       />
 
+      {/* ==========================================
+          DRIVERS
+      =========================================== */}
+
       <KPICard
+
         title="Choferes"
-        value={activeDrivers || 0}
+
+        value={
+
+          operational.activeDrivers || 0
+
+        }
+
         description="Activos actualmente"
+
         type="warning"
-        icon={<HiOutlineTruck />}
+
+        icon={
+
+          <HiOutlineTruck />
+
+        }
+
       />
 
     </div>

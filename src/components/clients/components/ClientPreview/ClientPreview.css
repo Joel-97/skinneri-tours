@@ -620,6 +620,55 @@
 }
 
 /* ======================================================
+   CLIENT SERVICES
+====================================================== */
+
+.client-services-more{
+
+    width:100%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+
+    margin-top:18px;
+    padding:12px 16px;
+
+    border:1px solid #D9E2F2;
+    border-radius:12px;
+
+    background:#FFFFFF;
+
+    color:#08204B;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        color .25s ease,
+        transform .2s ease;
+}
+
+.client-services-more:hover{
+
+    background:#F7F9FD;
+
+    border-color:#5B2D8B;
+
+    color:#5B2D8B;
+}
+
+.client-services-more:active{
+
+    transform:scale(.98);
+}
+
+/* ======================================================
    RESPONSIVE
 ====================================================== */
 

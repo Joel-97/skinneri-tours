@@ -105,7 +105,6 @@ const SuperAdmin = () => {
   };
 
   const closeModal = () => {
-    console.log("dentro");
 
     setShowModal(false);
     setSelectedAdmin(null);
