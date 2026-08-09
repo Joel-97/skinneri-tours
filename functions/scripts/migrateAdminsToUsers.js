@@ -7,8 +7,6 @@
 
 import admin from "firebase-admin";
 
-import serviceAccount from "../credentials/serviceAccount.json" with { type: "json" };
-
 /*
 ==========================================================
 FIREBASE
@@ -17,9 +15,17 @@ FIREBASE
 
 admin.initializeApp({
 
-    credential: admin.credential.cert(serviceAccount)
+  credential:
+
+    admin.credential.applicationDefault()
 
 });
+
+/*
+==========================================================
+DATABASE
+==========================================================
+*/
 
 const db = admin.firestore();
 
@@ -53,100 +59,211 @@ MIGRATION
 
 async function migrateAdminsToUsers() {
 
-    console.log("");
-    console.log("==================================================");
-    console.log("ADMINS → USERS MIGRATION");
-    console.log("==================================================");
-    console.log("");
+  /*
+  ========================================================
+  LIST COLLECTIONS
+  ========================================================
+  */
 
-    console.log(`Project ID: ${serviceAccount.project_id}`);
-    console.log("");
+  const collections = await db.listCollections();
 
-    const collections = await db.listCollections();
+  collections.forEach((collection) => {
 
-    console.log("Colecciones encontradas:");
+    console.log(
 
-    collections.forEach((collection) => {
+      `- ${collection.id}`
 
-        console.log(`- ${collection.id}`);
+    );
 
-    });
+  });
 
-    console.log("");
+  /*
+  ========================================================
+  GET ADMINS
+  ========================================================
+  */
 
-    const adminsSnapshot = await db
-        .collection(SOURCE_COLLECTION)
-        .get();
+  const adminsSnapshot = await db
 
-    console.log(`Admins encontrados: ${adminsSnapshot.size}`);
-    console.log("");
+    .collection(
 
-    if (adminsSnapshot.empty) {
+      SOURCE_COLLECTION
 
-        console.log("No hay documentos para migrar.");
-        return;
+    )
+
+    .get();
+
+  /*
+  ========================================================
+  EMPTY COLLECTION
+  ========================================================
+  */
+
+  if (adminsSnapshot.empty) {
+
+    console.log(
+
+      "No hay documentos para migrar."
+
+    );
+
+    return;
+
+  }
+
+  /*
+  ========================================================
+  MIGRATE
+  ========================================================
+  */
+
+  for (const adminDoc of adminsSnapshot.docs) {
+
+    const userId = adminDoc.id;
+
+    const adminData = adminDoc.data();
+
+    try {
+
+      /*
+      ====================================================
+      USER REFERENCE
+      ====================================================
+      */
+
+      const userRef = db
+
+        .collection(
+
+          TARGET_COLLECTION
+
+        )
+
+        .doc(
+
+          userId
+
+        );
+
+      /*
+      ====================================================
+      CHECK EXISTING USER
+      ====================================================
+      */
+
+      const existingUser =
+
+        await userRef.get();
+
+      if (
+
+        existingUser.exists
+
+      ) {
+
+        skipped++;
+
+        console.log(
+
+          `⚠ Omitido (ya existe): ${adminData.email}`
+
+        );
+
+        continue;
+
+      }
+
+      /*
+      ====================================================
+      CREATE USER
+      ====================================================
+      */
+
+      await userRef.set(
+
+        adminData
+
+      );
+
+      migrated++;
+
+      console.log(
+
+        `✔ Migrado: ${adminData.email}`
+
+      );
 
     }
 
-    for (const adminDoc of adminsSnapshot.docs) {
+    catch (error) {
 
-        const userId = adminDoc.id;
+      errors++;
 
-        const adminData = adminDoc.data();
+      console.error(
 
-        try {
+        `✖ Error migrando: ${adminData.email}`
 
-            const userRef = db
-                .collection(TARGET_COLLECTION)
-                .doc(userId);
+      );
 
-            const existingUser = await userRef.get();
+      console.error(
 
-            if (existingUser.exists) {
+        error
 
-                skipped++;
-
-                console.log(
-                    `⚠ Omitido (ya existe): ${adminData.email}`
-                );
-
-                continue;
-
-            }
-
-            await userRef.set(adminData);
-
-            migrated++;
-
-            console.log(
-                `✔ Migrado: ${adminData.email}`
-            );
-
-        }
-
-        catch (error) {
-
-            errors++;
-
-            console.error("");
-            console.error(
-                `✖ Error migrando ${adminData.email}`
-            );
-
-            console.error(error);
-
-        }
+      );
 
     }
 
-    console.log("");
-    console.log("==================================================");
-    console.log("RESUMEN");
-    console.log("==================================================");
-    console.log(`Migrados : ${migrated}`);
-    console.log(`Omitidos : ${skipped}`);
-    console.log(`Errores  : ${errors}`);
-    console.log("");
+  }
+
+  /*
+  ========================================================
+  SUMMARY
+  ========================================================
+  */
+
+  console.log("");
+
+  console.log(
+
+    "=================================================="
+
+  );
+
+  console.log(
+
+    "MIGRACIÓN FINALIZADA"
+
+  );
+
+  console.log(
+
+    "=================================================="
+
+  );
+
+  console.log(
+
+    `Migrados: ${migrated}`
+
+  );
+
+  console.log(
+
+    `Omitidos: ${skipped}`
+
+  );
+
+  console.log(
+
+    `Errores: ${errors}`
+
+  );
+
+  console.log(
+
+    "=================================================="
+
+  );
 
 }
 
@@ -157,18 +274,21 @@ RUN
 */
 
 migrateAdminsToUsers()
-    .then(() => {
 
-        console.log("✅ Migración finalizada.");
-        process.exit(0);
+  .then(() => {
 
-    })
-    .catch((error) => {
+    process.exit(0);
 
-        console.error("");
-        console.error("❌ Error ejecutando la migración.");
-        console.error(error);
+  })
 
-        process.exit(1);
+  .catch((error) => {
 
-    });
+    console.error(
+
+      error
+
+    );
+
+    process.exit(1);
+
+  });
