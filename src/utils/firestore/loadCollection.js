@@ -19,9 +19,9 @@ import {
 
 import {
 
-  firestoreCollections
+  FIRESTORE_COLLECTIONS
 
-} from "../../constants/firestoreCollections";
+} from "../../constants/shared/firestoreCollections";
 
 /*
 ==========================================================
@@ -55,7 +55,7 @@ export async function loadCollection(
 
       db,
 
-      firestoreCollections.companies,
+      FIRESTORE_COLLECTIONS.COMPANIES,
 
       companyId,
 

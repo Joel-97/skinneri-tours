@@ -1,59 +1,117 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { UserAuth } from '../context/AuthContext';
-import { useCompany } from "../context/CompanyContext";
+import React from "react";
+import { useParams } from "react-router-dom";
 
-import '../style/booking.css';
-import '../style/style.css';
+import { useAuth } from "../context/AuthContext";
 
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
+import "../style/booking.css";
+import "../style/style.css";
 
-import CalendarAdventures from '../components/calendars/calendarAdventure';
-import AdventureList from '../components/reservations/adventure/adventureList';
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
+
+import CalendarAdventures from "../components/calendars/calendarAdventure";
+import AdventureList from "../components/reservations/adventure/adventureList";
 
 const Adventure = () => {
 
-    const { tap } = useParams();
-    const { user } = UserAuth();
-    const { companyId } = useCompany();
+  const { tap } = useParams();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+  const { session } = useAuth();
 
-    const defaultTabIndex =
-        token || !tap
-            ? 0
-            : tap.length === 1
-            ? 1
-            : parseInt(tap, 10) || 0;
+  const user = session?.user;
 
-    return (
-        <div className="container-dashboard">
-            <div className='row'>
-                <div className='col-12'>
+  const company = session?.company;
 
-                    <Tabs defaultIndex={defaultTabIndex === 0 ? 0 : 1}>
+  const companyId = company?.id;
 
-                        <TabList>
-                            <Tab>Calendario</Tab>
-                            <Tab>Lista de aventuras</Tab>
-                        </TabList>
+  const urlParams = new URLSearchParams(
 
-                        <TabPanel>
-                            <CalendarAdventures companyId={companyId} user={user} />
-                        </TabPanel>
+    window.location.search
 
-                        <TabPanel>
-                            <AdventureList companyId={companyId} user={user} />
-                        </TabPanel>
+  );
 
-                    </Tabs>
+  const token = urlParams.get("token");
 
-                </div>
-            </div>
+  const defaultTabIndex =
+
+    token || !tap
+
+      ? 0
+
+      : tap.length === 1
+
+        ? 1
+
+        : parseInt(tap, 10) || 0;
+
+  return (
+
+    <div className="container-dashboard">
+
+      <div className="row">
+
+        <div className="col-12">
+
+          <Tabs
+
+            defaultIndex={
+
+              defaultTabIndex === 0 ? 0 : 1
+
+            }
+
+          >
+
+            <TabList>
+
+              <Tab>
+
+                Calendario
+
+              </Tab>
+
+              <Tab>
+
+                Lista de aventuras
+
+              </Tab>
+
+            </TabList>
+
+            <TabPanel>
+
+              <CalendarAdventures
+
+                companyId={companyId}
+
+                user={user}
+
+              />
+
+            </TabPanel>
+
+            <TabPanel>
+
+              <AdventureList
+
+                companyId={companyId}
+
+                user={user}
+
+              />
+
+            </TabPanel>
+
+          </Tabs>
+
         </div>
-    );
+
+      </div>
+
+    </div>
+
+  );
+
 };
 
 export default Adventure;

@@ -7,7 +7,7 @@ import {
 
 import {
   paymentStatusOptions
-} from "../../../../../constants/paymentStatusOptions";
+} from "../../../../../constants/transportation/paymentStatusOptions";
 
 import {
   safe,

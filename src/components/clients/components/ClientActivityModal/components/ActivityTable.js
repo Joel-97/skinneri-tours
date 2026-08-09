@@ -7,7 +7,7 @@ ACTIVITY TABLE
 import { formatDate } from "../../../utils/formatDate";
 import { formatCurrency } from "../../../../../utils/formatCurrency";
 
-import { activityStatus } from "../../../../../constants/activityStatus";
+import { activityStatus } from "../../../../../constants/transportation/activityStatus";
 
 const ActivityTable = ({
 

@@ -10,8 +10,7 @@ import {
 import { getCurrencies } from "../../../../services/settings/general/currencyService";
 import DataTable from "../../../../components/general/dataTable";
 
-import { UserAuth } from "../../../../context/AuthContext";
-import { useCompany } from "../../../../context/CompanyContext";
+import { useAuth } from "../../../../context/AuthContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import {
@@ -25,9 +24,11 @@ import Loading from "../../../../components/general/loading";
 
 const ServiceTypesSection = () => {
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   const [serviceTypes, setServiceTypes] = useState([]);
   const [currencies, setCurrencies] = useState([]);

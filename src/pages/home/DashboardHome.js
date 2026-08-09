@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useCompany } from "../../context/CompanyContext";
+import { useAuth } from "../../context/AuthContext";
 import { CurrencyProvider } from "../../context/CurrencyContext";
 
 import { useDashboardController } from "./controllers/useDashboardController";
@@ -37,13 +37,11 @@ import CurrencySelector
 
 const DashboardHome = () => {
 
-  const {
+  const { session } = useAuth();
 
-    company,
+  const company = session?.company;
 
-    companyId
-
-  } = useCompany();
+  const companyId = session?.company?.id;
 
   /*
   ==========================================================

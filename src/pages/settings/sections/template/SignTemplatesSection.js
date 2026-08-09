@@ -21,9 +21,20 @@ import {
   notifyConfirm
 } from "../../../../services/notificationService";
 
+import { useAuth } from "../../../../context/AuthContext";
+
+
 import "../../../../style/settings/template/signTemplates.css";
 
-const SignTemplatesSection = ({ companyId, user }) => {
+const SignTemplatesSection = () => {
+
+  const { session } = useAuth();
+
+  const user = session?.user;
+
+  const company = session?.company;
+
+  const companyId = company?.id;
 
   const [template, setTemplate] = useState(defaultSignTemplate);
   const [selectedLayerId, setSelectedLayerId] = useState(null);
@@ -104,11 +115,11 @@ const SignTemplatesSection = ({ companyId, user }) => {
         "Título de la reserva",
     };
 
-    const company = {
+    // const company = {
 
-    companyName:
-        "Nombre de la empresa",
-    };
+    // companyName:
+    //     "Nombre de la empresa",
+    // };
 
   /*
   |--------------------------------------------------------------------------

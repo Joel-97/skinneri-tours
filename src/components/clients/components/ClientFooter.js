@@ -12,18 +12,18 @@ export default function ClientFooter({
 
   return (
 
-    <div className="modal-footer">
+    <div className="client-modal-footer">
 
       <button
         onClick={onCancel}
-        className="btn-secondary"
+        className="client-btn-secondary"
       >
         Cancelar
       </button>
 
       <button
         onClick={onSave}
-        className="btn-primary"
+        className="client-btn-primary"
       >
         {mode === "create"
           ? "Crear cliente"

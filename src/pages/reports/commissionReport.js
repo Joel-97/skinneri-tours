@@ -11,8 +11,8 @@ import "../../style/reports/transportationReport.css";
 import Pagination from "../../components/general/pagination";
 import { formatDateCustom } from "../../services/Tools";
 import { generateCommissionPDF } from "../../pdf/reports/generateCommissionPDF";
-import { UserAuth } from "../../context/AuthContext";
-import { useCompany } from "../../context/CompanyContext";
+
+import { useAuth } from "../../context/AuthContext";
 
 // 📥 EXPORTS
 import * as XLSX from "xlsx";
@@ -22,8 +22,11 @@ import autoTable from "jspdf-autotable";
 
 const CommissionReport = ({ companyId }) => {
 
-  const { user } = UserAuth();
-  const { company } = useCompany();
+  const { session } = useAuth();
+
+  const user = session?.user;
+
+  const company = session?.company;
 
   const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(true);

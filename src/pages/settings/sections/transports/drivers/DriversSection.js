@@ -4,13 +4,7 @@ import {
   Plus
 } from "lucide-react";
 
-import {
-  useAuth
-} from "../../../../../context/AuthContext";
-
-import {
-  useCompany
-} from "../../../../../context/CompanyContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
 import {
   notifySuccess,
@@ -27,7 +21,7 @@ import {
 
 import {
   DRIVER_TYPES
-} from "../../../../../constants/driverTypes";
+} from "../../../../../constants/transportation/driverTypes";
 
 import CatalogHeader from "../../../components/CatalogHeader";
 import CatalogToolbar from "../../../components/CatalogToolbar";
@@ -52,9 +46,11 @@ const DriversSection = () => {
      CONTEXT
   ====================================================== */
 
-  const { user } = useAuth();
+  const { session } = useAuth();
 
-  const { company } = useCompany();
+  const user = session?.user;
+
+  const company = session?.company;
 
   /* ======================================================
      STATE

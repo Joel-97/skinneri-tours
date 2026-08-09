@@ -7,8 +7,7 @@ import {
   toggleTaxStatus
 } from "../../../../services/settings/general/taxService";
 
-import { UserAuth } from "../../../../context/AuthContext";
-import { useCompany } from "../../../../context/CompanyContext";
+import { useAuth } from "../../../../context/AuthContext";
 import "../../../../style/settings/general/taxSettings.css";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
@@ -23,9 +22,11 @@ import Loading from "../../../../components/general/loading";
 
 const TaxesSettings = () => {
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   const [taxes, setTaxes] = useState([]);
   const [loading, setLoading] = useState(true);

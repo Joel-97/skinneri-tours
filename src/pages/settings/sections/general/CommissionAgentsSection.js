@@ -8,8 +8,7 @@ import {
 } from "../../../../services/settings/general/agentsService";
 import Loading from "../../../../components/general/loading";
 
-import { UserAuth } from "../../../../context/AuthContext";
-import { useCompany } from "../../../../context/CompanyContext";
+import { useAuth } from "../../../../context/AuthContext";
 
 import Modal from "../../../../components/general/modal";
 import DataTable from "../../../../components/general/dataTable";
@@ -23,9 +22,11 @@ import "../../../../style/settings/general/staffSection.css"; // puedes reutiliz
 
 const CommissionAgentsSection = () => {
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);

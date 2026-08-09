@@ -92,10 +92,10 @@ export default function ClientModal({
   return (
 
     <div
-      className="modal-overlay"
+      className="client-modal-overlay"
       onMouseDown={(e) => {
 
-        if (e.target.classList.contains("modal-overlay")) {
+        if (e.target.classList.contains("client-modal-overlay")) {
 
           onClose();
 
@@ -105,7 +105,7 @@ export default function ClientModal({
     >
 
       <div
-        className="modal-card modern"
+        className="client-modal-card client-modal-modern"
         onMouseDown={(e) => e.stopPropagation()}
       >
 

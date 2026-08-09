@@ -1,0 +1,195 @@
+/* ======================================================
+   ACCESS REQUESTS FILTERS
+====================================================== */
+
+.access-requests-filters{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    width:100%;
+
+}
+
+
+/* ======================================================
+   SEARCH
+====================================================== */
+
+.access-requests-filters__search{
+
+    position:relative;
+
+    flex:1;
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+.access-requests-filters__search-icon{
+
+    position:absolute;
+
+    left:16px;
+
+    color:#9CA3AF;
+
+    pointer-events:none;
+
+}
+
+.access-requests-filters__search-input{
+
+    width:100%;
+
+    height:46px;
+
+    padding:0 18px 0 46px;
+
+    border:1px solid #D1D5DB;
+
+    border-radius:10px;
+
+    background:#FFFFFF;
+
+    font-size:.95rem;
+
+    transition:border-color .2s ease;
+
+}
+
+.access-requests-filters__search-input:focus{
+
+    outline:none;
+
+    border-color:#08204B;
+
+}
+
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.access-requests-filters__status{
+
+    width:220px;
+
+    flex-shrink:0;
+
+}
+
+.access-requests-filters__status-select{
+
+    width:100%;
+
+    height:46px;
+
+    padding:0 14px;
+
+    border:1px solid #D1D5DB;
+
+    border-radius:10px;
+
+    background:#FFFFFF;
+
+    font-size:.95rem;
+
+    cursor:pointer;
+
+    transition:border-color .2s ease;
+
+}
+
+.access-requests-filters__status-select:focus{
+
+    outline:none;
+
+    border-color:#08204B;
+
+}
+
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width:1200px){
+
+    .access-requests-filters__status{
+
+        width:200px;
+
+    }
+
+}
+
+
+/* ======================================================
+   TABLET LANDSCAPE
+====================================================== */
+
+@media (max-width:1024px){
+
+    .access-requests-filters{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+    }
+
+    .access-requests-filters__status{
+
+        width:100%;
+
+    }
+
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+    .access-requests-filters{
+
+        gap:16px;
+
+    }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .access-requests-filters__search-input{
+
+        height:44px;
+
+        font-size:.9rem;
+
+    }
+
+    .access-requests-filters__status-select{
+
+        height:44px;
+
+        font-size:.9rem;
+
+    }
+
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useCompany } from "../../context/CompanyContext";
+import { useAuth } from "../../context/AuthContext";
 
 import DashboardGrid from "../../analytics/components/DashboardGrid";
 import AnalyticsCard from "../../analytics/components/AnalyticsCard";
@@ -25,7 +25,9 @@ const DashboardPage = () => {
   // AUTH
   // ====================================================
 
-  const { companyId } = useCompany();
+  const { session } = useAuth();
+
+  const companyId = session?.company?.id;
 
   // ====================================================
   // CACHE KEY

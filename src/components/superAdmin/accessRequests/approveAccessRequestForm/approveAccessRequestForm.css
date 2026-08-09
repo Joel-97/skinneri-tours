@@ -1,0 +1,353 @@
+/* ======================================================
+   APPROVE ACCESS REQUEST FORM
+====================================================== */
+
+.approve-access-request-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ======================================================
+   SECTIONS
+====================================================== */
+
+.approve-access-request-form__section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.approve-access-request-form__section-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+/* ======================================================
+   COMPANY OPTIONS
+====================================================== */
+
+.approve-access-request-form__company-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.approve-access-request-form__radio-option {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    padding: .75rem 1rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: .75rem;
+
+    background: var(--color-surface);
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        transform .2s;
+}
+
+.approve-access-request-form__radio-option:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+/* ======================================================
+   FORM GROUPS
+====================================================== */
+
+.approve-access-request-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.approve-access-request-form__group label {
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.approve-access-request-form__group input,
+.approve-access-request-form__group select {
+    width: 100%;
+
+    padding: .75rem 1rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: .75rem;
+
+    background: var(--color-surface);
+
+    font: inherit;
+
+    transition: border-color .2s;
+}
+
+.approve-access-request-form__group input:focus,
+.approve-access-request-form__group select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ======================================================
+   CARDS GRID
+====================================================== */
+
+.approve-access-request-form__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.approve-access-request-form__card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    width: 100%;
+
+    padding: 1rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+
+    background: var(--color-surface);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s,
+        transform .2s;
+}
+
+.approve-access-request-form__card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+
+    box-shadow: 0 10px 20px rgba(0,0,0,.06);
+}
+
+.approve-access-request-form__card--selected {
+    border-color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), .06);
+}
+
+/* ======================================================
+   CARD ICON
+====================================================== */
+
+.approve-access-request-form__card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: .75rem;
+
+    background: rgba(var(--color-primary-rgb), .10);
+
+    flex-shrink: 0;
+}
+
+/* ======================================================
+   CARD CONTENT
+====================================================== */
+
+.approve-access-request-form__card-content {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+
+    width: 100%;
+}
+
+.approve-access-request-form__card-content h4 {
+    margin: 0;
+
+    font-size: .95rem;
+    font-weight: 700;
+}
+
+.approve-access-request-form__card-content p {
+    margin: 0;
+
+    font-size: .85rem;
+    line-height: 1.45;
+
+    color: var(--color-text-secondary);
+}
+
+.approve-access-request-form__card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+}
+
+.approve-access-request-form__card-check {
+    color: var(--color-success);
+}
+
+/* ======================================================
+   ERRORS
+====================================================== */
+
+.approve-access-request-form__error {
+    font-size: .8rem;
+    color: var(--color-danger);
+}
+
+
+/* ======================================================
+   SUMMARY
+====================================================== */
+
+.approve-access-request-form__summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.approve-access-request-form__summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+
+    padding: 1rem;
+
+    border: 1px solid var(--color-border);
+    border-radius: .75rem;
+
+    background: var(--color-surface);
+}
+
+.approve-access-request-form__summary-label {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--color-text-secondary);
+}
+
+.approve-access-request-form__summary-list {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.approve-access-request-form__summary-list li {
+    margin: .2rem 0;
+}
+
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.approve-access-request-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    margin-top: 1rem;
+}
+
+.approve-access-request-form__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 130px;
+
+    padding: .75rem 1.25rem;
+
+    border: 1px solid transparent;
+    border-radius: .75rem;
+
+    font: inherit;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        color .2s,
+        transform .2s;
+}
+
+.approve-access-request-form__button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.approve-access-request-form__button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.approve-access-request-form__button--primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.approve-access-request-form__button--primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.approve-access-request-form__button--secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    color: var(--color-text-primary);
+}
+
+.approve-access-request-form__button--secondary:hover:not(:disabled) {
+    border-color: var(--color-primary);
+}
+
+.approve-access-request-form__button--danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.approve-access-request-form__button--danger:hover:not(:disabled) {
+    filter: brightness(.95);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 768px) {
+
+    .approve-access-request-form__cards {
+        grid-template-columns: 1fr;
+    }
+
+    .approve-access-request-form__company-options {
+        flex-direction: column;
+    }
+
+    .approve-access-request-form__actions {
+        flex-direction: column-reverse;
+    }
+
+    .approve-access-request-form__button {
+        width: 100%;
+    }
+
+}

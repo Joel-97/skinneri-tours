@@ -24,17 +24,17 @@ export default function ClientCompanySection({ controller }) {
 
   return (
 
-    <div className="modal-section section-card">
+    <div className="client-modal-section client-section-card">
 
       {/* =========================
           EMPRESA E IDENTIFICACIÓN
       ========================= */}
 
-      <div className="form-grid two-columns">
+      <div className="client-form-grid client-two-columns">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Empresa
 
@@ -50,9 +50,9 @@ export default function ClientCompanySection({ controller }) {
 
         </div>
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Identificación
 

@@ -1,0 +1,531 @@
+/* ======================================================
+   REGISTER FORM
+====================================================== */
+
+.register-form-container{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.register-form-header{
+
+    margin-bottom:34px;
+
+}
+
+.register-form-title{
+
+    margin:0;
+
+    color:#08204B;
+
+    font-size:2.15rem;
+
+    font-weight:700;
+
+    line-height:1.15;
+
+    letter-spacing:-.02em;
+
+}
+
+.register-form-subtitle{
+
+    margin:12px 0 0;
+
+    color:#6F7F92;
+
+    font-size:1rem;
+
+    line-height:1.7;
+
+}
+
+/* ======================================================
+   ERROR
+====================================================== */
+
+.register-form-error{
+
+    margin-bottom:24px;
+
+    padding:15px 18px;
+
+    border-radius:14px;
+
+    border:1px solid #F4C8C8;
+
+    background:#FFF6F6;
+
+    color:#C62828;
+
+    font-size:.92rem;
+
+    line-height:1.6;
+
+}
+
+/* ======================================================
+   SUCCESS MESSAGE
+====================================================== */
+
+.register-form-success{
+
+  display:flex;
+
+  align-items:flex-start;
+
+  gap:14px;
+
+  margin-bottom:24px;
+
+  padding:16px 18px;
+
+  border:1px solid rgba(34,197,94,.22);
+
+  border-radius:14px;
+
+  background:#f0fdf4;
+
+}
+
+.register-form-success-icon{
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  flex-shrink:0;
+
+  width:28px;
+
+  height:28px;
+
+  border-radius:50%;
+
+  background:#22c55e;
+
+  color:#fff;
+
+  font-size:15px;
+
+  font-weight:700;
+
+}
+
+.register-form-success-content{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:4px;
+
+}
+
+.register-form-success-title{
+
+  color:#166534;
+
+  font-size:.95rem;
+
+  font-weight:700;
+
+  line-height:1.2;
+
+}
+
+.register-form-success-message{
+
+  color:#15803d;
+
+  font-size:.9rem;
+
+  line-height:1.5;
+
+}
+
+/* ======================================================
+   FORM
+====================================================== */
+
+.register-form-fields{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+/* ======================================================
+   PASSWORD ROW
+====================================================== */
+
+.register-form-password-row{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,minmax(0,1fr));
+
+    gap:18px;
+
+}
+
+/* ======================================================
+   GROUP
+====================================================== */
+
+.register-form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+.register-form-label{
+
+    margin-bottom:10px;
+
+    color:#1F355B;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+}
+
+/* ======================================================
+   INPUT
+====================================================== */
+
+.register-form-input{
+
+    width:100%;
+
+    height:58px;
+
+    padding:0 20px;
+
+    border-radius:16px;
+
+    border:1px solid #D7E1ED;
+
+    background:#FFFFFF;
+
+    color:#08204B;
+
+    font-size:1rem;
+
+    outline:none;
+
+    box-sizing:border-box;
+
+    transition:
+        border-color .25s,
+        box-shadow .25s,
+        transform .2s;
+
+}
+
+.register-form-input::placeholder{
+
+    color:#B2BDC9;
+
+}
+
+.register-form-input:hover{
+
+    border-color:#B8C6D7;
+
+}
+
+.register-form-input:focus{
+
+    border-color:#5B2D8B;
+
+    box-shadow:
+        0 0 0 4px rgba(91,45,139,.10);
+
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.register-form-actions{
+
+    margin-top:8px;
+
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.register-form-submit-button{
+
+    width:100%;
+
+    height:58px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#08204B;
+
+    color:#FFFFFF;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    letter-spacing:.02em;
+
+    cursor:pointer;
+
+    transition:
+        background .25s,
+        transform .18s,
+        box-shadow .25s;
+
+}
+
+.register-form-submit-button:hover:not(:disabled){
+
+    background:#10326E;
+
+    box-shadow:
+        0 14px 26px rgba(8,32,75,.18);
+
+}
+
+.register-form-submit-button:active:not(:disabled){
+
+    transform:scale(.985);
+
+}
+
+.register-form-submit-button:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.register-form-footer{
+
+    margin-top:34px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+}
+
+.register-form-footer-text{
+
+    color:#6F7F92;
+
+    font-size:.94rem;
+
+}
+
+.register-form-footer-link{
+
+    color:#5B2D8B;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    transition:opacity .2s;
+
+}
+
+.register-form-footer-link:hover{
+
+    opacity:.75;
+
+}
+
+/* ======================================================
+   LARGE DESKTOP
+====================================================== */
+
+@media (min-width:1600px){
+
+    .register-form-title{
+
+        font-size:2.35rem;
+
+    }
+
+    .register-form-subtitle{
+
+        font-size:1.05rem;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1024px){
+
+    .register-form-header{
+
+        margin-bottom:30px;
+
+    }
+
+    .register-form-title{
+
+        font-size:1.9rem;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+    .register-form-header{
+
+        text-align:center;
+
+        margin-bottom:28px;
+
+    }
+
+    .register-form-title{
+
+        font-size:1.75rem;
+
+    }
+
+    .register-form-subtitle{
+
+        font-size:.95rem;
+
+    }
+
+    .register-form-fields{
+
+        gap:20px;
+
+    }
+
+    .register-form-password-row{
+
+        grid-template-columns:1fr;
+
+        gap:20px;
+
+    }
+
+    .register-form-input{
+
+        height:54px;
+
+        border-radius:14px;
+
+    }
+
+    .register-form-submit-button{
+
+        height:54px;
+
+        border-radius:14px;
+
+    }
+
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+    .register-form-title{
+
+        font-size:1.55rem;
+
+    }
+
+    .register-form-subtitle{
+
+        font-size:.92rem;
+
+    }
+
+    .register-form-label{
+
+        font-size:.88rem;
+
+    }
+
+    .register-form-input{
+
+        height:52px;
+
+        padding:0 16px;
+
+        font-size:.95rem;
+
+    }
+
+    .register-form-submit-button{
+
+        height:52px;
+
+        font-size:.95rem;
+
+    }
+
+    .register-form-footer{
+
+        flex-direction:column;
+
+        gap:5px;
+
+    }
+
+}

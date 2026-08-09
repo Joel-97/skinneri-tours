@@ -1,0 +1,321 @@
+/* ======================================================
+   APPLICANT CARD
+====================================================== */
+
+.access-request-applicant-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:32px;
+
+    width:100%;
+
+    padding:32px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:20px;
+
+    background:#FFFFFF;
+
+    box-sizing:border-box;
+
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.access-request-applicant-card__header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+.access-request-applicant-card__avatar{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:72px;
+
+    height:72px;
+
+    border-radius:50%;
+
+    background:#08204B;
+
+    color:#FFFFFF;
+
+    font-size:1.75rem;
+
+    font-weight:700;
+
+    flex-shrink:0;
+
+}
+
+.access-request-applicant-card__user{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+    min-width:0;
+
+}
+
+.access-request-applicant-card__name{
+
+    margin:0;
+
+    font-size:1.45rem;
+
+    font-weight:700;
+
+    line-height:1.2;
+
+    color:#08204B;
+
+    word-break:break-word;
+
+}
+
+.access-request-applicant-card__email{
+
+    margin:0;
+
+    font-size:.95rem;
+
+    color:#6B7280;
+
+    word-break:break-word;
+
+}
+
+/* ======================================================
+   GRID
+====================================================== */
+
+.access-request-applicant-card__grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,minmax(0,1fr));
+
+    gap:20px;
+
+}
+
+/* ======================================================
+   ITEM
+====================================================== */
+
+.access-request-applicant-card__item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:14px;
+
+    padding:18px;
+
+    border-radius:16px;
+
+    background:#F8FAFC;
+
+}
+
+.access-request-applicant-card__item svg{
+
+    margin-top:2px;
+
+    color:#5B2D8B;
+
+    flex-shrink:0;
+
+}
+
+.access-request-applicant-card__item div{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+    min-width:0;
+
+}
+
+.access-request-applicant-card__item span{
+
+    font-size:.82rem;
+
+    font-weight:600;
+
+    color:#6B7280;
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
+}
+
+.access-request-applicant-card__item strong{
+
+    font-size:.97rem;
+
+    font-weight:600;
+
+    color:#08204B;
+
+    word-break:break-word;
+
+    line-height:1.5;
+
+}
+
+/* ======================================================
+   LARGE DESKTOP
+====================================================== */
+
+@media (min-width:1800px){
+
+    .access-request-applicant-card{
+
+        padding:40px;
+
+    }
+
+    .access-request-applicant-card__avatar{
+
+        width:82px;
+
+        height:82px;
+
+        font-size:2rem;
+
+    }
+
+}
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width:1200px){
+
+    .access-request-applicant-card{
+
+        padding:28px;
+
+        gap:28px;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+    .access-request-applicant-card{
+
+        padding:24px;
+
+        gap:24px;
+
+    }
+
+    .access-request-applicant-card__header{
+
+        gap:16px;
+
+    }
+
+    .access-request-applicant-card__avatar{
+
+        width:64px;
+
+        height:64px;
+
+        font-size:1.5rem;
+
+    }
+
+    .access-request-applicant-card__name{
+
+        font-size:1.25rem;
+
+    }
+
+    .access-request-applicant-card__grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .access-request-applicant-card{
+
+        padding:18px;
+
+        gap:20px;
+
+        border-radius:16px;
+
+    }
+
+    .access-request-applicant-card__header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .access-request-applicant-card__avatar{
+
+        width:58px;
+
+        height:58px;
+
+        font-size:1.3rem;
+
+    }
+
+    .access-request-applicant-card__name{
+
+        font-size:1.1rem;
+
+    }
+
+    .access-request-applicant-card__item{
+
+        padding:16px;
+
+    }
+
+}

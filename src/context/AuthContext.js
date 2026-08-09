@@ -1,305 +1,252 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+/*
+==========================================================
+IMPORTS
+==========================================================
+*/
 
 import {
-  onAuthStateChanged,
-  signOut,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
-} from "firebase/auth";
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
 import {
-  doc,
-  getDoc,
-  setDoc
-} from "firebase/firestore";
+  logout,
+  onAuthState
+} from "../controllers/auth/authController";
 
-import Swal from "sweetalert2";
+import {
+  createSession
+} from "../controllers/auth/sessionController";
 
-const AuthContext = createContext();
+/*
+==========================================================
+CONTEXT
+==========================================================
+*/
 
-export const useAuth = () => useContext(AuthContext);
-export const UserAuth = useAuth;
+const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+/*
+==========================================================
+HOOK
+==========================================================
+*/
 
-  /* ======================================================
-     STATES
-  ====================================================== */
+export function useAuth() {
 
-  const [user, setUser] = useState(null);
+  return useContext(AuthContext);
 
-  const [adminData, setAdminData] = useState(null);
+}
 
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+/*
+==========================================================
+INITIAL SESSION
+==========================================================
+*/
 
-  const [loading, setLoading] = useState(true);
+const INITIAL_SESSION = null;
 
-  /* ======================================================
-     AUTH STATE
-  ====================================================== */
+/*
+==========================================================
+PROVIDER
+==========================================================
+*/
+
+export function AuthProvider({ children }) {
+
+  /*
+  ==========================================================
+  STATES
+  ==========================================================
+  */
+
+  const [session, setSession] = useState(
+
+    INITIAL_SESSION
+
+  );
+
+  const [loading, setLoading] = useState(
+
+    true
+
+  );
+
+  /*
+  ==========================================================
+  DERIVED STATE
+  ==========================================================
+  */
+
+  const authenticated = !!session;
+
+  /*
+  ==========================================================
+  REFRESH SESSION
+  ==========================================================
+  */
+
+  async function refreshSession(auth = null) {
+
+    /*
+    ========================================================
+    NOT AUTHENTICATED
+    ========================================================
+    */
+
+    if (!auth) {
+
+      setSession(INITIAL_SESSION);
+
+      return;
+
+    }
+
+    /*
+    ========================================================
+    CREATE SESSION
+    ========================================================
+    */
+
+    const result = await createSession(
+
+      auth
+
+    );
+
+    if (!result.success) {
+
+      setSession(INITIAL_SESSION);
+
+      return;
+
+    }
+
+    setSession(
+
+      result.data
+
+    );
+
+  }
+
+  /*
+  ==========================================================
+  AUTH STATE
+  ==========================================================
+  */
 
   useEffect(() => {
 
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (firebaseUser) => {
+    const unsubscribe = onAuthState(
 
-        setLoading(true);
+      async (auth) => {
+
+        setLoading(
+
+          true
+
+        );
 
         try {
 
-          /* ===============================================
-             USER NOT LOGGED
-          =============================================== */
+          await refreshSession(
 
-          if (!firebaseUser) {
+            auth
 
-            setUser(null);
-            setAdminData(null);
-            setIsSuperAdmin(false);
-
-            return;
-          }
-
-          /* ===============================================
-             FIREBASE USER
-          =============================================== */
-
-          setUser(firebaseUser);
-
-          /* ===============================================
-             ADMIN DOCUMENT
-          =============================================== */
-
-          const adminRef = doc(
-            db,
-            "admins",
-            firebaseUser.uid
           );
 
-          const adminSnap = await getDoc(adminRef);
+        }
 
-          if (!adminSnap.exists()) {
+        finally {
 
-            setAdminData(null);
-            setIsSuperAdmin(false);
+          setLoading(
 
-            return;
-          }
+            false
 
-          const admin = adminSnap.data();
-
-          setAdminData(admin);
-
-          /* ===============================================
-             SUPER ADMIN
-          =============================================== */
-
-          setIsSuperAdmin(
-            admin.role === "superadmin" ||
-            firebaseUser.email === "gomez.joel.0709@gmail.com"
           );
-
-        } catch (error) {
-
-          console.error(
-            "Error loading auth data:",
-            error
-          );
-
-          setUser(null);
-          setAdminData(null);
-          setIsSuperAdmin(false);
-
-        } finally {
-
-          setLoading(false);
 
         }
 
       }
+
     );
 
     return unsubscribe;
 
   }, []);
 
-  /* ======================================================
-     LOGIN
-  ====================================================== */
+  /*
+  ==========================================================
+  LOGOUT
+  ==========================================================
+  */
 
-  const loginAdmin = async (
-    email,
-    password
-  ) => {
+  async function signOut() {
 
-    try {
+    await logout();
 
-      const result =
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+    setSession(
 
-      return result.user;
+      INITIAL_SESSION
 
-    } catch (error) {
+    );
 
-      console.error(error.code);
+  }
 
-      if (
-        error.code === "auth/invalid-credential" ||
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
-      ) {
+  /*
+  ==========================================================
+  CONTEXT VALUE
+  ==========================================================
+  */
 
-        Swal.fire({
-          icon: "error",
-          title: "Datos incorrectos",
-          text: "Correo o contraseña inválidos"
-        });
+  const value = useMemo(() => ({
 
-      } else if (
-        error.code === "auth/too-many-requests"
-      ) {
-
-        Swal.fire({
-          icon: "warning",
-          title: "Demasiados intentos",
-          text: "Intenta nuevamente en unos minutos"
-        });
-
-      } else {
-
-        Swal.fire({
-          icon: "error",
-          title: "Error al iniciar sesión",
-          text: "Ocurrió un problema inesperado"
-        });
-
-      }
-
-      return null;
-
-    }
-
-  };
-
-  /* ======================================================
-     REGISTER
-  ====================================================== */
-
-  const registerAdmin = async (
-    email,
-    password
-  ) => {
-
-    try {
-
-      const userCredential =
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      const newUser = userCredential.user;
-
-      await setDoc(
-        doc(db, "admins", newUser.uid),
-        {
-          email: newUser.email,
-          role: "admin",
-          status: "pending",
-          companyId: null,
-          createdAt: new Date()
-        }
-      );
-
-      return true;
-
-    } catch (error) {
-
-      console.error(error.code);
-
-      if (
-        error.code === "auth/email-already-in-use"
-      ) {
-
-        Swal.fire({
-          icon: "error",
-          title: "Correo en uso",
-          text: "Este correo ya está registrado"
-        });
-
-      } else if (
-        error.code === "auth/weak-password"
-      ) {
-
-        Swal.fire({
-          icon: "warning",
-          title: "Contraseña débil",
-          text: "Debe tener al menos 6 caracteres"
-        });
-
-      } else {
-
-        Swal.fire({
-          icon: "error",
-          title: "Error al registrarse",
-          text: "Intenta nuevamente"
-        });
-
-      }
-
-      throw error;
-
-    }
-
-  };
-
-  /* ======================================================
-     LOGOUT
-  ====================================================== */
-
-  const logout = async () => {
-
-    await signOut(auth);
-
-  };
-
-  /* ======================================================
-     CONTEXT VALUE
-  ====================================================== */
-
-  const value = {
-
-    user,
-
-    adminData,
-
-    isSuperAdmin,
+    session,
 
     loading,
 
-    loginAdmin,
+    authenticated,
 
-    logout,
+    logout: signOut,
 
-    registerAdmin
+    refreshSession
 
-  };
+  }),
 
-  /* ======================================================
-     PROVIDER
-  ====================================================== */
+    [
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+      session,
+
+      loading,
+
+      authenticated
+
+    ]
+
   );
 
-};
+  /*
+  ==========================================================
+  PROVIDER
+  ==========================================================
+  */
+
+  return (
+
+    <AuthContext.Provider
+
+      value={value}
+
+    >
+
+      {children}
+
+    </AuthContext.Provider>
+
+  );
+
+}

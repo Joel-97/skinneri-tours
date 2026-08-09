@@ -21,7 +21,7 @@ import {
 import Loading from "../../components/general/loading";
 import Pagination from "../../components/general/pagination";
 import { formatDateCustom } from "../../services/Tools";
-import { useCompany } from "../../context/CompanyContext";
+import { useAuth } from "../../context/AuthContext";
 
 // ======================================================
 // STYLES
@@ -45,11 +45,14 @@ import {
 
 import { generateTransportationPDF } from "../../pdf/reports/generateTransportationPDF";
 
-const TransportationReport = ({
-  companyId
-}) => {
+const TransportationReport = () => {
 
-  const { company } = useCompany();
+  const { session } = useAuth();
+
+  const company = session?.company;
+
+  const companyId = company?.id;
+  
 
   const [bookings, setBookings] =
     useState([]);

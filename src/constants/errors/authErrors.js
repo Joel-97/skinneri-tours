@@ -1,0 +1,33 @@
+/*
+==========================================================
+AUTH ERRORS
+==========================================================
+*/
+
+const AUTH_ERRORS = Object.freeze({
+
+  INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+
+  INVALID_EMAIL: "INVALID_EMAIL",
+
+  USER_DISABLED: "USER_DISABLED",
+
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+
+  EMAIL_ALREADY_IN_USE: "EMAIL_ALREADY_IN_USE",
+
+  WEAK_PASSWORD: "WEAK_PASSWORD",
+
+  TOO_MANY_REQUESTS: "TOO_MANY_REQUESTS",
+
+  NETWORK_ERROR: "NETWORK_ERROR",
+
+  REQUIRES_RECENT_LOGIN: "REQUIRES_RECENT_LOGIN",
+
+  SESSION_EXPIRED: "SESSION_EXPIRED",
+
+  UNKNOWN_ERROR: "UNKNOWN_ERROR"
+
+});
+
+export default AUTH_ERRORS;

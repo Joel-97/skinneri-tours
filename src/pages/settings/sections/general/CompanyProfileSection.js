@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
+
 import { useAuth } from "../../../../context/AuthContext";
-import { updateCompanyData } from "../../../../services/superAdmin/companyProfile";
-import { locationData, identificationOptions, timezoneOptions } from "../../../../constants/locationData";
-import { uploadCompanyLogo, removeCompanyLogo } from "../../../../services/superAdmin/uploadCompanyLogo";
-import { useCompany } from "../../../../context/CompanyContext";
+
+import { updateCompanyData } from "../../../../services/superAdmin/companyProfileOld";
+
+import {
+  locationData,
+  identificationOptions,
+  timezoneOptions
+} from "../../../../constants/shared/locationData";
+
+import {
+  uploadCompanyLogo,
+  removeCompanyLogo
+} from "../../../../services/superAdmin/uploadCompanyLogo";
+
 import {
   notifySuccess,
   notifyError
@@ -13,20 +24,24 @@ import {
 import "../../../../style/settings/general/companyProfile.css";
 
 const countryOptions =
-  Object.keys(locationData).map(
-    (country) => ({
-      value: country,
-      label: country
-    })
-);
+  Object.keys(locationData).map((country) => ({
+    value: country,
+    label: country
+  }));
 
 const CompanyProfileSection = () => {
 
   const {
-    company,
-    companyId,
-    updateCompany
-  } = useCompany();
+
+    session,
+
+    refreshSession
+
+  } = useAuth();
+
+  const company = session?.company;
+
+  const companyId = company?.id;
 
   const [loading, setLoading] =
     useState(false);
@@ -132,10 +147,6 @@ const CompanyProfileSection = () => {
 
     setFormData({
 
-      // ==================================================
-      // GENERAL
-      // ==================================================
-
       name:
         company.name || "",
 
@@ -157,10 +168,6 @@ const CompanyProfileSection = () => {
       website:
         company.website || "",
 
-      // ==================================================
-      // ADDRESS
-      // ==================================================
-
       address:
         company.address || "",
 
@@ -176,22 +183,14 @@ const CompanyProfileSection = () => {
       postalCode:
         company.postalCode || "",
 
-      // ==================================================
-      // SYSTEM
-      // ==================================================
-
       timezone:
         company.timezone || "",
 
       primaryColor:
         company.primaryColor || "#0A1E5E",
 
-      // ==================================================
-      // LOGO
-      // ==================================================
-
       logoURL:
-        company.logoURL || "",
+        company.logoURL || ""
 
     });
 
@@ -209,8 +208,11 @@ const CompanyProfileSection = () => {
     } = e.target;
 
     setFormData((prev) => ({
+
       ...prev,
+
       [name]: value
+
     }));
 
   };
@@ -219,135 +221,126 @@ const CompanyProfileSection = () => {
   // HANDLE LOGO UPLOAD
   // ======================================================
 
-    const handleLogoUpload = async (
-    e
-    ) => {
+  const handleLogoUpload = async (e) => {
 
     try {
 
-        const file =
-        e.target.files?.[0];
+      const file = e.target.files?.[0];
 
-        if (!file) return;
+      if (!file) return;
 
-        setUploadingLogo(true);
+      setUploadingLogo(true);
 
-        // ==================================================
-        // UPLOAD LOGO
-        // ==================================================
-
-        const updatedCompany =
+      const updatedCompany =
         await uploadCompanyLogo({
 
-            companyId,
+          companyId,
 
-            file
+          file
 
         });
 
-        // ==================================================
-        // UPDATE CONTEXT
-        // ==================================================
+      await refreshSession();
 
-        updateCompany(updatedCompany);
+      setFormData((prev) => ({
 
-        // ==================================================
-        // UPDATE LOCAL FORM
-        // ==================================================
-
-        setFormData((prev) => ({
         ...prev,
+
         logoURL:
-            updatedCompany.logoURL || ""
-        }));
+          updatedCompany.logoURL || ""
 
-        // ==================================================
-        // SUCCESS
-        // ==================================================
+      }));
 
-        notifySuccess(
+      notifySuccess(
 
         "Logo actualizado",
 
         "El logo fue cargado correctamente."
 
-        );
+      );
 
     } catch (error) {
 
-        console.error(
+      console.error(
         "Error subiendo logo:",
         error
-        );
+      );
 
-        notifyError(
+      notifyError(
 
         "Error",
 
         "No se pudo subir el logo."
 
-        );
+      );
 
     } finally {
 
-        setUploadingLogo(false);
+      setUploadingLogo(false);
 
     }
 
-    };
+  };
 
-    // ======================================================
-    // REMOVE LOGO
-    // ======================================================
+  // ======================================================
+  // REMOVE LOGO
+  // ======================================================
 
-    const handleRemoveLogo = async () => {
-        try {
+  const handleRemoveLogo = async () => {
 
-            setUploadingLogo(true);
+    try {
 
-            // ==================================================
-            // REMOVE LOGO
-            // ==================================================
+      setUploadingLogo(true);
 
-            const updatedCompany =
-            await removeCompanyLogo({
-                companyId,
-                logoURL:
-                formData.logoURL
+      await removeCompanyLogo({
 
-            });
+        companyId,
 
-            // ==================================================
-            // UPDATE CONTEXT
-            // ==================================================
+        logoURL:
+          formData.logoURL
 
-            updateCompany(updatedCompany);
+      });
 
-            // ==================================================
-            // UPDATE FORM
-            // ==================================================
+      await refreshSession();
 
-            setFormData((prev) => ({
-            ...prev,
-            logoURL: ""
-            }));
+      setFormData((prev) => ({
 
-            // ==================================================
-            // SUCCESS
-            // ==================================================
+        ...prev,
 
-            notifySuccess("Logo eliminado","El logo fue eliminado correctamente.");
+        logoURL: ""
 
-        } catch (error) {
+      }));
 
-            console.error("Error removing logo:", error );
-            notifyError("Error","No se pudo eliminar el logo.");
+      notifySuccess(
 
-        } finally {
-            setUploadingLogo(false);
-        }
+        "Logo eliminado",
 
-    };
+        "El logo fue eliminado correctamente."
+
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error removing logo:",
+        error
+      );
+
+      notifyError(
+
+        "Error",
+
+        "No se pudo eliminar el logo."
+
+      );
+
+    } finally {
+
+      setUploadingLogo(false);
+
+    }
+
+  };
 
   // ======================================================
   // SAVE
@@ -360,19 +353,37 @@ const CompanyProfileSection = () => {
       setLoading(true);
 
       await updateCompanyData(
+
         companyId,
+
         formData
+
       );
 
-      updateCompany(formData);
+      await refreshSession();
 
-      notifySuccess("Perfil actualizado","La información de la empresa fue actualizada correctamente."
+      notifySuccess(
+
+        "Perfil actualizado",
+
+        "La información de la empresa fue actualizada correctamente."
+
       );
 
     } catch (error) {
 
-      console.error("Error actualizando empresa:", error);
-      notifyError("Error", "No se pudo actualizar la información de la empresa.");
+      console.error(
+        "Error actualizando empresa:",
+        error
+      );
+
+      notifyError(
+
+        "Error",
+
+        "No se pudo actualizar la información de la empresa."
+
+      );
 
     } finally {
 
@@ -381,7 +392,7 @@ const CompanyProfileSection = () => {
     }
 
   };
-
+  
   return (
 
     <div className="company-profile-container">

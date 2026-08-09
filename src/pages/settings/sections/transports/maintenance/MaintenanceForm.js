@@ -10,11 +10,11 @@ import {
 
 import {
   MAINTENANCE_SYSTEMS
-} from "../../../../../constants/maintenanceTypes";
+} from "../../../../../constants/transportation/maintenanceTypes";
 
 import {
   MAINTENANCE_CATEGORIES
-} from "../../../../../constants/maintenanceCategories";
+} from "../../../../../constants/transportation/maintenanceCategories";
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 

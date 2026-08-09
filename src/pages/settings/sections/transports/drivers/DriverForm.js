@@ -8,11 +8,11 @@ import Modal from "../../../../../components/general/modal";
 
 import {
   DRIVER_LICENSE_TYPES
-} from "../../../../../constants/driverLicenseTypes";
+} from "../../../../../constants/transportation/driverLicenseTypes";
 
 import {
   DRIVER_TYPES
-} from "../../../../../constants/driverTypes";
+} from "../../../../../constants/transportation/driverTypes";
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 

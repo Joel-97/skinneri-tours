@@ -1,0 +1,375 @@
+/* ======================================================
+   REJECT ACCESS REQUEST MODAL
+====================================================== */
+
+.reject-access-request-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:1100;
+
+}
+
+/* ======================================================
+   BACKDROP
+====================================================== */
+
+.reject-access-request-modal__backdrop{
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(15,23,42,.45);
+
+    animation:
+
+        reject-access-request-modal-backdrop-in
+
+        .25s ease forwards;
+
+}
+
+/* ======================================================
+   CONTAINER
+====================================================== */
+
+.reject-access-request-modal__container{
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:24px;
+
+    width:100%;
+
+    max-width:500px;
+
+    margin:20px;
+
+    padding:32px;
+
+    border-radius:18px;
+
+    background:#FFFFFF;
+
+    box-shadow:
+
+        0 20px 60px rgba(15,23,42,.18);
+
+    animation:
+
+        reject-access-request-modal-enter
+
+        .35s cubic-bezier(.22,1,.36,1)
+
+        forwards;
+
+}
+
+/* ======================================================
+   ICON
+====================================================== */
+
+.reject-access-request-modal__icon{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    width:72px;
+
+    height:72px;
+
+    border-radius:50%;
+
+    background:#FEF3C7;
+
+    color:#D97706;
+
+}
+
+/* ======================================================
+   TITLE
+====================================================== */
+
+.reject-access-request-modal__title{
+
+    margin:0;
+
+    text-align:center;
+
+    font-size:1.35rem;
+
+    font-weight:700;
+
+    line-height:1.3;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   DESCRIPTION
+====================================================== */
+
+.reject-access-request-modal__description{
+
+    margin:0;
+
+    text-align:center;
+
+    font-size:.95rem;
+
+    line-height:1.7;
+
+    color:#6B7280;
+
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.reject-access-request-modal__actions{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:16px;
+
+    width:100%;
+
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+
+.reject-access-request-modal__cancel-button,
+
+.reject-access-request-modal__reject-button{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex:1;
+
+    height:46px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+
+        transform .2s ease,
+
+        background .2s ease,
+
+        opacity .2s ease;
+
+}
+
+/* ======================================================
+   CANCEL
+====================================================== */
+
+.reject-access-request-modal__cancel-button{
+
+    background:#F3F4F6;
+
+    color:#374151;
+
+}
+
+.reject-access-request-modal__cancel-button:hover{
+
+    background:#E5E7EB;
+
+}
+
+/* ======================================================
+   REJECT
+====================================================== */
+
+.reject-access-request-modal__reject-button{
+
+    background:#DC2626;
+
+    color:#FFFFFF;
+
+}
+
+.reject-access-request-modal__reject-button:hover:not(:disabled){
+
+    background:#B91C1C;
+
+    transform:translateY(-2px);
+
+}
+
+.reject-access-request-modal__reject-button:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+}
+
+/* ======================================================
+   ANIMATIONS
+====================================================== */
+
+@keyframes reject-access-request-modal-enter{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+            translateY(24px)
+
+            scale(.96);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+            translateY(0)
+
+            scale(1);
+
+    }
+
+}
+
+@keyframes reject-access-request-modal-backdrop-in{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width:1200px){
+
+}
+
+/* ======================================================
+   TABLET LANDSCAPE
+====================================================== */
+
+@media (max-width:1024px){
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+    .reject-access-request-modal__container{
+
+        max-width:460px;
+
+        padding:28px;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .reject-access-request-modal__container{
+
+        gap:20px;
+
+        margin:16px;
+
+        padding:24px 20px;
+
+    }
+
+    .reject-access-request-modal__icon{
+
+        width:60px;
+
+        height:60px;
+
+    }
+
+    .reject-access-request-modal__title{
+
+        font-size:1.15rem;
+
+    }
+
+    .reject-access-request-modal__description{
+
+        font-size:.9rem;
+
+    }
+
+    .reject-access-request-modal__actions{
+
+        flex-direction:column;
+
+    }
+
+    .reject-access-request-modal__cancel-button,
+
+    .reject-access-request-modal__reject-button{
+
+        width:100%;
+
+    }
+
+}

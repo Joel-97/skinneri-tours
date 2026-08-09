@@ -1,15 +1,16 @@
 import React from "react";
 
-import { UserAuth } from "../context/AuthContext";
-import { useCompany } from "../context/CompanyContext";
+import { useAuth } from "../context/AuthContext";
 
 import ClientsList from "../components/clients/ClientsList";
 
 const Clients = () => {
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   return (
 

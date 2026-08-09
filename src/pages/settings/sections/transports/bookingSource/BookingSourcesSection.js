@@ -9,10 +9,6 @@ import {
 } from "../../../../../context/AuthContext";
 
 import {
-  useCompany
-} from "../../../../../context/CompanyContext";
-
-import {
   notifySuccess,
   notifyError,
   notifyConfirm
@@ -49,9 +45,11 @@ const BookingSourcesSection = () => {
      CONTEXT
   ====================================================== */
 
-  const { user } = useAuth();
+  const { session } = useAuth();
 
-  const { company } = useCompany();
+  const user = session?.user;
+
+  const company = session?.company;
 
   /* ======================================================
      STATE

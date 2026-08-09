@@ -733,7 +733,7 @@ const ClientsList = ({
         subtitle="Administra las personas y empresas registradas."
       >
 
-        <button>
+        {/* <button>
 
           <FaFileImport className="import-icon" />
 
@@ -747,7 +747,7 @@ const ClientsList = ({
 
           Exportar
 
-        </button>
+        </button> */}
 
         <button
           className={`${

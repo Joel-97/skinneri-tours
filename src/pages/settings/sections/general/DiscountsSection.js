@@ -9,8 +9,7 @@ import {
 
 import { getCurrencies } from "../../../../services/settings/general/currencyService";
 
-import { UserAuth } from "../../../../context/AuthContext";
-import { useCompany } from "../../../../context/CompanyContext";
+import { useAuth } from "../../../../context/AuthContext";
 import Modal from "../../../../components/general/modal";
 import Pagination from "../../../../components/general/pagination";
 import Loading from "../../../../components/general/loading";
@@ -26,9 +25,11 @@ import "../../../../style/settings/transportation/discountsSection.css";
 
 const DiscountsSection = () => {
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   const [discounts, setDiscounts] = useState([]);
   const [currencies, setCurrencies] = useState([]);

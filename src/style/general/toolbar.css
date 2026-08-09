@@ -1,0 +1,69 @@
+/* ======================================================
+   TOOLBAR
+====================================================== */
+
+.toolbar {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+
+  flex-wrap: wrap;
+
+}
+
+.toolbar-left {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 1;
+
+}
+
+.toolbar-right {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .toolbar {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+  .toolbar-left,
+
+  .toolbar-right {
+
+    width: 100%;
+
+    justify-content: stretch;
+
+  }
+
+}

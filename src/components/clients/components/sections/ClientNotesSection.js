@@ -24,17 +24,17 @@ export default function ClientNotesSection({ controller }) {
 
   return (
 
-    <div className="modal-section section-card">
+    <div className="client-modal-section client-section-card">
 
       {/* =========================
           NOTAS INTERNAS
       ========================= */}
 
-      <div className="form-grid">
+      <div className="client-form-grid">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Notas internas
 

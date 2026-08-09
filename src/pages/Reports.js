@@ -1,66 +1,107 @@
-import React, { useState } from 'react';
-import { useCompany } from "../context/CompanyContext";
+import React, { useState } from "react";
 
 import "../style/settings/settings.css";
-import '../style/style.css';
+import "../style/style.css";
 
-import TransportationReport from './reports/transportationReport';
-import CommissionReport from './reports/commissionReport';
+import TransportationReport from "./reports/transportationReport";
+import CommissionReport from "./reports/commissionReport";
 // futuro:
-// import AdventureReport from './reports/adventureReport';
+// import AdventureReport from "./reports/adventureReport";
 
 const Reports = () => {
-
-  const { companyId } = useCompany();
 
   const [view, setView] = useState("transport-report");
 
   const renderContent = () => {
+
     switch (view) {
+
       case "transport-report":
-        return <TransportationReport companyId={companyId} />;
-      
+        return <TransportationReport />;
+
       case "commission-report":
-        return <CommissionReport companyId={companyId} />;
+        return <CommissionReport />;
 
       case "transport-summary":
-        return <div>Resumen de transportes (próximamente)</div>;
+        return (
+          <div>
+            Resumen de transportes (próximamente)
+          </div>
+        );
 
       case "adventure-report":
-        return <div>Reportes de aventuras (próximamente)</div>;
+        return (
+          <div>
+            Reportes de aventuras (próximamente)
+          </div>
+        );
 
       default:
-        return <div>Selecciona un reporte</div>;
+        return (
+          <div>
+            Selecciona un reporte
+          </div>
+        );
+
     }
+
   };
 
   return (
+
     <div className="settings-layout">
 
       {/* SIDEBAR */}
+
       <aside className="settings-sidebar">
 
-        <h4 className="sidebar-title">Transport</h4>
+        <h4 className="sidebar-title">
+
+          Transport
+
+        </h4>
 
         <button
-          className={view === "transport-report" ? "active" : ""}
-          onClick={() => setView("transport-report")}
+          className={
+            view === "transport-report"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("transport-report")
+          }
         >
           Reporte general
         </button>
 
         <button
-          className={view === "commission-report" ? "active" : ""}
-          onClick={() => setView("commission-report")}
+          className={
+            view === "commission-report"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("commission-report")
+          }
         >
           Reporte de comisiones
         </button>
 
-        <h4 className="sidebar-title">Adventure</h4>
+        <h4 className="sidebar-title">
+
+          Adventure
+
+        </h4>
 
         <button
-          className={view === "adventure-report" ? "active" : ""}
-          onClick={() => setView("adventure-report")}
+          className={
+            view === "adventure-report"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setView("adventure-report")
+          }
           disabled
         >
           Próximamente
@@ -69,6 +110,7 @@ const Reports = () => {
       </aside>
 
       {/* CONTENIDO */}
+
       <main className="settings-content">
 
         {renderContent()}
@@ -76,7 +118,9 @@ const Reports = () => {
       </main>
 
     </div>
+
   );
+
 };
 
 export default Reports;

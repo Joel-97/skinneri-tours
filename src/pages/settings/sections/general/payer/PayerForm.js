@@ -6,7 +6,7 @@ import Modal from "../../../../../components/general/modal";
 
 import {
   PAYER_TYPES
-} from "../../../../../constants/payerTypes";
+} from "../../../../../constants/transportation/payerTypes";
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 

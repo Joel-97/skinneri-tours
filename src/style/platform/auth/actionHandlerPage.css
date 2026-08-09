@@ -1,0 +1,30 @@
+/*
+==========================================================
+ACTION HANDLER PAGE
+==========================================================
+*/
+
+.action-handler-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 2rem;
+
+    background:
+
+        linear-gradient(
+
+            180deg,
+
+            #F8FAFC 0%,
+
+            #EEF2F7 100%
+
+        );
+
+}

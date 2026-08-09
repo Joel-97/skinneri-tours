@@ -12,9 +12,9 @@ export default function ClientHeader({
 
   return (
 
-    <div className="modal-header">
+    <div className="client-modal-header">
 
-      <div className="modal-title-group">
+      <div className="client-modal-title-group">
 
         <h2>
 
@@ -26,7 +26,7 @@ export default function ClientHeader({
 
         {mode === "edit" && client?.name && (
 
-          <span className="reservation-badge">
+          <span className="client-reservation-badge">
 
             {client.name}
 
@@ -37,7 +37,7 @@ export default function ClientHeader({
       </div>
 
       <button
-        className="close-btn"
+        className="client-close-btn"
         onClick={onClose}
       >
         ✕

@@ -4,13 +4,7 @@ import {
   Plus
 } from "lucide-react";
 
-import {
-  useAuth
-} from "../../../../../context/AuthContext";
-
-import {
-  useCompany
-} from "../../../../../context/CompanyContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
 import {
   notifySuccess,
@@ -53,9 +47,11 @@ const MaintenanceSection = () => {
      CONTEXT
   ====================================================== */
 
-  const { user } = useAuth();
+  const { session } = useAuth();
 
-  const { company } = useCompany();
+  const user = session?.user;
+
+  const company = session?.company;
 
   /* ======================================================
      STATE

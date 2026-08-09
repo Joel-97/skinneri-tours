@@ -8,8 +8,7 @@ import {
   toggleVehicleStatus
 } from "../../../../../services/settings/transportation/vehiclesService";
 
-import { UserAuth } from "../../../../../context/AuthContext";
-import { useCompany } from "../../../../../context/CompanyContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
 import VehicleForm from "./VehicleForm";
 
@@ -23,8 +22,8 @@ import {
   notifyConfirm
 } from "../../../../../services/notificationService";
 
-import { VEHICLE_TYPES } from "../../../../../constants/vehicleTypes";
-import { VEHICLE_STATUS } from "../../../../../constants/vehicleStatus";
+import { VEHICLE_TYPES } from "../../../../../constants/transportation/vehicleTypes";
+import { VEHICLE_STATUS } from "../../../../../constants/transportation/vehicleStatus";
 
 import CatalogHeader from "../../../components/CatalogHeader";
 import CatalogSearch from "../../../components/CatalogSearch";
@@ -41,9 +40,11 @@ const VehiclesSection = () => {
      CONTEXT
   ====================================================== */
 
-  const { user } = UserAuth();
+  const { session } = useAuth();
 
-  const { companyId } = useCompany();
+  const user = session?.user;
+
+  const companyId = session?.company?.id;
 
   /* ======================================================
      STATE

@@ -3,8 +3,8 @@ import Select from "react-select";
 
 import Modal from "../../../../../components/general/modal";
 
-import { VEHICLE_TYPES } from "../../../../../constants/vehicleTypes";
-import { VEHICLE_STATUS } from "../../../../../constants/vehicleStatus";
+import { VEHICLE_TYPES } from "../../../../../constants/transportation/vehicleTypes";
+import { VEHICLE_STATUS } from "../../../../../constants/transportation/vehicleStatus";
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 

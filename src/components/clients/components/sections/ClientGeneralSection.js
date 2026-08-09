@@ -43,9 +43,9 @@ export default function ClientGeneralSection({ controller }) {
 
   return (
 
-    <div className="modal-section section-card">
+    <div className="client-modal-section client-section-card">
 
-      <h4 className="section-title">
+      <h4 className="client-section-title">
 
         Información general
 
@@ -55,11 +55,11 @@ export default function ClientGeneralSection({ controller }) {
           TIPO Y NOMBRE
       ========================= */}
 
-      <div className="form-grid two-columns">
+      <div className="client-form-grid client-two-columns">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Tipo de cliente
 
@@ -101,11 +101,11 @@ export default function ClientGeneralSection({ controller }) {
 
         </div>
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
-            Nombre <span className="required">*</span>
+            Nombre <span className="client-required">*</span>
 
           </label>
 
@@ -131,11 +131,11 @@ export default function ClientGeneralSection({ controller }) {
           TELÉFONO Y EMAIL
       ========================= */}
 
-      <div className="form-grid two-columns">
+      <div className="client-form-grid client-two-columns">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Teléfono
 
@@ -157,9 +157,9 @@ export default function ClientGeneralSection({ controller }) {
 
         </div>
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Email
 
@@ -187,11 +187,11 @@ export default function ClientGeneralSection({ controller }) {
           WHATSAPP Y PAÍS
       ========================= */}
 
-      <div className="form-grid two-columns">
+      <div className="client-form-grid client-two-columns">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             WhatsApp
 
@@ -213,9 +213,9 @@ export default function ClientGeneralSection({ controller }) {
 
         </div>
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             País
 
@@ -265,11 +265,11 @@ export default function ClientGeneralSection({ controller }) {
           IDIOMA Y ESTADO
       ========================= */}
 
-      <div className="form-grid two-columns">
+      <div className="client-form-grid client-two-columns">
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Idioma preferido
 
@@ -311,15 +311,15 @@ export default function ClientGeneralSection({ controller }) {
 
         </div>
 
-        <div className="form-field">
+        <div className="client-form-field">
 
-          <label className="field-label">
+          <label className="client-field-label">
 
             Estado
 
           </label>
 
-          <label className="checkbox-field">
+          <label className="client-checkbox-field">
 
             <input
 
