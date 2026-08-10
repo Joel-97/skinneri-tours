@@ -240,7 +240,7 @@ const CompanyProfileSection = () => {
 
         });
 
-      await refreshSession();
+      await refreshSession(session.user);
 
       setFormData((prev) => ({
 
@@ -301,7 +301,7 @@ const CompanyProfileSection = () => {
 
       });
 
-      await refreshSession();
+      await refreshSession(session.user);
 
       setFormData((prev) => ({
 
@@ -360,7 +360,7 @@ const CompanyProfileSection = () => {
 
       );
 
-      await refreshSession();
+      await refreshSession(session.user);
 
       notifySuccess(
 

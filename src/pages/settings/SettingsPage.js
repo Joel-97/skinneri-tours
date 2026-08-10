@@ -9,6 +9,7 @@ import ServiceTypesSection from "./sections/general/ServiceTypesSection";
 import CommissionAgents from "./sections/general/CommissionAgentsSection";
 import PaymentTypesSection from "./sections/general/PaymentTypesSection";
 import CompanyProfileSection from "./sections/general/CompanyProfileSection";
+import EmailSettingsSection from "./sections/general/EmailSettingsSection";
 import DiscountsSection from "./sections/general/DiscountsSection";
 import StaffSection from "./sections/general/StaffSection";
 
@@ -196,6 +197,14 @@ const SettingsPage = () => {
         return (
 
           <CompanyProfileSection />
+
+        );
+
+      case "emailSettings":
+
+        return (
+
+          <EmailSettingsSection />
 
         );
 
@@ -450,6 +459,34 @@ const SettingsPage = () => {
         >
 
           Perfil empresa
+
+        </button>
+
+        <button
+
+          className={
+
+            view === "emailSettings"
+
+              ? "active"
+
+              : ""
+
+          }
+
+          onClick={() =>
+
+            setView(
+
+              "emailSettings"
+
+            )
+
+          }
+
+        >
+
+          Configuración de email
 
         </button>
 

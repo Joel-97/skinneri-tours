@@ -6,13 +6,20 @@
 
 export const FIRESTORE_COLLECTIONS = Object.freeze({
 
-    ACCESS_REQUESTS: "accessRequests",
+    ACCESS_REQUESTS:
+        "accessRequests",
 
-    USERS: "users",
+    USERS:
+        "users",
 
-    COMPANIES: "companies",
+    COMPANIES:
+        "companies",
 
-    AUTH_ACTIONS: "authActions"
+    AUTH_ACTIONS:
+        "authActions",
+
+    TRANSPORTATION:
+        "transportation"
 
 });
 

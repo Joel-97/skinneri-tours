@@ -84,22 +84,20 @@ export function AuthProvider({ children }) {
   const authenticated = !!session;
 
   /*
-  ==========================================================
+  ========================================================
   REFRESH SESSION
-  ==========================================================
+  ========================================================
   */
 
-  async function refreshSession(auth = null) {
+  async function refreshSession(auth) {
 
     /*
     ========================================================
-    NOT AUTHENTICATED
+    INVALID AUTH
     ========================================================
     */
 
     if (!auth) {
-
-      setSession(INITIAL_SESSION);
 
       return;
 
@@ -117,13 +115,29 @@ export function AuthProvider({ children }) {
 
     );
 
+    /*
+    ========================================================
+    SESSION ERROR
+    ========================================================
+    */
+
     if (!result.success) {
 
-      setSession(INITIAL_SESSION);
+      setSession(
+
+        INITIAL_SESSION
+
+      );
 
       return;
 
     }
+
+    /*
+    ========================================================
+    UPDATE SESSION
+    ========================================================
+    */
 
     setSession(
 

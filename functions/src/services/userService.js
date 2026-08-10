@@ -429,3 +429,114 @@ export async function deleteUserService(
     }
 
 }
+
+/**
+ * ==========================================================
+ * GET USER
+ * ==========================================================
+ */
+
+export async function getUserService(
+    uid
+) {
+
+    try {
+
+        /*
+        ======================================================
+        VALIDATION
+        ======================================================
+        */
+
+        if (!uid) {
+
+            return failure(
+
+                PLATFORM_ERRORS.USER_NOT_FOUND
+
+            );
+
+        }
+
+
+        /*
+        ======================================================
+        DOCUMENT
+        ======================================================
+        */
+
+        const document =
+
+            await db
+
+                .collection(
+
+                    FIRESTORE_COLLECTIONS.USERS
+
+                )
+
+                .doc(
+
+                    uid
+
+                )
+
+                .get();
+
+
+        /*
+        ======================================================
+        NOT FOUND
+        ======================================================
+        */
+
+        if (
+
+            !document.exists
+
+        ) {
+
+            return failure(
+
+                PLATFORM_ERRORS.USER_NOT_FOUND
+
+            );
+
+        }
+
+
+        /*
+        ======================================================
+        RESULT
+        ======================================================
+        */
+
+        return success({
+
+            id:
+
+                document.id,
+
+            ...document.data()
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+
+            error
+
+        );
+
+        return failure(
+
+            PLATFORM_ERRORS.UNKNOWN_ERROR
+
+        );
+
+    }
+
+}
