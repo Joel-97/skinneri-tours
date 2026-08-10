@@ -3,7 +3,7 @@ import useTransportationCalendar from "./TransportationCalendar/useTransportatio
 
 import CalendarView from "./TransportationCalendar/components/CalendarView";
 
-import TransportationModal from "../reservations/transportation/TransportationModal";
+import TransportationModal from "../reservations/transportation/transportationModal";
 
 import Loading from "../general/loading";
 

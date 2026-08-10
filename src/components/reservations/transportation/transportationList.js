@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 
 import Select from "react-select";
 
-import TransportationModal from "./TransportationModal";
+import TransportationModal from "./transportationModal";
 
 import {
   getTransportation,
