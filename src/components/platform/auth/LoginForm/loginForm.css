@@ -1,0 +1,469 @@
+/* ======================================================
+   LOGIN FORM
+====================================================== */
+
+.login-form-container{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.login-form-header{
+
+    margin-bottom:38px;
+
+}
+
+.login-form-title{
+
+    margin:0;
+
+    color:#08204B;
+
+    font-size:2.15rem;
+
+    font-weight:700;
+
+    line-height:1.15;
+
+    letter-spacing:-.02em;
+
+}
+
+.login-form-subtitle{
+
+    margin:14px 0 0;
+
+    color:#6F7F92;
+
+    font-size:1rem;
+
+    line-height:1.7;
+
+}
+
+/* ======================================================
+   ERROR
+====================================================== */
+
+.login-form-error{
+
+    margin-bottom:26px;
+
+    padding:15px 18px;
+
+    border-radius:14px;
+
+    border:1px solid #F4C8C8;
+
+    background:#FFF6F6;
+
+    color:#C62828;
+
+    font-size:.92rem;
+
+    line-height:1.6;
+
+}
+
+/* ======================================================
+   FORM
+====================================================== */
+
+.login-form-fields{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:24px;
+
+}
+
+/* ======================================================
+   GROUP
+====================================================== */
+
+.login-form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+.login-form-label{
+
+    margin-bottom:10px;
+
+    color:#1F355B;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+}
+
+/* ======================================================
+   INPUT
+====================================================== */
+
+.login-form-input{
+
+    width:100%;
+
+    height:58px;
+
+    padding:0 20px;
+
+    border-radius:16px;
+
+    border:1px solid #D7E1ED;
+
+    background:#FFFFFF;
+
+    color:#08204B;
+
+    font-size:1rem;
+
+    transition:
+        border-color .25s,
+        box-shadow .25s,
+        transform .2s;
+
+    outline:none;
+
+    box-sizing:border-box;
+
+}
+
+.login-form-input::placeholder{
+
+    color:#B2BDC9;
+
+}
+
+.login-form-input:hover{
+
+    border-color:#B8C6D7;
+
+}
+
+.login-form-input:focus{
+
+    border-color:#5B2D8B;
+
+    box-shadow:
+        0 0 0 4px rgba(91,45,139,.10);
+
+}
+
+/* ======================================================
+   FORGOT PASSWORD
+====================================================== */
+
+.login-form-forgot-password{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    margin-top:-6px;
+
+}
+
+.login-form-forgot-password-link{
+
+    color:#5B2D8B;
+
+    font-size:.92rem;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    transition:opacity .2s;
+
+}
+
+.login-form-forgot-password-link:hover{
+
+    opacity:.7;
+
+}
+
+/* ======================================================
+   ACTIONS
+====================================================== */
+
+.login-form-actions{
+
+    margin-top:8px;
+
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.login-form-submit-button{
+
+    width:100%;
+
+    height:58px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#08204B;
+
+    color:#FFFFFF;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    letter-spacing:.02em;
+
+    cursor:pointer;
+
+    transition:
+        background .25s,
+        transform .18s,
+        box-shadow .25s;
+
+}
+
+.login-form-submit-button:hover:not(:disabled){
+
+    background:#10326E;
+
+    box-shadow:
+        0 14px 26px rgba(8,32,75,.18);
+
+}
+
+.login-form-submit-button:active:not(:disabled){
+
+    transform:scale(.985);
+
+}
+
+.login-form-submit-button:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.login-form-footer{
+
+    margin-top:36px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+}
+
+.login-form-footer-text{
+
+    color:#6F7F92;
+
+    font-size:.94rem;
+
+}
+
+.login-form-footer-link{
+
+    color:#5B2D8B;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    transition:opacity .2s;
+
+}
+
+.login-form-footer-link:hover{
+
+    opacity:.75;
+
+}
+
+/* ======================================================
+   LARGE DESKTOP
+====================================================== */
+
+@media (min-width:1600px){
+
+    .login-form-title{
+
+        font-size:2.35rem;
+
+    }
+
+    .login-form-subtitle{
+
+        font-size:1.05rem;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1024px){
+
+    .login-form-header{
+
+        margin-bottom:34px;
+
+    }
+
+    .login-form-title{
+
+        font-size:1.95rem;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+    .login-form-header{
+
+        text-align:center;
+
+        margin-bottom:30px;
+
+    }
+
+    .login-form-title{
+
+        font-size:1.75rem;
+
+    }
+
+    .login-form-subtitle{
+
+        font-size:.95rem;
+
+    }
+
+    .login-form-fields{
+
+        gap:20px;
+
+    }
+
+    .login-form-input{
+
+        height:54px;
+
+        border-radius:14px;
+
+    }
+
+    .login-form-submit-button{
+
+        height:54px;
+
+        border-radius:14px;
+
+    }
+
+    .login-form-forgot-password{
+
+        justify-content:center;
+
+        margin-top:0;
+
+    }
+
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+    .login-form-title{
+
+        font-size:1.55rem;
+
+    }
+
+    .login-form-subtitle{
+
+        font-size:.92rem;
+
+    }
+
+    .login-form-label{
+
+        font-size:.88rem;
+
+    }
+
+    .login-form-input{
+
+        height:52px;
+
+        padding:0 16px;
+
+        font-size:.95rem;
+
+    }
+
+    .login-form-submit-button{
+
+        height:52px;
+
+        font-size:.95rem;
+
+    }
+
+    .login-form-footer{
+
+        flex-direction:column;
+
+        gap:5px;
+
+    }
+
+}

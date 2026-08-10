@@ -1,18 +1,75 @@
+/*
+==========================================================
+IMPORTS
+==========================================================
+*/
+
 import { Navigate } from "react-router-dom";
-import { UserAuth } from "../../context/AuthContext";
-import Loading from "../../components/general/loading"; 
 
-const SuperAdminRoute = ({ children }) => {
-  const { user, isSuperAdmin, loading } = UserAuth();
+import { useAuth } from "../../context/AuthContext";
 
-  if (loading) return <div> <Loading /> </div>;
+import {
+  isSuperAdmin
+} from "../../utils/authorization";
 
+/*
+==========================================================
+COMPONENT
+==========================================================
+*/
 
-  if (!user) return <Navigate to="/login" />;
+export default function SuperAdminRoute({
 
-  if (!isSuperAdmin) return <Navigate to="/home" />;
+  children
 
-  return children;
-};
+}) {
 
-export default SuperAdminRoute;
+  const {
+
+    session
+
+  } = useAuth();
+
+  /*
+  ==========================================================
+  USER
+  ==========================================================
+  */
+
+  const user = session?.user;
+
+  /*
+  ==========================================================
+  AUTHORIZATION
+  ==========================================================
+  */
+
+  if (
+
+    isSuperAdmin(user)
+
+  ) {
+
+    return children;
+
+  }
+
+  /*
+  ==========================================================
+  ACCESS DENIED
+  ==========================================================
+  */
+
+  return (
+
+    <Navigate
+
+      to="/"
+
+      replace
+
+    />
+
+  );
+
+}

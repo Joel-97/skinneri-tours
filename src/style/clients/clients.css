@@ -1,9 +1,91 @@
+/* ======================================================
+   CLIENTS WORKSPACE
+====================================================== */
 
-.btn-primary {
-  background: #08204B;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+.clients-workspace{
+
+    display:grid;
+
+    grid-template-columns:minmax(0,2fr) 380px;
+
+    gap:24px;
+
+    align-items:start;
+
+}
+
+/* ======================================================
+   TABLE CONTAINER
+====================================================== */
+
+.clients-table-container{
+
+    background:#ffffff;
+
+    border:1px solid #dbe2ea;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    min-width:0;
+
+}
+
+/* ======================================================
+   SIDE PANEL
+====================================================== */
+
+.clients-side-panel{
+
+    background:#ffffff;
+
+    border:1px solid #dbe2ea;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    min-height:650px;
+
+    position:sticky;
+
+    top:20px;
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1200px){
+
+.clients-workspace{
+
+    grid-template-columns:1fr;
+
+}
+
+.clients-side-panel{
+
+    position:static;
+
+    min-height:auto;
+
+}
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+.clients-workspace{
+
+    gap:18px;
+
+}
+
 }

@@ -1,8 +1,14 @@
-/* -------------------------------------------------- */
-/* OVERLAY */
-/* -------------------------------------------------- */
+/* ======================================================
+   EXPORT TEMPLATE MODAL
+====================================================== */
+
+
+/* ======================================================
+   OVERLAY
+====================================================== */
 
 .export-modal-overlay {
+
   position: fixed;
 
   inset: 0;
@@ -18,43 +24,66 @@
   background:
     rgba(15, 23, 42, 0.42);
 
-  backdrop-filter: blur(4px);
+  backdrop-filter:
+    blur(4px);
+
+  -webkit-backdrop-filter:
+    blur(4px);
 
   z-index: 99999;
 
+  overflow-y: auto;
+
   animation:
-    exportFadeIn 0.18s ease;
+    exportFadeIn
+    0.18s ease;
+
 }
 
-/* -------------------------------------------------- */
-/* MODAL */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   MODAL
+====================================================== */
 
 .export-modal {
+
   width: 100%;
 
   max-width: 600px;
 
+  max-height:
+    calc(100dvh - 48px);
+
+  display: flex;
+
+  flex-direction: column;
+
   background: #ffffff;
+
+  border:
+    1px solid #e5e7eb;
 
   border-radius: 24px;
 
-  border: 1px solid #e5e7eb;
-
   box-shadow:
-    0 18px 45px rgba(15, 23, 42, 0.12);
+    0 18px 45px
+    rgba(15, 23, 42, 0.12);
 
   overflow: hidden;
 
   animation:
-    exportModalEnter 0.2s ease;
+    exportModalEnter
+    0.2s ease;
+
 }
 
-/* -------------------------------------------------- */
-/* HEADER */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   HEADER
+====================================================== */
 
 .export-modal-header {
+
   display: flex;
 
   align-items: flex-start;
@@ -72,43 +101,65 @@
     1px solid #f1f5f9;
 
   background: #ffffff;
+
+  flex-shrink: 0;
+
 }
 
+
 .export-modal-header h2 {
+
   margin: 0;
 
   font-size: 1.6rem;
 
   font-weight: 700;
 
+  line-height: 1.25;
+
   color: #0f172a;
 
-  letter-spacing: -0.02em;
+  letter-spacing:
+    -0.02em;
+
 }
 
+
 .export-modal-header p {
+
   margin:
     10px
     0
     0;
+
+  max-width: 500px;
 
   color: #64748b;
 
   line-height: 1.6;
 
   font-size: 0.95rem;
+
 }
 
-/* -------------------------------------------------- */
-/* CLOSE BUTTON */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   CLOSE BUTTON
+====================================================== */
 
 .export-modal-close {
+
   width: 42px;
 
   min-width: 42px;
 
   height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
 
   border: none;
 
@@ -120,27 +171,44 @@
 
   font-size: 1rem;
 
+  line-height: 1;
+
   cursor: pointer;
 
   transition:
     background 0.2s ease,
     color 0.2s ease,
     transform 0.15s ease;
+
 }
 
+
 .export-modal-close:hover {
+
   background: #e2e8f0;
 
   color: #0f172a;
 
-  transform: translateY(-1px);
+  transform:
+    translateY(-1px);
+
 }
 
-/* -------------------------------------------------- */
-/* CONTENT */
-/* -------------------------------------------------- */
+
+.export-modal-close:active {
+
+  transform:
+    scale(0.96);
+
+}
+
+
+/* ======================================================
+   CONTENT
+====================================================== */
 
 .export-modal-content {
+
   display: flex;
 
   flex-direction: column;
@@ -150,57 +218,134 @@
   padding:
     28px
     30px;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    #cbd5e1
+    transparent;
+
 }
 
-/* -------------------------------------------------- */
-/* FORM */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   CONTENT SCROLLBAR
+====================================================== */
+
+.export-modal-content::-webkit-scrollbar {
+
+  width: 7px;
+
+}
+
+
+.export-modal-content::-webkit-scrollbar-track {
+
+  background:
+    transparent;
+
+}
+
+
+.export-modal-content::-webkit-scrollbar-thumb {
+
+  background:
+    #cbd5e1;
+
+  border-radius:
+    999px;
+
+}
+
+
+.export-modal-content::-webkit-scrollbar-thumb:hover {
+
+  background:
+    #94a3b8;
+
+}
+
+
+/* ======================================================
+   FORM
+====================================================== */
 
 .export-modal .form-group {
+
   display: flex;
 
   flex-direction: column;
 
   gap: 10px;
+
+  min-width: 0;
+
 }
 
+
 .export-modal .form-group label {
+
   font-size: 0.9rem;
 
   font-weight: 600;
 
   color: #475569;
+
 }
 
-/* -------------------------------------------------- */
-/* PREVIEW */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   PREVIEW
+====================================================== */
 
 .export-modal-preview {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
   background: #f8fafc;
 
-  border: 1px solid #e2e8f0;
+  border:
+    1px solid #e2e8f0;
 
   border-radius: 18px;
 
   padding: 20px;
+
+  overflow: hidden;
+
 }
 
+
 .export-modal-preview-title {
+
+  margin-bottom: 18px;
+
   font-size: 0.82rem;
 
   font-weight: 700;
 
   text-transform: uppercase;
 
-  letter-spacing: 0.05em;
+  letter-spacing:
+    0.05em;
 
   color: #64748b;
 
-  margin-bottom: 18px;
 }
 
+
+/* ======================================================
+   PREVIEW GRID
+====================================================== */
+
 .export-modal-preview-grid {
+
   display: grid;
 
   grid-template-columns:
@@ -210,41 +355,70 @@
     );
 
   gap: 18px;
+
 }
 
+
 .export-modal-preview-grid div {
+
+  min-width: 0;
+
   display: flex;
 
   flex-direction: column;
 
   gap: 6px;
+
 }
 
+
 .export-modal-preview-grid span {
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
   font-size: 0.78rem;
 
   font-weight: 600;
 
   text-transform: uppercase;
 
-  letter-spacing: 0.04em;
+  letter-spacing:
+    0.04em;
 
   color: #94a3b8;
+
 }
 
+
 .export-modal-preview-grid strong {
+
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
   font-size: 1rem;
+
+  line-height: 1.4;
 
   font-weight: 700;
 
   color: #0f172a;
+
 }
 
-/* -------------------------------------------------- */
-/* ACTIONS */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   ACTIONS
+====================================================== */
 
 .export-modal-actions {
+
   display: flex;
 
   align-items: center;
@@ -262,21 +436,28 @@
     1px solid #f1f5f9;
 
   background: #fcfcfd;
+
+  flex-shrink: 0;
+
 }
 
-/* -------------------------------------------------- */
-/* BUTTONS */
-/* -------------------------------------------------- */
+
+/* ======================================================
+   BUTTONS
+====================================================== */
 
 .export-modal-cancel-btn,
 .export-modal-export-btn {
-  border: none;
 
   min-width: 135px;
 
   height: 48px;
 
-  padding: 0 20px;
+  padding:
+    0
+    20px;
+
+  border: none;
 
   border-radius: 14px;
 
@@ -290,48 +471,80 @@
     background 0.2s ease,
     transform 0.15s ease,
     opacity 0.2s ease;
+
 }
+
 
 .export-modal-cancel-btn:hover,
 .export-modal-export-btn:hover {
-  transform: translateY(-1px);
+
+  transform:
+    translateY(-1px);
+
 }
 
-/* CANCEL */
+
+.export-modal-cancel-btn:active,
+.export-modal-export-btn:active {
+
+  transform:
+    scale(0.98);
+
+}
+
+
+/* ======================================================
+   CANCEL BUTTON
+====================================================== */
 
 .export-modal-cancel-btn {
+
   background: #eef2f7;
 
   color: #0f172a;
+
 }
+
 
 .export-modal-cancel-btn:hover {
+
   background: #e2e8f0;
+
 }
 
-/* EXPORT */
+
+/* ======================================================
+   EXPORT BUTTON
+====================================================== */
 
 .export-modal-export-btn {
-  background: #0f172a;
 
-  color: #ffffff;
-}
-
-.export-modal-export-btn:hover {
-  background: #1e293b;
-}
-
-.export-modal-export-btn {
-  display: flex;
+  display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
+
+  background: #0f172a;
+
+  color: #ffffff;
+
 }
 
-/* DISABLED */
+
+.export-modal-export-btn:hover {
+
+  background: #1e293b;
+
+}
+
+
+/* ======================================================
+   DISABLED
+====================================================== */
 
 .export-modal-export-btn:disabled {
+
   background: #d1d5db;
 
   color: #6b7280;
@@ -341,69 +554,448 @@
   transform: none;
 
   opacity: 0.8;
+
 }
 
-/* -------------------------------------------------- */
-/* ANIMATIONS */
-/* -------------------------------------------------- */
+
+.export-modal-cancel-btn:disabled {
+
+  cursor: not-allowed;
+
+  opacity: 0.55;
+
+  transform: none;
+
+}
+
+
+/* ======================================================
+   ANIMATIONS
+====================================================== */
 
 @keyframes exportFadeIn {
 
   from {
+
     opacity: 0;
+
   }
 
   to {
+
     opacity: 1;
+
   }
+
 }
+
 
 @keyframes exportModalEnter {
 
   from {
+
     opacity: 0;
 
     transform:
       translateY(10px)
       scale(0.985);
+
   }
 
   to {
+
     opacity: 1;
 
     transform:
       translateY(0)
       scale(1);
+
   }
+
 }
 
-/* -------------------------------------------------- */
-/* RESPONSIVE */
-/* -------------------------------------------------- */
 
-@media (max-width: 640px) {
+/* ======================================================
+   LARGE TABLETS
+====================================================== */
+
+@media (max-width: 900px) {
 
   .export-modal {
-    max-width: 100%;
+
+    max-width: 560px;
+
   }
 
-  .export-modal-header,
-  .export-modal-content,
-  .export-modal-actions {
-    padding-left: 22px;
-    padding-right: 22px;
+
+  .export-modal-header {
+
+    padding:
+      26px
+      26px
+      22px;
+
   }
 
-  .export-modal-actions {
-    flex-direction: column;
+
+  .export-modal-content {
+
+    padding:
+      24px
+      26px;
+
   }
+
+
+  .export-modal-actions {
+
+    padding:
+      20px
+      26px
+      24px;
+
+  }
+
+}
+
+
+/* ======================================================
+   TABLETS
+====================================================== */
+
+@media (max-width: 700px) {
+
+  .export-modal-overlay {
+
+    padding: 16px;
+
+  }
+
+
+  .export-modal {
+
+    max-height:
+      calc(100dvh - 32px);
+
+    border-radius: 20px;
+
+  }
+
+
+  .export-modal-header {
+
+    padding:
+      22px
+      22px
+      20px;
+
+  }
+
+
+  .export-modal-header h2 {
+
+    font-size: 1.4rem;
+
+  }
+
+
+  .export-modal-header p {
+
+    margin-top: 8px;
+
+    font-size: 0.88rem;
+
+  }
+
+
+  .export-modal-content {
+
+    padding:
+      22px;
+
+    gap: 20px;
+
+  }
+
+
+  .export-modal-preview {
+
+    padding: 18px;
+
+  }
+
+
+  .export-modal-actions {
+
+    padding:
+      20px
+      22px
+      22px;
+
+  }
+
+
+  .export-modal-preview-grid {
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+    gap: 16px;
+
+  }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 560px) {
+
+  .export-modal-overlay {
+
+    padding: 0;
+
+    align-items: stretch;
+
+  }
+
+
+  .export-modal {
+
+    width: 100%;
+
+    max-width: none;
+
+    height: 100dvh;
+
+    max-height: 100dvh;
+
+    border:
+      none;
+
+    border-radius: 0;
+
+  }
+
+
+  .export-modal-header {
+
+    padding:
+      20px
+      18px
+      18px;
+
+  }
+
+
+  .export-modal-header h2 {
+
+    font-size: 1.3rem;
+
+  }
+
+
+  .export-modal-header p {
+
+    max-width: none;
+
+    font-size: 0.84rem;
+
+    line-height: 1.5;
+
+  }
+
+
+  .export-modal-close {
+
+    width: 40px;
+
+    min-width: 40px;
+
+    height: 40px;
+
+  }
+
+
+  .export-modal-content {
+
+    padding:
+      18px;
+
+    gap: 18px;
+
+  }
+
+
+  .export-modal-preview {
+
+    padding: 16px;
+
+    border-radius: 16px;
+
+  }
+
+
+  .export-modal-preview-title {
+
+    margin-bottom: 15px;
+
+  }
+
+
+  .export-modal-preview-grid {
+
+    grid-template-columns: 1fr;
+
+    gap: 14px;
+
+  }
+
+
+  .export-modal-preview-grid strong {
+
+    font-size: 0.92rem;
+
+  }
+
+
+  .export-modal-actions {
+
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+
+    gap: 8px;
+
+    padding:
+      16px
+      18px
+      20px;
+
+  }
+
 
   .export-modal-cancel-btn,
   .export-modal-export-btn {
+
     width: 100%;
+
+    min-width: 0;
+
   }
 
-  .export-modal-preview-grid {
-    grid-template-columns: 1fr;
+}
+
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width: 380px) {
+
+  .export-modal-header {
+
+    padding:
+      16px
+      14px;
+
   }
+
+
+  .export-modal-header h2 {
+
+    font-size: 1.18rem;
+
+  }
+
+
+  .export-modal-header p {
+
+    font-size: 0.8rem;
+
+  }
+
+
+  .export-modal-close {
+
+    width: 36px;
+
+    min-width: 36px;
+
+    height: 36px;
+
+  }
+
+
+  .export-modal-content {
+
+    padding:
+      14px;
+
+  }
+
+
+  .export-modal-preview {
+
+    padding: 14px;
+
+  }
+
+
+  .export-modal-preview-grid {
+
+    gap: 12px;
+
+  }
+
+
+  .export-modal-actions {
+
+    padding:
+      14px
+      14px
+      18px;
+
+  }
+
+
+  .export-modal-cancel-btn,
+  .export-modal-export-btn {
+
+    height: 46px;
+
+    font-size: 0.88rem;
+
+  }
+
+}
+
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .export-modal-overlay,
+  .export-modal {
+
+    animation: none;
+
+  }
+
+
+  .export-modal-close,
+  .export-modal-cancel-btn,
+  .export-modal-export-btn {
+
+    transition: none;
+
+  }
+
 }

@@ -1,0 +1,463 @@
+/* ======================================================
+   AUTH LAYOUT
+====================================================== */
+
+.auth-layout-container{
+
+    width:100%;
+
+    min-height:100vh;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #08204B 0%,
+            #163A73 45%,
+            #5B2D8B 100%
+        );
+
+}
+
+/* ======================================================
+   BACKGROUND
+====================================================== */
+
+.auth-layout-background{
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    min-height:100vh;
+
+    padding:70px 7vw;
+
+    overflow:hidden;
+
+}
+
+/* ======================================================
+   DECORATION
+====================================================== */
+
+.auth-layout-background::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:520px;
+
+    height:520px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.04);
+
+    top:-240px;
+
+    left:-220px;
+
+}
+
+.auth-layout-background::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:340px;
+
+    height:340px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.035);
+
+    right:-110px;
+
+    bottom:-110px;
+
+}
+
+/* ======================================================
+   BRANDING
+====================================================== */
+
+.auth-layout-branding{
+
+    position:relative;
+
+    z-index:2;
+
+    flex:1;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+/* ======================================================
+   BRANDING CONTENT
+====================================================== */
+
+.auth-layout-branding-content{
+
+    width:100%;
+
+    max-width:500px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    text-align:center;
+
+}
+
+/* ======================================================
+   LOGO
+====================================================== */
+
+.auth-layout-logo-container{
+
+    margin-bottom:36px;
+
+}
+
+.auth-layout-logo-image{
+
+    width:130px;
+
+    height:auto;
+
+}
+
+/* ======================================================
+   TITLE
+====================================================== */
+
+.auth-layout-title{
+
+    margin:0;
+
+    color:#FFFFFF;
+
+    font-size:3.25rem;
+
+    font-weight:700;
+
+    line-height:1.1;
+
+    letter-spacing:-.03em;
+
+}
+
+/* ======================================================
+   DESCRIPTION
+====================================================== */
+
+.auth-layout-description{
+
+    margin:26px 0 34px;
+
+    max-width:380px;
+
+    color:rgba(255,255,255,.82);
+
+    font-size:1.15rem;
+
+    line-height:1.8;
+
+}
+
+/* ======================================================
+   VERSION
+====================================================== */
+
+.auth-layout-version{
+
+    color:rgba(255,255,255,.42);
+
+    font-size:.82rem;
+
+    letter-spacing:.14em;
+
+    text-transform:uppercase;
+
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.auth-layout-content{
+
+    position:relative;
+
+    z-index:2;
+
+    flex:0 0 700px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.auth-layout-card{
+
+    width:100%;
+
+    padding:54px;
+
+    border-radius:30px;
+
+    background:#FFFFFF;
+
+    box-shadow:
+
+        0 35px 80px rgba(5,18,46,.25);
+
+}
+
+/* ======================================================
+   LARGE DESKTOP
+====================================================== */
+
+@media (min-width:1800px){
+
+    .auth-layout-background{
+
+        padding:90px 9vw;
+
+    }
+
+    .auth-layout-card{
+
+        max-width:700px;
+
+        padding:60px;
+
+    }
+
+    .auth-layout-title{
+
+        font-size:3.6rem;
+
+    }
+
+}
+
+/* ======================================================
+   DESKTOP
+====================================================== */
+
+@media (max-width:1300px){
+
+    .auth-layout-background{
+
+        gap:70px;
+
+        padding:60px 5vw;
+
+    }
+
+    .auth-layout-content{
+
+        flex-basis:430px;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET LANDSCAPE
+====================================================== */
+
+@media (max-width:1100px){
+
+    .auth-layout-background{
+
+        flex-direction:column;
+
+        justify-content:center;
+
+        gap:50px;
+
+        padding:60px 30px;
+
+    }
+
+    .auth-layout-branding{
+
+        width:100%;
+
+    }
+
+    .auth-layout-content{
+
+        width:100%;
+
+        flex:none;
+
+    }
+
+    .auth-layout-card{
+
+        width:100%;
+
+        max-width:520px;
+
+    }
+
+    .auth-layout-title{
+
+        font-size:2.5rem;
+
+    }
+
+    .auth-layout-description{
+
+        max-width:340px;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+    .auth-layout-background{
+
+        padding:45px 22px;
+
+        gap:40px;
+
+    }
+
+    .auth-layout-logo-image{
+
+        width:95px;
+
+    }
+
+    .auth-layout-title{
+
+        font-size:2rem;
+
+    }
+
+    .auth-layout-description{
+
+        margin:18px 0 26px;
+
+        font-size:1rem;
+
+        line-height:1.7;
+
+        max-width:290px;
+
+    }
+
+    .auth-layout-card{
+
+        padding:36px 28px;
+
+        border-radius:24px;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+    .auth-layout-background{
+
+        padding:32px 16px;
+
+        gap:30px;
+
+    }
+
+    .auth-layout-logo-image{
+
+        width:78px;
+
+    }
+
+    .auth-layout-title{
+
+        font-size:1.7rem;
+
+    }
+
+    .auth-layout-description{
+
+        font-size:.92rem;
+
+        margin:14px 0 20px;
+
+        max-width:240px;
+
+    }
+
+    .auth-layout-version{
+
+        font-size:.72rem;
+
+    }
+
+    .auth-layout-card{
+
+        padding:28px 20px;
+
+        border-radius:20px;
+
+    }
+
+}
+
+/* ======================================================
+   VERY SMALL DEVICES
+====================================================== */
+
+@media (max-width:360px){
+
+    .auth-layout-title{
+
+        font-size:1.5rem;
+
+    }
+
+    .auth-layout-card{
+
+        padding:22px 16px;
+
+    }
+
+}

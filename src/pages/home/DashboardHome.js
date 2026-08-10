@@ -1,23 +1,11 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState
-} from "react";
+import React from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { CurrencyProvider } from "../../context/CurrencyContext";
+
+import { useDashboardController } from "./controllers/useDashboardController";
 
 import "../../style/home/dashboard.css";
-
-/* ======================================================
-   SERVICES
-====================================================== */
-
-import {
-  getDashboardMetrics,
-  getUpcomingTrips,
-  getLast7DaysRevenue,
-  getActiveDrivers
-} from "../../services/home/dashboardService";
 
 /* ======================================================
    COMPONENTS
@@ -37,8 +25,11 @@ import AlertsWidget
 import OperationsStatusWidget
   from "../../components/home/OperationsStatusWidget";
 
-import MiniAgendaWidget
-  from "../../components/home/MiniAgendaWidget";
+import CurrencySelector
+  from "../../components/general/CurrencySelector/CurrencySelector";
+
+// import MiniAgendaWidget
+//   from "../../components/home/MiniAgendaWidget";
 
 /* ======================================================
    DASHBOARD HOME
@@ -46,392 +37,235 @@ import MiniAgendaWidget
 
 const DashboardHome = () => {
 
-  const {
-    company,
-    companyId
-  } = useAuth();
+  const { session } = useAuth();
 
-  const companyName =
-    company?.name || "";
+  const company = session?.company;
 
-  /* ======================================================
-     STATE
-  ====================================================== */
+  const companyId = session?.company?.id;
 
-  const [metrics, setMetrics] = useState(null);
+  /*
+  ==========================================================
+  CONTROLLER
+  ==========================================================
+  */
 
-  const [activeDrivers, setActiveDrivers] = useState(0);
+  const controller =
 
-  const [trips, setTrips] = useState([]);
+    useDashboardController(
 
-  const [revenueData, setRevenueData] = useState([]);
+      companyId
 
-  const [loading, setLoading] = useState(true);
-
-  /* ======================================================
-     PAGINATION
-  ====================================================== */
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const itemsPerPage = 6;
-
-  /* ======================================================
-     HELPERS
-  ====================================================== */
-
-  const obtenerSaludo = () => {
-
-    const hora = new Date().getHours();
-
-    if (hora < 12)
-      return "Buenos días";
-
-    if (hora < 18)
-      return "Buenas tardes";
-
-    return "Buenas noches";
-
-  };
-
-  const formatDateTime = (timestamp) => {
-
-    if (!timestamp)
-      return "-";
-
-    return new Date(
-      timestamp.seconds * 1000
-    ).toLocaleString("es-CR", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-
-  };
-
-  const formatearMoneda = (monto) => {
-
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency: "USD"
-      }
-    ).format(monto || 0);
-
-  };
-
-  const capitalizar = (texto) => {
-
-    if (!texto)
-      return "";
-
-    return (
-      texto.charAt(0).toUpperCase() +
-      texto.slice(1)
     );
 
-  };
+  /*
+  ==========================================================
+  HELPERS
+  ==========================================================
+  */
 
-  /* ======================================================
-     LOAD DATA
-  ====================================================== */
+  const {
 
-  useEffect(() => {
+    greeting,
 
-    if (!companyId)
-      return;
+    formatDateTime,
 
-    const loadData = async () => {
+    capitalize
 
-      try {
+  } = controller.helpers;
 
-        setLoading(true);
+  const companyName =
 
-        const [
-          metricsData,
-          tripsData,
-          revenue7,
-          driversData
-        ] = await Promise.all([
-          getDashboardMetrics(companyId),
-          getUpcomingTrips(companyId),
-          getLast7DaysRevenue(companyId),
-          getActiveDrivers(companyId)
-        ]);
+    company?.name || "";
 
-        setMetrics(metricsData);
-        console.log("metricsData", metricsData);
+  /*
+  ==========================================================
+  CURRENCIES
+  ==========================================================
+  */
 
-        setTrips(tripsData || []);
+  const currencies =
 
-        setRevenueData(revenue7 || []);
+    controller.dashboard
+      ?.financial
+      ?.currencies || [];
 
-        setActiveDrivers(driversData || 0);
-
-      } catch (error) {
-
-        console.error(
-          "Error cargando dashboard:",
-          error
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    };
-
-    loadData();
-
-  }, [companyId]);
-
-  /* ======================================================
-     RESET PAGINATION
-  ====================================================== */
-
-  useEffect(() => {
-
-    setCurrentPage(1);
-
-  }, [trips]);
-
-  /* ======================================================
-     PAGINATION LOGIC
-  ====================================================== */
-
-  const indexOfLast =
-    currentPage * itemsPerPage;
-
-  const indexOfFirst =
-    indexOfLast - itemsPerPage;
-
-  const currentTrips =
-    trips.slice(indexOfFirst, indexOfLast);
-
-  const totalPages =
-    Math.ceil(trips.length / itemsPerPage);
-
-  /* ======================================================
-     SECONDARY KPIS
-  ====================================================== */
-
-  const secondaryKPIs = useMemo(() => {
-
-    return [
-
-      {
-        title: "Confirmados",
-        value: metrics?.confirmedTrips || 0
-      },
-
-      {
-        title: "Pendientes",
-        value: metrics?.pendingTrips || 0
-      },
-
-      {
-        title: "Cancelados",
-        value: metrics?.cancelledTrips || 0
-      },
-
-      {
-        title: "Servicios Totales",
-        value: trips?.length || 0
-      }
-
-    ];
-
-  }, [metrics, trips]);
-
-  /* ======================================================
-     RENDER
-  ====================================================== */
+  /*
+  ==========================================================
+  RENDER
+  ==========================================================
+  */
 
   return (
 
-    <div className="dashboard-container">
+    <CurrencyProvider
 
-      {/* =============================================
-          HERO
-      ============================================== */}
+      currencies={currencies}
 
-      <div className="dashboard-header">
+    >
 
-        <div>
+      <div className="dashboard-container">
 
-          <h1 className="dashboard-title">
+        {/* =============================================
+            HERO
+        ============================================== */}
 
-            {obtenerSaludo()} 👋
+        <div className="dashboard-header">
 
-          </h1>
+          <div className="dashboard-header-left">
 
-          <p className="dashboard-subtitle">
+            <h1 className="dashboard-title">
 
-            {
+              {greeting} 👋
 
-              companyName
+            </h1>
 
-                ? `Aquí tienes el resumen operativo de ${companyName} para hoy.`
+            <p className="dashboard-subtitle">
 
-                : "Aquí tienes el resumen operativo de tu empresa para hoy."
+              {
 
-            }
+                companyName
 
-          </p>
+                  ? `Aquí tienes el resumen operativo de ${companyName} para hoy.`
+
+                  : "Aquí tienes el resumen operativo de tu empresa para hoy."
+
+              }
+
+            </p>
+
+          </div>
+
+          <div className="dashboard-header-right">
+
+            <CurrencySelector />
+
+          </div>
+
+        </div>
+
+        {/* =============================================
+            KPI GRID
+        ============================================== */}
+
+        <KPIGrid
+
+          dashboard={
+
+            controller.dashboard
+
+          }
+
+        />
+
+        {/* =============================================
+            MAIN GRID
+        ============================================== */}
+
+        <div className="dashboard-main-grid">
+
+          {/* =========================================
+              LEFT COLUMN
+          ========================================== */}
+
+          <div className="dashboard-left-column">
+
+            <UpcomingServicesWidget
+
+              loading={
+
+                controller.loading
+
+              }
+
+              dashboard={
+
+                controller.dashboard
+
+              }
+
+              formatDateTime={
+
+                formatDateTime
+
+              }
+
+              capitalize={
+
+                capitalize
+
+              }
+
+            />
+
+            <RevenueChartWidget
+
+              loading={
+
+                controller.loading
+
+              }
+
+              dashboard={
+
+                controller.dashboard
+
+              }
+
+            />
+
+          </div>
+
+          {/* =========================================
+              RIGHT COLUMN
+          ========================================== */}
+
+          <div className="dashboard-right-column">
+
+            <AlertsWidget
+
+              dashboard={
+
+                controller.dashboard
+
+              }
+
+            />
+
+            <OperationsStatusWidget
+
+              dashboard={
+
+                controller.dashboard
+
+              }
+
+            />
+
+            {/*
+            <MiniAgendaWidget
+
+              dashboard={
+
+                controller.dashboard
+
+              }
+
+              formatDateTime={
+
+                formatDateTime
+
+              }
+
+            />
+            */}
+
+          </div>
 
         </div>
 
       </div>
 
-      {/* =============================================
-          KPI GRID
-      ============================================== */}
-
-      <KPIGrid
-
-        metrics={metrics}
-
-        activeDrivers={activeDrivers}
-
-        formatearMoneda={formatearMoneda}
-
-      />
-
-      {/* =============================================
-          MAIN GRID
-      ============================================== */}
-
-      <div className="dashboard-main-grid">
-
-        {/* =========================================
-            LEFT COLUMN
-        ========================================== */}
-
-        <div className="dashboard-left-column">
-
-          {/* =====================================
-              UPCOMING SERVICES
-          ====================================== */}
-
-          <UpcomingServicesWidget
-
-            loading={loading}
-
-            trips={trips}
-
-            currentTrips={currentTrips}
-
-            currentPage={currentPage}
-
-            totalPages={totalPages}
-
-            setCurrentPage={setCurrentPage}
-
-            formatDateTime={formatDateTime}
-
-            capitalizar={capitalizar}
-
-          />
-
-          {/* =====================================
-              REVENUE CHART
-          ====================================== */}
-
-          <RevenueChartWidget
-
-            loading={loading}
-
-            revenueData={revenueData}
-
-            formatearMoneda={formatearMoneda}
-
-          />
-
-          {/* =====================================
-              SECONDARY KPIS
-          ====================================== */}
-
-          {/* <div className="secondary-kpi-grid">
-
-            {
-
-              secondaryKPIs.map((item, index) => (
-
-                <div
-
-                  key={index}
-
-                  className="secondary-kpi-card"
-
-                >
-
-                  <span>
-                    {item.title}
-                  </span>
-
-                  <strong>
-                    {item.value}
-                  </strong>
-
-                </div>
-
-              ))
-
-            }
-
-          </div> */}
-
-        </div>
-
-        {/* =========================================
-            RIGHT COLUMN
-        ========================================== */}
-
-        <div className="dashboard-right-column">
-
-          {/* =====================================
-              ALERTS
-          ====================================== */}
-
-          <AlertsWidget
-            metrics={metrics}
-          />
-
-          {/* =====================================
-              OPERATIONS
-          ====================================== */}
-
-          <OperationsStatusWidget
-
-            metrics={metrics}
-
-            activeDrivers={activeDrivers}
-
-            formatearMoneda={formatearMoneda}
-
-          />
-
-          {/* =====================================
-              MINI AGENDA
-          ====================================== */}
-
-          {/* <MiniAgendaWidget
-
-            currentTrips={currentTrips}
-
-            formatDateTime={formatDateTime}
-
-          /> */}
-
-        </div>
-
-      </div>
-
-    </div>
+    </CurrencyProvider>
 
   );
 

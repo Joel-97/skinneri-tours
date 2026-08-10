@@ -1,0 +1,305 @@
+/*
+==========================================================
+CLIENT ACTIVITY MODAL
+==========================================================
+*/
+
+.client-activity-modal{
+
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.client-activity-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+
+    padding-bottom:20px;
+
+    border-bottom:1px solid #E8EDF5;
+}
+
+.client-activity-header h2{
+
+    margin:0;
+
+    color:#08204B;
+
+    font-size:24px;
+    font-weight:700;
+}
+
+.client-activity-header p{
+
+    margin:6px 0 0;
+
+    color:#64748B;
+}
+
+.client-activity-close{
+
+    padding:10px 18px;
+
+    border:1px solid #D9E2F2;
+    border-radius:10px;
+
+    background:#FFFFFF;
+
+    color:#08204B;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.client-activity-close:hover{
+
+    background:#F8FAFC;
+
+    border-color:#5B2D8B;
+
+    color:#5B2D8B;
+}
+
+/* ======================================================
+   BODY
+====================================================== */
+
+.client-activity-body{
+
+    max-height:65vh;
+
+    overflow:auto;
+}
+
+/* ======================================================
+   TABLE
+====================================================== */
+
+.activity-table{
+
+    width:100%;
+}
+
+.activity-table table{
+
+    width:100%;
+
+    border-collapse:collapse;
+}
+
+.activity-table thead{
+
+    position:sticky;
+
+    top:0;
+
+    background:#FFFFFF;
+
+    z-index:2;
+}
+
+.activity-table th{
+
+    padding:14px 16px;
+
+    text-align:left;
+
+    font-size:13px;
+    font-weight:700;
+
+    color:#64748B;
+
+    border-bottom:1px solid #E8EDF5;
+}
+
+.activity-table td{
+
+    padding:18px 16px;
+
+    vertical-align:top;
+
+    border-bottom:1px solid #F1F5F9;
+}
+
+.activity-table tbody tr{
+
+    transition:background .25s ease;
+}
+
+.activity-table tbody tr:hover{
+
+    background:#F8FAFC;
+}
+
+/* ======================================================
+   ACTIVITY
+====================================================== */
+
+.activity-table-title{
+
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.activity-table-title strong{
+
+    color:#08204B;
+
+    font-size:15px;
+}
+
+.activity-table-title small{
+
+    color:#64748B;
+}
+
+/* ======================================================
+   CATEGORY
+====================================================== */
+
+.activity-category-badge{
+
+    align-self:flex-start;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    background:#EEF4FF;
+
+    color:#08204B;
+
+    font-size:11px;
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.04em;
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.activity-status{
+
+    display:inline-flex;
+    align-items:center;
+
+    padding:5px 10px;
+
+    border-radius:999px;
+
+    background:#F8FAFC;
+
+    color:#475569;
+
+    font-size:12px;
+    font-weight:600;
+}
+
+/* ======================================================
+   TOTAL
+====================================================== */
+
+.activity-total{
+
+    white-space:nowrap;
+
+    font-weight:700;
+
+    color:#08204B;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.client-activity-body::-webkit-scrollbar{
+
+    width:8px;
+}
+
+.client-activity-body::-webkit-scrollbar-thumb{
+
+    background:#CBD5E1;
+
+    border-radius:999px;
+}
+
+.client-activity-body::-webkit-scrollbar-thumb:hover{
+
+    background:#94A3B8;
+}
+
+/* ======================================================
+   FINANCIAL SUMMARY
+====================================================== */
+
+.client-financial-summary{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+
+    margin-top:18px;
+}
+
+.client-financial-item{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    background:#F8FAFC;
+
+    border:1px solid #E2E8F0;
+}
+
+.client-financial-item span{
+
+    font-size:12px;
+    font-weight:700;
+
+    color:#64748B;
+}
+
+.client-financial-item strong{
+
+    color:#08204B;
+
+    font-size:14px;
+    font-weight:700;
+}
+
+/* ======================================================
+   CLIENT SINCE
+====================================================== */
+
+.client-since{
+
+    display:inline-block;
+
+    margin-top:10px;
+
+    font-size:13px;
+    font-weight:500;
+
+    color:#64748B;
+}

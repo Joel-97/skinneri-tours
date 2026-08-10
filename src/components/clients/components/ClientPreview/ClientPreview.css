@@ -1,0 +1,717 @@
+/* ======================================================
+   CLIENT PREVIEW
+====================================================== */
+
+.client-preview{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+    width:100%;
+
+    position:sticky;
+
+    top:20px;
+
+    max-height:calc(100vh - 390px);
+
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.client-preview-card,
+.client-preview-header{
+
+    background:#ffffff;
+
+    border:1px solid #e8edf5;
+
+    border-radius:18px;
+
+    box-shadow:0 8px 24px rgba(15,23,42,.04);
+
+    flex-shrink:0;
+
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.client-preview-header{
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:15px 24px 5px;
+
+    flex-shrink:0;
+
+}
+
+/* ======================================================
+   CLOSE BUTTON
+====================================================== */
+
+.client-preview-close{
+
+    position:absolute;
+
+    top:18px;
+
+    right:18px;
+
+    width:38px;
+
+    height:38px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#f8fafc;
+
+    color:#64748b;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+
+}
+
+.client-preview-close:hover{
+
+    background:#eef2f7;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.client-preview-content{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    min-height:0;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    padding-right:6px;
+
+    opacity:1;
+
+    transform:translateY(0);
+
+    transition:
+
+        opacity .18s ease,
+
+        transform .18s ease;
+
+}
+
+.client-preview-content.changing{
+
+    opacity:.92;
+
+    transform:translateY(8px);
+
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
+.client-preview-content::-webkit-scrollbar{
+
+    width:7px;
+
+}
+
+.client-preview-content::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
+
+.client-preview-content::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:999px;
+
+}
+
+.client-preview-content::-webkit-scrollbar-thumb:hover{
+
+    background:#94a3b8;
+
+}
+
+/* ======================================================
+   AVATAR
+====================================================== */
+
+.client-preview-avatar{
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:50%;
+
+    background:#eef4ff;
+
+    color:#08204B;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    margin-bottom:18px;
+
+}
+
+.client-preview-avatar svg{
+
+    width:42px;
+
+    height:42px;
+
+}
+
+/* ======================================================
+   NAME
+====================================================== */
+
+.client-preview-name{
+
+    margin:0;
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#08204B;
+
+}
+
+.client-preview-type{
+
+    margin:6px 0 16px;
+
+    font-size:14px;
+
+    color:#64748b;
+
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.client-preview-status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:4px 16px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    margin-bottom:15px;
+
+}
+
+.client-preview-status.active{
+
+    background:#ecfdf5;
+
+    color:#15803d;
+
+}
+
+.client-preview-status.inactive{
+
+    background:#fef2f2;
+
+    color:#dc2626;
+
+}
+
+/* ======================================================
+   CREATED
+====================================================== */
+
+.client-preview-created{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
+
+.client-preview-created svg{
+
+    width:16px;
+
+    height:16px;
+
+}
+
+.client-preview-created-date{
+
+    margin-top:3px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   CARD
+====================================================== */
+
+.client-preview-card{
+
+    padding:22px;
+
+}
+
+.client-preview-card h3{
+
+    margin:0 0 18px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   INFO
+====================================================== */
+
+.client-info-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.client-info-item{
+
+    display:flex;
+
+    gap:14px;
+
+    padding:14px 0;
+
+    border-bottom:1px solid #f1f5f9;
+
+}
+
+.client-info-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.client-info-item svg{
+
+    flex-shrink:0;
+
+    color:#64748b;
+
+    margin-top:2px;
+
+}
+
+.client-info-item div{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+    flex:1;
+
+}
+
+.client-info-item label{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:#94a3b8;
+
+}
+
+.client-info-item span{
+
+    font-size:14px;
+
+    color:#334155;
+
+    word-break:break-word;
+
+}
+
+/* ======================================================
+   SERVICES
+====================================================== */
+
+.client-services-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+.client-service-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px;
+
+    border:1px solid #edf2f7;
+
+    border-radius:12px;
+
+    transition:.2s ease;
+
+}
+
+.client-service-item:hover{
+
+    border-color:#dbe5f0;
+
+    background:#fafcff;
+
+}
+
+.client-service-icon{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:12px;
+
+    background:#eef4ff;
+
+    color:#08204B;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.client-service-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    flex:1;
+
+}
+
+.client-service-content strong{
+
+    font-size:14px;
+
+    color:#08204B;
+
+}
+
+.client-service-content span{
+
+    font-size:13px;
+
+    color:#64748b;
+
+}
+
+.client-service-content small{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    color:#94a3b8;
+
+    font-size:12px;
+
+}
+
+.client-service-arrow{
+
+    color:#94a3b8;
+
+}
+
+/* ======================================================
+   EMPTY SERVICES
+====================================================== */
+
+.client-services-empty{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:14px;
+
+    padding:28px 16px;
+
+    text-align:center;
+
+    color:#94a3b8;
+
+}
+
+.client-services-empty svg{
+
+    color:#cbd5e1;
+
+}
+
+/* ======================================================
+   STATS
+====================================================== */
+
+.client-stats-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.client-stat-item{
+
+    display:flex;
+
+    gap:14px;
+
+    padding:14px 0;
+
+    border-bottom:1px solid #f1f5f9;
+
+}
+
+.client-stat-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.client-stat-item svg{
+
+    flex-shrink:0;
+
+    color:#64748b;
+
+    margin-top:2px;
+
+}
+
+.client-stat-item div{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:3px;
+
+    flex:1;
+
+}
+
+.client-stat-item label{
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:#94a3b8;
+
+}
+
+.client-stat-item strong{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#08204B;
+
+}
+
+/* ======================================================
+   CLIENT SERVICES
+====================================================== */
+
+.client-services-more{
+
+    width:100%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+
+    margin-top:18px;
+    padding:12px 16px;
+
+    border:1px solid #D9E2F2;
+    border-radius:12px;
+
+    background:#FFFFFF;
+
+    color:#08204B;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:
+        background .25s ease,
+        border-color .25s ease,
+        color .25s ease,
+        transform .2s ease;
+}
+
+.client-services-more:hover{
+
+    background:#F7F9FD;
+
+    border-color:#5B2D8B;
+
+    color:#5B2D8B;
+}
+
+.client-services-more:active{
+
+    transform:scale(.98);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width:1800px){
+
+    .client-preview{
+
+        max-height:calc(100vh - 300px);
+
+    }
+
+}
+
+@media (max-width:1200px){
+
+    .client-preview{
+
+        height:auto;
+
+    }
+
+    .client-preview-content{
+
+        overflow:visible;
+
+        padding-right:0;
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .client-preview-header{
+
+        padding:24px 20px;
+
+    }
+
+    .client-preview-card{
+
+        padding:18px;
+
+    }
+
+}

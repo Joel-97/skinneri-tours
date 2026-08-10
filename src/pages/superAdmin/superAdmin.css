@@ -1,0 +1,63 @@
+/* ======================================================
+   PAGE
+====================================================== */
+
+.superadmin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.superadmin-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.superadmin-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.superadmin-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #64748b;
+}
+
+/* ======================================================
+   TABS
+====================================================== */
+
+.react-tabs__tab-list {
+  margin: 0 0 24px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.react-tabs__tab {
+  padding: 10px 18px;
+  border-radius: 10px 10px 0 0;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.react-tabs__tab:hover {
+  background: #f8fafc;
+}
+
+.react-tabs__tab--selected {
+  background: #08204B;
+  color: #ffffff;
+  border-color: #08204B;
+}
+
+.react-tabs__tab-panel {
+  padding-top: 8px;
+}

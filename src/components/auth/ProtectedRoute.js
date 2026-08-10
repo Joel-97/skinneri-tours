@@ -1,43 +1,121 @@
-import { Navigate } from "react-router-dom";
-import { UserAuth } from "../../context/AuthContext";
-import Loading from "../../components/general/loading"; 
+/*
+==========================================================
+IMPORTS
+==========================================================
+*/
 
-const ProtectedRoute = ({ children }) => {
-  const { user, adminData, loading } = UserAuth();
+import { Navigate } from "react-router-dom";
+
+import { useAuth } from "../../context/AuthContext";
+
+import Loading from "../general/loading";
+
+/*
+==========================================================
+COMPONENT
+==========================================================
+*/
+
+export default function ProtectedRoute({
+
+  children
+
+}) {
+
+  const {
+
+    session,
+
+    loading,
+
+    authenticated
+
+  } = useAuth();
+
+  /*
+  ==========================================================
+  LOADING
+  ==========================================================
+  */
 
   if (loading) {
-    return <div> <Loading /> </div>;
+
+    return <Loading />;
+
   }
 
-  // No autenticado
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  /*
+  ==========================================================
+  NOT AUTHENTICATED
+  ==========================================================
+  */
+
+  if (!authenticated) {
+
+    return (
+
+      <Navigate
+
+        to="/login"
+
+        replace
+
+      />
+
+    );
+
   }
 
-  // Esperar a que adminData esté listo
-  if (!adminData) {
-    return <div> <Loading /> </div>;
+  /*
+  ==========================================================
+  INVALID SESSION
+  ==========================================================
+  */
+
+  if (!session) {
+
+    return (
+
+      <Navigate
+
+        to="/login"
+
+        replace
+
+      />
+
+    );
+
   }
 
-  const status = adminData.status?.trim().toLowerCase();
+  /*
+  ==========================================================
+  INVALID USER
+  ==========================================================
+  */
 
-  // Admin pendiente
-  if (status === "pending") {
-    return <Navigate to="/pending" replace />;
+  if (!session.user) {
+
+    return (
+
+      <Navigate
+
+        to="/login"
+
+        replace
+
+      />
+
+    );
+
   }
 
-  // Aprobado pero sin empresa
-  if (status === "approved" && !adminData.companyId) {
-    return <Navigate to="/pending" replace />;
-  }
+  /*
+  ==========================================================
+  VALID SESSION
+  ==========================================================
+  */
 
-  // Todo correcto
-  if (status === "approved") {
-    return children;
-  }
+  return children;
 
-  // Cualquier caso extraño → login
-  return <Navigate to="/login" replace />;
-};
-
-export default ProtectedRoute;
+}

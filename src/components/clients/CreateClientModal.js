@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient, updateClient } from "../../services/clients/clientService";
 import { UserAuth } from "../../context/AuthContext";
+import { useCompany } from "../../context/CompanyContext";
 import { notifySuccess, notifyError } from "../../services/notificationService";
 
 export default function ClientCreateModal({ 
@@ -11,7 +12,9 @@ export default function ClientCreateModal({
   mode = "create"
 }) {
 
-  const { user, companyId } = UserAuth();
+  const { user } = UserAuth();
+
+  const { companyId } = useCompany();
 
   const [form, setForm] = useState({
     name: "",

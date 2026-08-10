@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# Google Cloud credentials
+functions/credentials/
+
 # production
 /build
 

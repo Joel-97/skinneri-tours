@@ -1,6 +1,5 @@
 import { db } from "../../firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { server } from '../serverName/Server';
 
 export const listenCompanies = (callback) => {
   const ref = collection(db, "companies");
@@ -19,18 +18,18 @@ export const listenCompanies = (callback) => {
 
 export const listenCompanyAdmins = (companyId, callback) => {
   const q = query(
-    collection(db, "admins"),
+    collection(db, "users"),
     where("companyId", "==", companyId),
     where("status", "==", "approved")
   );
 
   const unsubscribe = onSnapshot(q, (snapshot) => {
-    const admins = snapshot.docs.map(doc => ({
+    const users = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
 
-    callback(admins);
+    callback(users);
   });
 
   return unsubscribe;
@@ -38,16 +37,16 @@ export const listenCompanyAdmins = (companyId, callback) => {
 
 export const listenAdminsByCompany = (companyId, callback) => {
   const q = query(
-    collection(db, "admins"),
+    collection(db, "users"),
     where("companyId", "==", companyId)
   );
 
   return onSnapshot(q, (snapshot) => {
-    const admins = snapshot.docs.map(doc => ({
+    const users = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
 
-    callback(admins);
+    callback(users);
   });
 };

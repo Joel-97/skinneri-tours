@@ -1,0 +1,388 @@
+/* ======================================================
+   CATALOG CONTAINER
+====================================================== */
+
+.catalog-container{
+
+  display:flex;
+  flex-direction:column;
+
+  gap:25px;
+
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.catalog-header{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+
+  gap:20px;
+
+}
+
+.catalog-header-left{
+
+  display:flex;
+  flex-direction:column;
+
+}
+
+.catalog-header-left h3{
+
+  margin:0;
+
+  font-size:1.5rem;
+  font-weight:700;
+
+  color:#08204B;
+
+}
+
+.catalog-header-left p{
+
+  margin-top:6px;
+
+  color:#6b7280;
+
+  font-size:.95rem;
+
+}
+
+
+/* ======================================================
+   HEADER RIGHT
+====================================================== */
+
+.catalog-header-right{
+
+  display:flex;
+  align-items:center;
+
+  gap:15px;
+
+  flex-wrap:wrap;
+
+}
+
+
+/* ======================================================
+   SEARCH
+====================================================== */
+
+.catalog-search{
+
+  width:260px;
+  min-width:260px;
+
+  padding:11px 14px;
+
+  border:1px solid #d8dee8;
+
+  border-radius:10px;
+
+  font-size:.95rem;
+
+  transition:.25s;
+
+}
+
+.catalog-search:focus{
+
+  outline:none;
+
+  border-color:#08204B;
+
+  box-shadow:0 0 0 3px rgba(8,32,75,.08);
+
+}
+
+
+/* ======================================================
+   REACT SELECT
+====================================================== */
+
+.catalog-filter{
+
+  min-width:180px;
+
+  width:180px;
+
+}
+
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.catalog-content{
+
+  background:#fff;
+
+  border:1px solid #ECEFF3;
+
+  border-radius:14px;
+
+  overflow:hidden;
+
+}
+
+/* ======================================================
+   DESCRIPTION
+====================================================== */
+
+.catalog-description{
+
+  display:block;
+
+  max-width:320px;
+
+  overflow:hidden;
+
+  white-space:nowrap;
+
+  text-overflow:ellipsis;
+
+  color:#4B5563;
+
+}
+
+
+/* ======================================================
+   CENTER COLUMNS
+====================================================== */
+
+.catalog-center{
+
+  text-align:center;
+
+}
+
+.catalog-center td,
+.catalog-center th{
+
+  text-align:center;
+
+}
+
+
+/* ======================================================
+   EMPTY
+====================================================== */
+
+.catalog-empty{
+
+  padding:70px 30px;
+
+  text-align:center;
+
+  color:#6b7280;
+
+}
+
+.catalog-empty p{
+
+  margin:0;
+
+  font-size:1rem;
+
+}
+
+
+/* ======================================================
+   STATUS BADGES
+====================================================== */
+
+.catalog-badge-active,
+.catalog-badge-warning,
+.catalog-badge-inactive{
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:120px;
+
+  padding:6px 14px;
+
+  border-radius:50px;
+
+  font-size:.8rem;
+  font-weight:600;
+
+}
+
+.catalog-badge-active{
+
+  background:#e8f7ee;
+
+  color:#228b45;
+
+}
+
+.catalog-badge-warning{
+
+  background:#fff5df;
+
+  color:#d48806;
+
+}
+
+.catalog-badge-inactive{
+
+  background:#fdeaea;
+
+  color:#d32f2f;
+
+}
+
+
+/* ======================================================
+   ACTION BUTTONS
+====================================================== */
+
+.catalog-action{
+
+  border:none;
+
+  background:none;
+
+  cursor:pointer;
+
+  font-size:.9rem;
+
+  color:#08204B;
+
+  font-weight:600;
+
+  margin-right:15px;
+
+  transition:.2s;
+
+}
+
+.catalog-action:last-child{
+
+  margin-right:0;
+
+}
+
+.catalog-action:hover{
+
+  color:#2154b8;
+
+}
+
+
+/* ======================================================
+   PAGINATION
+====================================================== */
+
+.catalog-container .pagination{
+
+  margin-top:5px;
+
+}
+
+
+/* ======================================================
+   TABLE CELLS
+====================================================== */
+
+.catalog-content td{
+
+  vertical-align:middle;
+
+}
+
+.catalog-content strong{
+
+  font-weight:600;
+
+  color:#08204B;
+
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:1024px){
+
+  .catalog-header{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+  }
+
+  .catalog-header-right{
+
+    width:100%;
+
+  }
+
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:768px){
+
+  .catalog-header-right{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+  }
+
+  .catalog-search{
+
+    width:100%;
+
+  }
+
+  .catalog-filter{
+
+    width:100%;
+
+  }
+
+  .btn-primary{
+
+    width:100%;
+
+  }
+
+}
+
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width:480px){
+
+  .catalog-header-left h3{
+
+    font-size:1.3rem;
+
+  }
+
+  .catalog-header-left p{
+
+    font-size:.9rem;
+
+  }
+
+}

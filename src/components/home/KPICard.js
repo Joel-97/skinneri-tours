@@ -3,12 +3,23 @@ import React from "react";
 import "../../style/home/kpiCard.css";
 
 const KPICard = ({
+
   title,
+
   value,
+
   description,
+
   trend,
+
+  badge = null,
+
+  footer = null,
+
   type = "default",
+
   icon
+
 }) => {
 
   return (
@@ -18,22 +29,51 @@ const KPICard = ({
       <div className="kpi-card-top">
 
         <div className="kpi-card-icon">
+
           {icon}
+
         </div>
 
         {
-        trend !== undefined && trend !== null && (
+
+          trend !== undefined &&
+
+          trend !== null && (
 
             <div
-            className={`kpi-trend ${
-                trend > 0 ? "positive" : trend < 0 ? "negative" : "neutral"
-            }`}
+
+              className={`kpi-trend ${
+
+                trend > 0
+
+                  ? "positive"
+
+                  : trend < 0
+
+                    ? "negative"
+
+                    : "neutral"
+
+              }`}
+
             >
-            {trend > 0 ? "+" : ""}
-            {trend}%
+
+              {
+
+                trend > 0
+
+                  ? "+"
+
+                  : ""
+
+              }
+
+              {trend}%
+
             </div>
 
-        )
+          )
+
         }
 
       </div>
@@ -41,16 +81,58 @@ const KPICard = ({
       <div className="kpi-card-body">
 
         <span className="kpi-title">
+
           {title}
+
         </span>
 
+        {
+
+          badge && (
+
+            <span className="kpi-badge">
+
+              {badge}
+
+            </span>
+
+          )
+
+        }
+
         <h3>
+
           {value}
+
         </h3>
 
-        <p>
-          {description}
-        </p>
+        {
+
+          description && (
+
+            <p>
+
+              {description}
+
+            </p>
+
+          )
+
+        }
+
+        {
+
+          footer && (
+
+            <div className="kpi-footer">
+
+              {footer}
+
+            </div>
+
+          )
+
+        }
 
       </div>
 

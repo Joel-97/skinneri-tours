@@ -1,0 +1,241 @@
+/* ======================================================
+   ACCESS REQUESTS PAGE
+====================================================== */
+
+.access-requests-page{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+    min-height:100%;
+
+    max-width:1700px;
+
+    margin:0 auto;
+
+    padding:40px;
+
+    gap:32px;
+
+    box-sizing:border-box;
+
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.access-requests-page-header{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.access-requests-page-title{
+
+    margin:0;
+
+    font-size:2.2rem;
+
+    font-weight:700;
+
+    line-height:1.2;
+
+    color:#08204B;
+
+}
+
+.access-requests-page-subtitle{
+
+    margin:0;
+
+    max-width:760px;
+
+    font-size:.95rem;
+
+    line-height:1.7;
+
+    color:#6B7280;
+
+}
+
+/* ======================================================
+   CONTENT
+====================================================== */
+
+.access-requests-page-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:28px;
+
+    width:100%;
+
+}
+
+/* ======================================================
+   SPACING
+====================================================== */
+
+.access-requests-page > *{
+
+    width:100%;
+
+}
+
+/* ======================================================
+   DESKTOP
+====================================================== */
+
+@media (max-width:1600px){
+
+    .access-requests-page{
+
+        max-width:1400px;
+
+    }
+
+}
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width:1400px){
+
+    .access-requests-page{
+
+        padding:36px;
+
+        gap:30px;
+
+    }
+
+}
+
+/* ======================================================
+   SMALL LAPTOP
+====================================================== */
+
+@media (max-width:1200px){
+
+    .access-requests-page{
+
+        padding:32px;
+
+        gap:28px;
+
+    }
+
+    .access-requests-page-title{
+
+        font-size:2rem;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET LANDSCAPE
+====================================================== */
+
+@media (max-width:1024px){
+
+    .access-requests-page{
+
+        padding:28px;
+
+        gap:24px;
+
+    }
+
+    .access-requests-page-title{
+
+        font-size:1.8rem;
+
+    }
+
+    .access-requests-page-subtitle{
+
+        max-width:100%;
+
+    }
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+    .access-requests-page{
+
+        padding:24px;
+
+        gap:22px;
+
+    }
+
+    .access-requests-page-header{
+
+        gap:8px;
+
+    }
+
+    .access-requests-page-title{
+
+        font-size:1.6rem;
+
+    }
+
+    .access-requests-page-subtitle{
+
+        font-size:.92rem;
+
+        line-height:1.6;
+
+    }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .access-requests-page{
+
+        padding:18px;
+
+        gap:18px;
+
+    }
+
+    .access-requests-page-title{
+
+        font-size:1.35rem;
+
+        line-height:1.3;
+
+    }
+
+    .access-requests-page-subtitle{
+
+        font-size:.9rem;
+
+        line-height:1.55;
+
+    }
+
+}

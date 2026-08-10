@@ -16,32 +16,86 @@ import {
 
 import DashboardWidget from "./DashboardWidget";
 
+import { useCurrency }
+  from "../../context/CurrencyContext";
+
+import { formatCurrency }
+  from "../../utils/formatCurrency";
+
 import "../../style/home/revenueChartWidget.css";
 
+/* ======================================================
+   REVENUE CHART WIDGET
+====================================================== */
+
 const RevenueChartWidget = ({
-  loading,
-  revenueData = [],
-  formatearMoneda
+
+  loading
+
 }) => {
 
-  const totalRevenue = revenueData.reduce(
-    (acc, item) => acc + (item.revenue || 0),
-    0
-  );
+  /*
+  ==========================================================
+  CURRENCY
+  ==========================================================
+  */
 
-  const averageRevenue = revenueData.length
-    ? totalRevenue / revenueData.length
-    : 0;
+  const {
+
+    selectedCurrency
+
+  } = useCurrency();
+
+  /*
+  ==========================================================
+  DATA
+  ==========================================================
+  */
+
+  const chartData =
+
+    selectedCurrency?.chart || [];
+
+  const currencySymbol =
+
+    selectedCurrency?.currencySymbol || "";
+
+  const totalRevenue =
+
+    selectedCurrency?.totalRevenue || 0;
+
+  const averageDaily =
+
+    selectedCurrency?.averageDaily || 0;
+
+  /*
+  ==========================================================
+  RENDER
+  ==========================================================
+  */
 
   return (
 
     <DashboardWidget
+
       title="Ingresos — Últimos 7 Días"
-      subtitle="Tendencia financiera reciente"
+
+      subtitle={
+
+        selectedCurrency
+
+          ? `Moneda: ${selectedCurrency.currencyCode}`
+
+          : "Tendencia financiera reciente"
+
+      }
+
       className="revenue-chart-widget"
+
     >
 
       {
+
         loading
 
           ? (
@@ -54,22 +108,28 @@ const RevenueChartWidget = ({
 
           )
 
-          : revenueData.length === 0
+          : chartData.length === 0
 
             ? (
 
               <div className="widget-empty-state">
 
                 <div className="widget-empty-icon">
+
                   <HiOutlinePresentationChartLine />
+
                 </div>
 
                 <h3>
+
                   No hay suficientes datos
+
                 </h3>
 
                 <p>
+
                   Todavía no hay información suficiente para mostrar el gráfico.
+
                 </p>
 
               </div>
@@ -79,20 +139,35 @@ const RevenueChartWidget = ({
             : (
 
               <>
+
                 {/* =====================================
-                    CHART METRICS
-                ===================================== */}
+                    METRICS
+                ====================================== */}
 
                 <div className="chart-metrics-grid">
 
                   <div className="chart-metric-card">
 
                     <span>
+
                       Total generado
+
                     </span>
 
                     <strong>
-                      {formatearMoneda(totalRevenue)}
+
+                      {
+
+                        formatCurrency(
+
+                          totalRevenue,
+
+                          currencySymbol
+
+                        )
+
+                      }
+
                     </strong>
 
                   </div>
@@ -100,11 +175,25 @@ const RevenueChartWidget = ({
                   <div className="chart-metric-card">
 
                     <span>
+
                       Promedio diario
+
                     </span>
 
                     <strong>
-                      {formatearMoneda(averageRevenue)}
+
+                      {
+
+                        formatCurrency(
+
+                          averageDaily,
+
+                          currencySymbol
+
+                        )
+
+                      }
+
                     </strong>
 
                   </div>
@@ -113,39 +202,58 @@ const RevenueChartWidget = ({
 
                 {/* =====================================
                     CHART
-                ===================================== */}
+                ====================================== */}
 
                 <div className="revenue-chart-container">
 
                   <ResponsiveContainer
+
                     width="100%"
+
                     height={320}
+
                   >
 
                     <AreaChart
-                      data={revenueData}
+
+                      data={chartData}
+
                     >
 
                       <defs>
 
                         <linearGradient
+
                           id="revenueGradient"
+
                           x1="0"
+
                           y1="0"
+
                           x2="0"
+
                           y2="1"
+
                         >
 
                           <stop
+
                             offset="0%"
+
                             stopColor="#2563eb"
+
                             stopOpacity={0.35}
+
                           />
 
                           <stop
+
                             offset="100%"
+
                             stopColor="#2563eb"
+
                             stopOpacity={0}
+
                           />
 
                         </linearGradient>
@@ -153,37 +261,83 @@ const RevenueChartWidget = ({
                       </defs>
 
                       <CartesianGrid
+
                         strokeDasharray="3 3"
+
                         vertical={false}
+
                         stroke="#e2e8f0"
+
                       />
 
                       <XAxis
+
                         dataKey="date"
+
                         tickLine={false}
+
                         axisLine={false}
+
                         tick={{ fontSize: 12 }}
+
                       />
 
                       <YAxis
+
                         tickLine={false}
+
                         axisLine={false}
+
                         tick={{ fontSize: 12 }}
-                        tickFormatter={(value) => `$${value}`}
+
+                        tickFormatter={(value) =>
+
+                          formatCurrency(
+
+                            value,
+
+                            currencySymbol
+
+                          )
+
+                        }
+
                       />
 
                       <Tooltip
-                        content={<CustomTooltip formatearMoneda={formatearMoneda} />}
+
+                        content={
+
+                          <CustomTooltip
+
+                            currencySymbol={
+
+                              currencySymbol
+
+                            }
+
+                          />
+
+                        }
+
                       />
 
                       <Area
+
                         type="monotone"
+
                         dataKey="revenue"
+
                         stroke="#2563eb"
+
                         strokeWidth={3}
+
                         fill="url(#revenueGradient)"
+
                         dot={{ r: 4 }}
+
                         activeDot={{ r: 6 }}
+
                       />
 
                     </AreaChart>
@@ -195,6 +349,7 @@ const RevenueChartWidget = ({
               </>
 
             )
+
       }
 
     </DashboardWidget>
@@ -203,38 +358,67 @@ const RevenueChartWidget = ({
 
 };
 
-/* ======================================================
-   CUSTOM TOOLTIP
-====================================================== */
+/*
+==========================================================
+CUSTOM TOOLTIP
+==========================================================
+*/
 
 const CustomTooltip = ({
+
   active,
+
   payload,
+
   label,
-  formatearMoneda
+
+  currencySymbol
+
 }) => {
 
-  if (active && payload && payload.length) {
+  if (
 
-    return (
+    !active ||
 
-      <div className="chart-tooltip-modern">
+    !payload ||
 
-        <span className="tooltip-date">
-          {label}
-        </span>
+    !payload.length
 
-        <strong>
-          {formatearMoneda(payload[0].value)}
-        </strong>
+  ) {
 
-      </div>
-
-    );
+    return null;
 
   }
 
-  return null;
+  return (
+
+    <div className="chart-tooltip-modern">
+
+      <span className="tooltip-date">
+
+        {label}
+
+      </span>
+
+      <strong>
+
+        {
+
+          formatCurrency(
+
+            payload[0].value,
+
+            currencySymbol
+
+          )
+
+        }
+
+      </strong>
+
+    </div>
+
+  );
 
 };
 

@@ -1,0 +1,131 @@
+/* ======================================================
+   ACCESS REQUESTS TABLE
+====================================================== */
+
+.access-requests-table__status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-width:110px;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:.8rem;
+
+    font-weight:600;
+
+    text-transform:capitalize;
+
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.access-requests-table__status--pending{
+
+    background:#FEF3C7;
+
+    color:#92400E;
+
+}
+
+.access-requests-table__status--approved{
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+}
+
+.access-requests-table__status--rejected{
+
+    background:#FEE2E2;
+
+    color:#991B1B;
+
+}
+
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.access-requests-table__view-button{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    height:36px;
+
+    padding:0 18px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#08204B;
+
+    color:#FFFFFF;
+
+    font-size:.9rem;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:all .2s ease;
+
+}
+
+.access-requests-table__view-button:hover{
+
+    background:#0A2B64;
+
+}
+
+/* ======================================================
+   LAPTOP
+====================================================== */
+
+@media (max-width:1200px){
+
+}
+
+/* ======================================================
+   TABLET LANDSCAPE
+====================================================== */
+
+@media (max-width:1024px){
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width:768px){
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width:576px){
+
+    .access-requests-table__view-button{
+
+        width:100%;
+
+    }
+
+}

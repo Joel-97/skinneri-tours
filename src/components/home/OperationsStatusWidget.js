@@ -3,52 +3,105 @@ import React from "react";
 import DashboardWidget from "./DashboardWidget";
 
 const OperationsStatusWidget = ({
-  metrics,
-  activeDrivers,
-  formatearMoneda
+
+  dashboard
+
 }) => {
+
+  /*
+  ==========================================================
+  DOMAINS
+  ==========================================================
+  */
+
+  const operational =
+
+    dashboard?.operational || {};
+
+  const fleet =
+
+    dashboard?.fleet || {};
 
   return (
 
     <DashboardWidget
+
       title="Estado Operativo"
+
       subtitle="Resumen operacional actual"
+
     >
 
       <div className="operations-status-list">
 
+        {/* ==========================================
+            TODAY SERVICES
+        =========================================== */}
+
         <div className="operations-status-item">
 
           <span>
+
             Servicios hoy
+
           </span>
 
           <strong>
-            {metrics?.bookingsToday || 0}
+
+            {
+
+              operational.reservationsToday || 0
+
+            }
+
           </strong>
 
         </div>
 
+        {/* ==========================================
+            ACTIVE DRIVERS
+        =========================================== */}
+
         <div className="operations-status-item">
 
           <span>
+
             Choferes activos
+
           </span>
 
           <strong>
-            {activeDrivers || 0}
+
+            {
+
+              operational.activeDrivers || 0
+
+            }
+
           </strong>
 
         </div>
 
+        {/* ==========================================
+            ACTIVE VEHICLES
+        =========================================== */}
+
         <div className="operations-status-item">
 
           <span>
-            Ingresos generados
+
+            Vehículos activos
+
           </span>
 
           <strong>
-            {formatearMoneda(metrics?.revenueToday)}
+
+            {
+
+              fleet.activeVehicles || 0
+
+            }
+
           </strong>
 
         </div>

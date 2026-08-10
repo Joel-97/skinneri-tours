@@ -1,0 +1,487 @@
+/* ======================================================
+   HEADER
+====================================================== */
+
+.company-modal-header {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 30px;
+
+}
+
+.company-modal-title h2 {
+
+  margin: 0;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  color: #1E293B;
+
+}
+
+.company-modal-close {
+
+  border: none;
+
+  background: transparent;
+
+  font-size: 22px;
+
+  color: #64748B;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+}
+
+.company-modal-close:hover {
+
+  color: #0F172A;
+
+}
+
+/* ======================================================
+   LOGO
+====================================================== */
+
+.company-modal-logo {
+
+  display: flex;
+
+  justify-content: center;
+
+  margin-bottom: 30px;
+
+}
+
+/* ======================================================
+   SECTION
+====================================================== */
+
+.company-modal-section {
+
+  margin-bottom: 24px;
+
+}
+
+.company-section-card {
+
+  background: #F8FAFC;
+
+  border: 1px solid #E2E8F0;
+
+  border-radius: 16px;
+
+  padding: 24px;
+
+}
+
+.company-modal-section h3 {
+
+  margin: 0 0 20px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+  color: #1E293B;
+
+}
+
+/* ======================================================
+   GRID
+====================================================== */
+
+.company-modal-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+
+}
+
+.company-modal-grid-single {
+
+  margin-top: 20px;
+
+  grid-template-columns: 1fr;
+
+}
+
+/* ======================================================
+   LABELS
+====================================================== */
+
+.company-modal-grid label {
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #475569;
+
+}
+
+/* ======================================================
+   INPUTS
+====================================================== */
+
+.company-modal-grid input,
+
+.company-modal-grid textarea {
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #CBD5E1;
+
+  border-radius: 10px;
+
+  background: #FFFFFF;
+
+  font-size: 14px;
+
+  transition: .2s;
+
+}
+
+.company-modal-grid input:focus,
+
+.company-modal-grid textarea:focus {
+
+  outline: none;
+
+  border-color: #08204B;
+
+  box-shadow: 0 0 0 2px rgba(8,32,75,.10);
+
+}
+
+.company-modal-grid textarea {
+
+  resize: vertical;
+
+  min-height: 110px;
+
+}
+
+.company-modal-grid input[readonly],
+
+.company-modal-grid textarea[readonly] {
+
+  background: #F8FAFC;
+
+  cursor: default;
+
+}
+
+/* ======================================================
+   COLOR PICKER
+====================================================== */
+
+.company-modal-grid input[type="color"] {
+
+  height: 46px;
+
+  padding: 4px;
+
+  cursor: pointer;
+
+}
+
+/* ======================================================
+   PLATFORM
+====================================================== */
+
+.company-platform-block {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+}
+
+.company-platform-block + .company-platform-block {
+
+  margin-top: 28px;
+
+}
+
+.company-platform-title {
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: #334155;
+
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.company-status-group {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 14px;
+
+}
+
+.company-radio {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px 18px;
+
+  background: #FFFFFF;
+
+  border: 1px solid #CBD5E1;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+}
+
+.company-radio:hover {
+
+  border-color: #08204B;
+
+  background: #F8FAFC;
+
+}
+
+.company-radio input {
+
+  width: 18px;
+
+  height: 18px;
+
+  accent-color: #08204B;
+
+}
+
+.company-radio span {
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  color: #334155;
+
+}
+
+/* ======================================================
+   MODULES
+====================================================== */
+
+.company-modules-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+
+  gap: 14px;
+
+}
+
+.company-module-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #CBD5E1;
+
+  border-radius: 12px;
+
+  background: #FFFFFF;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+}
+
+.company-module-item:hover {
+
+  border-color: #08204B;
+
+  background: #F8FAFC;
+
+}
+
+.company-module-item input {
+
+  width: 18px;
+
+  height: 18px;
+
+  accent-color: #08204B;
+
+  flex-shrink: 0;
+
+}
+
+.company-module-item span {
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  color: #334155;
+
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.company-modal-footer {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 32px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid #E2E8F0;
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 992px) {
+
+  .company-modal-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .company-modules-grid {
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .company-modal-header {
+
+    margin-bottom: 24px;
+
+  }
+
+  .company-modal-title h2 {
+
+    font-size: 20px;
+
+  }
+
+  .company-section-card {
+
+    padding: 18px;
+
+  }
+
+  .company-modal-logo {
+
+    margin-bottom: 24px;
+
+  }
+
+  .company-status-group {
+
+    flex-direction: column;
+
+  }
+
+  .company-modules-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .company-module-item,
+
+  .company-radio {
+
+    width: 100%;
+
+  }
+
+  .company-modal-footer {
+
+    flex-direction: column-reverse;
+
+  }
+
+  .company-modal-footer button {
+
+    width: 100%;
+
+  }
+
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width: 480px) {
+
+  .company-section-card {
+
+    padding: 16px;
+
+  }
+
+  .company-modal-title h2 {
+
+    font-size: 18px;
+
+  }
+
+}

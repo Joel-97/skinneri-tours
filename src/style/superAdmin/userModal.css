@@ -1,0 +1,289 @@
+/* ======================================================
+   HEADER
+====================================================== */
+
+.user-modal-header {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 30px;
+
+}
+
+.user-modal-title h2 {
+
+  margin: 0;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  color: #1E293B;
+
+}
+
+.user-modal-close {
+
+  border: none;
+
+  background: transparent;
+
+  font-size: 22px;
+
+  color: #64748B;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+}
+
+.user-modal-close:hover {
+
+  color: #0F172A;
+
+}
+
+/* ======================================================
+   AVATAR
+====================================================== */
+
+.user-modal-avatar {
+
+  display: flex;
+
+  justify-content: center;
+
+  margin-bottom: 30px;
+
+}
+
+/* ======================================================
+   SECTION
+====================================================== */
+
+.user-modal-section {
+
+  margin-bottom: 24px;
+
+}
+
+.user-section-card {
+
+  background: #F8FAFC;
+
+  border: 1px solid #E2E8F0;
+
+  border-radius: 16px;
+
+  padding: 24px;
+
+}
+
+.user-modal-section h3 {
+
+  margin: 0 0 20px;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+  color: #1E293B;
+
+}
+
+/* ======================================================
+   GRID
+====================================================== */
+
+.user-modal-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+
+}
+
+.user-modal-grid-single {
+
+  margin-top: 20px;
+
+  grid-template-columns: 1fr;
+
+}
+
+/* ======================================================
+   LABELS
+====================================================== */
+
+.user-modal-grid label {
+
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #475569;
+
+}
+
+/* ======================================================
+   INPUTS
+====================================================== */
+
+.user-modal-grid input,
+
+.user-modal-grid textarea {
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #CBD5E1;
+
+  border-radius: 10px;
+
+  background: #FFFFFF;
+
+  font-size: 14px;
+
+  transition: .2s;
+
+  box-sizing: border-box;
+
+}
+
+.user-modal-grid input:focus,
+
+.user-modal-grid textarea:focus {
+
+  outline: none;
+
+  border-color: #08204B;
+
+  box-shadow: 0 0 0 2px rgba(8,32,75,.10);
+
+}
+
+.user-modal-grid textarea {
+
+  resize: vertical;
+
+  min-height: 110px;
+
+}
+
+.user-modal-grid input[readonly],
+
+.user-modal-grid textarea[readonly] {
+
+  background: #F8FAFC;
+
+  cursor: default;
+
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.user-modal-footer {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 32px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid #E2E8F0;
+
+}
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 992px) {
+
+  .user-modal-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .user-modal-header {
+
+    margin-bottom: 24px;
+
+  }
+
+  .user-modal-title h2 {
+
+    font-size: 20px;
+
+  }
+
+  .user-section-card {
+
+    padding: 18px;
+
+  }
+
+  .user-modal-avatar {
+
+    margin-bottom: 24px;
+
+  }
+
+  .user-modal-footer {
+
+    flex-direction: column-reverse;
+
+  }
+
+  .user-modal-footer button {
+
+    width: 100%;
+
+  }
+
+}
+
+/* ======================================================
+   SMALL MOBILE
+====================================================== */
+
+@media (max-width: 480px) {
+
+  .user-section-card {
+
+    padding: 16px;
+
+  }
+
+  .user-modal-title h2 {
+
+    font-size: 18px;
+
+  }
+
+}

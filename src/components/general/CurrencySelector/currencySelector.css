@@ -1,0 +1,127 @@
+/*
+==========================================================
+CURRENCY SELECTOR
+==========================================================
+*/
+
+.currency-selector{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  padding:4px;
+
+  background:#f5f7fb;
+
+  border:1px solid #e3e8ef;
+
+  border-radius:999px;
+
+}
+
+/*
+==========================================================
+BUTTON
+==========================================================
+*/
+
+.currency-selector-button{
+
+  border:none;
+
+  background:transparent;
+
+  color:#64748b;
+
+  cursor:pointer;
+
+  font-size:.82rem;
+
+  font-weight:600;
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  transition:
+
+    background .25s,
+
+    color .25s,
+
+    box-shadow .25s;
+
+}
+
+/*
+==========================================================
+HOVER
+==========================================================
+*/
+
+.currency-selector-button:hover{
+
+  background:#eef3ff;
+
+  color:#08204B;
+
+}
+
+/*
+==========================================================
+ACTIVE
+==========================================================
+*/
+
+.currency-selector-button.active{
+
+  background:#08204B;
+
+  color:#fff;
+
+  box-shadow:
+
+    0 2px 8px rgba(
+
+      8,
+
+      32,
+
+      75,
+
+      .18
+
+    );
+
+}
+
+/*
+==========================================================
+MOBILE
+==========================================================
+*/
+
+@media(max-width:768px){
+
+  .currency-selector{
+
+    width:100%;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+  }
+
+  .currency-selector-button{
+
+    flex:1;
+
+    min-width:72px;
+
+  }
+
+}

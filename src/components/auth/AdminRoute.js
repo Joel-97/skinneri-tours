@@ -1,25 +1,75 @@
+/*
+==========================================================
+IMPORTS
+==========================================================
+*/
+
 import { Navigate } from "react-router-dom";
-import { UserAuth } from "../../context/AuthContext";
-import Loading from "../../components/general/loading"; 
 
-const AdminRoute = ({ children }) => {
-  const { adminData, loading } = UserAuth();
+import { useAuth } from "../../context/AuthContext";
 
-  if (loading) {
-    return <div><Loading /></div>;
+import {
+  isAdmin
+} from "../../utils/authorization";
+
+/*
+==========================================================
+COMPONENT
+==========================================================
+*/
+
+export default function AdminRoute({
+
+  children
+
+}) {
+
+  const {
+
+    session
+
+  } = useAuth();
+
+  /*
+  ==========================================================
+  USER
+  ==========================================================
+  */
+
+  const user = session?.user;
+
+  /*
+  ==========================================================
+  AUTHORIZATION
+  ==========================================================
+  */
+
+  if (
+
+    isAdmin(user)
+
+  ) {
+
+    return children;
+
   }
 
-  if (!adminData) {
-    return <Navigate to="/home" replace />;
-  }
+  /*
+  ==========================================================
+  ACCESS DENIED
+  ==========================================================
+  */
 
-  const role = adminData.role?.trim().toLowerCase();
+  return (
 
-  if (role !== "admin") {
-    return <Navigate to="/home" replace />;
-  }
+    <Navigate
 
-  return children;
-};
+      to="/"
 
-export default AdminRoute;
+      replace
+
+    />
+
+  );
+
+}

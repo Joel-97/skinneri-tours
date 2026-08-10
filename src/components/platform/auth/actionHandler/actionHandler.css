@@ -1,0 +1,443 @@
+/*
+==========================================================
+ACTION HANDLER
+==========================================================
+*/
+
+.action-handler-container {
+
+    width: min(100%, 460px);
+
+    margin: 0 auto;
+
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+
+    background: #FFFFFF;
+
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+
+    box-shadow:
+        0 10px 30px rgba(8, 32, 75, 0.08);
+
+    box-sizing: border-box;
+
+}
+
+.action-handler-container * {
+
+    box-sizing: border-box;
+
+}
+
+/*
+==========================================================
+HEADER
+==========================================================
+*/
+
+.action-handler-header {
+
+    margin-bottom: 2rem;
+
+    text-align: center;
+
+}
+
+.action-handler-title {
+
+    margin: 0;
+
+    color: #08204B;
+
+    font-size: clamp(1.75rem, 2vw, 2rem);
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+}
+
+.action-handler-subtitle {
+
+    margin-top: .75rem;
+
+    color: #6B7280;
+
+    font-size: clamp(.9rem, 1vw, .95rem);
+
+    line-height: 1.6;
+
+}
+
+/*
+==========================================================
+ACCOUNT
+==========================================================
+*/
+
+.action-handler-account {
+
+    margin-bottom: 1.75rem;
+
+    padding: 1rem;
+
+    background: #F9FAFB;
+
+    border: 1px solid #E5E7EB;
+
+    border-radius: 10px;
+
+}
+
+.action-handler-account-label {
+
+    display: block;
+
+    margin-bottom: .35rem;
+
+    color: #6B7280;
+
+    font-size: .85rem;
+
+}
+
+.action-handler-account-email {
+
+    display: block;
+
+    color: #08204B;
+
+    font-size: .95rem;
+
+    font-weight: 600;
+
+    word-break: break-word;
+
+    overflow-wrap: anywhere;
+
+}
+
+/*
+==========================================================
+FORM
+==========================================================
+*/
+
+.action-handler-fields {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1.5rem;
+
+}
+
+.action-handler-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: .5rem;
+
+}
+
+.action-handler-label {
+
+    color: #374151;
+
+    font-size: .9rem;
+
+    font-weight: 600;
+
+}
+
+.action-handler-input {
+
+    width: 100%;
+
+    min-width: 0;
+
+    padding: .9rem 1rem;
+
+    border: 1px solid #D1D5DB;
+
+    border-radius: 10px;
+
+    background: #FFFFFF;
+
+    color: #111827;
+
+    font-size: .95rem;
+
+    transition:
+
+        border-color .2s ease,
+
+        box-shadow .2s ease,
+
+        background-color .2s ease;
+
+}
+
+.action-handler-input:focus,
+
+.action-handler-input:focus-visible {
+
+    outline: none;
+
+    border-color: #08204B;
+
+    box-shadow:
+
+        0 0 0 3px rgba(8, 32, 75, .10);
+
+}
+
+/*
+==========================================================
+BUTTON
+==========================================================
+*/
+
+.action-handler-actions {
+
+    margin-top: .5rem;
+
+}
+
+.action-handler-submit-button {
+
+    width: 100%;
+
+    padding: .95rem 1rem;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #08204B;
+
+    color: #FFFFFF;
+
+    font-size: .95rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+
+        background .2s ease,
+
+        transform .15s ease,
+
+        opacity .2s ease;
+
+}
+
+.action-handler-submit-button:hover:not(:disabled) {
+
+    background: #12336E;
+
+}
+
+.action-handler-submit-button:active:not(:disabled) {
+
+    transform: scale(.98);
+
+}
+
+.action-handler-submit-button:disabled {
+
+    opacity: .65;
+
+    cursor: not-allowed;
+
+}
+
+/*
+==========================================================
+ERROR
+==========================================================
+*/
+
+.action-handler-error {
+
+    margin-bottom: 1.5rem;
+
+    padding: 1rem;
+
+    border: 1px solid #FECACA;
+
+    border-radius: 10px;
+
+    background: #FEF2F2;
+
+    color: #B91C1C;
+
+    font-size: .9rem;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+
+}
+
+/*
+==========================================================
+SUCCESS
+==========================================================
+*/
+
+.action-handler-success {
+
+    padding: 1rem;
+
+    border: 1px solid #BBF7D0;
+
+    border-radius: 10px;
+
+    background: #F0FDF4;
+
+    color: #166534;
+
+    text-align: center;
+
+    line-height: 1.6;
+
+}
+
+/*
+==========================================================
+LOADING
+==========================================================
+*/
+
+.action-handler-loading {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 320px;
+
+    padding: 2rem;
+
+    color: #6B7280;
+
+    font-size: 1rem;
+
+    text-align: center;
+
+}
+
+/*
+==========================================================
+TABLET
+==========================================================
+*/
+
+@media (max-width: 768px) {
+
+    .action-handler-container {
+
+        max-width: 100%;
+
+    }
+
+}
+
+/*
+==========================================================
+MOBILE
+==========================================================
+*/
+
+@media (max-width: 640px) {
+
+    .action-handler-container {
+
+        padding: 1.5rem;
+
+        border-radius: 12px;
+
+    }
+
+    .action-handler-header {
+
+        margin-bottom: 1.75rem;
+
+    }
+
+    .action-handler-title {
+
+        font-size: 1.6rem;
+
+    }
+
+}
+
+/*
+==========================================================
+SMALL MOBILE
+==========================================================
+*/
+
+@media (max-width: 380px) {
+
+    .action-handler-container {
+
+        padding: 1.25rem;
+
+    }
+
+    .action-handler-title {
+
+        font-size: 1.45rem;
+
+    }
+
+    .action-handler-input,
+
+    .action-handler-submit-button {
+
+        font-size: .9rem;
+
+    }
+
+}
+
+/*
+==========================================================
+SAFE AREA
+==========================================================
+*/
+
+@supports (padding: max(0px)) {
+
+    .action-handler-container {
+
+        padding-top:
+
+            max(
+                clamp(1.5rem, 3vw, 2.5rem),
+                env(safe-area-inset-top)
+            );
+
+        padding-bottom:
+
+            max(
+                clamp(1.5rem, 3vw, 2.5rem),
+                env(safe-area-inset-bottom)
+            );
+
+    }
+
+}

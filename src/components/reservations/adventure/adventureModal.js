@@ -280,8 +280,6 @@ export default function AdventureModal({
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
 
-    console.log(form);
-
     const { name, value } = e.target;
 
     setForm(prev => {
@@ -577,7 +575,7 @@ export default function AdventureModal({
         <div className="modal-header">
           <div className="modal-title-group">
             <h2>
-              {mode === "create" ? "Nuevo tour" : "Editar tour"}
+              {mode === "create" ? "Nueva aventura" : "Editar aventura"}
             </h2>
 
             {mode === "edit" && form.reservationNumber && (
@@ -629,7 +627,7 @@ export default function AdventureModal({
 
             <div className="form-field">
               <label className="field-label">
-                Tour <span className="required">*</span>
+                Aventura <span className="required">*</span>
               </label>
 
               <Select
