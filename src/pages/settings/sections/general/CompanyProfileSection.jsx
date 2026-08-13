@@ -3,7 +3,7 @@ import Select from "react-select";
 
 import { useAuth } from "../../../../context/AuthContext";
 
-import { updateCompanyData } from "../../../../services/superAdmin/companyProfileOld";
+import { updateCompanyData } from "../../../../services/superAdmin/companyProfile";
 
 import {
   locationData,
