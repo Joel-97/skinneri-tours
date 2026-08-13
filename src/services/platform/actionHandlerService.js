@@ -94,11 +94,6 @@ export async function verifyActionCodeService(
 
     try {
 
-        console.log("====================================");
-        console.log("VERIFY PASSWORD RESET CODE");
-        console.log("====================================");
-        console.log("oobCode:", oobCode);
-
         const email =
 
             await verifyPasswordResetCode(
@@ -108,8 +103,6 @@ export async function verifyActionCodeService(
                 oobCode
 
             );
-
-        console.log("Email:", email);
 
         return success({
 
@@ -153,11 +146,6 @@ export async function confirmPasswordResetService({
 
     try {
 
-        console.log("====================================");
-        console.log("CONFIRM PASSWORD RESET");
-        console.log("====================================");
-        console.log("oobCode:", oobCode);
-
         await confirmPasswordReset(
 
             auth,
@@ -168,15 +156,11 @@ export async function confirmPasswordResetService({
 
         );
 
-        console.log("Password updated.");
-
         return success();
 
     }
 
     catch (error) {
-
-        console.error(error);
 
         return failure(
 

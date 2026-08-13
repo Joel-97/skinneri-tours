@@ -253,11 +253,6 @@ export const getDashboardMetrics = async (companyId) => {
 
   } catch (error) {
 
-    console.log(
-      "Error getting dashboard metrics:",
-      error
-    );
-
     return {
 
       bookingsToday: 0,
@@ -305,7 +300,7 @@ export const getUpcomingTrips = async (companyId) => {
     return trips.slice(0, 10);
 
   } catch (error) {
-    console.log("Error in upcomingQuery:", error);
+    console.log("Error in upcomingQuery:");
     return [];
   }
 };
@@ -373,7 +368,7 @@ export const getLast7DaysRevenue = async (companyId) => {
     }));
 
   } catch (error) {
-    console.log("Error getLast7DaysRevenue:", error);
+    console.log("Error getLast7DaysRevenue:");
     return [];
   }
 };

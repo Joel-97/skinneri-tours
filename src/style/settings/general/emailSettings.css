@@ -4,9 +4,14 @@
 
 .email-settings-container {
 
-  margin: 0 auto;
+    width: 100%;
+    max-width: 1500px;
 
-  padding: 32px 50px;
+    margin: 0 auto;
+
+    padding: 32px 50px;
+
+    box-sizing: border-box;
 
 }
 
@@ -17,29 +22,29 @@
 
 .email-settings-intro {
 
-  margin-bottom: 28px;
+    margin-bottom: 28px;
 
 }
 
 .email-settings-intro-content h3 {
 
-  margin: 0;
+    margin: 0;
 
-  font-size: 22px;
+    font-size: 22px;
+    font-weight: 600;
 
-  font-weight: 600;
-
-  color: #0f172a;
+    color: #0f172a;
 
 }
 
 .email-settings-intro-content p {
 
-  margin: 4px 0 0;
+    margin: 4px 0 0;
 
-  font-size: 14px;
+    font-size: 14px;
+    line-height: 1.5;
 
-  color: #6b7280;
+    color: #6b7280;
 
 }
 
@@ -50,83 +55,81 @@
 
 .email-settings-header {
 
-  display: flex;
+    display: flex;
 
-  justify-content: space-between;
+    justify-content: space-between;
+    align-items: center;
 
-  align-items: center;
+    gap: 16px;
 
-  gap: 16px;
-
-  margin-bottom: 24px;
+    margin-bottom: 24px;
 
 }
 
 .email-settings-header-info {
 
-  display: flex;
+    display: flex;
 
-  align-items: center;
+    align-items: center;
 
-  gap: 16px;
+    gap: 16px;
+
+    min-width: 0;
 
 }
 
 .email-settings-header-icon {
 
-  width: 58px;
+    width: 58px;
+    height: 58px;
 
-  height: 58px;
+    min-width: 58px;
 
-  min-width: 58px;
+    display: flex;
 
-  display: flex;
+    align-items: center;
+    justify-content: center;
 
-  align-items: center;
+    border-radius: 14px;
 
-  justify-content: center;
+    background: #0A1E5E;
 
-  border-radius: 14px;
+    color: #ffffff;
 
-  background: #0A1E5E;
-
-  color: #ffffff;
-
-  font-size: 24px;
-
-  font-weight: 700;
+    font-size: 24px;
+    font-weight: 700;
 
 }
 
 .email-settings-header-info h3 {
 
-  margin: 0;
+    margin: 0;
 
-  font-size: 22px;
+    font-size: 22px;
+    font-weight: 600;
 
-  font-weight: 600;
+    color: #0f172a;
 
-  color: #0f172a;
+    overflow-wrap: anywhere;
 
 }
 
 .email-settings-header-info span {
 
-  display: inline-flex;
+    display: inline-flex;
 
-  margin-top: 8px;
+    margin-top: 8px;
 
-  padding: 5px 10px;
+    padding: 5px 10px;
 
-  border-radius: 999px;
+    border-radius: 999px;
 
-  background: #eff6ff;
+    background: #eff6ff;
 
-  color: #1d4ed8;
+    color: #1d4ed8;
 
-  font-size: 12px;
-
-  font-weight: 600;
+    font-size: 12px;
+    font-weight: 600;
 
 }
 
@@ -137,13 +140,17 @@
 
 .email-settings-main-grid {
 
-  display: grid;
+    display: grid;
 
-  grid-template-columns: 2fr 1fr;
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(320px, 1fr);
 
-  gap: 24px;
+    gap: 24px;
 
-  margin-bottom: 24px;
+    margin-bottom: 24px;
+
+    min-width: 0;
 
 }
 
@@ -154,15 +161,22 @@
 
 .email-settings-card {
 
-  background: #ffffff;
+    min-width: 0;
 
-  border: 1px solid #e5e7eb;
+    background: #ffffff;
 
-  border-radius: 14px;
+    border: 1px solid #e5e7eb;
 
-  padding: 24px;
+    border-radius: 14px;
+
+    padding: 24px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
 
 }
+
 
 /* ======================================================
    CARD HEADER
@@ -170,31 +184,29 @@
 
 .email-settings-card-header {
 
-  margin-bottom: 22px;
+    margin-bottom: 22px;
 
 }
 
 .email-settings-card-header h4 {
 
-  margin: 0;
+    margin: 0;
 
-  font-size: 18px;
+    font-size: 18px;
+    font-weight: 600;
 
-  font-weight: 600;
-
-  color: #0f172a;
+    color: #0f172a;
 
 }
 
 .email-settings-card-header p {
 
-  margin: 4px 0 0;
+    margin: 4px 0 0;
 
-  font-size: 13px;
+    font-size: 13px;
+    line-height: 1.5;
 
-  line-height: 1.5;
-
-  color: #6b7280;
+    color: #6b7280;
 
 }
 
@@ -205,18 +217,20 @@
 
 .email-settings-form-grid {
 
-  display: grid;
+    display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
-  gap: 20px;
+    gap: 20px;
+
+    min-width: 0;
 
 }
 
 .email-settings-full-width {
 
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 
 }
 
@@ -227,68 +241,70 @@
 
 .email-settings-form-group {
 
-  display: flex;
+    display: flex;
 
-  flex-direction: column;
+    flex-direction: column;
 
-  gap: 8px;
+    gap: 8px;
+
+    min-width: 0;
 
 }
 
 .email-settings-form-group label {
 
-  font-size: 14px;
+    font-size: 14px;
+    font-weight: 500;
 
-  font-weight: 500;
-
-  color: #0f172a;
+    color: #0f172a;
 
 }
 
 .email-settings-form-group input {
 
-  width: 100%;
+    width: 100%;
+    max-width: 100%;
 
-  height: 46px;
+    height: 46px;
 
-  padding: 0 14px;
+    padding: 0 14px;
 
-  border: 1px solid #d1d5db;
+    border: 1px solid #d1d5db;
 
-  border-radius: 10px;
+    border-radius: 10px;
 
-  background: #ffffff;
+    background: #ffffff;
 
-  color: #111827;
+    color: #111827;
 
-  font-size: 14px;
+    font-size: 14px;
 
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-sizing: border-box;
 
-  box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 
 }
 
 .email-settings-form-group input:focus {
 
-  outline: none;
+    outline: none;
 
-  border-color: #3b82f6;
+    border-color: #3b82f6;
 
-  box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.12);
 
 }
 
 .email-settings-form-group input[readonly] {
 
-  background: #f8fafc;
+    background: #f8fafc;
 
-  color: #475569;
+    color: #475569;
 
-  cursor: default;
+    cursor: default;
 
 }
 
@@ -299,11 +315,11 @@
 
 .email-settings-help-text {
 
-  font-size: 12px;
+    font-size: 12px;
 
-  line-height: 1.4;
+    line-height: 1.4;
 
-  color: #6b7280;
+    color: #6b7280;
 
 }
 
@@ -314,77 +330,131 @@
 
 .email-settings-toggle {
 
-  width: 100%;
+    width: 100%;
+    min-height: 52px;
 
-  min-height: 52px;
+    display: flex;
 
-  display: flex;
+    align-items: center;
 
-  align-items: center;
+    gap: 12px;
 
-  gap: 12px;
+    padding: 0 16px;
 
-  padding: 0 16px;
+    border: 1px solid #d1d5db;
 
-  border: 1px solid #d1d5db;
+    border-radius: 10px;
 
-  border-radius: 10px;
+    background: #ffffff;
 
-  background: #ffffff;
+    color: #475569;
 
-  color: #475569;
+    font-size: 14px;
+    font-weight: 500;
 
-  font-size: 14px;
+    text-align: left;
 
-  font-weight: 500;
+    cursor: pointer;
 
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease;
 
 }
 
 .email-settings-toggle:hover {
 
-  border-color: #94a3b8;
+    border-color: #94a3b8;
 
-  background: #f8fafc;
+    background: #f8fafc;
 
 }
 
 .email-settings-toggle--active {
 
-  border-color: #bbf7d0;
+    border-color: #bbf7d0;
 
-  background: #f0fdf4;
+    background: #f0fdf4;
 
-  color: #166534;
+    color: #166534;
 
 }
 
 .email-settings-toggle-indicator {
 
-  width: 12px;
+    width: 12px;
+    height: 12px;
 
-  height: 12px;
+    min-width: 12px;
 
-  min-width: 12px;
+    border-radius: 50%;
 
-  border-radius: 50%;
-
-  background: #94a3b8;
+    background: #94a3b8;
 
 }
 
 .email-settings-toggle--active
 .email-settings-toggle-indicator {
 
-  background: #16a34a;
+    background: #16a34a;
+
+}
+
+
+/* ======================================================
+   SENDING MODE
+====================================================== */
+
+.email-settings-sending-mode {
+
+    width: 100%;
+
+    min-width: 0;
+
+}
+
+.email-settings-mode-card {
+
+    min-height: 46px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    padding: 10px 14px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    background: #f8fafc;
+
+    box-sizing: border-box;
+
+}
+
+.email-settings-mode-card strong {
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #334155;
+
+}
+
+.email-settings-mode-card span {
+
+    font-size: 12px;
+
+    line-height: 1.4;
+
+    color: #64748b;
 
 }
 
@@ -395,11 +465,13 @@
 
 .email-settings-domain-status {
 
-  display: flex;
+    display: flex;
 
-  flex-direction: column;
+    flex-direction: column;
 
-  gap: 20px;
+    gap: 20px;
+
+    min-width: 0;
 
 }
 
@@ -410,33 +482,31 @@
 
 .email-settings-status {
 
-  display: inline-flex;
+    display: inline-flex;
 
-  align-items: center;
+    align-items: center;
 
-  align-self: flex-start;
+    align-self: flex-start;
 
-  gap: 9px;
+    gap: 9px;
 
-  padding: 8px 12px;
+    padding: 8px 12px;
 
-  border-radius: 999px;
+    border-radius: 999px;
 
-  font-size: 13px;
-
-  font-weight: 600;
+    font-size: 13px;
+    font-weight: 600;
 
 }
 
 .email-settings-status-dot {
 
-  width: 8px;
+    width: 8px;
+    height: 8px;
 
-  height: 8px;
+    min-width: 8px;
 
-  min-width: 8px;
-
-  border-radius: 50%;
+    border-radius: 50%;
 
 }
 
@@ -445,16 +515,16 @@
 
 .email-settings-status--verified {
 
-  background: #ecfdf3;
+    background: #ecfdf3;
 
-  color: #027a48;
+    color: #027a48;
 
 }
 
 .email-settings-status--verified
 .email-settings-status-dot {
 
-  background: #12b76a;
+    background: #12b76a;
 
 }
 
@@ -463,16 +533,16 @@
 
 .email-settings-status--pending {
 
-  background: #fffaeb;
+    background: #fffaeb;
 
-  color: #b54708;
+    color: #b54708;
 
 }
 
 .email-settings-status--pending
 .email-settings-status-dot {
 
-  background: #f79009;
+    background: #f79009;
 
 }
 
@@ -481,16 +551,16 @@
 
 .email-settings-status--unconfigured {
 
-  background: #f1f5f9;
+    background: #f1f5f9;
 
-  color: #475569;
+    color: #475569;
 
 }
 
 .email-settings-status--unconfigured
 .email-settings-status-dot {
 
-  background: #94a3b8;
+    background: #94a3b8;
 
 }
 
@@ -501,41 +571,45 @@
 
 .email-settings-domain-info {
 
-  display: flex;
+    display: flex;
 
-  flex-direction: column;
+    flex-direction: column;
 
-  gap: 6px;
+    gap: 6px;
 
-  padding: 16px;
+    min-width: 0;
 
-  border: 1px solid #e5e7eb;
+    padding: 16px;
 
-  border-radius: 10px;
+    border: 1px solid #e5e7eb;
 
-  background: #f8fafc;
+    border-radius: 10px;
+
+    background: #f8fafc;
 
 }
 
 .email-settings-domain-label {
 
-  font-size: 12px;
+    font-size: 12px;
 
-  font-weight: 500;
+    font-weight: 500;
 
-  color: #64748b;
+    color: #64748b;
 
 }
 
 .email-settings-domain-info strong {
 
-  font-size: 15px;
+    max-width: 100%;
 
-  font-weight: 600;
+    font-size: 15px;
 
-  color: #0f172a;
+    font-weight: 600;
 
-  word-break: break-word;
+    color: #0f172a;
+
+    overflow-wrap: anywhere;
 
 }
 
@@ -546,39 +620,510 @@
 
 .email-settings-verification-message {
 
-  padding: 16px;
+    min-width: 0;
 
-  border: 1px solid #e2e8f0;
+    padding: 16px;
 
-  border-radius: 10px;
+    border: 1px solid #e2e8f0;
 
-  background: #ffffff;
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
 
 }
 
 .email-settings-verification-message strong {
 
-  display: block;
+    display: block;
 
-  margin-bottom: 6px;
+    margin-bottom: 6px;
 
-  font-size: 13px;
+    font-size: 13px;
 
-  font-weight: 600;
+    font-weight: 600;
 
-  color: #334155;
+    color: #334155;
 
 }
 
 .email-settings-verification-message p {
 
-  margin: 0;
+    margin: 0;
 
-  font-size: 13px;
+    font-size: 13px;
 
-  line-height: 1.5;
+    line-height: 1.5;
 
-  color: #64748b;
+    color: #64748b;
+
+    overflow-wrap: anywhere;
+
+}
+
+
+/* ======================================================
+   DOMAIN ACTIONS
+====================================================== */
+
+.email-settings-domain-actions {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    min-width: 0;
+
+}
+
+.email-settings-domain-action {
+
+    min-height: 42px;
+
+    padding: 0 14px;
+
+    border: 1px solid #0A1E5E;
+
+    border-radius: 9px;
+
+    background: #0A1E5E;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease,
+        opacity 0.2s ease;
+
+}
+
+.email-settings-domain-action:hover {
+
+    background: #071743;
+
+    border-color: #071743;
+
+    transform: translateY(-1px);
+
+}
+
+.email-settings-domain-action:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+}
+
+.email-settings-domain-action--secondary {
+
+    background: #ffffff;
+
+    color: #0A1E5E;
+
+}
+
+.email-settings-domain-action--secondary:hover {
+
+    background: #f8fafc;
+
+    color: #0A1E5E;
+
+}
+
+
+/* ======================================================
+   DNS RECORDS CONTAINER
+====================================================== */
+
+.email-settings-dns-records {
+
+    width: 100%;
+
+    min-width: 0;
+
+    padding-top: 4px;
+
+}
+
+
+/* ======================================================
+   DNS HEADER
+====================================================== */
+
+.email-settings-dns-header {
+
+    margin-bottom: 14px;
+
+}
+
+.email-settings-dns-header > div {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+}
+
+.email-settings-dns-header strong {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    color: #0f172a;
+
+}
+
+.email-settings-dns-header span {
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #64748b;
+
+}
+
+
+/* ======================================================
+   DNS LIST
+====================================================== */
+
+.email-settings-dns-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    width: 100%;
+
+    min-width: 0;
+
+}
+
+
+/* ======================================================
+   DNS RECORD CARD
+====================================================== */
+
+.email-settings-dns-record {
+
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 16px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+.email-settings-dns-record:hover {
+
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+}
+
+
+/* ======================================================
+   DNS RECORD HEADER
+====================================================== */
+
+.email-settings-dns-record-header {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+
+    min-width: 0;
+
+}
+
+.email-settings-dns-record-type {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+}
+
+.email-settings-dns-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+
+    color: #64748b;
+
+}
+
+.email-settings-dns-record-type
+.email-settings-dns-label {
+
+    margin: 0;
+
+}
+
+.email-settings-dns-type-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 38px;
+
+    height: 26px;
+
+    padding: 0 9px;
+
+    border-radius: 7px;
+
+    background: #eff6ff;
+
+    color: #1d4ed8;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.04em;
+
+}
+
+.email-settings-dns-record-name {
+
+    max-width: 55%;
+
+    padding: 5px 8px;
+
+    border-radius: 6px;
+
+    background: #f8fafc;
+
+    color: #475569;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 11px;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
+
+}
+
+
+/* ======================================================
+   DNS FIELD
+====================================================== */
+
+.email-settings-dns-field {
+
+    min-width: 0;
+
+    margin-bottom: 14px;
+
+}
+
+.email-settings-dns-field:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+/* ======================================================
+   DNS CODE / NAME
+====================================================== */
+
+.email-settings-dns-code {
+
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 10px 12px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    box-sizing: border-box;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
+
+}
+
+
+/* ======================================================
+   DNS VALUE
+====================================================== */
+
+.email-settings-dns-value-box {
+
+    width: 100%;
+
+    min-width: 0;
+
+    max-width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #dbe3ee;
+
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+}
+
+.email-settings-dns-value-box code {
+
+    display: block;
+
+    width: 100%;
+
+    max-width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+
+    color: #334155;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 11px;
+
+    line-height: 1.65;
+
+    white-space: normal;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
+
+}
+
+
+/* ======================================================
+   DNS PRIORITY
+====================================================== */
+
+.email-settings-dns-priority {
+
+    margin-top: 2px;
+
+}
+
+.email-settings-dns-priority-value {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 42px;
+
+    height: 30px;
+
+    padding: 0 10px;
+
+    border-radius: 7px;
+
+    background: #f1f5f9;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    font-weight: 600;
 
 }
 
@@ -589,45 +1134,47 @@
 
 .email-settings-save-button {
 
-  height: 46px;
+    height: 46px;
 
-  padding: 0 18px;
+    padding: 0 18px;
 
-  border: none;
+    border: none;
 
-  border-radius: 10px;
+    border-radius: 10px;
 
-  background: #0A1E5E;
+    background: #0A1E5E;
 
-  color: #ffffff;
+    color: #ffffff;
 
-  font-size: 14px;
+    font-size: 14px;
 
-  font-weight: 600;
+    font-weight: 600;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  transition:
-    opacity 0.2s ease,
-    transform 0.15s ease;
+    transition:
+        opacity 0.2s ease,
+        transform 0.15s ease;
+
+    white-space: nowrap;
 
 }
 
 .email-settings-save-button:hover {
 
-  opacity: 0.95;
+    opacity: 0.95;
 
-  transform: translateY(-1px);
+    transform: translateY(-1px);
 
 }
 
 .email-settings-save-button:disabled {
 
-  opacity: 0.6;
+    opacity: 0.6;
 
-  cursor: not-allowed;
+    cursor: not-allowed;
 
-  transform: none;
+    transform: none;
 
 }
 
@@ -638,11 +1185,11 @@
 
 @media (max-width: 1100px) {
 
-  .email-settings-main-grid {
+    .email-settings-main-grid {
 
-    grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
 
-  }
+    }
 
 }
 
@@ -653,43 +1200,80 @@
 
 @media (max-width: 768px) {
 
-  .email-settings-container {
+    .email-settings-container {
 
-    padding: 20px 16px;
+        padding: 20px 16px;
 
-  }
+    }
 
-  .email-settings-header {
 
-    flex-direction: column;
+    .email-settings-header {
 
-    align-items: flex-start;
+        flex-direction: column;
 
-  }
+        align-items: flex-start;
 
-  .email-settings-header-info {
+    }
 
-    width: 100%;
 
-  }
+    .email-settings-header-info {
 
-  .email-settings-save-button {
+        width: 100%;
 
-    width: 100%;
+    }
 
-  }
 
-  .email-settings-form-grid {
+    .email-settings-save-button {
 
-    grid-template-columns: 1fr;
+        width: 100%;
 
-  }
+    }
 
-  .email-settings-full-width {
 
-    grid-column: auto;
+    .email-settings-form-grid {
 
-  }
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .email-settings-full-width {
+
+        grid-column: auto;
+
+    }
+
+
+    .email-settings-domain-actions {
+
+        flex-direction: column;
+
+    }
+
+
+    .email-settings-domain-action {
+
+        width: 100%;
+
+    }
+
+
+    .email-settings-dns-record-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+
+    .email-settings-dns-record-name {
+
+        max-width: 100%;
+
+    }
 
 }
 
@@ -700,40 +1284,125 @@
 
 @media (max-width: 480px) {
 
-  .email-settings-container {
+    .email-settings-container {
 
-    padding: 18px 12px;
+        padding: 18px 12px;
 
-  }
+    }
 
-  .email-settings-card {
 
-    padding: 18px;
+    .email-settings-card {
 
-  }
+        padding: 18px;
 
-  .email-settings-header-info h3 {
+        border-radius: 12px;
 
-    font-size: 19px;
+    }
 
-  }
 
-  .email-settings-header-icon {
+    .email-settings-header-info {
 
-    width: 50px;
+        gap: 12px;
 
-    height: 50px;
+    }
 
-    min-width: 50px;
 
-    font-size: 21px;
+    .email-settings-header-info h3 {
 
-  }
+        font-size: 19px;
 
-  .email-settings-card-header h4 {
+    }
 
-    font-size: 17px;
 
-  }
+    .email-settings-header-icon {
+
+        width: 50px;
+        height: 50px;
+
+        min-width: 50px;
+
+        font-size: 21px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .email-settings-card-header h4 {
+
+        font-size: 17px;
+
+    }
+
+
+    .email-settings-dns-record {
+
+        padding: 14px;
+
+    }
+
+
+    .email-settings-dns-value-box {
+
+        padding: 10px;
+
+    }
+
+
+    .email-settings-dns-value-box code {
+
+        font-size: 10px;
+
+        line-height: 1.6;
+
+    }
+
+}
+
+
+/* ======================================================
+   VERY SMALL SCREENS
+====================================================== */
+
+@media (max-width: 360px) {
+
+    .email-settings-container {
+
+        padding: 14px 10px;
+
+    }
+
+
+    .email-settings-card {
+
+        padding: 14px;
+
+    }
+
+
+    .email-settings-header-info h3 {
+
+        font-size: 17px;
+
+    }
+
+
+    .email-settings-header-icon {
+
+        width: 44px;
+        height: 44px;
+
+        min-width: 44px;
+
+        font-size: 19px;
+
+    }
+
+
+    .email-settings-dns-record {
+
+        padding: 12px;
+
+    }
 
 }

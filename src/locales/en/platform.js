@@ -24,9 +24,9 @@ const platform = {
 
     },
 
-    adventures: {
+    adventure: {
 
-      name: "Adventures",
+      name: "Adventure",
 
       description:
 

@@ -1,24 +1,14 @@
 import {
-  getFunctions,
   httpsCallable
 } from "firebase/functions";
 
 import {
-  app
+  functions
 } from "../../firebase";
 
 
 /* ======================================================
-   FIREBASE FUNCTIONS
-====================================================== */
-
-const functions = getFunctions(
-  app
-);
-
-
-/* ======================================================
-   SEND RESERVATION CONFIRMATION
+SEND RESERVATION CONFIRMATION
 ====================================================== */
 
 export async function sendReservationConfirmation(
@@ -40,7 +30,6 @@ export async function sendReservationConfirmation(
 
   }
 
-
   if (!language) {
 
     const error =
@@ -55,13 +44,11 @@ export async function sendReservationConfirmation(
 
   }
 
-
   const sendReservationConfirmationFunction =
     httpsCallable(
       functions,
       "sendReservationConfirmation"
     );
-
 
   const result =
     await sendReservationConfirmationFunction({
@@ -71,7 +58,6 @@ export async function sendReservationConfirmation(
       language
 
     });
-
 
   return result.data;
 

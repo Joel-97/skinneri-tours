@@ -4,6 +4,13 @@
  * ==========================================================
  */
 
+
+/**
+ * ==========================================================
+ * ACCESS REQUESTS
+ * ==========================================================
+ */
+
 export {
 
     createAccessRequest,
@@ -16,6 +23,12 @@ export {
 
 } from "./controllers/accessRequestController.js";
 
+
+/**
+ * ==========================================================
+ * AUTH ACTIONS
+ * ==========================================================
+ */
 
 export {
 
@@ -31,8 +44,31 @@ export {
 } from "./controllers/getAuthActionController.js";
 
 
+/**
+ * ==========================================================
+ * RESERVATION EMAIL
+ * ==========================================================
+ */
+
 export {
 
     sendReservationConfirmation
 
 } from "./controllers/reservationEmailController.js";
+
+
+/**
+ * ==========================================================
+ * EMAIL DOMAIN
+ * ==========================================================
+ */
+
+export {
+
+    createEmailDomain,
+
+    getEmailDomainStatus,
+
+    verifyEmailDomain
+
+} from "./controllers/emailDomainController.js";

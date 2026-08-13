@@ -11,6 +11,11 @@ import {
   useState
 } from "react";
 
+import {
+  notifySuccess,
+  notifyError
+} from "../../../services/notificationService";
+
 import Select from "react-select";
 
 import {
@@ -21,15 +26,12 @@ import jsPDF from "jspdf";
 
 import Modal from "../../general/modal";
 
-import HiddenTemplateRenderer
-  from "../../signs/HiddenTemplateRenderer";
 
-import Loading
-  from "../../general/loading";
+import Loading from "../../general/loading";
+import HiddenTemplateRenderer from "../../signs/HiddenTemplateRenderer";
 
-import {
-  getSignTemplates
-} from "../../../services/sign/signTemplatesService";
+import { getSignTemplates } from "../../../services/sign/signTemplatesService";
+import { sendReservationConfirmation } from "../../../services/communication/reservationEmailService";
 
 import "../../../style/transportation/reservationActionsModal.css";
 
@@ -280,6 +282,10 @@ export default function ReservationActionsModal({
     setCommunicationLanguage
   ] = useState("en");
 
+  const [
+    isSendingConfirmation,
+    setIsSendingConfirmation
+  ] = useState(false);
 
   /**
    * ========================================================
@@ -550,9 +556,8 @@ export default function ReservationActionsModal({
 
         link.download =
 
-          `${
-            reservation?.reservationNumber ||
-            "template"
+          `${reservation?.reservationNumber ||
+          "template"
           }.png`;
 
 
@@ -609,7 +614,7 @@ export default function ReservationActionsModal({
         const orientation =
 
           canvasWidth >
-          canvasHeight
+            canvasHeight
 
             ? "landscape"
 
@@ -672,9 +677,8 @@ export default function ReservationActionsModal({
 
         const fileName =
 
-          `${
-            reservation?.reservationNumber ||
-            "template"
+          `${reservation?.reservationNumber ||
+          "template"
           }.pdf`;
 
 
@@ -706,6 +710,84 @@ export default function ReservationActionsModal({
       setIsExporting(
         false
       );
+
+    }
+
+  }
+
+  /**
+   * ========================================================
+   * SEND CONFIRMATION
+   * ========================================================
+   */
+
+  async function handleSendConfirmation() {
+
+    const reservationId =
+      reservation?.id;
+
+    const email =
+      reservation?.clientEmail;
+
+    if (!reservationId) {
+
+      notifyError(
+        "Error",
+        "No se encontró el ID de la reserva."
+      );
+
+      return;
+
+    }
+
+    if (!email) {
+
+      notifyError(
+        "Correo requerido",
+        "La reserva no tiene un correo electrónico de cliente."
+      );
+
+      return;
+
+    }
+
+    if (isSendingConfirmation) {
+      return;
+    }
+
+    try {
+
+      setIsSendingConfirmation(true);
+
+      await sendReservationConfirmation(
+        reservationId,
+        communicationLanguage
+      );
+
+      notifySuccess(
+        "Confirmación enviada",
+        `La confirmación fue enviada a ${email}.`
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "SEND RESERVATION CONFIRMATION ERROR:",
+        error
+      );
+
+      notifyError(
+        "Error",
+        "No se pudo enviar la confirmación de la reserva."
+      );
+
+    }
+
+    finally {
+
+      setIsSendingConfirmation(false);
 
     }
 
@@ -764,7 +846,7 @@ export default function ReservationActionsModal({
   const total =
 
     reservation?.total !== undefined &&
-    reservation?.total !== null
+      reservation?.total !== null
 
       ? reservation.total
 
@@ -926,10 +1008,9 @@ export default function ReservationActionsModal({
 
               className={
 
-                `reservation-actions-navigation-item ${
-                  activeAction === "export"
-                    ? "active"
-                    : ""
+                `reservation-actions-navigation-item ${activeAction === "export"
+                  ? "active"
+                  : ""
                 }`
 
               }
@@ -981,10 +1062,9 @@ export default function ReservationActionsModal({
 
               className={
 
-                `reservation-actions-navigation-item ${
-                  activeAction === "communication"
-                    ? "active"
-                    : ""
+                `reservation-actions-navigation-item ${activeAction === "communication"
+                  ? "active"
+                  : ""
                 }`
 
               }
@@ -1476,10 +1556,9 @@ export default function ReservationActionsModal({
 
                       className={
 
-                        `reservation-actions-language-option ${
-                          communicationLanguage === "en"
-                            ? "active"
-                            : ""
+                        `reservation-actions-language-option ${communicationLanguage === "en"
+                          ? "active"
+                          : ""
                         }`
 
                       }
@@ -1531,10 +1610,9 @@ export default function ReservationActionsModal({
 
                       className={
 
-                        `reservation-actions-language-option ${
-                          communicationLanguage === "es"
-                            ? "active"
-                            : ""
+                        `reservation-actions-language-option ${communicationLanguage === "es"
+                          ? "active"
+                          : ""
                         }`
 
                       }
@@ -1728,17 +1806,18 @@ export default function ReservationActionsModal({
 
 
                   <button
-
                     type="button"
-
                     className="reservation-actions-primary-btn"
-
-                    disabled={!clientEmail}
-
+                    onClick={handleSendConfirmation}
+                    disabled={
+                      !reservation?.clientEmail ||
+                      isSendingConfirmation
+                    }
                   >
-
-                    Enviar confirmación
-
+                    {isSendingConfirmation
+                      ? "Enviando..."
+                      : "Enviar confirmación"
+                    }
                   </button>
 
                 </div>

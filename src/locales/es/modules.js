@@ -22,7 +22,7 @@ const modules = {
   ==========================================================
   */
 
-  adventures: {
+  adventure: {
 
     name:
       "Aventuras",
