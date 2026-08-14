@@ -1,8 +1,8 @@
-/*
-==========================================================
-SKINNERI BRANDING
-==========================================================
-*/
+/**
+ * ==========================================================
+ * SKINNERI BRANDING
+ * ==========================================================
+ */
 
 const SKINNERI_BRANDING = Object.freeze({
 
@@ -20,6 +20,7 @@ const SKINNERI_BRANDING = Object.freeze({
 
         "https://skinneri.com",
 
+
     /*
     ======================================================
     EMAILS
@@ -28,15 +29,55 @@ const SKINNERI_BRANDING = Object.freeze({
 
     emails: {
 
+        /*
+        --------------------------------------------------
+        SUPPORT
+        --------------------------------------------------
+        */
+
         support:
 
             "support@skinneri.com",
 
+
+        /*
+        --------------------------------------------------
+        PLATFORM SENDER
+        --------------------------------------------------
+
+        Used when a company does not have a verified
+        custom domain.
+
+        Example:
+
+        Los Patitos via Skinneri
+        <noreply@skinneri.com>
+
+        --------------------------------------------------
+        */
+
         noReply:
 
-            "noreply@skinneri.com"
+            "noreply@skinneri.com",
+
+
+        /*
+        --------------------------------------------------
+        PLATFORM SENDER NAME
+        --------------------------------------------------
+
+        Used as the platform identity when Skinneri
+        sends on behalf of a company.
+
+        --------------------------------------------------
+        */
+
+        senderName:
+
+            "Skinneri"
 
     },
+
 
     /*
     ======================================================
@@ -55,6 +96,7 @@ const SKINNERI_BRANDING = Object.freeze({
             "Skinneri"
 
     },
+
 
     /*
     ======================================================
@@ -102,6 +144,7 @@ const SKINNERI_BRANDING = Object.freeze({
 
     },
 
+
     /*
     ======================================================
     SOCIAL MEDIA
@@ -128,6 +171,7 @@ const SKINNERI_BRANDING = Object.freeze({
 
     },
 
+
     /*
     ======================================================
     FOOTER
@@ -147,5 +191,6 @@ const SKINNERI_BRANDING = Object.freeze({
     }
 
 });
+
 
 export default SKINNERI_BRANDING;

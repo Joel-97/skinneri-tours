@@ -119,8 +119,6 @@ export default function CompanyGeneralSection({
   ==========================================================
   */
 
-  console.log("IDENTIFICATION_TYPE_OPTIONS", IDENTIFICATION_TYPE_OPTIONS);
-
   return (
 
     <div className="company-modal-section company-section-card">

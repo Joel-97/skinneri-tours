@@ -14,7 +14,7 @@ export function getDashboardOperationalMetrics(
 
   reservations = [],
 
-  staff = []
+  drivers = []
 
 ) {
 
@@ -24,7 +24,23 @@ export function getDashboardOperationalMetrics(
   ==========================================================
   */
 
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+  const today =
+
+    `${now.getFullYear()}-` +
+
+    `${String(
+
+      now.getMonth() + 1
+
+    ).padStart(2, "0")}-` +
+
+    `${String(
+
+      now.getDate()
+
+    ).padStart(2, "0")}`;
 
   /*
   ==========================================================
@@ -54,37 +70,139 @@ export function getDashboardOperationalMetrics(
 
   reservations.forEach((reservation) => {
 
+    /*
+    ========================================================
+    RESERVATION DATE
+    ========================================================
+    */
+
+    let reservationDate = null;
+
+    if (reservation.date?.toDate) {
+
+      reservationDate =
+
+        reservation.date.toDate();
+
+    }
+
+    else if (reservation.date) {
+
+      reservationDate =
+
+        new Date(reservation.date);
+
+    }
+
+    /*
+    ========================================================
+    INVALID DATE
+    ========================================================
+    */
+
     if (
 
-      reservation.dateString === today
+      !reservationDate ||
+
+      Number.isNaN(
+
+        reservationDate.getTime()
+
+      )
+
+    ) {
+
+      return;
+
+    }
+
+    /*
+    ========================================================
+    LOCAL DATE
+    ========================================================
+    */
+
+    const reservationDateString =
+
+      `${reservationDate.getFullYear()}-` +
+
+      `${String(
+
+        reservationDate.getMonth() + 1
+
+      ).padStart(2, "0")}-` +
+
+      `${String(
+
+        reservationDate.getDate()
+
+      ).padStart(2, "0")}`;
+
+    /*
+    ========================================================
+    TODAY
+    ========================================================
+    */
+
+    if (
+
+      reservationDateString === today
 
     ) {
 
       metrics.reservationsToday += 1;
 
-      switch (reservation.status) {
+      /*
+      ------------------------------------------------------
+      COMPLETED TODAY
+      ------------------------------------------------------
+      */
 
-        case "completed":
+      if (
 
-          metrics.completedToday += 1;
+        reservation.status === "completed"
 
-          break;
+      ) {
 
-        case "pending":
+        metrics.completedToday += 1;
 
-          metrics.pendingToday += 1;
+      }
 
-          break;
+      /*
+      ------------------------------------------------------
+      PENDING TODAY
+      ------------------------------------------------------
+      */
 
-        default:
+      if (
 
-          break;
+        reservation.status === "pending"
+
+      ) {
+
+        metrics.pendingToday += 1;
 
       }
 
     }
 
-    if (!reservation.staffId) {
+    /*
+    ========================================================
+    UNASSIGNED SERVICES
+    ========================================================
+
+    A service is considered unassigned when
+    it does not have a driver assigned.
+
+    Current reservation structure:
+
+    driverId
+    driverName
+
+    ========================================================
+    */
+
+    if (!reservation.driverId) {
 
       metrics.unassignedServices += 1;
 
@@ -94,15 +212,15 @@ export function getDashboardOperationalMetrics(
 
   /*
   ==========================================================
-  STAFF
+  DRIVERS
   ==========================================================
   */
 
-  metrics.activeDrivers = staff.filter(
+  metrics.activeDrivers = drivers.filter(
 
-    (member) =>
+    (driver) =>
 
-      member.status === "active"
+      driver.isActive === true
 
   ).length;
 

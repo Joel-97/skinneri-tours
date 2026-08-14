@@ -245,7 +245,7 @@ const auth = {
       "Gestione su empresa desde un solo lugar",
 
     version:
-      "Versión 1.0"
+      "Versión 1.2"
 
   },
 

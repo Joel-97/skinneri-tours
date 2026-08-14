@@ -22,10 +22,10 @@ const modules = {
   ==========================================================
   */
 
-  adventures: {
+  adventure: {
 
     name:
-      "Adventures",
+      "Adventure",
 
     description:
       "Manage tours, guides, schedules, activities, and adventure bookings."

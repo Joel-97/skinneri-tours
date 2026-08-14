@@ -11,7 +11,7 @@ import PaymentTypesSection from "./sections/general/PaymentTypesSection";
 import CompanyProfileSection from "./sections/general/CompanyProfileSection";
 import EmailSettingsSection from "./sections/general/EmailSettingsSection";
 import DiscountsSection from "./sections/general/DiscountsSection";
-import StaffSection from "./sections/general/StaffSection";
+// import StaffSection from "./sections/general/StaffSection";
 
 import SignTemplatesSection from "./sections/template/SignTemplatesSection";
 import LocationsSection from "./sections/locations/LocationsSection";
@@ -240,13 +240,13 @@ const SettingsPage = () => {
 
         );
 
-      case "staff":
+      // case "staff":
 
-        return (
+      //   return (
 
-          <StaffSection />
+      //     <StaffSection />
 
-        );
+      //   );
 
       case "commissionAgents":
 
@@ -602,7 +602,7 @@ const SettingsPage = () => {
 
         </button>
 
-        <button
+        {/* <button
 
           className={
 
@@ -628,7 +628,7 @@ const SettingsPage = () => {
 
           Colaboradores
 
-        </button>
+        </button> */}
 
         <button
 

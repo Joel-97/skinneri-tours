@@ -18,6 +18,14 @@ export function getDashboardTrips(
 
   /*
   ==========================================================
+  NOW
+  ==========================================================
+  */
+
+  const now = new Date();
+
+  /*
+  ==========================================================
   TODAY
   ==========================================================
   */
@@ -73,11 +81,39 @@ export function getDashboardTrips(
 
     }
 
+    /*
+    ========================================================
+    RESERVATION DATE
+    ========================================================
+    */
+
     const reservationDate =
 
-      reservation.date.toDate
+      reservation.date?.toDate
+
         ? reservation.date.toDate()
+
         : new Date(reservation.date);
+
+    /*
+    ========================================================
+    INVALID DATE
+    ========================================================
+    */
+
+    if (
+
+      Number.isNaN(
+
+        reservationDate.getTime()
+
+      )
+
+    ) {
+
+      return;
+
+    }
 
     /*
     ========================================================
@@ -137,6 +173,11 @@ export function getDashboardTrips(
     ========================================================
     TODAY
     ========================================================
+
+    Any reservation whose start date belongs
+    to the current calendar day.
+
+    ========================================================
     */
 
     const reservationDay =
@@ -172,11 +213,30 @@ export function getDashboardTrips(
     ========================================================
     UPCOMING
     ========================================================
+
+    A service is upcoming when:
+
+    - Its start date/time has not passed.
+    - It is not cancelled.
+    - It is not completed.
+
+    The reservation.date field represents
+    the start of the service.
+
+    ========================================================
     */
+
+    const isUpcomingStatus =
+
+      reservation.status !== "cancelled" &&
+
+      reservation.status !== "completed";
 
     if (
 
-      reservationDate >= today
+      reservationDate >= now &&
+
+      isUpcomingStatus
 
     ) {
 
@@ -191,10 +251,10 @@ export function getDashboardTrips(
     /*
     ========================================================
     DELAYED
+    ========================================================
 
-    V1:
-    Una reserva pendiente cuya fecha
-    ya pasó.
+    A pending reservation whose scheduled
+    start date/time has already passed.
 
     ========================================================
     */
@@ -203,7 +263,7 @@ export function getDashboardTrips(
 
       reservation.status === "pending" &&
 
-      reservationDate < today
+      reservationDate < now
 
     ) {
 
@@ -219,17 +279,115 @@ export function getDashboardTrips(
 
   /*
   ==========================================================
+  SORT TODAY
+  ==========================================================
+  */
+
+  metrics.today.sort(
+
+    (a, b) => {
+
+      const dateA =
+
+        a.date?.toDate
+
+          ? a.date.toDate()
+
+          : new Date(a.date);
+
+      const dateB =
+
+        b.date?.toDate
+
+          ? b.date.toDate()
+
+          : new Date(b.date);
+
+      return (
+
+        dateA.getTime() -
+
+        dateB.getTime()
+
+      );
+
+    }
+
+  );
+
+  /*
+  ==========================================================
   SORT UPCOMING
   ==========================================================
   */
 
   metrics.upcoming.sort(
 
-    (a, b) =>
+    (a, b) => {
 
-      a.date.seconds -
+      const dateA =
 
-      b.date.seconds
+        a.date?.toDate
+
+          ? a.date.toDate()
+
+          : new Date(a.date);
+
+      const dateB =
+
+        b.date?.toDate
+
+          ? b.date.toDate()
+
+          : new Date(b.date);
+
+      return (
+
+        dateA.getTime() -
+
+        dateB.getTime()
+
+      );
+
+    }
+
+  );
+
+  /*
+  ==========================================================
+  SORT DELAYED
+  ==========================================================
+  */
+
+  metrics.delayed.sort(
+
+    (a, b) => {
+
+      const dateA =
+
+        a.date?.toDate
+
+          ? a.date.toDate()
+
+          : new Date(a.date);
+
+      const dateB =
+
+        b.date?.toDate
+
+          ? b.date.toDate()
+
+          : new Date(b.date);
+
+      return (
+
+        dateA.getTime() -
+
+        dateB.getTime()
+
+      );
+
+    }
 
   );
 

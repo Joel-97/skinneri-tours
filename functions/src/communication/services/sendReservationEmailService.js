@@ -29,11 +29,14 @@ import {
     buildReservationConfirmationTemplate
 } from "../template/companyTemplates.js";
 
+import SKINNERI_BRANDING
+from "../constants/skinneriBranding.js";
+
 import FIRESTORE_COLLECTIONS
-    from "../../constants/firestoreCollections.js";
+from "../../constants/firestoreCollections.js";
 
 import PLATFORM_ERRORS
-    from "../../constants/errors/platformErrors.js";
+from "../../constants/errors/platformErrors.js";
 
 
 /**
@@ -112,11 +115,88 @@ async function getTransportationReservation(
 
 /**
  * ==========================================================
- * BUILD SENDER
+ * RESOLVE SENDING MODE
+ * ==========================================================
+ *
+ * Backward compatibility:
+ *
+ * - If sendingMode exists, use it.
+ * - If not, a verified domain is treated as custom_domain.
+ * - Otherwise, use platform.
+ *
  * ==========================================================
  */
 
-function buildSender(
+function resolveSendingMode(
+    emailSettings
+) {
+
+    /*
+    ======================================================
+    EXPLICIT MODE
+    ======================================================
+    */
+
+    if (
+
+        emailSettings?.sendingMode ===
+        "custom_domain"
+
+    ) {
+
+        return "custom_domain";
+
+    }
+
+
+    if (
+
+        emailSettings?.sendingMode ===
+        "platform"
+
+    ) {
+
+        return "platform";
+
+    }
+
+
+    /*
+    ======================================================
+    LEGACY CONFIGURATION
+    ======================================================
+    */
+
+    if (
+
+        emailSettings?.domainStatus ===
+        "verified"
+
+    ) {
+
+        return "custom_domain";
+
+    }
+
+
+    /*
+    ======================================================
+    DEFAULT
+    ======================================================
+    */
+
+    return "platform";
+
+}
+
+
+/**
+ * ==========================================================
+ * BUILD CUSTOM DOMAIN SENDER
+ * ==========================================================
+ */
+
+function buildCustomDomainSender(
     emailSettings
 ) {
 
@@ -140,6 +220,115 @@ function buildSender(
         `${emailSettings.fromName} ` +
 
         `<${emailSettings.fromEmail}>`
+
+    );
+
+}
+
+
+/**
+ * ==========================================================
+ * BUILD PLATFORM SENDER
+ * ==========================================================
+ *
+ * The email is sent through Skinneri's verified sender.
+ *
+ * The company's email is used as Reply-To so that replies
+ * from the customer reach the company directly.
+ *
+ * ==========================================================
+ */
+
+function buildPlatformSender(
+    emailSettings
+) {
+
+    const platformEmail =
+
+        SKINNERI_BRANDING
+            ?.emails
+            ?.noReply;
+
+
+    if (
+
+        !platformEmail ||
+
+        !emailSettings?.fromName
+
+    ) {
+
+        return null;
+
+    }
+
+
+    return (
+
+        `${emailSettings.fromName} ` +
+
+        `via Skinneri ` +
+
+        `<${platformEmail}>`
+
+    );
+
+}
+
+
+/**
+ * ==========================================================
+ * BUILD SENDER
+ * ==========================================================
+ */
+
+function buildSender(
+    emailSettings,
+    sendingMode
+) {
+
+    if (
+
+        sendingMode ===
+        "custom_domain"
+
+    ) {
+
+        return buildCustomDomainSender(
+
+            emailSettings
+
+        );
+
+    }
+
+
+    return buildPlatformSender(
+
+        emailSettings
+
+    );
+
+}
+
+
+/**
+ * ==========================================================
+ * BUILD REPLY TO
+ * ==========================================================
+ */
+
+function buildReplyTo(
+    emailSettings
+) {
+
+    return (
+
+        emailSettings?.replyTo ||
+
+        emailSettings?.fromEmail ||
+
+        null
 
     );
 
@@ -347,23 +536,46 @@ export async function sendReservationEmailService(
 
         /*
         ======================================================
-        DOMAIN VERIFICATION
+        SENDING MODE
+        ======================================================
+        */
+
+        const sendingMode =
+
+            resolveSendingMode(
+
+                emailSettings
+
+            );
+
+
+        /*
+        ======================================================
+        CUSTOM DOMAIN VALIDATION
         ======================================================
         */
 
         if (
 
-            emailSettings.domainStatus !==
-
-            "verified"
+            sendingMode ===
+            "custom_domain"
 
         ) {
 
-            return failure(
+            if (
 
-                "email_domain_not_verified"
+                emailSettings.domainStatus !==
+                "verified"
 
-            );
+            ) {
+
+                return failure(
+
+                    "email_domain_not_verified"
+
+                );
+
+            }
 
         }
 
@@ -378,7 +590,9 @@ export async function sendReservationEmailService(
 
             buildSender(
 
-                emailSettings
+                emailSettings,
+
+                sendingMode
 
             );
 
@@ -388,6 +602,32 @@ export async function sendReservationEmailService(
             return failure(
 
                 "email_sender_not_configured"
+
+            );
+
+        }
+
+
+        /*
+        ======================================================
+        REPLY TO
+        ======================================================
+        */
+
+        const replyTo =
+
+            buildReplyTo(
+
+                emailSettings
+
+            );
+
+
+        if (!replyTo) {
+
+            return failure(
+
+                "email_reply_to_not_configured"
 
             );
 
@@ -495,11 +735,7 @@ export async function sendReservationEmailService(
 
                     template.text,
 
-                replyTo:
-
-                    emailSettings.replyTo ||
-
-                    emailSettings.fromEmail
+                replyTo
 
             });
 
@@ -541,7 +777,9 @@ export async function sendReservationEmailService(
 
                 reservation.clientEmail,
 
-            language
+            language,
+
+            sendingMode
 
         });
 

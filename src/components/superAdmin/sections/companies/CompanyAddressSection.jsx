@@ -51,8 +51,6 @@ export default function CompanyAddressSection({
   ==========================================================
   */
 
-  console.log("COUNTRY_OPTIONS", COUNTRY_OPTIONS);
-
   return (
 
     <div className="company-modal-section company-section-card">

@@ -56,8 +56,8 @@ export const emptyForm = {
   vehiclePlate: "",
   vehicleType: "",
 
-  staffId: "",
-  staffName: "",
+  driverId: "",
+  driverName: "",
 
   /* ======================================================
      FACTURACIÓN

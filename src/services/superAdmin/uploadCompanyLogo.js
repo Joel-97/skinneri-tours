@@ -15,7 +15,7 @@ import {
 
 import {
   updateCompanyData
-} from "./companyProfileOld";
+} from "./companyProfile";
 
 // ======================================================
 // GET UPDATED COMPANY
