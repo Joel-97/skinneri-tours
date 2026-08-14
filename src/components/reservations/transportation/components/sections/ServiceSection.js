@@ -39,13 +39,9 @@ export default function ServiceSection({ controller }) {
   const {
 
     serviceTypeOptions,
-
     locationOptions,
-
-    staffOptions,
-
+    driverOptions,
     routeOptions,
-
     vehicleOptions
 
   } = options;
@@ -450,13 +446,13 @@ export default function ServiceSection({ controller }) {
 
             {...selectPortal}
 
-            options={staffOptions}
+            options={driverOptions}
 
             value={
 
-              staffOptions.find(
+              driverOptions.find(
 
-                option => option.value === data.staffId
+                option => option.value === data.driverId
 
               ) || null
 
@@ -468,7 +464,7 @@ export default function ServiceSection({ controller }) {
 
                 ...prev,
 
-                staffId: selectedOption?.value || ""
+                driverId: selectedOption?.value || ""
 
               }))
 

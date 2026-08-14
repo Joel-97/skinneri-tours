@@ -20,7 +20,7 @@ export function buildTransportationReservation({
 
   const {
 
-      staff,
+      drivers,
 
       paymentTypes,
 
@@ -44,9 +44,9 @@ export function buildTransportationReservation({
   ----------------------------------------------------------
   */
 
-  const selectedStaff =
-    staff.find(
-      item => item.id === data.staffId
+  const selectedDriver =
+    drivers.find(
+      item => item.id === data.driverId
     );
 
   const selectedPayment =
@@ -97,23 +97,39 @@ export function buildTransportationReservation({
 
   return {
 
+    /*
+    ----------------------------------
+    DATA
+    ----------------------------------
+    */
+
     ...data,
 
     reservationNumber,
 
-    subtotal: Number(data.price || 0),
+    /*
+    ----------------------------------
+    FINANCIAL
+    ----------------------------------
+    */
 
-    discountAmount: Number(
-      financial.discountAmount.toFixed(2)
-    ),
+    subtotal:
+      Number(data.price || 0),
 
-    taxAmount: Number(
-      financial.totalTax.toFixed(2)
-    ),
+    discountAmount:
+      Number(
+        financial.discountAmount.toFixed(2)
+      ),
 
-    total: Number(
-      financial.total.toFixed(2)
-    ),
+    taxAmount:
+      Number(
+        financial.totalTax.toFixed(2)
+      ),
+
+    total:
+      Number(
+        financial.total.toFixed(2)
+      ),
 
     /*
     ----------------------------------
@@ -121,8 +137,8 @@ export function buildTransportationReservation({
     ----------------------------------
     */
 
-    staffName:
-      selectedStaff?.name || "",
+    driverName:
+      selectedDriver?.name || "",
 
     paymentTypeName:
       selectedPayment?.name || "",

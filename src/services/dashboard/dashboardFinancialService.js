@@ -22,15 +22,36 @@ export function getDashboardFinancialMetrics(
   ==========================================================
   */
 
-  const todayString =
+  const today = new Date();
 
-    new Date()
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-      .toLocaleDateString(
+  /*
+  ==========================================================
+  LAST 7 DAYS RANGE
+  ==========================================================
 
-        "sv-SE"
+  Incluye:
 
-      );
+  - Hoy
+  - Ayer
+  - 5 días anteriores
+
+  Total: 7 días calendario.
+
+  ==========================================================
+  */
+
+  const startDate = new Date(today);
+
+  startDate.setDate(
+    startDate.getDate() - 6
+  );
 
   /*
   ==========================================================
@@ -42,17 +63,167 @@ export function getDashboardFinancialMetrics(
 
   /*
   ==========================================================
+  CREATE DATE KEY
+  ==========================================================
+  */
+
+  const formatDateKey = (date) => {
+
+    const year =
+      date.getFullYear();
+
+    const month =
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
+
+    const day =
+      String(
+        date.getDate()
+      ).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+  };
+
+  /*
+  ==========================================================
+  CREATE 7-DAY CHART
+  ==========================================================
+
+  Cada moneda tendrá exactamente 7 días.
+
+  Esto permite mostrar correctamente días
+  sin ingresos como 0.
+
+  ==========================================================
+  */
+
+  const createEmptyChart = () => {
+
+    const chart = new Map();
+
+    for (let i = 0; i < 7; i++) {
+
+      const date =
+        new Date(startDate);
+
+      date.setDate(
+        startDate.getDate() + i
+      );
+
+      const key =
+        formatDateKey(date);
+
+      chart.set(
+
+        key,
+
+        {
+
+          date: key,
+
+          revenue: 0
+
+        }
+
+      );
+
+    }
+
+    return chart;
+
+  };
+
+  /*
+  ==========================================================
   PROCESS RESERVATIONS
   ==========================================================
   */
 
   reservations.forEach((reservation) => {
 
-    const currencyCode =
+    /*
+    ========================================================
+    CURRENCY
+    ========================================================
+    */
 
+    const currencyCode =
       reservation.currency;
 
     if (!currencyCode) {
+
+      return;
+
+    }
+
+    /*
+    ========================================================
+    RESERVATION DATE
+    ========================================================
+    */
+
+    if (!reservation.date) {
+
+      return;
+
+    }
+
+    const reservationDate =
+
+      reservation.date?.toDate
+
+        ? reservation.date.toDate()
+
+        : new Date(reservation.date);
+
+    /*
+    ========================================================
+    INVALID DATE
+    ========================================================
+    */
+
+    if (
+
+      Number.isNaN(
+        reservationDate.getTime()
+      )
+
+    ) {
+
+      return;
+
+    }
+
+    /*
+    ========================================================
+    DATE RANGE
+    ========================================================
+
+    Solo procesamos reservas dentro de los
+    últimos 7 días calendario.
+
+    ========================================================
+    */
+
+    const reservationDay =
+      new Date(reservationDate);
+
+    reservationDay.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+    if (
+
+      reservationDay < startDate ||
+
+      reservationDay > today
+
+    ) {
 
       return;
 
@@ -75,7 +246,6 @@ export function getDashboardFinancialMetrics(
           currencyCode,
 
           currencySymbol:
-
             reservation.symbol || "",
 
           totalRevenue: 0,
@@ -84,11 +254,8 @@ export function getDashboardFinancialMetrics(
 
           totalReservations: 0,
 
-          averageTicket: 0,
-
-          averageDaily: 0,
-
-          chart: new Map()
+          chart:
+            createEmptyChart()
 
         }
 
@@ -97,39 +264,53 @@ export function getDashboardFinancialMetrics(
     }
 
     const currency =
-
       currencies.get(currencyCode);
-
-    const total = Number(
-
-      reservation.total || 0
-
-    );
 
     /*
     ========================================================
-    TOTALS
+    TOTAL
+    ========================================================
+    */
+
+    const total =
+      Number(
+        reservation.total || 0
+      );
+
+    /*
+    ========================================================
+    TOTAL REVENUE
+    ========================================================
+
+    Solo ingresos de los últimos 7 días.
+
     ========================================================
     */
 
     currency.totalRevenue += total;
 
-    currency.totalReservations++;
+    /*
+    ========================================================
+    TOTAL RESERVATIONS
+    ========================================================
+
+    Solo reservas de los últimos 7 días.
+
+    ========================================================
+    */
+
+    currency.totalReservations += 1;
 
     /*
     ========================================================
-    TODAY
-
-    Se compara utilizando dateString para evitar
-    problemas de zona horaria.
+    TODAY REVENUE
     ========================================================
     */
 
     if (
 
-      reservation.dateString ===
-
-      todayString
+      reservationDay.getTime() ===
+      today.getTime()
 
     ) {
 
@@ -139,39 +320,24 @@ export function getDashboardFinancialMetrics(
 
     /*
     ========================================================
-    CHART
+    CHART KEY
     ========================================================
     */
 
     const chartKey =
+      formatDateKey(reservationDay);
 
-      reservation.dateString ||
+    /*
+    ========================================================
+    ADD REVENUE TO DAY
+    ========================================================
+    */
 
-      "";
+    if (
 
-    if (chartKey) {
+      currency.chart.has(chartKey)
 
-      if (
-
-        !currency.chart.has(chartKey)
-
-      ) {
-
-        currency.chart.set(
-
-          chartKey,
-
-          {
-
-            date: chartKey,
-
-            revenue: 0
-
-          }
-
-        );
-
-      }
+    ) {
 
       currency.chart
 
@@ -199,77 +365,79 @@ export function getDashboardFinancialMetrics(
 
       .map((currency) => {
 
+        /*
+        ====================================================
+        CHART
+        ====================================================
+        */
+
         const chart =
 
           Array.from(
 
             currency.chart.values()
 
-          )
+          );
 
-            .sort(
+        /*
+        ====================================================
+        AVERAGE TICKET
+        ====================================================
+        */
 
-              (a, b) =>
+        const averageTicket =
 
-                a.date.localeCompare(
+          currency.totalReservations > 0
 
-                  b.date
+            ? currency.totalRevenue /
+              currency.totalReservations
 
-                )
+            : 0;
 
-            )
+        /*
+        ====================================================
+        AVERAGE DAILY
+        ====================================================
 
-            .slice(-7);
+        Siempre se divide entre 7 porque el período
+        representa 7 días calendario completos.
+
+        Los días sin ingresos ya existen en chart
+        con revenue = 0.
+
+        ====================================================
+        */
+
+        const averageDaily =
+
+          currency.totalRevenue / 7;
+
+        /*
+        ====================================================
+        RETURN
+        ====================================================
+        */
 
         return {
 
           currencyCode:
-
             currency.currencyCode,
 
           currencySymbol:
-
             currency.currencySymbol,
 
           totalRevenue:
-
             currency.totalRevenue,
 
           todayRevenue:
-
             currency.todayRevenue,
 
           totalReservations:
-
             currency.totalReservations,
 
-          averageTicket:
+          averageTicket,
 
-            currency.totalReservations > 0
-
-              ? currency.totalRevenue /
-
-                currency.totalReservations
-
-              : 0,
-
-          averageDaily:
-
-            chart.length > 0
-
-              ? chart.reduce(
-
-                  (sum, day) =>
-
-                    sum + day.revenue,
-
-                  0
-
-                ) /
-
-                chart.length
-
-              : 0,
+          averageDaily,
 
           chart
 
@@ -282,9 +450,7 @@ export function getDashboardFinancialMetrics(
         (a, b) =>
 
           a.currencyCode.localeCompare(
-
             b.currencyCode
-
           )
 
       );
@@ -297,7 +463,8 @@ export function getDashboardFinancialMetrics(
 
   return {
 
-    currencies: currencyList
+    currencies:
+      currencyList
 
   };
 

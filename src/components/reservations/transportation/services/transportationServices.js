@@ -9,7 +9,7 @@ import { getLocations } from "../../../../services/settings/transportation/locat
 import { getTaxes } from "../../../../services/settings/general/taxService";
 import { getDiscounts } from "../../../../services/settings/transportation/discountService";
 import { getCurrencies } from "../../../../services/settings/general/currencyService";
-import { getStaff } from "../../../../services/settings/general/staffService";
+import { getDrivers } from "../../../../services/settings/transportation/driversService";
 import { getPaymentTypes } from "../../../../services/settings/general/paymentTypeService";
 import { getCommissionAgents } from "../../../../services/settings/general/agentsService";
 
@@ -34,7 +34,7 @@ export async function loadTransportationSettings(companyId) {
             taxes: [],
             discounts: [],
             currencies: [],
-            staff: [],
+            drivers: [],
             paymentTypes: [],
             commissionAgents: [],
 
@@ -58,7 +58,7 @@ export async function loadTransportationSettings(companyId) {
 
         currencies,
 
-        staff,
+        drivers,
 
         paymentTypes,
 
@@ -84,7 +84,7 @@ export async function loadTransportationSettings(companyId) {
 
         getCurrencies(companyId),
 
-        getStaff(companyId),
+        getDrivers(companyId),
 
         getPaymentTypes(companyId),
 
@@ -102,29 +102,65 @@ export async function loadTransportationSettings(companyId) {
 
     return {
 
-        serviceTypes: serviceTypes.filter(item => item.isActive),
+        serviceTypes:
+            serviceTypes.filter(
+                item => item.isActive
+            ),
 
-        locations: locations.filter(item => item.isActive),
+        locations:
+            locations.filter(
+                item => item.isActive
+            ),
 
-        taxes: taxes.filter(item => item.isActive),
+        taxes:
+            taxes.filter(
+                item => item.isActive
+            ),
 
-        discounts: discounts.filter(item => item.isActive),
+        discounts:
+            discounts.filter(
+                item => item.isActive
+            ),
 
-        currencies: currencies.filter(item => item.isActive),
+        currencies:
+            currencies.filter(
+                item => item.isActive
+            ),
 
-        staff: staff.filter(item => item.isActive),
+        drivers:
+            drivers.filter(
+                item => item.isActive
+            ),
 
-        paymentTypes: paymentTypes.filter(item => item.isActive),
+        paymentTypes:
+            paymentTypes.filter(
+                item => item.isActive
+            ),
 
-        commissionAgents: commissionAgents.filter(item => item.isActive),
+        commissionAgents:
+            commissionAgents.filter(
+                item => item.isActive
+            ),
 
-        routes: routes.filter(item => item.isActive),
+        routes:
+            routes.filter(
+                item => item.isActive
+            ),
 
-        vehicles: vehicles.filter(item => item.isActive),
+        vehicles:
+            vehicles.filter(
+                item => item.isActive
+            ),
 
-        bookingSources: bookingSources.filter(item => item.isActive),
+        bookingSources:
+            bookingSources.filter(
+                item => item.isActive
+            ),
 
-        payers: payers.filter(item => item.isActive)
+        payers:
+            payers.filter(
+                item => item.isActive
+            )
 
     };
 

@@ -1,3 +1,9 @@
+/*
+==========================================================
+USE TRANSPORTATION CONTROLLER
+==========================================================
+*/
+
 import { useState, useEffect, useMemo } from "react";
 
 import { emptyForm } from "./constants/transportationConstants";
@@ -27,117 +33,177 @@ import {
 
 export default function useTransportationController({
 
-    companyId,
+  companyId,
 
-    reservation,
+  reservation,
 
-    mode,
+  mode,
 
-    user,
+  user,
 
-    onSave
+  onSave
 
 }) {
 
-    /*
-    ==========================================================
-    FORM
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  FORM
+  ==========================================================
+  */
 
-    const [data, setData] = useState(emptyForm);
+  const [data, setData] = useState(emptyForm);
 
-    /*
-    ==========================================================
-    MODALS
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  MODALS
+  ==========================================================
+  */
 
-    const [showClientModal, setShowClientModal] = useState(false);
-    const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
-    /*
-    ==========================================================
-    CLIENTS
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  CLIENTS
+  ==========================================================
+  */
 
-    const [clientData, setClientData] = useState({
-      name: "",
-      email: "",
-      phone: "",
-      notes: ""
-    });
+  const [clientData, setClientData] = useState({
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
+    name: "",
+    email: "",
+    phone: "",
+    notes: ""
 
-    const handleClientChange = (e) => {
+  });
 
-      setClientData(prev => ({
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleClientChange = (e) => {
+
+    setClientData(prev => ({
+
+      ...prev,
+
+      [e.target.name]: e.target.value
+
+    }));
+
+  };
+
+  const handleCreateClient = async () => {
+
+    if (!clientData.name?.trim()) {
+
+      notifyError(
+        "Nombre requerido",
+        "El cliente debe tener un nombre."
+      );
+
+      return;
+
+    }
+
+    try {
+
+      const newClientRef = await createClient(
+
+        clientData,
+
+        user,
+
+        companyId
+
+      );
+
+      const newClient = {
+
+        id: newClientRef.id,
+
+        ...clientData
+
+      };
+
+      setData(prev => ({
 
         ...prev,
 
-        [e.target.name]: e.target.value
+        clientId: newClient.id,
+
+        clientName: newClient.name,
+
+        clientEmail: newClient.email,
+
+        phone: newClient.phone
 
       }));
 
-    };
+      notifySuccess(
+        "Cliente creado",
+        "El cliente fue creado correctamente."
+      );
 
-    const handleCreateClient = async () => {
+      setShowClientModal(false);
 
-      if (!clientData.name?.trim()) {
+      setClientData({
 
-        notifyError(
-          "Nombre requerido",
-          "El cliente debe tener un nombre."
-        );
+        name: "",
+        email: "",
+        phone: "",
+        notes: ""
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+      notifyError(
+        "Error",
+        "No se pudo crear el cliente."
+      );
+
+    }
+
+  };
+
+  /*
+  ==========================================================
+  CLIENT SEARCH
+  ==========================================================
+  */
+
+  useEffect(() => {
+
+    const debounce = setTimeout(async () => {
+
+      if (!searchTerm.trim()) {
+
+        setSearchResults([]);
 
         return;
 
       }
 
+      if (!companyId) return;
+
       try {
 
-        const newClientRef = await createClient(
+        setIsSearching(true);
 
-          clientData,
-          user,
-          companyId
+        const results = await searchClientsByName(
+
+          companyId,
+
+          searchTerm.trim()
 
         );
 
-        const newClient = {
-          id: newClientRef.id,
-          ...clientData
-        };
-
-        setData(prev => ({
-
-          ...prev,
-          clientId: newClient.id,
-          clientName: newClient.name,
-          clientEmail: newClient.email,
-          phone: newClient.phone
-
-        }));
-
-        notifySuccess(
-          "Cliente creado",
-          "El cliente fue creado correctamente."
-        );
-
-        setShowClientModal(false);
-
-        setClientData({
-
-          name: "",
-          email: "",
-          phone: "",
-          notes: ""
-
-        });
+        setSearchResults(results);
 
       }
 
@@ -145,84 +211,39 @@ export default function useTransportationController({
 
         console.error(error);
 
-        notifyError(
-          "Error",
-          "No se pudo crear el cliente."
-        );
-
       }
 
-    };
-
-    /*
-    ==========================================================
-    CLIENT SEARCH
-    ==========================================================
-    */
-
-    useEffect(() => {
-
-    const debounce = setTimeout(async () => {
-
-        if (!searchTerm.trim()) {
-
-        setSearchResults([]);
-
-        return;
-
-        }
-
-        if (!companyId) return;
-
-        try {
-
-        setIsSearching(true);
-
-        const results = await searchClientsByName(
-
-            companyId,
-
-            searchTerm.trim()
-
-        );
-
-        setSearchResults(results);
-
-        } catch (error) {
-
-        console.error(error);
-
-        } finally {
+      finally {
 
         setIsSearching(false);
 
-        }
+      }
 
     }, 600);
 
     return () => clearTimeout(debounce);
 
-    }, [searchTerm, companyId]);
+  }, [searchTerm, companyId]);
 
-    /*
-    ==========================================================
-    CLIENT ACTIONS
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  CLIENT ACTIONS
+  ==========================================================
+  */
 
-    const handleSelectClient = (client) => {
+  const handleSelectClient = (client) => {
 
     setData(prev => ({
 
-        ...prev,
+      ...prev,
 
-        clientId: client.id,
+      clientId: client.id,
 
-        clientName: client.name,
+      clientName: client.name,
 
-        clientEmail: client.email || "",
+      clientEmail: client.email || "",
 
-        phone: client.phone || ""
+      phone: client.phone || ""
 
     }));
 
@@ -232,7 +253,7 @@ export default function useTransportationController({
 
     setSearchResults([]);
 
-    };
+  };
 
   /*
   ==========================================================
@@ -240,20 +261,20 @@ export default function useTransportationController({
   ==========================================================
   */
 
-const [serviceTypes, setServiceTypes] = useState([]);
-const [locations, setLocations] = useState([]);
-const [routes, setRoutes] = useState([]);
-const [vehicles, setVehicles] = useState([]);
-const [bookingSources, setBookingSources] = useState([]);
-const [payers, setPayers] = useState([]);
+  const [serviceTypes, setServiceTypes] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [routes, setRoutes] = useState([]);
+  const [vehicles, setVehicles] = useState([]);
+  const [bookingSources, setBookingSources] = useState([]);
+  const [payers, setPayers] = useState([]);
 
-const [taxes, setTaxes] = useState([]);
-const [discounts, setDiscounts] = useState([]);
-const [currencies, setCurrencies] = useState([]);
-const [staff, setStaff] = useState([]);
-const [paymentTypes, setPaymentTypes] = useState([]);
-const [commissionAgents, setCommissionAgents] = useState([]);
-const [existingCommission, setExistingCommission] = useState(null);
+  const [taxes, setTaxes] = useState([]);
+  const [discounts, setDiscounts] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [paymentTypes, setPaymentTypes] = useState([]);
+  const [commissionAgents, setCommissionAgents] = useState([]);
+  const [existingCommission, setExistingCommission] = useState(null);
 
   /*
   ==========================================================
@@ -279,7 +300,15 @@ const [existingCommission, setExistingCommission] = useState(null);
       setTaxes(settings.taxes);
       setDiscounts(settings.discounts);
       setCurrencies(settings.currencies);
-      setStaff(settings.staff);
+
+      /*
+      ========================================================
+      DRIVERS
+      ========================================================
+      */
+
+      setDrivers(settings.drivers);
+
       setPaymentTypes(settings.paymentTypes);
       setCommissionAgents(settings.commissionAgents);
 
@@ -290,58 +319,58 @@ const [existingCommission, setExistingCommission] = useState(null);
   }, [companyId]);
 
   /*
-    ==========================================================
-    RESERVATION
-    ==========================================================
-    */
+  ==========================================================
+  RESERVATION
+  ==========================================================
+  */
 
-    useEffect(() => {
+  useEffect(() => {
 
     if (mode === "create") {
 
-        setData(
+      setData(
         buildCreateForm(reservation)
-        );
+      );
 
-        return;
+      return;
 
     }
 
     if (!reservation) return;
 
     setData(
-        buildEditForm(reservation)
+      buildEditForm(reservation)
     );
 
-    }, [reservation, mode]);
+  }, [reservation, mode]);
 
-    /*
-    ==========================================================
-    SELECTED SERVICE
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  SELECTED SERVICE
+  ==========================================================
+  */
 
-    const selectedServiceType = useMemo(() => {
+  const selectedServiceType = useMemo(() => {
 
     return serviceTypes.find(
-        service => service.id === (data.serviceTypeId ?? "")
+      service => service.id === (data.serviceTypeId ?? "")
     );
 
-    }, [serviceTypes, data.serviceTypeId]);
+  }, [serviceTypes, data.serviceTypeId]);
 
-    /*
-    ==========================================================
-    AUTO PRICE
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  AUTO PRICE
+  ==========================================================
+  */
 
-    useEffect(() => {
+  useEffect(() => {
 
     if (!selectedServiceType) return;
 
     if (selectedServiceType.pricingMode === "fixed") {
 
-        setData(prev => ({
+      setData(prev => ({
 
         ...prev,
 
@@ -351,364 +380,441 @@ const [existingCommission, setExistingCommission] = useState(null);
 
         symbol: selectedServiceType.symbol
 
-        }));
+      }));
 
-        return;
+      return;
 
     }
 
     setData(prev => ({
 
-        ...prev,
+      ...prev,
 
-        price: 0,
+      price: 0,
 
-        currency: currencies[0]?.code || "",
+      currency: currencies[0]?.code || "",
 
-        symbol: currencies[0]?.symbol || ""
+      symbol: currencies[0]?.symbol || ""
 
     }));
 
-    }, [selectedServiceType, currencies]);
+  }, [selectedServiceType, currencies]);
 
-    /*
-    ==========================================================
-    FINANCIAL
-    ==========================================================
-    */
+  /*
+  ==========================================================
+  FINANCIAL
+  ==========================================================
+  */
 
-    const financial = calculateFinancials({
+  const financial = calculateFinancials({
 
-      data,
+    data,
 
-      taxes,
+    taxes,
 
-      discounts
+    discounts
+
+  });
+
+  /*
+  ==========================================================
+  OPTIONS
+  ==========================================================
+  */
+
+  const locationOptions = useMemo(
+    () => buildOptions(locations),
+    [locations]
+  );
+
+  const serviceTypeOptions = useMemo(
+    () => buildOptions(serviceTypes),
+    [serviceTypes]
+  );
+
+  const driverOptions = useMemo(
+    () => buildOptions(drivers),
+    [drivers]
+  );
+
+  const routeOptions = useMemo(
+    () => buildOptions(routes, "code"),
+    [routes]
+  );
+
+  const vehicleOptions = useMemo(
+    () => buildOptions(vehicles),
+    [vehicles]
+  );
+
+  const bookingSourceOptions = useMemo(
+    () => buildOptions(bookingSources),
+    [bookingSources]
+  );
+
+  const payerOptions = useMemo(
+    () => buildOptions(payers),
+    [payers]
+  );
+
+  const discountOptions = [
+
+    {
+
+      value: "",
+
+      label: "Sin descuento"
+
+    },
+
+    ...discounts.map(discount => ({
+
+      value: discount.id,
+
+      label: `${discount.name} (${
+        discount.type === "percentage"
+          ? `${discount.value}%`
+          : `${discount.value} ${data.currency}`
+      })`
+
+    }))
+
+  ];
+
+  const paymentTypeOptions = paymentTypes.map(payment => ({
+
+    value: payment.id,
+    label: payment.name
+
+  }));
+
+  const commissionOptions = useMemo(() =>
+
+    commissionAgents.map(agent => ({
+
+      value: agent.id,
+      label: agent.name,
+      type: agent.type
+
+    })),
+
+    [commissionAgents]
+
+  );
+
+  /*
+  ==========================================================
+  ACTIONS
+  ==========================================================
+  */
+
+  const handleChange = (e) => {
+
+    const { name, value } = e.target;
+
+    setData(prev => {
+
+      let newValue = value;
+
+      // 🔢 convertir price a número
+      if (name === "price") {
+
+        newValue = value === "" ? "" : Number(value);
+
+      }
+
+      let updatedForm = {
+
+        ...prev,
+
+        [name]: newValue
+
+      };
+
+      /* =========================
+        SERVICIO
+      ========================== */
+
+      if (name === "serviceTypeId") {
+
+        const selectedService = serviceTypes.find(
+          s => s.id === newValue
+        );
+
+        updatedForm.serviceTypeName =
+          selectedService?.name || "";
+
+      }
+
+      /* =========================
+        END AUTO
+      ========================== */
+
+      if (name === "date" || name === "serviceTypeId") {
+
+        const date =
+          name === "date"
+            ? newValue
+            : prev.date;
+
+        const serviceId =
+          name === "serviceTypeId"
+            ? newValue
+            : prev.serviceTypeId;
+
+        const selectedService = serviceTypes.find(
+          s => s.id === serviceId
+        );
+
+        if (date && selectedService?.durationMinutes) {
+
+          updatedForm.end = getEndDate(
+            date,
+            selectedService.durationMinutes
+          );
+
+        } else {
+
+          updatedForm.end = "";
+
+        }
+
+      }
+
+      /* =========================
+        🔥 COMISIONISTA AUTO (CLAVE)
+      ========================== */
+
+      if (name === "commissionBeneficiaryId") {
+
+        const agent = commissionAgents.find(
+          a => a.id === newValue
+        );
+
+        if (agent) {
+
+          updatedForm.commissionBeneficiaryName =
+            agent.name;
+
+          updatedForm.commissionBeneficiaryType =
+            agent.type;
+
+          // 🔥 AUTO CONFIGURACIÓN
+          updatedForm.commissionType =
+            agent.commissionType || "percentage";
+
+          updatedForm.commissionValue =
+            Number(agent.commissionValue || 0);
+
+        }
+
+      }
+
+      return updatedForm;
 
     });
 
-    /*
-    ==========================================================
-    OPTIONS
-    ==========================================================
-    */
+  };
 
-    const locationOptions = useMemo(
-      () => buildOptions(locations),
-      [locations]
-    );
+  const toggleTax = (taxId) => {
 
-    const serviceTypeOptions = useMemo(
-      () => buildOptions(serviceTypes),
-      [serviceTypes]
-    );
+    setData(prev => {
 
-    const staffOptions = useMemo(
-      () => buildOptions(staff),
-      [staff]
-    );
+      const exists = prev.activeTaxIds.includes(taxId);
 
-    const routeOptions = useMemo(
-      () => buildOptions(routes, "code"),
-      [routes]
-    );
+      return {
 
-    const vehicleOptions = useMemo(
-      () => buildOptions(vehicles),
-      [vehicles]
-    );
+        ...prev,
 
-    const bookingSourceOptions = useMemo(
-      () => buildOptions(bookingSources),
-      [bookingSources]
-    );
+        activeTaxIds: exists
 
-    const payerOptions = useMemo(
-      () => buildOptions(payers),
-      [payers]
-    );
+          ? prev.activeTaxIds.filter(id => id !== taxId)
 
-    const discountOptions = [
-      {
+          : [...prev.activeTaxIds, taxId]
 
-        value: "",
+      };
 
-        label: "Sin descuento"
+    });
 
-      },
+  };
 
-      ...discounts.map(discount => ({
+  /*
+  ==========================================================
+  PRIVATE HELPERS
+  ==========================================================
+  */
 
-        value: discount.id,
+  const validateReservation = () => {
 
-        label: `${discount.name} (${
-          discount.type === "percentage"
-            ? `${discount.value}%`
-            : `${discount.value} ${data.currency}`
-        })`
+    if (!data.clientId) {
 
-      }))
+      notifyError("Cliente requerido");
 
-    ];
+      return false;
 
-    const paymentTypeOptions = paymentTypes.map(payment => ({
+    }
 
-      value: payment.id,
-      label: payment.name
+    if (!data.serviceTypeId) {
 
-    }));
+      notifyError("Seleccione un tipo de servicio.");
 
-    const commissionOptions = useMemo(() =>
+      return false;
 
-      commissionAgents.map(agent => ({
+    }
 
-        value: agent.id,
-        label: agent.name,
-        type: agent.type
+    if (!data.date) {
 
-      })),
+      notifyError("Fecha y hora requeridas.");
 
-    [commissionAgents]);
+      return false;
 
-    /*
-    ==========================================================
-    ACTIONS
-    ==========================================================
-    */
+    }
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
+    if (!data.status) {
 
-      setData(prev => {
-        let newValue = value;
+      notifyError("Estado de la reserva requerido");
 
-        // 🔢 convertir price a número
-        if (name === "price") {
-          newValue = value === "" ? "" : Number(value);
-        }
+      return false;
 
-        let updatedForm = {
-          ...prev,
-          [name]: newValue
-        };
-
-        /* =========================
-          SERVICIO
-        ========================== */
-
-        if (name === "serviceTypeId") {
-          const selectedService = serviceTypes.find(
-            s => s.id === newValue
-          );
-
-          updatedForm.serviceTypeName = selectedService?.name || "";
-        }
-
-        /* =========================
-          END DATE AUTO
-        ========================== */
-
-        if (name === "date" || name === "serviceTypeId") {
-
-          const date = name === "date" ? newValue : prev.date;
-
-          const serviceId =
-            name === "serviceTypeId" ? newValue : prev.serviceTypeId;
-
-          const selectedService = serviceTypes.find(
-            s => s.id === serviceId
-          );
-
-          if (date && selectedService?.durationMinutes) {
-            updatedForm.endDate = getEndDate(
-              date,
-              selectedService.durationMinutes
-            );
-          } else {
-            updatedForm.endDate = "";
-          }
-        }
-
-        /* =========================
-          🔥 COMISIONISTA AUTO (CLAVE)
-        ========================== */
-
-        if (name === "commissionBeneficiaryId") {
-
-          const agent = commissionAgents.find(
-            a => a.id === newValue
-          );
-
-          if (agent) {
-            updatedForm.commissionBeneficiaryName = agent.name;
-            updatedForm.commissionBeneficiaryType = agent.type;
+    }
 
-            // 🔥 AUTO CONFIGURACIÓN
-            updatedForm.commissionType = agent.commissionType || "percentage";
-            updatedForm.commissionValue = Number(agent.commissionValue || 0);
-          }
-        }
+    if (!data.locationFromId) {
 
-        return updatedForm;
-      });
-    };
-  
-  
-    const toggleTax = (taxId) => {
+      notifyError("Lugar de recogida requerido");
 
-      setData(prev => {
+      return false;
 
-        const exists = prev.activeTaxIds.includes(taxId);
+    }
 
-        return {
-          ...prev,
-          activeTaxIds: exists
-            ? prev.activeTaxIds.filter(id => id !== taxId)
-            : [...prev.activeTaxIds, taxId]
-        };
+    if (!data.locationToId) {
 
-      });
+      notifyError("Lugar de destino requerido");
 
-    };
+      return false;
 
-    /*
-    ==========================================================
-    PRIVATE HELPERS
-    ==========================================================
-    */
+    }
 
-    const validateReservation = () => {
+    if (!data.passengers) {
 
-      if (!data.clientId) {
-        notifyError("Cliente requerido");
-        return false;
-      }
+      notifyError("La cantidad de pasajeros es requerido.");
 
-      if (!data.serviceTypeId) {
-        notifyError("Seleccione un tipo de servicio.");
-        return false;
-      }
+      return false;
 
-      if (!data.date) {
-        notifyError("Fecha y hora requeridas.");
-        return false;
-      }
+    }
 
-      if (!data.status) {
-        notifyError("Estado de la reserva requerido");
-        return false;
-      }
+    if (!data.bookingSourceId) {
 
-      if (!data.locationFromId) {
-        notifyError("Lugar de recogida requerido");
-        return false;
-      }
+      notifyError("Seleccione un origen de la reserva.");
 
-      if (!data.locationToId) {
-        notifyError("Lugar de destino requerido");
-        return false;
-      }
+      return false;
 
-      if (!data.passengers) {
-        notifyError("La cantidad de pasajeros es requerido.");
-        return false;
-      }
+    }
 
-      if (!data.bookingSourceId) {
-        notifyError("Seleccione un origen de la reserva.");
-        return false;
-      }
+    if (!data.price) {
 
-      if (!data.price) {
-        notifyError("Debe ingresar un monto para esta reserva.");
-        return false;
-      }
+      notifyError("Debe ingresar un monto para esta reserva.");
 
-      return true;
+      return false;
 
-    };
+    }
 
-    const getReservationNumber = async () => {
+    return true;
 
-      if (mode !== "create") {
-        return data.reservationNumber;
-      }
+  };
 
-      let reservationNumber;
-      let exists = true;
+  const getReservationNumber = async () => {
 
-      while (exists) {
+    if (mode !== "create") {
 
-        reservationNumber = generateReservationNumber();
+      return data.reservationNumber;
 
-        exists = await reservationNumberExists(
-          companyId,
+    }
+
+    let reservationNumber;
+    let exists = true;
+
+    while (exists) {
+
+      reservationNumber =
+        generateReservationNumber();
+
+      exists = await reservationNumberExists(
+
+        companyId,
+
+        reservationNumber
+
+      );
+
+    }
+
+    return reservationNumber;
+
+  };
+
+  const handleSubmit = async () => {
+
+    if (!validateReservation()) return;
+
+    const reservationNumber =
+      await getReservationNumber();
+
+    const reservationData =
+      buildTransportationReservation({
+
+        data: {
+
+          ...data,
+
           reservationNumber
-        );
 
-      }
+        },
 
-      return reservationNumber;
+        reservationNumber,
 
-    };
+        financial,
 
-    const handleSubmit = async () => {
+        settings: {
 
-      if (!validateReservation()) return;
+          /*
+          ====================================================
+          DRIVERS
+          ====================================================
+          */
 
-      const reservationNumber =
-        await getReservationNumber();
+          drivers,
 
-      const reservationData =
-        buildTransportationReservation({
+          paymentTypes,
 
-          data: {
+          serviceTypes,
 
-            ...data,
+          locations,
 
-            reservationNumber
+          routes,
 
-          },
+          vehicles,
 
-          reservationNumber,
+          bookingSources,
 
-          financial,
+          payers
 
-          settings: {
+        }
 
-              staff,
+      });
 
-              paymentTypes,
+    try {
 
-              serviceTypes,
+      await onSave(reservationData);
 
-              locations,
+    } catch (error) {
 
-              routes,
+      console.error(error);
 
-              vehicles,
+      notifyError("Error guardando reserva");
 
-              bookingSources,
+    }
 
-              payers
-
-          }
-
-        });
-
-      try {
-
-        await onSave(reservationData);
-
-      } catch (error) {
-
-        console.error(error);
-
-        notifyError("Error guardando reserva");
-
-      }
-
-    };
+  };
 
   /*
   ==========================================================
@@ -757,8 +863,8 @@ const [existingCommission, setExistingCommission] = useState(null);
       currencies,
       setCurrencies,
 
-      staff,
-      setStaff,
+      drivers,
+      setDrivers,
 
       paymentTypes,
       setPaymentTypes,
@@ -817,7 +923,7 @@ const [existingCommission, setExistingCommission] = useState(null);
 
       serviceTypeOptions,
 
-      staffOptions,
+      driverOptions,
 
       routeOptions,
 
