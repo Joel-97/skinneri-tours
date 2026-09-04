@@ -8,7 +8,8 @@ import {
   getTransportation,
   createTransportation,
   updateTransportation,
-  deleteTransportation
+  deleteTransportation,
+  confirmTransportationReservation
 } from "../../../services/transportation/transportationService";
 
 import {
@@ -342,7 +343,12 @@ const TransportationList = ({
          COMMISSIONS
       ================================================== */
 
-      if (!savedBooking?.id) return;
+      if (!savedBooking?.id) {
+
+        return false;
+
+      }
+
 
       const existingList =
         await getCommissionByBooking(
@@ -482,11 +488,59 @@ const TransportationList = ({
          CLOSE / REFRESH
       ================================================== */
 
-      setModalOpen(
-        false
-      );
+      /*
+      ======================================================
+      CREATE
 
-      loadReservations();
+      When creating a new reservation, we keep the
+      original behavior and close the modal.
+      ======================================================
+      */
+
+      if (
+        mode === "create"
+      ) {
+
+        setModalOpen(
+          false
+        );
+
+      }
+
+
+      /*
+      ======================================================
+      EDIT
+
+      When editing an existing reservation, the modal
+      stays open so the user can continue reviewing the
+      reservation and, if it is pending, confirm it.
+      ======================================================
+      */
+
+      else {
+
+        /*
+        Update the selected reservation locally so the
+        modal/list remain synchronized with the saved data.
+        */
+
+        setSelectedReservation(
+          prev =>
+            prev
+              ? {
+                  ...prev,
+                  ...formData
+                }
+              : prev
+        );
+
+      }
+
+
+      await loadReservations();
+
+      return true;
 
     }
 
@@ -499,8 +553,150 @@ const TransportationList = ({
 
       notifyError(
         "Error",
+        error?.message ||
+        "No se pudo guardar la reserva."
+      );
+
+      return false;
+
+    }
+
+  };
+
+
+  /* ====================================================
+     CONFIRM RESERVATION
+  ==================================================== */
+
+  const handleConfirm = async (
+    reservationData
+  ) => {
+
+    if (!companyId) {
+
+      notifyError(
+        "Error",
+        "No se encontró la empresa."
+      );
+
+      return false;
+
+    }
+
+
+    if (
+      !selectedReservation?.id
+    ) {
+
+      notifyError(
+        "Error",
+        "No se encontró la reserva."
+      );
+
+      return false;
+
+    }
+
+
+    if (
+      reservationData?.status !== "pending"
+    ) {
+
+      notifyError(
+        "Error",
+        "Solo se pueden confirmar reservas pendientes."
+      );
+
+      return false;
+
+    }
+
+
+    try {
+
+      const response =
+        await confirmTransportationReservation(
+          companyId,
+          selectedReservation.id
+        );
+
+
+      /*
+      ======================================================
+      VERIFY RESPONSE
+      ======================================================
+      */
+
+      const confirmedReservation =
+        response?.data;
+
+
+      if (
+        confirmedReservation?.status !==
+        "confirmed"
+      ) {
+
+        notifyError(
+          "Error",
+          "La reserva no pudo ser confirmada."
+        );
+
+        return false;
+
+      }
+
+
+      /*
+      ======================================================
+      UPDATE LOCAL RESERVATION
+      ======================================================
+      */
+
+      setSelectedReservation(
+        prev =>
+          prev
+            ? {
+                ...prev,
+                status: "confirmed",
+                updatedAt: new Date()
+              }
+            : prev
+      );
+
+
+      /*
+      ======================================================
+      REFRESH LIST
+      ======================================================
+      */
+
+      await loadReservations();
+
+
+      notifySuccess(
+        "Reserva confirmada",
+        "La reserva fue confirmada correctamente."
+      );
+
+
+      return response;
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Error confirmando reserva:",
         error
       );
+
+      notifyError(
+        "Error",
+        error?.message ||
+        "No se pudo confirmar la reserva."
+      );
+
+      return false;
 
     }
 
@@ -830,6 +1026,7 @@ const TransportationList = ({
             }
 
             {" "}
+
             resultados encontrados
 
           </p>
@@ -848,7 +1045,9 @@ const TransportationList = ({
             className="btn-primary"
             onClick={handleCreate}
           >
+
             + Nueva reserva
+
           </button>
 
         </div>
@@ -1288,7 +1487,9 @@ const TransportationList = ({
                           handleEdit(r)
                         }
                       >
+
                         {r.clientName}
+
                       </h4>
 
 
@@ -1703,6 +1904,10 @@ const TransportationList = ({
 
         onSave={
           handleSave
+        }
+
+        onConfirm={
+          handleConfirm
         }
 
         reservation={

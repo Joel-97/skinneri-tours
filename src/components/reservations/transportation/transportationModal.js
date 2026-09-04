@@ -15,22 +15,36 @@ import NotesSection from "../transportation/components/sections/NotesSection";
 
 import "../../../style/general/transportationModal.css";
 
+
 export default function TransportationModal({
+
   isOpen,
+
   onClose,
+
   onSave,
+
+  onConfirm,
+
   reservation,
+
   mode = "create",
+
   user,
+
   companyId
+
 }) {
 
 
-  /* =======================
-     SETTINGS
-  ======================== */
+  /*
+  ==========================================================
+  CONTROLLER
+  ==========================================================
+  */
 
-  const controller = useTransportationController({
+  const controller =
+    useTransportationController({
 
       companyId,
 
@@ -42,19 +56,20 @@ export default function TransportationModal({
 
       onSave
 
-  });
+    });
+
 
   const {
 
-      form,
+    form,
 
-      clients,
+    clients,
 
-      modals,
-
-      actions
+    modals,
+    actions
 
   } = controller;
+
 
   /*
   ==========================================================
@@ -64,15 +79,23 @@ export default function TransportationModal({
 
   const {
 
-      data
+    data,
+
+    setData,
+
+    hasUnsavedChanges
 
   } = form;
 
+
   const {
 
-    handleSubmit
+    handleSubmit,
+
+    resetUnsavedChanges
 
   } = actions;
+
 
   /*
   ==========================================================
@@ -100,6 +123,7 @@ export default function TransportationModal({
 
   } = clients;
 
+
   /*
   ==========================================================
   MODALS
@@ -108,88 +132,475 @@ export default function TransportationModal({
 
   const {
 
-      showClientModal,
+    showClientModal,
 
-      setShowClientModal,
+    setShowClientModal,
 
-      showSearchModal,
+    showSearchModal,
 
-      setShowSearchModal
+    setShowSearchModal
 
   } = modals;
 
 
-  if (!isOpen) return null;
-  
-  /* ================= UI ================= */
+  /*
+  ==========================================================
+  CLOSE CONFIRMATION
+  ==========================================================
+  */
+
+  const handleClose = () => {
+
+    /*
+    --------------------------------------------------------
+    CREATE MODE
+    --------------------------------------------------------
+    */
+
+    if (mode === "create") {
+
+      if (hasUnsavedChanges) {
+
+        const shouldClose =
+          window.confirm(
+
+            "Hay cambios sin guardar. ¿Desea salir sin guardar los cambios?"
+
+          );
+
+
+        if (!shouldClose) {
+
+          return;
+
+        }
+
+      }
+
+
+      onClose();
+
+      return;
+
+    }
+
+
+    /*
+    --------------------------------------------------------
+    EDIT MODE
+    --------------------------------------------------------
+    */
+
+    if (hasUnsavedChanges) {
+
+      const shouldClose =
+        window.confirm(
+
+          "Hay cambios sin guardar. ¿Desea salir sin guardar los cambios?"
+
+        );
+
+
+      if (!shouldClose) {
+
+        return;
+
+      }
+
+    }
+
+
+    onClose();
+
+  };
+
+
+  /*
+  ==========================================================
+  CONFIRM RESERVATION
+  ==========================================================
+  */
+
+  const handleConfirm = async () => {
+
+    /*
+    --------------------------------------------------------
+    CONFIRMATION FUNCTION REQUIRED
+    --------------------------------------------------------
+    */
+
+    if (!onConfirm) {
+
+      return;
+
+    }
+
+
+    /*
+    --------------------------------------------------------
+    ONLY PENDING RESERVATIONS CAN BE CONFIRMED
+    --------------------------------------------------------
+    */
+
+    if (data.status !== "pending") {
+
+      return;
+
+    }
+
+
+    /*
+    --------------------------------------------------------
+    IF THERE ARE UNSAVED CHANGES
+    --------------------------------------------------------
+    */
+
+    if (hasUnsavedChanges) {
+
+      const shouldSave =
+        window.confirm(
+
+          "Hay cambios sin guardar. Debe guardar los cambios antes de confirmar la reserva.\n\n¿Desea guardar los cambios?"
+
+        );
+
+
+      /*
+      ------------------------------------------------------
+      USER CHOSE NOT TO SAVE
+      ------------------------------------------------------
+      */
+
+      if (!shouldSave) {
+
+        return;
+
+      }
+
+
+      /*
+      ------------------------------------------------------
+      SAVE FIRST
+      ------------------------------------------------------
+      */
+
+      const saved =
+        await handleSubmit();
+
+
+      /*
+      ------------------------------------------------------
+      SAVE FAILED
+      ------------------------------------------------------
+
+      IMPORTANT:
+      Do not continue to confirmation if the save failed.
+      ------------------------------------------------------
+      */
+
+      if (!saved) {
+
+        return;
+
+      }
+
+    }
+
+
+    /*
+    --------------------------------------------------------
+    CONFIRM
+    --------------------------------------------------------
+    */
+
+    try {
+
+      const result =
+        await onConfirm(
+
+          data
+
+        );
+
+
+      /*
+      ------------------------------------------------------
+      CONFIRMATION FAILED
+      ------------------------------------------------------
+
+      The parent handler returns false when the backend
+      confirmation did not succeed.
+      ------------------------------------------------------
+      */
+
+      if (result === false) {
+
+        return;
+
+      }
+
+
+      /*
+      ------------------------------------------------------
+      UPDATE LOCAL FORM STATE
+      ------------------------------------------------------
+
+      The backend has now changed:
+
+          pending -> confirmed
+
+      Keep the modal synchronized with that state.
+      ------------------------------------------------------
+      */
+
+      setData(prev => ({
+
+        ...prev,
+
+        status: "confirmed"
+
+      }));
+
+
+      /*
+      ------------------------------------------------------
+      RESET DIRTY STATE
+      ------------------------------------------------------
+
+      Confirmation is now the new clean state.
+      ------------------------------------------------------
+      */
+
+      resetUnsavedChanges();
+
+    }
+
+    catch (error) {
+
+      console.error(
+
+        "Error confirmando reserva:",
+
+        error
+
+      );
+
+    }
+
+  };
+
+
+  /*
+  ==========================================================
+  OVERLAY CLOSE
+  ==========================================================
+  */
+
+  const handleOverlayMouseDown = (e) => {
+
+    if (
+
+      e.target.classList.contains(
+
+        "modal-overlay"
+
+      )
+
+    ) {
+
+      handleClose();
+
+    }
+
+  };
+
+
+  /*
+  ==========================================================
+  MODAL
+  ==========================================================
+  */
+
+  if (!isOpen) {
+
+    return null;
+
+  }
+
+
+  /*
+  ==========================================================
+  UI
+  ==========================================================
+  */
 
   return (
+
     <div
+
       className="modal-overlay"
-      onMouseDown={(e) => {
-        if (e.target.classList.contains("modal-overlay")) {
-          onClose();
-        }
-      }}
+
+      onMouseDown={
+
+        handleOverlayMouseDown
+
+      }
+
     >
+
       <div
+
         className="modal-card modern"
-        onMouseDown={(e) => e.stopPropagation()}
+
+        onMouseDown={(e) =>
+
+          e.stopPropagation()
+
+        }
+
       >
 
-        {/* HEADER */}
+
+        {/* ==================================================
+            HEADER
+        ================================================== */}
+
         <TransportationHeader
-            mode={mode}
-            reservationNumber={data.reservationNumber}
-            onClose={onClose}
+
+          mode={mode}
+
+          reservationNumber={
+
+            data.reservationNumber
+
+          }
+
+          onClose={handleClose}
+
         />
 
-        {/* ================= SISTEMA ================= */}
+
+        {/* ==================================================
+            CLIENTE
+        ================================================== */}
+
+        <ClientSection
+
+          controller={controller}
+
+        />
 
 
-        {/* CLIENTE */}
-        <ClientSection controller={controller} />
+        {/* ==================================================
+            SERVICIO
+        ================================================== */}
 
-        {/* SERVICIO */}
-        <ServiceSection controller={controller} />
+        <ServiceSection
 
-        {/* FINANZAS */}
-        <FinancialSection controller={controller} />
+          controller={controller}
 
-        {/* NOTAS */}
-        <NotesSection controller={controller} />
+        />
 
 
+        {/* ==================================================
+            FINANZAS
+        ================================================== */}
 
-        {/* ================= BUSCAR CLIENTE MODAL ================= */}
+        <FinancialSection
+
+          controller={controller}
+
+        />
+
+
+        {/* ==================================================
+            NOTAS
+        ================================================== */}
+
+        <NotesSection
+
+          controller={controller}
+
+        />
+
+
+        {/* ==================================================
+            BUSCAR CLIENTE MODAL
+        ================================================== */}
+
         <ClientSearchModal
+
           show={showSearchModal}
-          onClose={() => setShowSearchModal(false)}
+
+          onClose={() =>
+
+            setShowSearchModal(false)
+
+          }
+
           searchTerm={searchTerm}
+
           setSearchTerm={setSearchTerm}
+
           isSearching={isSearching}
+
           searchResults={searchResults}
-          onSelectClient={handleSelectClient}
+
+          onSelectClient={
+
+            handleSelectClient
+
+          }
+
         />
 
-        {/* ================= CREAR CLIENTE MODAL ================= */}
+
+        {/* ==================================================
+            CREAR CLIENTE MODAL
+        ================================================== */}
+
         <ClientCreateModal
-            show={showClientModal}
-            onClose={() => setShowClientModal(false)}
-            clientData={clientData}
-            onChange={handleClientChange}
-            onSave={handleCreateClient}
+
+          show={showClientModal}
+
+          onClose={() =>
+
+            setShowClientModal(false)
+
+          }
+
+          clientData={clientData}
+
+          onChange={handleClientChange}
+
+          onSave={handleCreateClient}
+
         />
 
 
-        {/* FOOTER */}
+        {/* ==================================================
+            FOOTER
+        ================================================== */}
+
         <TransportationFooter
-            mode={mode}
-            onCancel={onClose}
-            onSave={handleSubmit}
+
+          mode={mode}
+
+          status={data.status}
+
+          onCancel={handleClose}
+
+          onSave={handleSubmit}
+
+          onConfirm={handleConfirm}
+
         />
+
 
       </div>
+
     </div>
+
   );
+
 }

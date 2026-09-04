@@ -4,13 +4,18 @@
  * ==========================================================
  */
 
-import CLOUD_FUNCTION_ERROR_CODES from "../../constants/cloudFunctionErrorCodes.js";
+import CLOUD_FUNCTION_ERROR_CODES
+    from "../../constants/cloudFunctionErrorCodes.js";
 
-import PLATFORM_ERRORS from "../../constants/errors/platformErrors.js";
+import PLATFORM_ERRORS
+    from "../../constants/errors/platformErrors.js";
 
-import AUTH_ERRORS from "../../constants/errors/authErrors.js";
+import AUTH_ERRORS
+    from "../../constants/errors/authErrors.js";
 
-import ACCESS_REQUEST_ERRORS from "../../constants/errors/accessRequestErrors.js";
+import ACCESS_REQUEST_ERRORS
+    from "../../constants/errors/accessRequestErrors.js";
+
 
 const CLOUD_FUNCTION_ERROR_MAPPER = Object.freeze({
 
@@ -38,6 +43,93 @@ const CLOUD_FUNCTION_ERROR_MAPPER = Object.freeze({
     [PLATFORM_ERRORS.USER_ALREADY_EXISTS]:
         CLOUD_FUNCTION_ERROR_CODES.ALREADY_EXISTS,
 
+
+    /*
+    ======================================================
+    INTEGRATION
+    ======================================================
+    */
+
+    [PLATFORM_ERRORS.INTEGRATION_ALREADY_EXISTS]:
+        CLOUD_FUNCTION_ERROR_CODES.ALREADY_EXISTS,
+
+
+    /*
+    ======================================================
+    TRANSPORTATION API
+    ======================================================
+    */
+
+    /*
+    ------------------------------------------------------
+    API KEY REQUIRED
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.API_KEY_REQUIRED || "API_KEY_REQUIRED"]:
+        CLOUD_FUNCTION_ERROR_CODES.UNAUTHENTICATED,
+
+
+    /*
+    ------------------------------------------------------
+    INVALID API KEY
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.INVALID_API_KEY || "INVALID_API_KEY"]:
+        CLOUD_FUNCTION_ERROR_CODES.UNAUTHENTICATED,
+
+
+    /*
+    ------------------------------------------------------
+    SERVICE TYPE NOT FOUND
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.SERVICE_TYPE_NOT_FOUND || "SERVICE_TYPE_NOT_FOUND"]:
+        CLOUD_FUNCTION_ERROR_CODES.NOT_FOUND,
+
+
+    /*
+    ------------------------------------------------------
+    LOCATION NOT FOUND
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.LOCATION_NOT_FOUND || "LOCATION_NOT_FOUND"]:
+        CLOUD_FUNCTION_ERROR_CODES.NOT_FOUND,
+
+
+    /*
+    ------------------------------------------------------
+    RESERVATION NOT FOUND
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.RESERVATION_NOT_FOUND || "RESERVATION_NOT_FOUND"]:
+        CLOUD_FUNCTION_ERROR_CODES.NOT_FOUND,
+
+
+    /*
+    ------------------------------------------------------
+    COMPANY NOT FOUND
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.COMPANY_NOT_FOUND || "COMPANY_NOT_FOUND"]:
+        CLOUD_FUNCTION_ERROR_CODES.NOT_FOUND,
+
+
+    /*
+    ------------------------------------------------------
+    RESERVATION INVALID STATE
+    ------------------------------------------------------
+    */
+
+    [PLATFORM_ERRORS.RESERVATION_INVALID_STATE || "RESERVATION_INVALID_STATE"]:
+        CLOUD_FUNCTION_ERROR_CODES.FAILED_PRECONDITION,
+
+
     /*
     ======================================================
     AUTH
@@ -61,6 +153,7 @@ const CLOUD_FUNCTION_ERROR_MAPPER = Object.freeze({
 
     [AUTH_ERRORS.UNAUTHORIZED]:
         CLOUD_FUNCTION_ERROR_CODES.PERMISSION_DENIED,
+
 
     /*
     ======================================================
@@ -93,5 +186,6 @@ const CLOUD_FUNCTION_ERROR_MAPPER = Object.freeze({
         CLOUD_FUNCTION_ERROR_CODES.FAILED_PRECONDITION
 
 });
+
 
 export default CLOUD_FUNCTION_ERROR_MAPPER;

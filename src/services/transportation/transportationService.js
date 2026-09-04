@@ -12,7 +12,23 @@ import {
   deleteField
 } from "firebase/firestore";
 
-import { db } from "../../firebase";
+import {
+  getFunctions,
+  httpsCallable
+} from "firebase/functions";
+
+import {
+  db,
+  app
+} from "../../firebase";
+
+
+/* =========================================================
+   FIREBASE FUNCTIONS
+========================================================= */
+
+const functions = getFunctions(app);
+
 
 /* =========================================================
    DATE HELPERS
@@ -633,5 +649,88 @@ export const reservationNumberExists = async (
     return false;
 
   }
+
+};
+
+
+/* =========================================================
+   CONFIRMAR RESERVA
+========================================================= */
+
+export const confirmTransportationReservation = async (
+
+  companyId,
+
+  reservationId
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error(
+
+      "company_required"
+
+    );
+
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+
+  if (!reservationId) {
+
+    const error = new Error(
+
+      "reservation_id_required"
+
+    );
+
+    error.code = "reservation_id_required";
+
+    throw error;
+
+  }
+
+
+  /*
+  ---------------------------------------------------------
+  CLOUD FUNCTION
+  ---------------------------------------------------------
+  */
+
+  const functionCall = httpsCallable(
+
+    functions,
+
+    "confirmTransportationReservation"
+
+  );
+
+
+  /*
+  ---------------------------------------------------------
+  CONFIRM
+  ---------------------------------------------------------
+  */
+
+  const response = await functionCall({
+
+    companyId,
+
+    reservationId
+
+  });
+
+
+  /*
+  ---------------------------------------------------------
+  RESULT
+  ---------------------------------------------------------
+  */
+
+  return response.data;
 
 };

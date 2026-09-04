@@ -20,6 +20,8 @@ export const FIRESTORE_COLLECTIONS = Object.freeze({
 
   ADMINS: "admins",
 
+  INTEGRATIONS: "integrations",
+
   /*
   ==========================================================
   TRANSPORTATION

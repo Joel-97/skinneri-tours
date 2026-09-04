@@ -19,6 +19,8 @@ import VehiclesSection from "./sections/transports/vehicles/VehiclesSection";
 import BookingSourcesSection from "./sections/transports/bookingSource/BookingSourcesSection";
 import Routes from "./sections/transports/routes/RoutesSection";
 import Drivers from "./sections/transports/drivers/DriversSection";
+import Integrations from "./sections/transports/integrations/IntegrationsSection";
+import TransportationWidgetSection from "./sections/transports/widget/TransportationWidgetSection";
 import PayersSection from "./sections/general/payer/PayersSection";
 import Maintenance from "./sections/transports/maintenance/MaintenanceSection";
 
@@ -29,6 +31,7 @@ import {
 } from "../../utils/platform/moduleUtils";
 
 import "../../style/settings/settings.css";
+
 
 const SettingsPage = () => {
 
@@ -44,6 +47,7 @@ const SettingsPage = () => {
 
   } = useAuth();
 
+
   /*
   ==========================================================
   COMPANY
@@ -51,6 +55,7 @@ const SettingsPage = () => {
   */
 
   const company = session?.company;
+
 
   /*
   ==========================================================
@@ -68,6 +73,7 @@ const SettingsPage = () => {
 
     );
 
+
   const adventureEnabled =
 
     isModuleEnabled(
@@ -77,6 +83,7 @@ const SettingsPage = () => {
       "adventure"
 
     );
+
 
   /*
   ==========================================================
@@ -95,6 +102,7 @@ const SettingsPage = () => {
     "companyProfile"
 
   );
+
 
   /*
   ==========================================================
@@ -120,6 +128,10 @@ const SettingsPage = () => {
 
       "drivers",
 
+      "integrations",
+
+      "transportationWidget",
+
       "maintenance",
 
       "BookingSources",
@@ -127,6 +139,7 @@ const SettingsPage = () => {
       "routes"
 
     ];
+
 
     if (
 
@@ -145,6 +158,7 @@ const SettingsPage = () => {
       return;
 
     }
+
 
     /*
     ========================================================
@@ -178,6 +192,7 @@ const SettingsPage = () => {
 
   ]);
 
+
   /*
   ==========================================================
   RENDER CONTENT
@@ -200,6 +215,7 @@ const SettingsPage = () => {
 
         );
 
+
       case "emailSettings":
 
         return (
@@ -207,6 +223,7 @@ const SettingsPage = () => {
           <EmailSettingsSection />
 
         );
+
 
       case "taxes":
 
@@ -216,13 +233,6 @@ const SettingsPage = () => {
 
         );
 
-      case "serviceTypes":
-
-        return (
-
-          <ServiceTypesSection />
-
-        );
 
       case "discounts":
 
@@ -232,6 +242,7 @@ const SettingsPage = () => {
 
         );
 
+
       case "currency":
 
         return (
@@ -239,6 +250,7 @@ const SettingsPage = () => {
           <CurrenciesSection />
 
         );
+
 
       // case "staff":
 
@@ -248,6 +260,7 @@ const SettingsPage = () => {
 
       //   );
 
+
       case "commissionAgents":
 
         return (
@@ -255,6 +268,7 @@ const SettingsPage = () => {
           <CommissionAgents />
 
         );
+
 
       case "paymentTypes":
 
@@ -264,6 +278,7 @@ const SettingsPage = () => {
 
         );
 
+
       case "payers":
 
         return (
@@ -272,9 +287,19 @@ const SettingsPage = () => {
 
         );
 
+
       // ==================================================
       // TRANSPORT
       // ==================================================
+
+      case "serviceTypes":
+
+        return (
+
+          <ServiceTypesSection />
+
+        );
+
 
       case "locations":
 
@@ -288,6 +313,7 @@ const SettingsPage = () => {
 
           : null;
 
+
       case "SignTemplates":
 
         return transportationEnabled
@@ -299,6 +325,7 @@ const SettingsPage = () => {
           )
 
           : null;
+
 
       case "vehicles":
 
@@ -312,6 +339,7 @@ const SettingsPage = () => {
 
           : null;
 
+
       case "drivers":
 
         return transportationEnabled
@@ -323,6 +351,33 @@ const SettingsPage = () => {
           )
 
           : null;
+
+
+      case "integrations":
+
+        return transportationEnabled
+
+          ? (
+
+            <Integrations />
+
+          )
+
+          : null;
+
+
+      case "transportationWidget":
+
+        return transportationEnabled
+
+          ? (
+
+            <TransportationWidgetSection />
+
+          )
+
+          : null;
+
 
       case "maintenance":
 
@@ -336,6 +391,7 @@ const SettingsPage = () => {
 
           : null;
 
+
       case "BookingSources":
 
         return transportationEnabled
@@ -348,6 +404,7 @@ const SettingsPage = () => {
 
           : null;
 
+
       case "routes":
 
         return transportationEnabled
@@ -359,6 +416,7 @@ const SettingsPage = () => {
           )
 
           : null;
+
 
       // ==================================================
       // ADVENTURE
@@ -388,6 +446,7 @@ const SettingsPage = () => {
 
           : null;
 
+
       // ==================================================
       // DEFAULT
       // ==================================================
@@ -408,6 +467,7 @@ const SettingsPage = () => {
 
   };
 
+
   /*
   ==========================================================
   RENDER
@@ -418,11 +478,13 @@ const SettingsPage = () => {
 
     <div className="settings-layout">
 
+
       {/* ==================================================
           SIDEBAR
       ================================================== */}
 
       <aside className="settings-sidebar">
+
 
         {/* ==================================================
             GENERAL
@@ -433,6 +495,7 @@ const SettingsPage = () => {
           General
 
         </h4>
+
 
         <button
 
@@ -462,6 +525,7 @@ const SettingsPage = () => {
 
         </button>
 
+
         <button
 
           className={
@@ -489,6 +553,7 @@ const SettingsPage = () => {
           Configuración de email
 
         </button>
+
 
         <button
 
@@ -518,33 +583,6 @@ const SettingsPage = () => {
 
         </button>
 
-        <button
-
-          className={
-
-            view === "serviceTypes"
-
-              ? "active"
-
-              : ""
-
-          }
-
-          onClick={() =>
-
-            setView(
-
-              "serviceTypes"
-
-            )
-
-          }
-
-        >
-
-          Tipos de servicio
-
-        </button>
 
         <button
 
@@ -574,6 +612,7 @@ const SettingsPage = () => {
 
         </button>
 
+
         <button
 
           className={
@@ -601,6 +640,7 @@ const SettingsPage = () => {
           Moneda
 
         </button>
+
 
         {/* <button
 
@@ -630,6 +670,7 @@ const SettingsPage = () => {
 
         </button> */}
 
+
         <button
 
           className={
@@ -657,6 +698,7 @@ const SettingsPage = () => {
           Comisionistas
 
         </button>
+
 
         <button
 
@@ -686,6 +728,7 @@ const SettingsPage = () => {
 
         </button>
 
+
         <button
 
           className={
@@ -714,6 +757,7 @@ const SettingsPage = () => {
 
         </button>
 
+
         {/* ==================================================
             TRANSPORT
         ================================================== */}
@@ -729,6 +773,36 @@ const SettingsPage = () => {
                 Transporte
 
               </h4>
+
+
+              <button
+
+                className={
+
+                  view === "serviceTypes"
+
+                    ? "active"
+
+                    : ""
+
+                }
+
+                onClick={() =>
+
+                  setView(
+
+                    "serviceTypes"
+
+                  )
+
+                }
+
+              >
+
+                Tipos de servicio
+
+              </button>
+
 
               <button
 
@@ -758,6 +832,7 @@ const SettingsPage = () => {
 
               </button>
 
+
               <button
 
                 className={
@@ -786,6 +861,7 @@ const SettingsPage = () => {
 
               </button>
 
+
               <button
 
                 className={
@@ -813,6 +889,65 @@ const SettingsPage = () => {
                 Conductores
 
               </button>
+
+
+              <button
+
+                className={
+
+                  view === "integrations"
+
+                    ? "active"
+
+                    : ""
+
+                }
+
+                onClick={() =>
+
+                  setView(
+
+                    "integrations"
+
+                  )
+
+                }
+
+              >
+
+                Integraciones
+
+              </button>
+
+
+              <button
+
+                className={
+
+                  view === "transportationWidget"
+
+                    ? "active"
+
+                    : ""
+
+                }
+
+                onClick={() =>
+
+                  setView(
+
+                    "transportationWidget"
+
+                  )
+
+                }
+
+              >
+
+                Widget de transportes
+
+              </button>
+
 
               {/*
 
@@ -846,6 +981,7 @@ const SettingsPage = () => {
 
               */}
 
+
               <button
 
                 className={
@@ -874,6 +1010,7 @@ const SettingsPage = () => {
 
               </button>
 
+
               <button
 
                 className={
@@ -901,6 +1038,7 @@ const SettingsPage = () => {
                 Origen de reserva
 
               </button>
+
 
               <button
 
@@ -936,6 +1074,7 @@ const SettingsPage = () => {
 
         }
 
+
         {/* ==================================================
             ADVENTURE
         ================================================== */}
@@ -951,6 +1090,7 @@ const SettingsPage = () => {
                 Aventuras
 
               </h4>
+
 
               <button
 
@@ -988,7 +1128,9 @@ const SettingsPage = () => {
 
         }
 
+
       </aside>
+
 
       {/* ==================================================
           CONTENT
@@ -1006,11 +1148,13 @@ const SettingsPage = () => {
 
         </div>
 
+
         {
 
           renderContent()
 
         }
+
 
       </main>
 
@@ -1019,5 +1163,6 @@ const SettingsPage = () => {
   );
 
 };
+
 
 export default SettingsPage;

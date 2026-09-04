@@ -52,6 +52,18 @@ export default function ServiceSection({ controller }) {
 
   } = actions;
 
+
+  /*
+  =========================================================
+  PENDING RESERVATION
+  =========================================================
+  */
+
+  const isPending =
+
+    data.status === "pending";
+
+
   return (
 
     <div className="modal-section section-card">
@@ -61,6 +73,7 @@ export default function ServiceSection({ controller }) {
         Servicio
 
       </h4>
+
 
       {/* =========================
           TIPO DE RESERVA - CODIGO DE RUTA
@@ -77,35 +90,57 @@ export default function ServiceSection({ controller }) {
           </label>
 
           <Select
+
             {...selectPortal}
+
             name="serviceTypeId"
+
             options={serviceTypeOptions}
+
             value={
+
               serviceTypeOptions.find(
-                option => option.value === data.serviceTypeId
+
+                option =>
+
+                  option.value ===
+
+                  data.serviceTypeId
+
               ) || null
+
             }
+
             onChange={(selectedOption) =>
 
               handleChange({
 
                 target: {
 
-                  name: "serviceTypeId",
+                  name:
 
-                  value: selectedOption?.value || ""
+                    "serviceTypeId",
+
+                  value:
+
+                    selectedOption?.value || ""
 
                 }
 
               })
 
             }
+
             placeholder="Seleccionar tipo"
+
             isClearable
+
             isSearchable
+
           />
 
         </div>
+
 
         <div className="form-field">
 
@@ -122,26 +157,49 @@ export default function ServiceSection({ controller }) {
             options={routeOptions}
 
             value={
+
               routeOptions.find(
-                option => option.value === data.routeId
+
+                option =>
+
+                  option.value ===
+
+                  data.routeId
+
               ) || null
+
             }
 
             onChange={(selectedOption) => {
 
-              const selectedRoute = routes.find(
-                route => route.id === selectedOption?.value
-              );
+              const selectedRoute =
+
+                routes.find(
+
+                  route =>
+
+                    route.id ===
+
+                    selectedOption?.value
+
+                );
+
 
               setData(prev => ({
 
                 ...prev,
 
-                routeId: selectedRoute?.id || "",
+                routeId:
 
-                routeCode: selectedRoute?.code || "",
+                  selectedRoute?.id || "",
 
-                routeName: selectedRoute?.name || ""
+                routeCode:
+
+                  selectedRoute?.code || "",
+
+                routeName:
+
+                  selectedRoute?.name || ""
 
               }));
 
@@ -158,6 +216,7 @@ export default function ServiceSection({ controller }) {
         </div>
 
       </div>
+
 
       {/* =========================
           FECHA Y ESTADO
@@ -188,6 +247,7 @@ export default function ServiceSection({ controller }) {
 
         </div>
 
+
         <div className="form-field">
 
           <label className="field-label">
@@ -206,31 +266,57 @@ export default function ServiceSection({ controller }) {
 
               statusOptions.find(
 
-                option => option.value === data.status
+                option =>
+
+                  option.value ===
+
+                  data.status
 
               ) || null
 
             }
 
-            onChange={(selectedOption) =>
+            onChange={(selectedOption) => {
+
+              /*
+              ------------------------------------------------
+              PENDING RESERVATIONS CANNOT CHANGE STATUS
+              HERE.
+
+              Confirmation is handled separately through
+              the "Confirmar reserva" action.
+              ------------------------------------------------
+              */
+
+              if (isPending) {
+
+                return;
+
+              }
+
 
               setData(prev => ({
 
                 ...prev,
 
-                status: selectedOption?.value || ""
+                status:
 
-              }))
+                  selectedOption?.value || ""
 
-            }
+              }));
+
+            }}
 
             isSearchable={false}
+
+            isDisabled={isPending}
 
           />
 
         </div>
 
       </div>
+
 
       {/* =========================
           LUGAR DE RECOGIDA Y DESTINO
@@ -256,7 +342,11 @@ export default function ServiceSection({ controller }) {
 
               locationOptions.find(
 
-                option => option.value === data.locationFromId
+                option =>
+
+                  option.value ===
+
+                  data.locationFromId
 
               ) || null
 
@@ -268,7 +358,9 @@ export default function ServiceSection({ controller }) {
 
                 ...prev,
 
-                locationFromId: selectedOption?.value || ""
+                locationFromId:
+
+                  selectedOption?.value || ""
 
               }))
 
@@ -281,6 +373,7 @@ export default function ServiceSection({ controller }) {
           />
 
         </div>
+
 
         <div className="form-field">
 
@@ -300,7 +393,11 @@ export default function ServiceSection({ controller }) {
 
               locationOptions.find(
 
-                option => option.value === data.locationToId
+                option =>
+
+                  option.value ===
+
+                  data.locationToId
 
               ) || null
 
@@ -312,7 +409,9 @@ export default function ServiceSection({ controller }) {
 
                 ...prev,
 
-                locationToId: selectedOption?.value || ""
+                locationToId:
+
+                  selectedOption?.value || ""
 
               }))
 
@@ -328,8 +427,9 @@ export default function ServiceSection({ controller }) {
 
       </div>
 
+
       {/* =========================
-        CANTIDAD DE PAX Y NUMERO DE VUELO
+          CANTIDAD DE PAX Y NUMERO DE VUELO
       ========================= */}
 
       <div className="form-grid two-columns">
@@ -355,7 +455,8 @@ export default function ServiceSection({ controller }) {
           />
 
         </div>
-        
+
+
         <div className="form-field">
 
           <label className="field-label">
@@ -365,16 +466,23 @@ export default function ServiceSection({ controller }) {
           </label>
 
           <input
+
             type="text"
+
             name="flightNumber"
+
             placeholder="Ej: AA1337"
+
             value={data.flightNumber || ""}
+
             onChange={handleChange}
+
           />
 
         </div>
 
       </div>
+
 
       {/* =========================
           VEHICULO Y CHOFER
@@ -397,28 +505,53 @@ export default function ServiceSection({ controller }) {
             options={vehicleOptions}
 
             value={
+
               vehicleOptions.find(
-                option => option.value === data.vehicleId
+
+                option =>
+
+                  option.value ===
+
+                  data.vehicleId
+
               ) || null
+
             }
 
             onChange={(selectedOption) => {
 
-              const selectedVehicle = vehicles.find(
-                vehicle => vehicle.id === selectedOption?.value
-              );
+              const selectedVehicle =
+
+                vehicles.find(
+
+                  vehicle =>
+
+                    vehicle.id ===
+
+                    selectedOption?.value
+
+                );
+
 
               setData(prev => ({
 
                 ...prev,
 
-                vehicleId: selectedVehicle?.id || "",
+                vehicleId:
 
-                vehicleName: selectedVehicle?.name || "",
+                  selectedVehicle?.id || "",
 
-                vehiclePlate: selectedVehicle?.plate || "",
+                vehicleName:
 
-                vehicleType: selectedVehicle?.type || ""
+                  selectedVehicle?.name || "",
+
+                vehiclePlate:
+
+                  selectedVehicle?.plate || "",
+
+                vehicleType:
+
+                  selectedVehicle?.type || ""
 
               }));
 
@@ -433,6 +566,7 @@ export default function ServiceSection({ controller }) {
           />
 
         </div>
+
 
         <div className="form-field">
 
@@ -452,7 +586,11 @@ export default function ServiceSection({ controller }) {
 
               driverOptions.find(
 
-                option => option.value === data.driverId
+                option =>
+
+                  option.value ===
+
+                  data.driverId
 
               ) || null
 
@@ -464,7 +602,9 @@ export default function ServiceSection({ controller }) {
 
                 ...prev,
 
-                driverId: selectedOption?.value || ""
+                driverId:
+
+                  selectedOption?.value || ""
 
               }))
 

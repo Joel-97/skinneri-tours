@@ -4,7 +4,9 @@
  * ==========================================================
  */
 
-import CLOUD_FUNCTION_ERROR_CODES from "../constants/cloudFunctionErrorCodes.js";
+import CLOUD_FUNCTION_ERROR_CODES
+    from "../constants/cloudFunctionErrorCodes.js";
+
 
 /*
 ==========================================================
@@ -12,7 +14,11 @@ SUCCESS
 ==========================================================
 */
 
-export function success(data = null) {
+export function success(
+
+    data = null
+
+) {
 
     return {
 
@@ -30,13 +36,18 @@ export function success(data = null) {
 
 }
 
+
 /*
 ==========================================================
 CREATED
 ==========================================================
 */
 
-export function created(data = null) {
+export function created(
+
+    data = null
+
+) {
 
     return {
 
@@ -54,6 +65,7 @@ export function created(data = null) {
 
 }
 
+
 /*
 ==========================================================
 FAILURE
@@ -62,11 +74,43 @@ FAILURE
 
 export function failure(
 
-    code = CLOUD_FUNCTION_ERROR_CODES.FAILED_PRECONDITION,
+    code =
+        CLOUD_FUNCTION_ERROR_CODES.FAILED_PRECONDITION,
 
     error = null
 
 ) {
+
+    /*
+    ======================================================
+    ERROR MESSAGE
+    ======================================================
+
+    If a specific error message/code is provided, use it.
+
+    Otherwise, use the main error code as the error value.
+
+    Example:
+
+        failure(
+            "INVALID_API_KEY"
+        )
+
+    becomes:
+
+        error: "INVALID_API_KEY"
+        code:  "INVALID_API_KEY"
+
+    This keeps service results consistent and prevents
+    consumers from converting a known business error into
+    UNKNOWN_ERROR.
+    ======================================================
+    */
+
+    const resolvedError =
+        error ||
+        code;
+
 
     return {
 
@@ -76,9 +120,11 @@ export function failure(
 
         data: null,
 
-        error,
+        error:
+            resolvedError,
 
-        code
+        code:
+            code
 
     };
 
