@@ -66,7 +66,11 @@ const Reports = () => {
 
         return (
 
-          <TransportationCommission />
+        //   <TransportationCommission />
+        <div>
+            Reporte de operaciones
+            (próximamente)
+          </div>
 
         );
 
@@ -237,7 +241,7 @@ const Reports = () => {
         </button>
 
 
-        <button
+        {/* <button
           type="button"
           className={
             view ===
@@ -253,7 +257,7 @@ const Reports = () => {
           }
         >
           Rutas
-        </button>
+        </button> */}
 
 
         <button
