@@ -1,14 +1,21 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
 import Select from "react-select";
 
 import TransportationModal from "./transportationModal";
+import ReservationActionsModal from "./ReservationActionsModal";
 
 import {
   getTransportation,
   createTransportation,
   updateTransportation,
-  deleteTransportation
+  deleteTransportation,
+  confirmTransportationReservation
 } from "../../../services/transportation/transportationService";
 
 import {
@@ -28,104 +35,55 @@ import Loading from "../../../components/general/loading";
 import ViewToggle from "../../../components/general/viewToggle";
 import DataTable from "../../../components/general/dataTable";
 
-import ReservationActionsModal from "./ReservationActionsModal";
-
 import "../../../style/transportation/transportationList.css";
 
-
-/* ======================================================
-   COMPONENT
-====================================================== */
 
 const TransportationList = ({
   companyId,
   user
 }) => {
 
-
-  /* ====================================================
-     STATES
-  ==================================================== */
+  /* =========================================================
+     STATE
+  ========================================================= */
 
   const [reservations, setReservations] = useState([]);
-
-  const [modalOpen, setModalOpen] = useState(false);
-
   const [selectedReservation, setSelectedReservation] =
     useState(null);
-
-  const [viewMode, setViewMode] =
-    useState("table");
-
-  const [showFilters, setShowFilters] =
-    useState(false);
-
-  const [rowsPerPage, setRowsPerPage] =
-    useState(10);
-
-  const [currentPage, setCurrentPage] =
-    useState(1);
-
-  const [mode, setMode] =
-    useState("create");
-
-  const [loading, setLoading] =
-    useState(true);
-
-
-  /*
-  ======================================================
-  RESERVATION ACTIONS MODAL
-  ======================================================
-  */
-
-  const [actionsModalOpen, setActionsModalOpen] =
-    useState(false);
 
   const [selectedActionReservation, setSelectedActionReservation] =
     useState(null);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [actionsModalOpen, setActionsModalOpen] = useState(false);
 
-  /* ====================================================
-     FILTERS
-  ==================================================== */
+  const [mode, setMode] = useState("create");
+  const [viewMode, setViewMode] = useState("table");
+  const [loading, setLoading] = useState(true);
 
-  const [startDateFilter, setStartDateFilter] =
-    useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
-  const [endDateFilter, setEndDateFilter] =
-    useState("");
-
-  const [statusFilter, setStatusFilter] =
-    useState("");
-
-  const [searchTerm, setSearchTerm] =
-    useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
 
-  /* ====================================================
+  /* =========================================================
      LOAD RESERVATIONS
-  ==================================================== */
+  ========================================================= */
 
-  const loadReservations = async () => {
-
+  const loadReservations = useCallback(async () => {
     if (!companyId) return;
 
     try {
-
       setLoading(true);
 
       const data =
-        await getTransportation(
-          companyId
-        );
+        await getTransportation(companyId);
 
       setReservations(data);
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
       console.error(
         "Error cargando reservas:",
         error
@@ -135,102 +93,65 @@ const TransportationList = ({
         "Error",
         "No se pudieron cargar las reservas."
       );
-
-    }
-
-    finally {
-
+    } finally {
       setLoading(false);
-
     }
-
-  };
-
-
-  /* ====================================================
-     INITIAL LOAD
-  ==================================================== */
-
-  useEffect(() => {
-
-    if (!companyId) return;
-
-    loadReservations();
-
   }, [companyId]);
 
 
-  /* ====================================================
-     CREATE
-  ==================================================== */
+  useEffect(() => {
+    loadReservations();
+  }, [loadReservations]);
+
+
+  /* =========================================================
+     MODALS
+  ========================================================= */
 
   const handleCreate = () => {
+    setSelectedReservation(null);
+    setMode("create");
+    setModalOpen(true);
+  };
 
-    setSelectedReservation(
-      null
-    );
+  const handleEdit = (reservation) => {
+    setSelectedReservation(reservation);
+    setMode("edit");
+    setModalOpen(true);
+  };
 
-    setMode(
-      "create"
-    );
-
-    setModalOpen(
-      true
-    );
-
+  const handleActions = (reservation) => {
+    setSelectedActionReservation(reservation);
+    setActionsModalOpen(true);
   };
 
 
-  /* ====================================================
-     EDIT
-  ==================================================== */
+  /* =========================================================
+     FILTERS
+  ========================================================= */
 
-  const handleEdit = (
-    reservation
-  ) => {
-
-    setSelectedReservation(
-      reservation
-    );
-
-    setMode(
-      "edit"
-    );
-
-    setModalOpen(
-      true
-    );
-
+  const clearFilters = () => {
+    setStartDateFilter("");
+    setEndDateFilter("");
+    setStatusFilter("");
+    setSearchTerm("");
+    setShowFilters(false);
   };
 
-
-  /* ====================================================
-     RESERVATION ACTIONS
-  ==================================================== */
-
-  const handleActions = (
-    reservation
-  ) => {
-
-    setSelectedActionReservation(
-      reservation
+  const hasFilters =
+    Boolean(
+      startDateFilter ||
+      endDateFilter ||
+      statusFilter ||
+      searchTerm
     );
 
-    setActionsModalOpen(
-      true
-    );
 
-  };
-
-
-  /* ====================================================
+  /* =========================================================
      DELETE
-  ==================================================== */
+  ========================================================= */
 
-  const handleDelete = async (
-    id
-  ) => {
-
+  const handleDelete = async (id) => {
     const confirmed =
       await notifyConfirm(
         "¿Eliminar reserva?",
@@ -240,7 +161,6 @@ const TransportationList = ({
     if (!confirmed) return;
 
     try {
-
       await deleteTransportation(
         companyId,
         id
@@ -251,12 +171,8 @@ const TransportationList = ({
         "La reserva fue eliminada correctamente."
       );
 
-      loadReservations();
-
-    }
-
-    catch (error) {
-
+      await loadReservations();
+    } catch (error) {
       console.error(
         "Error eliminando reserva:",
         error
@@ -266,33 +182,19 @@ const TransportationList = ({
         "Error",
         "No se pudo eliminar la reserva."
       );
-
     }
-
   };
 
 
-  /* ====================================================
+  /* =========================================================
      SAVE RESERVATION
-  ==================================================== */
+  ========================================================= */
 
-  const handleSave = async (
-    formData
-  ) => {
-
+  const handleSave = async (formData) => {
     try {
-
       let savedBooking;
 
-
-      /* ==================================================
-         CREATE
-      ================================================== */
-
-      if (
-        mode === "create"
-      ) {
-
+      if (mode === "create") {
         savedBooking =
           await createTransportation(
             companyId,
@@ -304,16 +206,7 @@ const TransportationList = ({
           "Reserva creada",
           "La reserva fue creada correctamente."
         );
-
-      }
-
-
-      /* ==================================================
-         UPDATE
-      ================================================== */
-
-      else {
-
+      } else {
         await updateTransportation(
           companyId,
           selectedReservation.id,
@@ -322,27 +215,24 @@ const TransportationList = ({
         );
 
         savedBooking = {
-
-          id:
-            selectedReservation.id,
-
+          id: selectedReservation.id,
           ...formData
-
         };
 
         notifySuccess(
           "Reserva actualizada",
           "Los cambios fueron guardados."
         );
+      }
 
+      if (!savedBooking?.id) {
+        return false;
       }
 
 
-      /* ==================================================
-         COMMISSIONS
-      ================================================== */
-
-      if (!savedBooking?.id) return;
+      /* -----------------------------------------------------
+         COMMISSION
+      ----------------------------------------------------- */
 
       const existingList =
         await getCommissionByBooking(
@@ -353,52 +243,37 @@ const TransportationList = ({
       const existing =
         existingList?.[0];
 
-
       const price =
-        Number(
-          formData.price || 0
-        );
+        Number(formData.price || 0);
 
       const discount =
-        Number(
-          formData.discountAmount || 0
-        );
-
+        Number(formData.discountAmount || 0);
 
       const base =
         Number(
           (
-            price -
-            discount
+            price - discount
           ).toFixed(2)
         );
 
-
-      /* ==================================================
-         CREATE / UPDATE COMMISSION
-      ================================================== */
 
       if (
         formData.commissionEnabled &&
         formData.commissionBeneficiaryId
       ) {
-
         const amount =
-
-          formData.commissionType ===
-          "percentage"
-
+          formData.commissionType === "percentage"
             ? base *
               (
-                formData.commissionValue /
-                100
+                Number(
+                  formData.commissionValue || 0
+                ) / 100
               )
-
-            : formData.commissionValue;
-
+            : Number(
+                formData.commissionValue || 0
+              );
 
         const commissionData = {
-
           bookingId:
             savedBooking.id,
 
@@ -423,7 +298,7 @@ const TransportationList = ({
             ),
 
           baseAmount:
-            Number(base),
+            base,
 
           type:
             formData.commissionType,
@@ -433,65 +308,51 @@ const TransportationList = ({
 
           bookingDate:
             formData.date
-
         };
 
-
         if (existing) {
-
           await updateCommission(
             companyId,
             existing.id,
             commissionData,
             user
           );
-
-        }
-
-        else {
-
+        } else {
           await createCommission(
             companyId,
             commissionData,
             user
           );
-
         }
-
-      }
-
-
-      /* ==================================================
-         DELETE COMMISSION
-      ================================================== */
-
-      else if (
-        !formData.commissionEnabled &&
-        existing
-      ) {
-
+      } else if (existing) {
         await deleteCommission(
           companyId,
           existing.id
         );
-
       }
 
 
-      /* ==================================================
-         CLOSE / REFRESH
-      ================================================== */
+      /* -----------------------------------------------------
+         UPDATE UI
+      ----------------------------------------------------- */
 
-      setModalOpen(
-        false
-      );
+      if (mode === "create") {
+        setModalOpen(false);
+      } else {
+        setSelectedReservation((prev) =>
+          prev
+            ? {
+                ...prev,
+                ...formData
+              }
+            : prev
+        );
+      }
 
-      loadReservations();
+      await loadReservations();
 
-    }
-
-    catch (error) {
-
+      return true;
+    } catch (error) {
       console.error(
         "Error guardando reserva:",
         error
@@ -499,71 +360,161 @@ const TransportationList = ({
 
       notifyError(
         "Error",
+        error?.message ||
+          "No se pudo guardar la reserva."
+      );
+
+      return false;
+    }
+  };
+
+
+  /* =========================================================
+     CONFIRM RESERVATION
+  ========================================================= */
+
+  const handleConfirm = async (reservationData) => {
+    if (!companyId) {
+      notifyError(
+        "Error",
+        "No se encontró la empresa."
+      );
+
+      return false;
+    }
+
+    if (!selectedReservation?.id) {
+      notifyError(
+        "Error",
+        "No se encontró la reserva."
+      );
+
+      return false;
+    }
+
+    if (
+      reservationData?.status !== "pending"
+    ) {
+      notifyError(
+        "Error",
+        "Solo se pueden confirmar reservas pendientes."
+      );
+
+      return false;
+    }
+
+    try {
+      const response =
+        await confirmTransportationReservation(
+          companyId,
+          selectedReservation.id
+        );
+
+      const confirmedReservation =
+        response?.data;
+
+      if (
+        confirmedReservation?.status !==
+        "confirmed"
+      ) {
+        notifyError(
+          "Error",
+          "La reserva no pudo ser confirmada."
+        );
+
+        return false;
+      }
+
+      setSelectedReservation((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: "confirmed",
+              updatedAt: new Date()
+            }
+          : prev
+      );
+
+      await loadReservations();
+
+      notifySuccess(
+        "Reserva confirmada",
+        "La reserva fue confirmada correctamente."
+      );
+
+      return response;
+    } catch (error) {
+      console.error(
+        "Error confirmando reserva:",
         error
       );
 
-    }
+      notifyError(
+        "Error",
+        error?.message ||
+          "No se pudo confirmar la reserva."
+      );
 
+      return false;
+    }
   };
 
 
-  /* ====================================================
-     FORMAT DATE
-  ==================================================== */
+  /* =========================================================
+     HELPERS
+  ========================================================= */
 
-  const formatDate = (
-    timestamp
-  ) => {
+  const getDateValue = (value) => {
+    if (!value) return null;
 
-    if (!timestamp)
-      return "-";
-
-    if (timestamp.seconds) {
-
+    if (
+      typeof value?.seconds === "number"
+    ) {
       return new Date(
-        timestamp.seconds * 1000
-      ).toLocaleString();
-
+        value.seconds * 1000
+      );
     }
 
-    return new Date(
-      timestamp
-    ).toLocaleString();
+    if (
+      typeof value?.toDate === "function"
+    ) {
+      return value.toDate();
+    }
 
+    return new Date(value);
+  };
+
+  const formatDate = (value) => {
+    const date =
+      getDateValue(value);
+
+    if (
+      !date ||
+      Number.isNaN(date.getTime())
+    ) {
+      return "-";
+    }
+
+    return date.toLocaleString();
+  };
+
+  const getStatusClass = (status) => {
+    const classes = {
+      confirmed: "status confirmed",
+      pending: "status pending",
+      cancelled: "status cancelled"
+    };
+
+    return (
+      classes[status] ||
+      "status"
+    );
   };
 
 
-  /* ====================================================
-     STATUS CLASS
-  ==================================================== */
-
-  const getStatusClass = (
-    status
-  ) => {
-
-    if (
-      status === "confirmed"
-    )
-      return "status confirmed";
-
-    if (
-      status === "pending"
-    )
-      return "status pending";
-
-    if (
-      status === "cancelled"
-    )
-      return "status cancelled";
-
-    return "status";
-
-  };
-
-
-  /* ====================================================
-     FILTER RESERVATIONS
-  ==================================================== */
+  /* =========================================================
+     FILTERED RESERVATIONS
+  ========================================================= */
 
   const filteredReservations =
     useMemo(() => {
@@ -573,269 +524,131 @@ const TransportationList = ({
           .toLowerCase()
           .trim();
 
+      const startDate =
+        startDateFilter
+          ? new Date(startDateFilter)
+          : null;
+
+      const endDate =
+        endDateFilter
+          ? new Date(endDateFilter)
+          : null;
+
+      if (endDate) {
+        endDate.setHours(
+          23,
+          59,
+          59,
+          999
+        );
+      }
 
       return reservations.filter(
-        (r) => {
-
-          if (!r.date)
-            return true;
-
+        (reservation) => {
 
           const reservationDate =
-            r.date.seconds
-
-              ? new Date(
-                  r.date.seconds *
-                  1000
-                )
-
-              : new Date(
-                  r.date
-                );
-
-
-          /* ==============================================
-             START DATE
-          ============================================== */
-
-          if (
-            startDateFilter
-          ) {
-
-            const start =
-              new Date(
-                startDateFilter
-              );
-
-            if (
-              reservationDate <
-              start
-            )
-              return false;
-
-          }
-
-
-          /* ==============================================
-             END DATE
-          ============================================== */
-
-          if (
-            endDateFilter
-          ) {
-
-            const end =
-              new Date(
-                endDateFilter
-              );
-
-            end.setHours(
-              23,
-              59,
-              59,
-              999
+            getDateValue(
+              reservation.date
             );
 
-            if (
-              reservationDate >
-              end
-            )
-              return false;
-
+          if (
+            reservationDate &&
+            startDate &&
+            reservationDate < startDate
+          ) {
+            return false;
           }
 
-
-          /* ==============================================
-             STATUS
-          ============================================== */
+          if (
+            reservationDate &&
+            endDate &&
+            reservationDate > endDate
+          ) {
+            return false;
+          }
 
           if (
             statusFilter &&
-            r.status !==
+            reservation.status !==
               statusFilter
-          )
+          ) {
             return false;
-
-
-          /* ==============================================
-             SEARCH
-          ============================================== */
-
-          if (term) {
-
-            const name =
-              r.clientName
-                ?.toLowerCase() ||
-              "";
-
-            const service =
-              r.serviceTypeName
-                ?.toLowerCase() ||
-              "";
-
-            const booking =
-              r.reservationNumber
-                ?.toLowerCase() ||
-              "";
-
-
-            if (
-
-              !name.includes(
-                term
-              ) &&
-
-              !service.includes(
-                term
-              ) &&
-
-              !booking.includes(
-                term
-              )
-
-            ) {
-
-              return false;
-
-            }
-
           }
 
+          if (term) {
+            const searchableText = [
+              reservation.clientName,
+              reservation.serviceTypeName,
+              reservation.reservationNumber
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+            if (
+              !searchableText.includes(term)
+            ) {
+              return false;
+            }
+          }
 
           return true;
-
         }
       );
-
     }, [
-
       reservations,
-
       startDateFilter,
-
       endDateFilter,
-
       statusFilter,
-
       searchTerm
-
     ]);
 
 
-  /* ====================================================
-     PAGINATION
-  ==================================================== */
-
-  const totalPages =
-    Math.ceil(
-      filteredReservations.length /
-      rowsPerPage
-    );
-
-
-  /* ====================================================
-     FILTER STATE
-  ==================================================== */
-
-  const hasFilters =
-    startDateFilter ||
-    endDateFilter ||
-    statusFilter ||
-    searchTerm;
-
-
-  /* ====================================================
-     ROW OPTIONS
-  ==================================================== */
-
-  const rowsOptions = [
-
-    {
-      value: 10,
-      label: "10"
-    },
-
-    {
-      value: 25,
-      label: "25"
-    },
-
-    {
-      value: 50,
-      label: "50"
-    },
-
-    {
-      value: 100,
-      label: "100"
-    }
-
-  ];
-
-
-  /* ====================================================
-     STATUS OPTIONS
-  ==================================================== */
+  /* =========================================================
+     OPTIONS
+  ========================================================= */
 
   const statusOptions = [
-
     {
       value: "",
       label: "Todos"
     },
-
     {
       value: "pending",
       label: "Pendiente"
     },
-
     {
       value: "confirmed",
       label: "Confirmada"
     },
-
     {
       value: "cancelled",
       label: "Cancelada"
     }
-
   ];
 
 
-  /* ====================================================
+  /* =========================================================
      RENDER
-  ==================================================== */
+  ========================================================= */
 
   return (
-
     <div className="transportation-container">
 
-
-      {/* ==================================================
-          HEADER
-      ================================================== */}
+      {/* HEADER */}
 
       <div className="reservation-header">
 
         <div className="mobile-header">
-
           <h2>
             Reservas de transporte
           </h2>
 
           <p className="results">
-
-            {
-              filteredReservations.length
-            }
-
-            {" "}
+            {filteredReservations.length}{" "}
             resultados encontrados
-
           </p>
-
         </div>
-
 
         <div className="header-actions mobile-actions">
 
@@ -856,17 +669,12 @@ const TransportationList = ({
       </div>
 
 
-      {/* ==================================================
-          DESKTOP FILTERS
-      ================================================== */}
+      {/* DESKTOP FILTERS */}
 
       <div className="filters-bar">
 
         <div className="filter-group">
-
-          <label>
-            Desde
-          </label>
+          <label>Desde</label>
 
           <input
             type="date"
@@ -877,15 +685,11 @@ const TransportationList = ({
               )
             }
           />
-
         </div>
 
 
         <div className="filter-group">
-
-          <label>
-            Hasta
-          </label>
+          <label>Hasta</label>
 
           <input
             type="date"
@@ -896,323 +700,164 @@ const TransportationList = ({
               )
             }
           />
-
         </div>
 
 
         <div className="filter-group">
-
-          <label>
-            Estado
-          </label>
+          <label>Estado</label>
 
           <Select
-
-            options={
-              statusOptions
-            }
-
+            options={statusOptions}
             value={
               statusOptions.find(
-                opt =>
-                  opt.value ===
+                (option) =>
+                  option.value ===
                   statusFilter
               )
             }
-
-            onChange={
-              (selected) =>
-                setStatusFilter(
-                  selected?.value ||
-                  ""
-                )
+            onChange={(selected) =>
+              setStatusFilter(
+                selected?.value || ""
+              )
             }
-
             isSearchable={false}
-
             menuPortalTarget={
               document.body
             }
-
             menuPosition="fixed"
-
           />
-
         </div>
 
 
         <div className="filter-group search">
-
-          <label>
-            Buscar
-          </label>
+          <label>Buscar</label>
 
           <input
-
             className="search-input"
-
             type="text"
-
             placeholder="Cliente, servicio o # reserva"
-
             value={searchTerm}
-
-            onChange={(e) => {
-
+            onChange={(e) =>
               setSearchTerm(
                 e.target.value
-              );
-
-              setCurrentPage(
-                1
-              );
-
-            }}
-
+              )
+            }
           />
-
         </div>
 
 
         <button
-
           className="btn-secondary"
-
-          onClick={() => {
-
-            setStartDateFilter(
-              ""
-            );
-
-            setEndDateFilter(
-              ""
-            );
-
-            setStatusFilter(
-              ""
-            );
-
-            setSearchTerm(
-              ""
-            );
-
-          }}
-
+          onClick={clearFilters}
         >
-
           Limpiar
-
         </button>
 
       </div>
 
 
-      {/* ==================================================
-          MOBILE FILTERS
-      ================================================== */}
+      {/* MOBILE FILTERS */}
 
       <div className="filters-collapsible">
 
         <button
-
-          className={
-            `filters-toggle ${
-              hasFilters
-                ? "active"
-                : ""
-            }`
-          }
-
+          className={`filters-toggle ${
+            hasFilters ? "active" : ""
+          }`}
           onClick={() =>
             setShowFilters(
-              prev =>
-                !prev
+              (prev) => !prev
             )
           }
-
         >
-
           🔍 Filtros{" "}
-
-          {
-            hasFilters &&
-            "•"
-          }
-
+          {hasFilters && "•"}
         </button>
 
 
         <div
-
-          className={
-            `filters-content ${
-              showFilters
-                ? "open"
-                : ""
-            }`
-          }
-
+          className={`filters-content ${
+            showFilters ? "open" : ""
+          }`}
         >
 
           <div className="filter-group">
-
-            <label>
-              Desde
-            </label>
+            <label>Desde</label>
 
             <input
-
               type="date"
-
-              value={
-                startDateFilter
-              }
-
+              value={startDateFilter}
               onChange={(e) =>
                 setStartDateFilter(
                   e.target.value
                 )
               }
-
             />
-
           </div>
 
 
           <div className="filter-group">
-
-            <label>
-              Hasta
-            </label>
+            <label>Hasta</label>
 
             <input
-
               type="date"
-
-              value={
-                endDateFilter
-              }
-
+              value={endDateFilter}
               onChange={(e) =>
                 setEndDateFilter(
                   e.target.value
                 )
               }
-
             />
-
           </div>
 
 
           <div className="filter-group">
-
-            <label>
-              Estado
-            </label>
+            <label>Estado</label>
 
             <Select
-
-              options={
-                statusOptions
-              }
-
+              options={statusOptions}
               value={
                 statusOptions.find(
-                  opt =>
-                    opt.value ===
+                  (option) =>
+                    option.value ===
                     statusFilter
                 )
               }
-
-              onChange={
-                (selected) => {
-
-                  setStatusFilter(
-                    selected?.value ||
-                    ""
-                  );
-
-                }
+              onChange={(selected) =>
+                setStatusFilter(
+                  selected?.value || ""
+                )
               }
-
               isSearchable={false}
-
               menuPortalTarget={
                 document.body
               }
-
               menuPosition="fixed"
-
             />
-
           </div>
 
 
           <div className="filter-group">
-
-            <label>
-              Buscar
-            </label>
+            <label>Buscar</label>
 
             <input
-
               type="text"
-
               placeholder="Cliente, servicio o # reserva"
-
-              value={
-                searchTerm
-              }
-
-              onChange={(e) => {
-
+              value={searchTerm}
+              onChange={(e) =>
                 setSearchTerm(
                   e.target.value
-                );
-
-                setCurrentPage(
-                  1
-                );
-
-              }}
-
+                )
+              }
             />
-
           </div>
 
 
           <button
-
             className="btn-secondary full"
-
-            onClick={() => {
-
-              setStartDateFilter(
-                ""
-              );
-
-              setEndDateFilter(
-                ""
-              );
-
-              setStatusFilter(
-                ""
-              );
-
-              setSearchTerm(
-                ""
-              );
-
-              setShowFilters(
-                false
-              );
-
-            }}
-
+            onClick={clearFilters}
           >
-
             Limpiar
-
           </button>
 
         </div>
@@ -1220,451 +865,284 @@ const TransportationList = ({
       </div>
 
 
-      {/* ==================================================
-          LOADING
-      ================================================== */}
+      {/* LOADING */}
 
-      {
-        loading && (
-
-          <div
-            style={{
-              textAlign:
-                "center"
-            }}
-          >
-
-            <Loading />
-
-          </div>
-
-        )
-      }
+      {loading && (
+        <div
+          style={{
+            textAlign: "center"
+          }}
+        >
+          <Loading />
+        </div>
+      )}
 
 
-      {/* ==================================================
-          EMPTY
-      ================================================== */}
+      {/* EMPTY */}
 
-      {
-        !loading &&
+      {!loading &&
         filteredReservations.length === 0 && (
-
           <div className="empty-state">
-
             <p>
               No hay reservas en este rango.
             </p>
-
           </div>
-
-        )
-      }
+        )}
 
 
-      {/* ==================================================
-          GRID
-      ================================================== */}
+      {/* GRID */}
 
-      {
-        !loading &&
+      {!loading &&
         viewMode === "grid" && (
-
           <div className="reservations-grid">
 
-            {
-              filteredReservations.map(
-                r => (
+            {filteredReservations.map(
+              (reservation) => (
+                <div
+                  key={reservation.id}
+                  className="reservation-card"
+                >
 
-                  <div
-                    key={r.id}
-                    className="reservation-card"
-                  >
+                  <div className="reservation-top">
 
-                    <div className="reservation-top">
-
-                      <h4
-                        onClick={() =>
-                          handleEdit(r)
-                        }
-                      >
-                        {r.clientName}
-                      </h4>
-
-
-                      <span
-
-                        className={
-                          getStatusClass(
-                            r.status
-                          )
-                        }
-
-                        onClick={() =>
-                          handleEdit(r)
-                        }
-
-                      >
-
-                        {r.status}
-
-                      </span>
-
-                    </div>
-
-
-                    <p
-
-                      className="service"
-
+                    <h4
                       onClick={() =>
-                        handleEdit(r)
-                      }
-
-                    >
-
-                      {
-                        r.serviceTypeName
-                      }
-
-                    </p>
-
-
-                    <div
-
-                      className="reservation-info"
-
-                      onClick={() =>
-                        handleEdit(r)
-                      }
-
-                    >
-
-                      <p>
-
-                        <strong>
-                          Fecha:
-                        </strong>
-
-                        {" "}
-
-                        {
-                          formatDate(
-                            r.date
-                          )
-                        }
-
-                      </p>
-
-
-                      {
-                        r.endDate && (
-
-                          <p>
-
-                            <strong>
-                              Fin:
-                            </strong>
-
-                            {" "}
-
-                            {
-                              formatDate(
-                                r.endDate
-                              )
-                            }
-
-                          </p>
-
+                        handleEdit(
+                          reservation
                         )
                       }
+                    >
+                      {reservation.clientName}
+                    </h4>
 
-                    </div>
-
-
-                    <div className="reservation-actions">
-
-                      <button
-
-                        className="btn-edit"
-
-                        onClick={() =>
-                          handleEdit(r)
-                        }
-
-                      >
-
-                        Editar
-
-                      </button>
-
-
-                      <button
-
-                        className="btn-delete"
-
-                        onClick={() =>
-                          handleDelete(
-                            r.id
-                          )
-                        }
-
-                      >
-
-                        Eliminar
-
-                      </button>
-
-                    </div>
+                    <span
+                      className={getStatusClass(
+                        reservation.status
+                      )}
+                      onClick={() =>
+                        handleEdit(
+                          reservation
+                        )
+                      }
+                    >
+                      {reservation.status}
+                    </span>
 
                   </div>
 
-                )
+
+                  <p
+                    className="service"
+                    onClick={() =>
+                      handleEdit(
+                        reservation
+                      )
+                    }
+                  >
+                    {reservation.serviceTypeName}
+                  </p>
+
+
+                  <div
+                    className="reservation-info"
+                    onClick={() =>
+                      handleEdit(
+                        reservation
+                      )
+                    }
+                  >
+
+                    <p>
+                      <strong>
+                        Fecha:
+                      </strong>{" "}
+                      {formatDate(
+                        reservation.date
+                      )}
+                    </p>
+
+                    {reservation.endDate && (
+                      <p>
+                        <strong>
+                          Fin:
+                        </strong>{" "}
+                        {formatDate(
+                          reservation.endDate
+                        )}
+                      </p>
+                    )}
+
+                  </div>
+
+
+                  <div className="reservation-actions">
+
+                    <button
+                      className="btn-edit"
+                      onClick={() =>
+                        handleEdit(
+                          reservation
+                        )
+                      }
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="btn-delete"
+                      onClick={() =>
+                        handleDelete(
+                          reservation.id
+                        )
+                      }
+                    >
+                      Eliminar
+                    </button>
+
+                  </div>
+
+                </div>
               )
-            }
+            )}
 
           </div>
-
-        )
-      }
+        )}
 
 
-      {/* ==================================================
-          TABLE
-      ================================================== */}
+      {/* TABLE */}
 
-      {
-        !loading &&
+      {!loading &&
         viewMode === "table" && (
-
           <div className="reservations-table-wrapper">
 
             <DataTable
-
-              data={
-                filteredReservations
-              }
+              data={filteredReservations}
 
               columns={[
-
                 {
-                  key:
-                    "reservationNumber",
-
-                  label:
-                    "Booking ID",
-
-                  sortable:
-                    true
-
+                  key: "reservationNumber",
+                  label: "Booking ID",
+                  sortable: true
                 },
-
                 {
-                  key:
-                    "clientName",
-
-                  label:
-                    "Cliente",
-
-                  sortable:
-                    true
-
+                  key: "clientName",
+                  label: "Cliente",
+                  sortable: true
                 },
-
                 {
-                  key:
-                    "serviceTypeName",
-
-                  label:
-                    "Servicio",
-
-                  sortable:
-                    true
-
+                  key: "serviceTypeName",
+                  label: "Servicio",
+                  sortable: true
                 },
-
                 {
-                  key:
-                    "date",
-
-                  label:
-                    "Fecha",
-
-                  sortable:
-                    true
-
+                  key: "date",
+                  label: "Fecha",
+                  sortable: true
                 },
-
                 {
-                  key:
-                    "status",
-
-                  label:
-                    "Estado",
-
-                  sortable:
-                    true
-
+                  key: "status",
+                  label: "Estado",
+                  sortable: true
                 },
-
                 {
-                  key:
-                    "actions",
-
-                  label:
-                    "Acciones",
-
-                  sortable:
-                    false
-
+                  key: "actions",
+                  label: "Acciones",
+                  sortable: false
                 }
-
               ]}
 
-
-              renderRow={(r) => (
-
+              renderRow={(reservation) => (
                 <>
-
                   <td
                     onClick={() =>
-                      handleEdit(r)
-                    }
-                  >
-
-                    {
-                      r.reservationNumber
-                    }
-
-                  </td>
-
-
-                  <td
-                    onClick={() =>
-                      handleEdit(r)
-                    }
-                  >
-
-                    {
-                      r.clientName
-                    }
-
-                  </td>
-
-
-                  <td
-                    onClick={() =>
-                      handleEdit(r)
-                    }
-                  >
-
-                    {
-                      r.serviceTypeName
-                    }
-
-                  </td>
-
-
-                  <td
-                    onClick={() =>
-                      handleEdit(r)
-                    }
-                  >
-
-                    {
-                      formatDate(
-                        r.date
+                      handleEdit(
+                        reservation
                       )
                     }
-
+                  >
+                    {reservation.reservationNumber}
                   </td>
 
+                  <td
+                    onClick={() =>
+                      handleEdit(
+                        reservation
+                      )
+                    }
+                  >
+                    {reservation.clientName}
+                  </td>
+
+                  <td
+                    onClick={() =>
+                      handleEdit(
+                        reservation
+                      )
+                    }
+                  >
+                    {reservation.serviceTypeName}
+                  </td>
+
+                  <td
+                    onClick={() =>
+                      handleEdit(
+                        reservation
+                      )
+                    }
+                  >
+                    {formatDate(
+                      reservation.date
+                    )}
+                  </td>
 
                   <td>
-
                     <span
-                      className={
-                        getStatusClass(
-                          r.status
-                        )
-                      }
+                      className={getStatusClass(
+                        reservation.status
+                      )}
                     >
-
-                      {
-                        r.status
-                      }
-
+                      {reservation.status}
                     </span>
-
                   </td>
-
 
                   <td className="table-actions">
 
-                    {/* ====================================
-                        ACTIONS
-                    ==================================== */}
-
                     <button
-
                       className="btn-link"
-
                       onClick={() =>
-                        handleActions(r)
-                      }
-
-                    >
-
-                      Acciones
-
-                    </button>
-
-
-                    {/* ====================================
-                        EDIT
-                    ==================================== */}
-
-                    <button
-
-                      className="btn-link"
-
-                      onClick={() =>
-                        handleEdit(r)
-                      }
-
-                    >
-
-                      Editar
-
-                    </button>
-
-
-                    {/* ====================================
-                        DELETE
-                    ==================================== */}
-
-                    <button
-
-                      className="btn-link"
-
-                      onClick={() =>
-                        handleDelete(
-                          r.id
+                        handleActions(
+                          reservation
                         )
                       }
-
                     >
+                      Acciones
+                    </button>
 
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        handleEdit(
+                          reservation
+                        )
+                      }
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        handleDelete(
+                          reservation.id
+                        )
+                      }
+                    >
                       Eliminar
-
                     </button>
 
                   </td>
-
                 </>
-
               )}
-
 
               rowsPerPageOptions={[
                 5,
@@ -1673,92 +1151,45 @@ const TransportationList = ({
                 50
               ]}
 
-              defaultRowsPerPage={
-                10
-              }
-
+              defaultRowsPerPage={10}
             />
 
           </div>
-
-        )
-      }
+        )}
 
 
-      {/* ==================================================
-          TRANSPORTATION MODAL
-      ================================================== */}
+      {/* TRANSPORTATION MODAL */}
 
       <TransportationModal
-
-        isOpen={
-          modalOpen
-        }
-
+        isOpen={modalOpen}
         onClose={() =>
-          setModalOpen(
-            false
-          )
+          setModalOpen(false)
         }
-
-        onSave={
-          handleSave
-        }
-
-        reservation={
-          selectedReservation
-        }
-
-        mode={
-          mode
-        }
-
-        companyId={
-          companyId
-        }
-
-        user={
-          user
-        }
-
+        onSave={handleSave}
+        onConfirm={handleConfirm}
+        reservation={selectedReservation}
+        mode={mode}
+        companyId={companyId}
+        user={user}
       />
 
 
-      {/* ==================================================
-          RESERVATION ACTIONS MODAL
-      ================================================== */}
+      {/* ACTIONS MODAL */}
 
       <ReservationActionsModal
-
-        isOpen={
-          actionsModalOpen
-        }
-
+        isOpen={actionsModalOpen}
         onClose={() =>
-          setActionsModalOpen(
-            false
-          )
+          setActionsModalOpen(false)
         }
-
-        companyId={
-          companyId
-        }
-
+        companyId={companyId}
         reservation={
           selectedActionReservation
         }
-
-        user={
-          user
-        }
-
+        user={user}
       />
 
-
     </div>
-
   );
-
 };
 
 

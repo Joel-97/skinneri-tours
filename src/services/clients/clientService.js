@@ -89,7 +89,7 @@ export const createClient = async (
 
   }
 
-  if (!data.name?.trim()) {
+  if (!data?.name?.trim()) {
 
     const error = new Error("client_name_required");
     error.code = "client_name_required";
@@ -112,7 +112,43 @@ export const createClient = async (
 
   /*
   ==========================================================
-  VALIDAR DUPLICADO
+  NORMALIZE DATA
+  ==========================================================
+  */
+
+  const name = data.name.trim();
+
+  const email = data.email?.trim() || "";
+
+  const nameLower =
+
+    data.nameLower ||
+
+    name.toLowerCase();
+
+  const emailLower =
+
+    data.emailLower ||
+
+    email.toLowerCase();
+
+  const clientData = {
+
+    ...data,
+
+    name,
+
+    email,
+
+    nameLower,
+
+    emailLower
+
+  };
+
+  /*
+  ==========================================================
+  VALIDAR DUPLICADO POR NOMBRE
   ==========================================================
   */
 
@@ -126,7 +162,7 @@ export const createClient = async (
 
       "==",
 
-      data.nameLower
+      nameLower
 
     )
 
@@ -159,7 +195,7 @@ export const createClient = async (
 
     {
 
-      ...data,
+      ...clientData,
 
       createdBy: user.uid,
 
@@ -172,6 +208,182 @@ export const createClient = async (
     }
 
   );
+
+};
+
+/* =========================================================
+   BUSCAR O CREAR CLIENTE
+========================================================= */
+
+export const findOrCreateClient = async (
+
+  companyId,
+
+  data,
+
+  user
+
+) => {
+
+  if (!companyId) {
+
+    const error = new Error("company_required");
+    error.code = "company_required";
+
+    throw error;
+
+  }
+
+  if (!data?.name?.trim()) {
+
+    const error = new Error("client_name_required");
+    error.code = "client_name_required";
+
+    throw error;
+
+  }
+
+  /*
+  ==========================================================
+  NORMALIZE
+  ==========================================================
+  */
+
+  const name = data.name.trim();
+
+  const email = data.email?.trim() || "";
+
+  const emailLower =
+
+    email.toLowerCase();
+
+  /*
+  ==========================================================
+  BUSCAR CLIENTE POR EMAIL
+  ==========================================================
+  */
+
+  if (emailLower) {
+
+    const clientsRef = collection(
+
+      db,
+
+      "companies",
+
+      companyId,
+
+      "clients"
+
+    );
+
+    const emailQuery = query(
+
+      clientsRef,
+
+      where(
+
+        "emailLower",
+
+        "==",
+
+        emailLower
+
+      ),
+
+      limit(1)
+
+    );
+
+    const emailSnapshot = await getDocs(
+
+      emailQuery
+
+    );
+
+    /*
+    ----------------------------------------------------------
+    CLIENTE EXISTENTE
+    ----------------------------------------------------------
+    */
+
+    if (!emailSnapshot.empty) {
+
+      const existingDoc =
+
+        emailSnapshot.docs[0];
+
+      return {
+
+        id: existingDoc.id,
+
+        ...existingDoc.data()
+
+      };
+
+    }
+
+  }
+
+  /*
+  ==========================================================
+  CREAR CLIENTE
+  ==========================================================
+  */
+
+  const clientRef = await createClient(
+
+    companyId,
+
+    {
+
+      ...data,
+
+      name,
+
+      email,
+
+      nameLower:
+
+        data.nameLower ||
+
+        name.toLowerCase(),
+
+      emailLower
+
+    },
+
+    user
+
+  );
+
+  /*
+  ==========================================================
+  RETURN CREATED CLIENT
+  ==========================================================
+  */
+
+  return {
+
+    id: clientRef.id,
+
+    name,
+
+    email,
+
+    phone: data.phone || "",
+
+    notes: data.notes || "",
+
+    nameLower:
+
+      data.nameLower ||
+
+      name.toLowerCase(),
+
+    emailLower
+
+  };
 
 };
 
@@ -232,6 +444,10 @@ export const updateClient = async (
 
   );
 
+  const name = data.name.trim();
+
+  const email = data.email?.trim() || "";
+
   return await updateDoc(
 
     ref,
@@ -239,6 +455,22 @@ export const updateClient = async (
     {
 
       ...data,
+
+      name,
+
+      email,
+
+      nameLower:
+
+        data.nameLower ||
+
+        name.toLowerCase(),
+
+      emailLower:
+
+        data.emailLower ||
+
+        email.toLowerCase(),
 
       updatedBy: user?.uid || null,
 

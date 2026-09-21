@@ -27,7 +27,7 @@ import Clients from "./pages/Clients";
 import SettingsPage from "./pages/settings/SettingsPage";
 import DashboardPage from "./pages/analytics/DashboardPage";
 import DashboardHome from "./pages/home/DashboardHome";
-import Reports from "./pages/Reports";
+import Reports from "./pages/reports/Reports";
 import ActionHandlerPage from "./pages/platform/auth/ActionHandlerPage";
 
 function AppContent() {

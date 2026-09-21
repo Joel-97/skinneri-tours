@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  Plus
-} from "lucide-react";
+import { Plus } from "lucide-react";
 
-import {
-  useAuth
-} from "../../../../../context/AuthContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
 import {
   notifySuccess,
@@ -32,319 +28,312 @@ import BookingSourceForm from "./BookingSourceForm";
 
 import DataTable from "../../../../../components/general/dataTable";
 
-
 import "../../../../../style/settings/transportation/catalog/catalogSection.css";
 
-/* ======================================================
-   COMPONENT
-====================================================== */
+
+const STATUS_OPTIONS = [
+  {
+    value: "active",
+    label: "Activo"
+  },
+  {
+    value: "inactive",
+    label: "Inactivo"
+  }
+];
+
+
+const TABLE_COLUMNS = [
+  {
+    key: "name",
+    label: "Nombre",
+    sortable: true,
+    maxWidth: "250px"
+  },
+  {
+    key: "description",
+    label: "Descripción",
+    minWidth: "220px",
+    maxWidth: "320px",
+    className: "table-description"
+  },
+  {
+    key: "isActive",
+    label: "Estado",
+    width: "140px",
+    align: "center"
+  },
+  {
+    key: "actions",
+    label: "Acciones",
+    width: "220px",
+    align: "center"
+  }
+];
+
 
 const BookingSourcesSection = () => {
-
-  /* ======================================================
-     CONTEXT
-  ====================================================== */
-
   const { session } = useAuth();
 
   const user = session?.user;
+  const companyId = session?.company?.id;
 
-  const company = session?.company;
 
-  /* ======================================================
-     STATE
-  ====================================================== */
+  const [bookingSources, setBookingSources] =
+    useState([]);
 
-  const [bookingSources, setBookingSources] = useState([]);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [loading, setLoading] = useState(true);
-
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
   const [selectedBookingSource, setSelectedBookingSource] =
     useState(null);
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] =
+    useState(false);
 
-  /* ======================================================
-     FETCH
-  ====================================================== */
 
-  const fetchBookingSources = useCallback(async () => {
+  /* =========================================================
+     LOAD
+  ========================================================= */
 
-    if (!company?.id) return;
+  const fetchBookingSources = useCallback(
+    async () => {
+      if (!companyId) {
+        setBookingSources([]);
+        setLoading(false);
+        return;
+      }
 
-    try {
+      try {
+        setLoading(true);
 
-      setLoading(true);
+        const data =
+          await getBookingSources(
+            companyId
+          );
 
-      const data = await getBookingSources(company.id);
+        setBookingSources(data);
+      } catch (error) {
+        console.error(
+          "Error loading booking sources:",
+          error
+        );
 
-      setBookingSources(data);
+        notifyError(
+          error?.message ||
+          "No fue posible cargar los orígenes de la reserva."
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [companyId]
+  );
 
-    } catch (error) {
-
-      console.error(error);
-
-      notifyError(
-
-        error?.message ||
-
-        "No fue posible cargar los origenes de la reserva."
-
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  }, [company]);
-
-  /* ======================================================
-     EFFECTS
-  ====================================================== */
 
   useEffect(() => {
-
     fetchBookingSources();
-
   }, [fetchBookingSources]);
 
-  /* ======================================================
-     FILTERED DATA
-  ====================================================== */
 
-  const filteredBookingSources = useMemo(() => {
+  /* =========================================================
+     SEARCH
+  ========================================================= */
 
-    return bookingSources.filter(source => {
+  const filteredBookingSources =
+    useMemo(() => {
+      const term =
+        searchTerm
+          .trim()
+          .toLowerCase();
 
-      return (
+      if (!term) {
+        return bookingSources;
+      }
 
-        source.name
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
-
+      return bookingSources.filter(
+        source =>
+          source.name
+            ?.toLowerCase()
+            .includes(term) ||
+          source.description
+            ?.toLowerCase()
+            .includes(term)
       );
+    }, [
+      bookingSources,
+      searchTerm
+    ]);
 
-    });
 
-  }, [
-
-    bookingSources,
-
-    searchTerm
-
-  ]);
-
-  /* ======================================================
+  /* =========================================================
      MODAL
-  ====================================================== */
+  ========================================================= */
 
   const openCreateModal = () => {
-
     setSelectedBookingSource(null);
-
     setShowModal(true);
-
   };
 
-  const openEditModal = (bookingSource) => {
 
+  const openEditModal = (
+    bookingSource
+  ) => {
     setSelectedBookingSource(
-
       bookingSource
-
     );
 
     setShowModal(true);
-
   };
+
 
   const closeModal = () => {
-
-    setShowModal(false);
-
     setSelectedBookingSource(null);
-
+    setShowModal(false);
   };
 
-  /* ======================================================
-     SAVE
-  ====================================================== */
 
-  const handleSave = async (formData) => {
+  /* =========================================================
+     SAVE
+  ========================================================= */
+
+  const handleSave = async (
+    formData
+  ) => {
+    if (!companyId) {
+      throw new Error(
+        "No se encontró la empresa."
+      );
+    }
+
+    if (!user) {
+      throw new Error(
+        "No se encontró el usuario autenticado."
+      );
+    }
 
     try {
-
-      if (selectedBookingSource) {
-
+      if (selectedBookingSource?.id) {
         await updateBookingSource(
-
-          company.id,
-
+          companyId,
           selectedBookingSource.id,
-
           formData,
-
           user
-
         );
 
         notifySuccess(
-          "Origen de la reserva actualizado",
+          "Origen de reserva actualizado",
           "Los cambios fueron guardados correctamente."
         );
-
       } else {
-
         await createBookingSource(
-
-          company.id,
-
+          companyId,
           formData,
-
           user
-
         );
 
         notifySuccess(
-          "Origen de la reserva creado",
-          "Origen de la reserva fue creado correctamente."
+          "Origen de reserva creado",
+          "El origen de reserva fue creado correctamente."
         );
-
       }
 
       closeModal();
-
-      fetchBookingSources();
-
+      await fetchBookingSources();
     } catch (error) {
-
-      console.error(error);
-      
-      notifyError(
-        error?.message ||
-        "Ocurrió un error inesperado."
+      console.error(
+        "Error saving booking source:",
+        error
       );
 
-    }
+      notifyError(
+        error?.message ||
+        "No fue posible guardar el origen de reserva."
+      );
 
+      throw error;
+    }
   };
 
-  /* ======================================================
-     TOGGLE STATUS
-  ====================================================== */
 
-  const handleToggleStatus = async (bookingSource) => {
+  /* =========================================================
+     TOGGLE STATUS
+  ========================================================= */
+
+  const handleToggleStatus = async (
+    bookingSource
+  ) => {
+    if (!companyId) {
+      notifyError(
+        "No se encontró la empresa."
+      );
+      return;
+    }
+
+    const isActive =
+      Boolean(
+        bookingSource.isActive
+      );
 
     const action =
-      bookingSource.isActive === true
+      isActive
         ? "desactivar"
         : "activar";
 
-    const confirmed = await notifyConfirm(
-      `¿Deseas ${action} este origen de reserva?`
-    );
+    const confirmed =
+      await notifyConfirm(
+        `¿Deseas ${action} este origen de reserva?`
+      );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
-
       await toggleBookingSourceStatus(
-
-        company.id,
-
+        companyId,
         bookingSource.id,
-
-        bookingSource.isActive
-
+        isActive
       );
 
       notifySuccess(
         "Estado actualizado",
-        `El origen de la reserva fue ${action === "activar"
-          ? "activado"
-          : "desactivado"} correctamente.`
+        `El origen de la reserva fue ${
+          isActive
+            ? "desactivado"
+            : "activado"
+        } correctamente.`
       );
 
-      fetchBookingSources();
-
+      await fetchBookingSources();
     } catch (error) {
+      console.error(
+        "Error updating booking source status:",
+        error
+      );
 
-      console.error(error);
-      
       notifyError(
         error?.message ||
         "No fue posible actualizar el estado."
       );
-
     }
-
   };
 
-    /* ======================================================
-     COLUMNS
-    ============¡========================================= */
 
-    const columns = [
-
-      {
-        key: "name",
-        label: "Nombre",
-        sortable: true,
-        maxWidth: "250px"
-      },
-
-      {
-        key: "description",
-        label: "Descripción",
-
-        minWidth: "220px",
-
-        maxWidth: "320px",
-
-        className: "table-description"
-      },
-
-      {
-        key: "status",
-        label: "Estado",
-
-        width: "140px",
-
-        align: "center"
-      },
-
-      {
-        key: "actions",
-        label: "Acciones",
-
-        width: "220px",
-
-        align: "center"
-      }
-
-    ];
-
-  /* ======================================================
+  /* =========================================================
      RENDER
-  ====================================================== */
+  ========================================================= */
 
   return (
-
     <div className="catalog-container">
-
-      {/* ==================================================
-          HEADER
-      ================================================== */}
 
       <CatalogHeader
         title="Origen de reserva"
         description="Administra los diferentes orígenes desde donde llegan las reservas."
       >
-
         <CatalogToolbar>
 
           <CatalogSearch
@@ -354,203 +343,124 @@ const BookingSourcesSection = () => {
           />
 
           <button
+            type="button"
             className="btn-primary"
             onClick={openCreateModal}
           >
-
             <Plus size={18} />
-
             Agregar origen
-
           </button>
 
         </CatalogToolbar>
-
       </CatalogHeader>
 
-      {/* ==================================================
-          CONTENT
-      ================================================== */}
 
       <div className="catalog-content">
 
-        {
-
-          !loading &&
-          filteredBookingSources.length === 0 && (
-
+        {loading ? null : (
+          filteredBookingSources.length === 0 ? (
             <CatalogEmpty
               message="Todavía no hay orígenes de reserva registrados."
             />
-
-          )
-
-        }
-
-        {
-
-          filteredBookingSources.length > 0 && (
-
-            <>
-
-              <DataTable
-                columns={columns}
-                data={filteredBookingSources}
-                renderRow={(bookingSource) => (
-
-                <>
-
-                    {/* ======================================
-                        NAME
-                    ====================================== */}
-
+          ) : (
+            <DataTable
+              columns={TABLE_COLUMNS}
+              data={filteredBookingSources}
+              renderRow={
+                bookingSource => (
+                  <>
                     <td>
-
-                    <strong>
-
-                        {bookingSource.name}
-
-                    </strong>
-
+                      <strong>
+                        {bookingSource.name || "—"}
+                      </strong>
                     </td>
 
-                    {/* ======================================
-                        DESCRIPTION
-                    ====================================== */}
-
                     <td>
-
-                    <span className="catalog-description">
-
+                      <span className="catalog-description">
                         {
-
-                        bookingSource.description ||
-
-                        "-"
-
+                          bookingSource.description ||
+                          "—"
                         }
-
-                    </span>
-
+                      </span>
                     </td>
-
-                    {/* ======================================
-                        STATUS
-                    ====================================== */}
 
                     <td
-                    style={{
+                      style={{
                         textAlign: "center"
-                    }}
+                      }}
                     >
-
-                    <CatalogStatusBadge
+                      <CatalogStatusBadge
                         value={
-                        bookingSource.isActive
+                          bookingSource.isActive
                             ? "active"
                             : "inactive"
                         }
-                        options={[
-                        {
-                            value: "active",
-                            label: "Activo"
-                        },
-                        {
-                            value: "inactive",
-                            label: "Inactivo"
+                        options={
+                          STATUS_OPTIONS
                         }
-                        ]}
-                    />
-
+                      />
                     </td>
-
-                    {/* ======================================
-                        ACTIONS
-                    ====================================== */}
 
                     <td
-                    style={{
+                      style={{
                         textAlign: "center"
-                    }}
+                      }}
                     >
-
-                    <CatalogActions>
+                      <CatalogActions>
 
                         <button
-                        className="catalog-action"
-                        onClick={() =>
+                          type="button"
+                          className="catalog-action"
+                          onClick={() =>
                             openEditModal(
-                            bookingSource
+                              bookingSource
                             )
-                        }
+                          }
                         >
-
-                        Editar
-
+                          Editar
                         </button>
 
                         <button
-                        className="catalog-action"
-                        onClick={() =>
+                          type="button"
+                          className="catalog-action"
+                          onClick={() =>
                             handleToggleStatus(
-                            bookingSource
+                              bookingSource
                             )
-                        }
+                          }
                         >
-
-                        {
-
+                          {
                             bookingSource.isActive
-
-                            ? "Desactivar"
-
-                            : "Activar"
-
-                        }
-
+                              ? "Desactivar"
+                              : "Activar"
+                          }
                         </button>
 
-                    </CatalogActions>
-
+                      </CatalogActions>
                     </td>
-
-                </>
-
-                )}
-              />
-
-            </>
-
+                  </>
+                )
+              }
+            />
           )
-
-        }
+        )}
 
       </div>
 
-      {/* ==================================================
-          MODAL
-      ================================================== */}
 
-      {
-
-        showModal && (
-
-          <BookingSourceForm
-            bookingSource={
-              selectedBookingSource
-            }
-            onClose={closeModal}
-            onSave={handleSave}
-          />
-
-        )
-
-      }
+      {showModal && (
+        <BookingSourceForm
+          bookingSource={
+            selectedBookingSource
+          }
+          onClose={closeModal}
+          onSave={handleSave}
+        />
+      )}
 
     </div>
-
   );
-
 };
+
 
 export default BookingSourcesSection;

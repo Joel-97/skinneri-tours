@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
 import {
   getLocations,
   createLocations,
@@ -6,11 +12,36 @@ import {
   toggleLocationStatus
 } from "../../../../services/settings/transportation/locationsService";
 
-import { useAuth } from "../../../../context/AuthContext";
+import {
+  useAuth
+} from "../../../../context/AuthContext";
 
-import Modal from "../../../../components/general/modal";
-import Pagination from "../../../../components/general/pagination";
-import DataTable from "../../../../components/general/dataTable";
+import DataTable
+  from "../../../../components/general/dataTable";
+
+import Loading
+  from "../../../../components/general/loading";
+
+import LocationsForm
+  from "./LocationsForm";
+
+import CatalogHeader
+  from "../../components/CatalogHeader";
+
+import CatalogSearch
+  from "../../components/CatalogSearch";
+
+import CatalogToolbar
+  from "../../components/CatalogToolbar";
+
+import CatalogEmpty
+  from "../../components/CatalogEmpty";
+
+import CatalogStatusBadge
+  from "../../components/CatalogStatusBadge";
+
+import CatalogActions
+  from "../../components/CatalogActions";
 
 import {
   notifySuccess,
@@ -19,361 +50,513 @@ import {
 } from "../../../../services/notificationService";
 
 import "../../../../style/settings/transportation/locationsSection.css";
-import Loading from "../../../../components/general/loading"; 
+
+
+const LOCATION_STATUS_OPTIONS = [
+  {
+    value: "active",
+    label: "Activo"
+  },
+  {
+    value: "inactive",
+    label: "Inactivo"
+  }
+];
+
+
+const TABLE_COLUMNS = [
+  {
+    key: "code",
+    label: "Código",
+    sortable: true
+  },
+  {
+    key: "name",
+    label: "Nombre",
+    sortable: true
+  },
+  {
+    key: "isActive",
+    label: "Estado",
+    sortable: true
+  },
+  {
+    key: "actions",
+    label: "Acciones",
+    sortable: false
+  }
+];
+
+
+const compareValues = (a, b) => {
+  if (typeof a === "boolean") {
+    return Number(a) - Number(b);
+  }
+
+  return String(a ?? "")
+    .toLowerCase()
+    .localeCompare(
+      String(b ?? "").toLowerCase()
+    );
+};
+
 
 const LocationsSection = () => {
-
   const { session } = useAuth();
 
   const user = session?.user;
-
-  const companyId = session?.company?.id;
-
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-
-  const [sortConfig, setSortConfig] = useState({
-    key: "name",
-    direction: "asc"
-  });
-
-  const handleSort = (key) => {
-    setSortConfig(prev => ({
-      key,
-      direction:
-        prev.key === key && prev.direction === "asc"
-          ? "desc"
-          : "asc"
-    }));
-  };
-
-  // 🔍 SEARCH
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // 🔥 PAGINACIÓN
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const companyId =
+    session?.company?.id;
 
 
-  /* =========================
-    PROCESAMIENTO (FILTRO + ORDEN)
-  ========================== */
+  const [locations, setLocations] =
+    useState([]);
 
-  const processedLocations = useMemo(() => {
+  const [loading, setLoading] =
+    useState(true);
 
-    let result = locations;
+  const [showForm, setShowForm] =
+    useState(false);
 
-    // 🔎 FILTRO
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+  const [selectedLocation, setSelectedLocation] =
+    useState(null);
 
-      result = result.filter((loc) =>
-        loc.name?.toLowerCase().includes(term)
-      );
-    }
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
-    // 🔽 ORDEN
-    result = [...result].sort((a, b) => {
+  const [currentPage, setCurrentPage] =
+    useState(1);
 
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
+  const [rowsPerPage, setRowsPerPage] =
+    useState(10);
 
-      // boolean → número
-      if (typeof aValue === "boolean") {
-        aValue = aValue ? 1 : 0;
-        bValue = bValue ? 1 : 0;
-      }
-
-      // string → lowercase
-      if (typeof aValue === "string") {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      // null safety
-      if (aValue == null) aValue = "";
-      if (bValue == null) bValue = "";
-
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
+  const [sortConfig, setSortConfig] =
+    useState({
+      key: "name",
+      direction: "asc"
     });
 
-    return result;
 
-  }, [locations, searchTerm, sortConfig]);
+  /*
+   * LOAD
+   */
 
-  /* =========================
-    FORM
-  ========================== */
+  const fetchLocations =
+    useCallback(async () => {
+      if (!companyId) {
+        setLocations([]);
+        setLoading(false);
+        return;
+      }
 
-  const [form, setForm] = useState({
-    name: "",
-    isActive: true
-  });
+      try {
+        setLoading(true);
 
-  /* =========================
-     LOAD DATA
-  ========================== */
+        const data =
+          await getLocations(
+            companyId
+          );
 
-  const cargarLocations = async () => {
-    if (!companyId) return;
+        setLocations(
+          [...data].sort(
+            (a, b) =>
+              String(a.name || "")
+                .localeCompare(
+                  String(b.name || "")
+                )
+          )
+        );
+      } catch (error) {
+        console.error(
+          "Error loading locations:",
+          error
+        );
 
-    const data = await getLocations(companyId);
+        notifyError(
+          error?.message ||
+          "No se pudieron cargar los lugares."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, [companyId]);
 
-    // ⚠️ FIX opcional (recomendado): sort correcto para strings
-    const ordenados = data.sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-
-    setLocations(ordenados);
-    setLoading(false);
-  };
 
   useEffect(() => {
-    cargarLocations();
-  }, [companyId]);
+    fetchLocations();
+  }, [fetchLocations]);
 
-  /* =========================
-     RESET PAGINACIÓN
-  ========================== */
+
+  /*
+   * RESET PAGINATION
+   */
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [rowsPerPage, searchTerm]);
+  }, [
+    searchTerm,
+    rowsPerPage
+  ]);
 
-  /* =========================
-     RESET FORM
-  ========================== */
 
-  const resetForm = () => {
-    setForm({
-      name: "",
-      isActive: true
-    });
-    setEditingId(null);
+  /*
+   * SORT
+   */
+
+  const handleSort = useCallback(
+    key => {
+      setSortConfig(previous => ({
+        key,
+        direction:
+          previous.key === key &&
+          previous.direction === "asc"
+            ? "desc"
+            : "asc"
+      }));
+    },
+    []
+  );
+
+
+  /*
+   * FILTER + SORT
+   */
+
+  const processedLocations =
+    useMemo(() => {
+      const term =
+        searchTerm
+          .trim()
+          .toLowerCase();
+
+      const filtered = term
+        ? locations.filter(
+            location =>
+              [
+                location.code,
+                location.name
+              ].some(value =>
+                String(value || "")
+                  .toLowerCase()
+                  .includes(term)
+              )
+          )
+        : [...locations];
+
+      const {
+        key,
+        direction
+      } = sortConfig;
+
+      return filtered.sort(
+        (a, b) => {
+          const result =
+            compareValues(
+              a?.[key],
+              b?.[key]
+            );
+
+          return direction === "asc"
+            ? result
+            : -result;
+        }
+      );
+    }, [
+      locations,
+      searchTerm,
+      sortConfig
+    ]);
+
+
+  /*
+   * MODAL
+   */
+
+  const openCreateForm = () => {
+    setSelectedLocation(null);
+    setShowForm(true);
+  };
+
+
+  const openEditForm = (
+    location
+  ) => {
+    setSelectedLocation(location);
+    setShowForm(true);
+  };
+
+
+  const closeForm = () => {
+    setSelectedLocation(null);
     setShowForm(false);
   };
 
-  /* =========================
-     CREATE / UPDATE
-  ========================== */
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  /*
+   * SAVE
+   */
 
-    if (!form.name) {
-      notifyError("El nombre es obligatorio.");
+  const handleSave = async (
+    formData
+  ) => {
+    if (!companyId) {
+      throw new Error(
+        "No se encontró la empresa."
+      );
+    }
+
+    if (!user) {
+      throw new Error(
+        "No se encontró el usuario autenticado."
+      );
+    }
+
+    try {
+      if (selectedLocation?.id) {
+        await updateLocations(
+          companyId,
+          selectedLocation.id,
+          formData,
+          user
+        );
+
+        notifySuccess(
+          "Lugar actualizado",
+          "Los cambios fueron guardados correctamente."
+        );
+      } else {
+        await createLocations(
+          companyId,
+          formData,
+          user
+        );
+
+        notifySuccess(
+          "Lugar creado",
+          "El lugar fue creado correctamente."
+        );
+      }
+
+      closeForm();
+      await fetchLocations();
+    } catch (error) {
+      console.error(
+        "Error saving location:",
+        error
+      );
+
+      notifyError(
+        error?.message ||
+        "No fue posible guardar el lugar."
+      );
+
+      throw error;
+    }
+  };
+
+
+  /*
+   * TOGGLE
+   */
+
+  const handleToggle = async (
+    location
+  ) => {
+    const isActive =
+      Boolean(location.isActive);
+
+    const action =
+      isActive
+        ? "desactivar"
+        : "activar";
+
+    const confirmed =
+      await notifyConfirm(
+        `¿Deseas ${action} este lugar?`
+      );
+
+    if (!confirmed) {
       return;
     }
 
     try {
-
-      if (editingId) {
-        await updateLocations(companyId, editingId, form, user);
-        notifySuccess("Lugar actualizado", "Los cambios fueron guardados.");
-      } else {
-        await createLocations(companyId, form, user);
-        notifySuccess("Lugar creado", "El lugar fue creado correctamente.");
-      }
-
-      resetForm();
-      cargarLocations();
-
-    } catch (error) {
-      console.error(error);
-      notifyError(error.message || "Ocurrió un error inesperado.");
-    }
-  };
-
-  /* =========================
-     EDIT
-  ========================== */
-
-  const handleEdit = (location) => {
-    setForm({
-      name: location.name,
-      isActive: location.isActive
-    });
-
-    setEditingId(location.id);
-    setShowForm(true);
-  };
-
-  /* =========================
-     TOGGLE STATUS
-  ========================== */
-
-  const handleToggle = async (location) => {
-
-    const confirmed = await notifyConfirm(
-      `¿Deseas ${location.isActive ? "desactivar" : "activar"} este lugar?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-
       await toggleLocationStatus(
         companyId,
         location.id,
-        location.isActive
+        isActive
       );
 
       notifySuccess(
         "Estado actualizado",
-        `El lugar fue ${location.isActive ? "desactivado" : "activado"} correctamente.`
+        `El lugar fue ${
+          isActive
+            ? "desactivado"
+            : "activado"
+        } correctamente.`
       );
 
-      cargarLocations();
-
+      await fetchLocations();
     } catch (error) {
-      notifyError(error.message || "No se pudo actualizar.");
+      console.error(
+        "Error updating location status:",
+        error
+      );
+
+      notifyError(
+        error?.message ||
+        "No se pudo actualizar el estado."
+      );
     }
   };
 
-  /* ================= RENDER ================= */
 
-  if (loading) return <Loading />;
+  /*
+   * LOADING
+   */
+
+  if (loading) {
+    return <Loading />;
+  }
+
+
+  /*
+   * RENDER
+   */
 
   return (
     <div className="locations-container">
 
-    <div className="locations-header">
+      <CatalogHeader
+        title="Lugares"
+        description="Administra los puntos disponibles para reservas."
+      >
+        <CatalogToolbar>
 
-      {/* IZQUIERDA */}
-      <div className="locations-header-left">
-        <h3>Lugares</h3>
-        <p>Administra los puntos disponibles para reservas.</p>
-      </div>
+          <CatalogSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar lugar..."
+          />
 
-      {/* DERECHA */}
-      <div className="locations-header-right">
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={openCreateForm}
+          >
+            + Agregar lugar
+          </button>
 
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Buscar lugar..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1); // mantiene consistencia con paginación
-          }}
-        />
+        </CatalogToolbar>
+      </CatalogHeader>
 
-        <button
-          className="btn-primary"
-          onClick={() => setShowForm(true)}
-        >
-          + Agregar lugar
-        </button>
-
-      </div>
-
-    </div>
 
       {showForm && (
-        <Modal onClose={resetForm}>
-          <div className="app-modal-header">
-            <h4>{editingId ? "Editar lugar" : "Nuevo lugar"}</h4>
-            <button className="close-btn" onClick={resetForm}>✕</button>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-
-            <div className="form-group">
-              <label>Lugar</label>
-              <input
-                value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-checkbox">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={form.isActive}
-                  onChange={(e) =>
-                    setForm({ ...form, isActive: e.target.checked })
-                  }
-                />
-                Activo
-              </label>
-            </div>
-
-            <div className="form-actions">
-
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={resetForm}
-              >
-                Cancelar
-              </button>
-
-              <button className="btn-primary" type="submit">
-                {editingId ? "Actualizar" : "Crear"}
-              </button>
-
-            </div>
-
-          </form>
-        </Modal>
+        <LocationsForm
+          location={
+            selectedLocation
+          }
+          onClose={closeForm}
+          onSave={handleSave}
+        />
       )}
+
 
       <div className="locations-content">
 
-        {locations.length === 0 ? (
-          <div className="locations-empty">
-            <p>No hay lugares registrados todavía.</p>
-          </div>
+        {processedLocations.length === 0 ? (
+          <CatalogEmpty
+            message="No hay lugares registrados todavía."
+          />
         ) : (
           <DataTable
-            data={processedLocations}
-            rowsPerPage={rowsPerPage}
-            columns={[
-              { key: "name", label: "Nombre", sortable: true },
-              { key: "isActive", label: "Estado", sortable: true },
-              { key: "actions", label: "Acciones", sortable: false },
-            ]}
-            renderRow={(location) => (
-              <>
-                <td>{location.name}</td>
+            data={
+              processedLocations
+            }
+            currentPage={
+              currentPage
+            }
+            rowsPerPage={
+              rowsPerPage
+            }
+            sortConfig={
+              sortConfig
+            }
+            onSort={
+              handleSort
+            }
+            columns={
+              TABLE_COLUMNS
+            }
+            renderRow={
+              location => (
+                <React.Fragment
+                  key={location.id}
+                >
 
-                <td>
-                  <span
-                    className={
-                      location.isActive
-                        ? "badge-active"
-                        : "badge-inactive"
-                    }
-                  >
-                    {location.isActive ? "Activo" : "Inactivo"}
-                  </span>
-                </td>
+                  <td>
+                    {location.code ||
+                      "—"}
+                  </td>
 
-                <td>
-                  <button
-                    className="btn-link"
-                    onClick={() => handleEdit(location)}
-                  >
-                    Editar
-                  </button>
 
-                  <button
-                    className="btn-link"
-                    onClick={() => handleToggle(location)}
-                  >
-                    {location.isActive ? "Desactivar" : "Activar"}
-                  </button>
-                </td>
-              </>
-            )}
+                  <td>
+                    {location.name ||
+                      "—"}
+                  </td>
+
+
+                  <td>
+                    <CatalogStatusBadge
+                      value={
+                        location.isActive
+                          ? "active"
+                          : "inactive"
+                      }
+                      options={
+                        LOCATION_STATUS_OPTIONS
+                      }
+                    />
+                  </td>
+
+
+                  <td>
+                    <CatalogActions>
+
+                      <button
+                        type="button"
+                        className="catalog-action"
+                        onClick={() =>
+                          openEditForm(
+                            location
+                          )
+                        }
+                      >
+                        Editar
+                      </button>
+
+
+                      <button
+                        type="button"
+                        className="catalog-action"
+                        onClick={() =>
+                          handleToggle(
+                            location
+                          )
+                        }
+                      >
+                        {
+                          location.isActive
+                            ? "Desactivar"
+                            : "Activar"
+                        }
+                      </button>
+
+                    </CatalogActions>
+                  </td>
+
+                </React.Fragment>
+              )
+            }
           />
         )}
 
@@ -382,5 +565,6 @@ const LocationsSection = () => {
     </div>
   );
 };
+
 
 export default LocationsSection;

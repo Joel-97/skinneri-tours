@@ -10,26 +10,97 @@ import {
 
 import { db } from "../../../firebase";
 
-/* ===============================
-   GET VEHICLES
-================================= */
 
-export const getVehicles = async (companyId) => {
+/* ==========================================================
+   VEHICLES COLLECTION
+========================================================== */
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "vehicles")
+const getVehiclesCollection = (companyId) => {
+
+  return collection(
+    db,
+    "companies",
+    companyId,
+    "vehicles"
   );
-
-  return snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 
 };
 
-/* ===============================
+
+/* ==========================================================
+   VEHICLE DOCUMENT
+========================================================== */
+
+const getVehicleDocument = (
+  companyId,
+  vehicleId
+) => {
+
+  return doc(
+    db,
+    "companies",
+    companyId,
+    "vehicles",
+    vehicleId
+  );
+
+};
+
+
+/* ==========================================================
+   NORMALIZE PLATE
+========================================================== */
+
+const normalizePlate = (plate) => {
+
+  return (
+    plate
+      ?.trim()
+      .toLowerCase() || ""
+  );
+
+};
+
+
+/* ==========================================================
+   GET VEHICLES
+========================================================== */
+
+export const getVehicles = async (
+  companyId
+) => {
+
+  if (!companyId) {
+
+    return [];
+
+  }
+
+
+  const snapshot = await getDocs(
+    getVehiclesCollection(
+      companyId
+    )
+  );
+
+
+  return snapshot.docs.map(
+    (vehicleDoc) => ({
+
+      id:
+        vehicleDoc.id,
+
+      ...vehicleDoc.data()
+
+    })
+  );
+
+};
+
+
+/* ==========================================================
    CREATE VEHICLE
-================================= */
+========================================================== */
 
 export const createVehicle = async (
   companyId,
@@ -37,49 +108,130 @@ export const createVehicle = async (
   user
 ) => {
 
+  if (!companyId) {
+
+    throw new Error(
+      "El ID de la empresa es requerido."
+    );
+
+  }
+
+
+  if (!data?.plate?.trim()) {
+
+    throw new Error(
+      "La placa del vehículo es requerida."
+    );
+
+  }
+
+
+  /* --------------------------------------------------------
+     CHECK DUPLICATE PLATE
+  -------------------------------------------------------- */
+
   const snapshot = await getDocs(
-    collection(db, "companies", companyId, "vehicles")
+    getVehiclesCollection(
+      companyId
+    )
   );
 
-  const vehicles = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 
-  // 🚫 Evitar placas duplicadas
+  const normalizedPlate =
+    normalizePlate(
+      data.plate
+    );
 
-  const duplicate = vehicles.find(
-    vehicle =>
-      vehicle.plate?.trim().toLowerCase() ===
-      data.plate?.trim().toLowerCase()
-  );
+
+  const duplicate =
+    snapshot.docs.find(
+      (vehicleDoc) => {
+
+        const vehicle =
+          vehicleDoc.data();
+
+        return (
+          normalizePlate(
+            vehicle.plate
+          ) === normalizedPlate
+        );
+
+      }
+    );
+
 
   if (duplicate) {
+
     throw new Error(
       "Ya existe un vehículo con esa placa."
     );
+
   }
 
+
+  /* --------------------------------------------------------
+     STATUS
+  -------------------------------------------------------- */
+
+  const isActive =
+    data.isActive ??
+    true;
+
+
+  const status =
+    data.status ||
+    (
+      isActive
+        ? "active"
+        : "inactive"
+    );
+
+
+  /* --------------------------------------------------------
+     CREATE
+  -------------------------------------------------------- */
+
   return await addDoc(
-    collection(db, "companies", companyId, "vehicles"),
+
+    getVehiclesCollection(
+      companyId
+    ),
+
     {
+
       ...data,
 
-      isActive: data.isActive ?? true,
+      plate:
+        data.plate
+          .trim()
+          .toUpperCase(),
 
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      isActive,
 
-      createdBy: user.uid,
-      updatedBy: user.uid
+      status,
+
+      createdAt:
+        Timestamp.now(),
+
+      updatedAt:
+        Timestamp.now(),
+
+      createdBy:
+        user?.uid || null,
+
+      updatedBy:
+        user?.uid || null
+
     }
+
   );
 
 };
 
-/* ===============================
+
+/* ==========================================================
    UPDATE VEHICLE
-================================= */
+========================================================== */
 
 export const updateVehicle = async (
   companyId,
@@ -88,51 +240,156 @@ export const updateVehicle = async (
   user
 ) => {
 
+  if (!companyId) {
+
+    throw new Error(
+      "El ID de la empresa es requerido."
+    );
+
+  }
+
+
+  if (!vehicleId) {
+
+    throw new Error(
+      "El ID del vehículo es requerido."
+    );
+
+  }
+
+
+  if (!data?.plate?.trim()) {
+
+    throw new Error(
+      "La placa del vehículo es requerida."
+    );
+
+  }
+
+
+  /* --------------------------------------------------------
+     CHECK DUPLICATE PLATE
+  -------------------------------------------------------- */
+
   const snapshot = await getDocs(
-    collection(db, "companies", companyId, "vehicles")
+    getVehiclesCollection(
+      companyId
+    )
   );
 
-  const vehicles = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 
-  // 🚫 Evitar placas duplicadas
+  const normalizedPlate =
+    normalizePlate(
+      data.plate
+    );
 
-  const duplicate = vehicles.find(
-    vehicle =>
-      vehicle.plate?.trim().toLowerCase() ===
-        data.plate?.trim().toLowerCase() &&
-      vehicle.id !== vehicleId
-  );
+
+  const duplicate =
+    snapshot.docs.find(
+      (vehicleDoc) => {
+
+        if (
+          vehicleDoc.id ===
+          vehicleId
+        ) {
+
+          return false;
+
+        }
+
+
+        const vehicle =
+          vehicleDoc.data();
+
+
+        return (
+          normalizePlate(
+            vehicle.plate
+          ) === normalizedPlate
+        );
+
+      }
+    );
+
 
   if (duplicate) {
+
     throw new Error(
       "Ya existe un vehículo con esa placa."
     );
+
   }
 
+
+  /* --------------------------------------------------------
+     STATUS
+  -------------------------------------------------------- */
+
+  const isActive =
+    data.isActive ??
+    true;
+
+
+  const status =
+    data.status ||
+    (
+      isActive
+        ? "active"
+        : "inactive"
+    );
+
+
+  /* --------------------------------------------------------
+     UPDATE
+  -------------------------------------------------------- */
+
   return await updateDoc(
-    doc(
-      db,
-      "companies",
+
+    getVehicleDocument(
       companyId,
-      "vehicles",
       vehicleId
     ),
+
     {
+
       ...data,
 
-      updatedAt: Timestamp.now(),
-      updatedBy: user.uid
+      plate:
+        data.plate
+          .trim()
+          .toUpperCase(),
+
+      isActive,
+
+      status,
+
+      updatedAt:
+        Timestamp.now(),
+
+      updatedBy:
+        user?.uid || null
+
     }
+
   );
 
 };
 
-/* ===============================
-   TOGGLE STATUS
-================================= */
+
+/* ==========================================================
+   TOGGLE VEHICLE STATUS
+========================================================== */
+
+/*
+  Mantiene sincronizados:
+
+  - status
+  - isActive
+
+  Esto permite trabajar con ambos campos
+  sin generar inconsistencias entre componentes
+  existentes del sistema.
+*/
 
 export const toggleVehicleStatus = async (
   companyId,
@@ -140,39 +397,98 @@ export const toggleVehicleStatus = async (
   currentStatus
 ) => {
 
+  if (!companyId) {
+
+    throw new Error(
+      "El ID de la empresa es requerido."
+    );
+
+  }
+
+
+  if (!vehicleId) {
+
+    throw new Error(
+      "El ID del vehículo es requerido."
+    );
+
+  }
+
+
+  const currentlyActive =
+    currentStatus === "active" ||
+    currentStatus === true;
+
+
+  const newIsActive =
+    !currentlyActive;
+
+
+  const newStatus =
+    newIsActive
+      ? "active"
+      : "inactive";
+
+
   return await updateDoc(
-    doc(
-      db,
-      "companies",
+
+    getVehicleDocument(
       companyId,
-      "vehicles",
       vehicleId
     ),
+
     {
-      isActive: !currentStatus,
-      updatedAt: Timestamp.now()
+
+      isActive:
+        newIsActive,
+
+      status:
+        newStatus,
+
+      updatedAt:
+        Timestamp.now()
+
     }
+
   );
 
 };
 
-/* ===============================
+
+/* ==========================================================
    DELETE VEHICLE
-================================= */
+========================================================== */
 
 export const deleteVehicle = async (
   companyId,
   vehicleId
 ) => {
 
+  if (!companyId) {
+
+    throw new Error(
+      "El ID de la empresa es requerido."
+    );
+
+  }
+
+
+  if (!vehicleId) {
+
+    throw new Error(
+      "El ID del vehículo es requerido."
+    );
+
+  }
+
+
   return await deleteDoc(
-    doc(
-      db,
-      "companies",
+
+    getVehicleDocument(
       companyId,
-      "vehicles",
       vehicleId
     )
+
   );
 
 };

@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
 
 import Select from "react-select";
 
@@ -10,61 +13,155 @@ import {
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 
+
 /* ======================================================
    EMPTY FORM
 ====================================================== */
 
 const EMPTY_FORM = {
-
   name: "",
-
   payerType: null,
-
   phone: "",
-
   email: "",
-
   isActive: true
+};
+
+
+/* ======================================================
+   HELPERS
+====================================================== */
+
+const buildInitialForm = (payer) => {
+
+  if (!payer) {
+    return {
+      ...EMPTY_FORM
+    };
+  }
+
+  return {
+    name: payer.name || "",
+    payerType: payer.payerType || null,
+    phone: payer.phone || "",
+    email: payer.email || "",
+    isActive: payer.isActive ?? true
+  };
 
 };
+
+
+const normalizeFormData = (formData) => {
+
+  return {
+    name: formData.name.trim(),
+
+    payerType: formData.payerType
+      ? {
+          value: formData.payerType.value,
+          label: formData.payerType.label
+        }
+      : null,
+
+    phone: formData.phone.trim(),
+
+    email: formData.email
+      .trim()
+      .toLowerCase(),
+
+    isActive: formData.isActive
+  };
+
+};
+
+
+/* ======================================================
+   VALIDATION
+====================================================== */
+
+const validateForm = (formData) => {
+
+  const errors = {};
+
+  const name =
+    formData.name.trim();
+
+  const email =
+    formData.email.trim();
+
+
+  if (!formData.payerType) {
+
+    errors.payerType =
+      "Seleccione un tipo de pagador.";
+
+  }
+
+
+  if (!name) {
+
+    errors.name =
+      "El nombre es obligatorio.";
+
+  }
+
+
+  if (email) {
+
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+
+      errors.email =
+        "Ingrese un correo electrónico válido.";
+
+    }
+
+  }
+
+
+  return errors;
+
+};
+
 
 /* ======================================================
    COMPONENT
 ====================================================== */
 
 const PayerForm = ({
-
   payer = null,
-
   onClose,
-
   onSave
-
 }) => {
 
   /* ======================================================
      STATE
   ====================================================== */
 
-  const isEditing = useMemo(
-
-    () => !!payer,
-
-    [payer]
-
+  const [
+    formData,
+    setFormData
+  ] = useState(
+    () => buildInitialForm(payer)
   );
 
-  const [formData, setFormData] =
 
-    useState(EMPTY_FORM);
+  const [
+    errors,
+    setErrors
+  ] = useState({});
 
-  const [errors, setErrors] =
 
-    useState({});
+  const [
+    loading,
+    setLoading
+  ] = useState(false);
 
-  const [loading, setLoading] =
 
-    useState(false);
+  const isEditing =
+    !!payer;
+
 
   /* ======================================================
      LOAD DATA
@@ -72,171 +169,109 @@ const PayerForm = ({
 
   useEffect(() => {
 
-    if (payer) {
-
-      setFormData({
-
-        name:
-
-          payer.name || "",
-
-        payerType:
-
-          payer.payerType || null,
-
-        phone:
-
-          payer.phone || "",
-
-        email:
-
-          payer.email || "",
-
-        isActive:
-
-          payer.isActive ?? true
-
-      });
-
-    }
-
-    else {
-
-      setFormData(
-
-        EMPTY_FORM
-
-      );
-
-    }
+    setFormData(
+      buildInitialForm(payer)
+    );
 
     setErrors({});
 
   }, [payer]);
+
 
   /* ======================================================
      HANDLE CHANGE
   ====================================================== */
 
   const handleChange = (
-
     field,
-
     value
-
   ) => {
 
-    setFormData(prev => ({
+    setFormData(
+      (previous) => ({
+        ...previous,
+        [field]: value
+      })
+    );
 
-      ...prev,
-
-      [field]: value
-
-    }));
 
     if (errors[field]) {
 
-      setErrors(prev => ({
+      setErrors(
+        (previous) => {
 
-        ...prev,
+          const nextErrors = {
+            ...previous
+          };
 
-        [field]: null
+          delete nextErrors[field];
 
-      }));
+          return nextErrors;
+
+        }
+      );
 
     }
 
   };
 
-    /* ======================================================
-     VALIDATION
-  ====================================================== */
-
-  const validateForm = () => {
-
-    const newErrors = {};
-
-    if (!formData.payerType) {
-
-      newErrors.payerType =
-        "Seleccione un tipo de pagador.";
-
-    }
-
-    if (!formData.name.trim()) {
-
-      newErrors.name =
-        "El nombre es obligatorio.";
-
-    }
-
-    setErrors(newErrors);
-
-    return (
-
-      Object.keys(newErrors).length === 0
-
-    );
-
-  };
 
   /* ======================================================
      SUBMIT
   ====================================================== */
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (event) => {
 
-    e.preventDefault();
+    event.preventDefault();
 
-    if (!validateForm()) return;
+    if (loading) {
+      return;
+    }
+
+
+    const validationErrors =
+      validateForm(formData);
+
+
+    if (
+      Object.keys(validationErrors).length > 0
+    ) {
+
+      setErrors(
+        validationErrors
+      );
+
+      return;
+
+    }
+
 
     try {
 
       setLoading(true);
 
-      await onSave({
+      const normalizedData =
+        normalizeFormData(formData);
 
-        name:
 
-          formData.name
+      await onSave(
+        normalizedData
+      );
 
-            .trim(),
+    } catch (error) {
 
-        payerType: {
+      /*
+       * El Section maneja la notificación
+       * del error. Aquí únicamente dejamos
+       * que el estado de loading termine.
+       */
 
-          value:
+      console.error(
+        "Error saving payer:",
+        error
+      );
 
-            formData.payerType.value,
-
-          label:
-
-            formData.payerType.label
-
-        },
-
-        phone:
-
-          formData.phone
-
-            .trim(),
-
-        email:
-
-          formData.email
-
-            .trim()
-
-            .toLowerCase(),
-
-        isActive:
-
-          formData.isActive
-
-      });
-
-    }
-
-    finally {
+    } finally {
 
       setLoading(false);
 
@@ -244,7 +279,8 @@ const PayerForm = ({
 
   };
 
-    /* ======================================================
+
+  /* ======================================================
      RENDER
   ====================================================== */
 
@@ -269,47 +305,36 @@ const PayerForm = ({
           <div className="catalog-form-header-left">
 
             <h2>
-
               {
-
                 isEditing
-
                   ? "Editar pagador"
-
                   : "Nuevo pagador"
-
               }
-
             </h2>
 
             <p>
-
               {
-
                 isEditing
-
                   ? "Actualiza la información del pagador."
-
                   : "Completa la información para registrar un nuevo pagador."
-
               }
-
             </p>
 
           </div>
+
 
           <button
             type="button"
             className="catalog-form-close"
             onClick={onClose}
+            disabled={loading}
             aria-label="Cerrar"
           >
-
             ×
-
           </button>
 
         </div>
+
 
         {/* ==================================================
             BODY
@@ -317,13 +342,16 @@ const PayerForm = ({
 
         <div className="catalog-form-body">
 
+          {/* ==================================================
+              GENERAL INFORMATION
+          ================================================== */}
+
           <section className="catalog-form-section">
 
             <h3>
-
               Información general
-
             </h3>
+
 
             <div className="catalog-form-grid catalog-form-grid-2">
 
@@ -333,57 +361,49 @@ const PayerForm = ({
 
               <div className="catalog-form-group">
 
-                <label>
+                <label htmlFor="payer-type">
 
-                  Tipo de pagador <span>*</span>
+                  Tipo de pagador{" "}
+
+                  <span>*</span>
 
                 </label>
 
+
                 <Select
-
+                  inputId="payer-type"
                   className="catalog-select"
-
                   classNamePrefix="catalog-select"
-
                   options={PAYER_TYPES}
-
                   value={formData.payerType}
-
-                  onChange={(option)=>
-
+                  onChange={(option) =>
                     handleChange(
-
                       "payerType",
-
                       option
-
                     )
-
                   }
-
                   placeholder="Seleccione un tipo"
-
                   isClearable
-
+                  isDisabled={loading}
                   menuPosition="fixed"
-
+                  aria-invalid={
+                    !!errors.payerType
+                  }
                 />
 
-                {
 
+                {
                   errors.payerType && (
 
                     <small>
-
                       {errors.payerType}
-
                     </small>
 
                   )
-
                 }
 
               </div>
+
 
               {/* ==========================================
                   NAME
@@ -391,49 +411,45 @@ const PayerForm = ({
 
               <div className="catalog-form-group">
 
-                <label>
+                <label htmlFor="payer-name">
 
-                  Nombre <span>*</span>
+                  Nombre{" "}
+
+                  <span>*</span>
 
                 </label>
 
+
                 <input
-
+                  id="payer-name"
                   type="text"
-
                   value={formData.name}
-
                   placeholder="Nombre del pagador"
-
-                  onChange={(e)=>
-
+                  onChange={(event) =>
                     handleChange(
-
                       "name",
-
-                      e.target.value
-
+                      event.target.value
                     )
-
                   }
-
+                  disabled={loading}
+                  aria-invalid={
+                    !!errors.name
+                  }
                 />
 
-                {
 
+                {
                   errors.name && (
 
                     <small>
-
                       {errors.name}
-
                     </small>
 
                   )
-
                 }
 
               </div>
+
 
               {/* ==========================================
                   PHONE
@@ -441,35 +457,27 @@ const PayerForm = ({
 
               <div className="catalog-form-group">
 
-                <label>
-
+                <label htmlFor="payer-phone">
                   Teléfono
-
                 </label>
 
+
                 <input
-
-                  type="text"
-
+                  id="payer-phone"
+                  type="tel"
                   value={formData.phone}
-
                   placeholder="Ej. +506 8888-8888"
-
-                  onChange={(e)=>
-
+                  onChange={(event) =>
                     handleChange(
-
                       "phone",
-
-                      e.target.value
-
+                      event.target.value
                     )
-
                   }
-
+                  disabled={loading}
                 />
 
               </div>
+
 
               {/* ==========================================
                   EMAIL
@@ -477,39 +485,45 @@ const PayerForm = ({
 
               <div className="catalog-form-group">
 
-                <label>
-
+                <label htmlFor="payer-email">
                   Email
-
                 </label>
 
+
                 <input
-
+                  id="payer-email"
                   type="email"
-
                   value={formData.email}
-
                   placeholder="correo@empresa.com"
-
-                  onChange={(e)=>
-
+                  onChange={(event) =>
                     handleChange(
-
                       "email",
-
-                      e.target.value
-
+                      event.target.value
                     )
-
                   }
-
+                  disabled={loading}
+                  aria-invalid={
+                    !!errors.email
+                  }
                 />
+
+
+                {
+                  errors.email && (
+
+                    <small>
+                      {errors.email}
+                    </small>
+
+                  )
+                }
 
               </div>
 
             </div>
 
           </section>
+
 
           {/* ==================================================
               STATUS
@@ -518,33 +532,25 @@ const PayerForm = ({
           <section className="catalog-form-section">
 
             <h3>
-
               Estado
-
             </h3>
+
 
             <div className="catalog-form-checkbox">
 
-              <label>
+              <label htmlFor="payer-active">
 
                 <input
-
+                  id="payer-active"
                   type="checkbox"
-
                   checked={formData.isActive}
-
-                  onChange={(e)=>
-
+                  onChange={(event) =>
                     handleChange(
-
                       "isActive",
-
-                      e.target.checked
-
+                      event.target.checked
                     )
-
                   }
-
+                  disabled={loading}
                 />
 
                 Activo
@@ -556,6 +562,7 @@ const PayerForm = ({
           </section>
 
         </div>
+
 
         {/* ==================================================
             FOOTER
@@ -571,10 +578,9 @@ const PayerForm = ({
               onClick={onClose}
               disabled={loading}
             >
-
               Cancelar
-
             </button>
+
 
             <button
               type="submit"
@@ -583,17 +589,11 @@ const PayerForm = ({
             >
 
               {
-
                 loading
-
                   ? "Guardando..."
-
                   : isEditing
-
                     ? "Guardar cambios"
-
                     : "Guardar"
-
               }
 
             </button>
@@ -609,5 +609,6 @@ const PayerForm = ({
   );
 
 };
+
 
 export default PayerForm;

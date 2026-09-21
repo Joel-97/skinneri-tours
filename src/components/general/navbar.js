@@ -288,7 +288,7 @@ const AvatarDropdown = ({
             ANALYTICS
         ================================================== */}
 
-        <Dropdown.Item
+        {/* <Dropdown.Item
 
           onClick={() =>
 
@@ -310,7 +310,7 @@ const AvatarDropdown = ({
 
           Analíticas
 
-        </Dropdown.Item>
+        </Dropdown.Item> */}
 
         {/* ==================================================
             SETTINGS

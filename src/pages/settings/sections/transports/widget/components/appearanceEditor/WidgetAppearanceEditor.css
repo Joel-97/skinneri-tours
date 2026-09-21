@@ -1,0 +1,500 @@
+/* ======================================================
+   HEADER
+====================================================== */
+
+.widget-appearance-editor__header {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding-bottom: 22px;
+
+  margin-bottom: 5px;
+
+  border-bottom: 1px solid #ECEFF3;
+
+}
+
+
+.widget-appearance-editor__header svg {
+
+  flex-shrink: 0;
+
+  margin-top: 2px;
+
+  color: #08204B;
+
+}
+
+
+.widget-appearance-editor__header h4 {
+
+  margin: 0;
+
+  color: #08204B;
+
+  font-size: 1.05rem;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+
+}
+
+
+.widget-appearance-editor__header p {
+
+  margin: 5px 0 0;
+
+  color: #6B7280;
+
+  font-size: .88rem;
+
+  line-height: 1.5;
+
+}
+
+/* ======================================================
+   WIDGET APPEARANCE EDITOR
+====================================================== */
+
+.widget-appearance-editor {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+}
+
+
+/* ======================================================
+   FORM GROUP
+====================================================== */
+
+.widget-appearance-editor__group {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding: 17px 0;
+
+  border-bottom: 1px solid #F0F2F5;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__group:last-child {
+
+  border-bottom: none;
+
+}
+
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+.widget-appearance-editor__label {
+
+  margin: 0;
+
+  color: #374151;
+
+  font-size: .9rem;
+
+  font-weight: 600;
+
+  line-height: 1.4;
+
+}
+
+
+/* ======================================================
+   HELP TEXT
+====================================================== */
+
+.widget-appearance-editor__help {
+
+  margin: 0;
+
+  color: #6B7280;
+
+  font-size: .78rem;
+
+  line-height: 1.5;
+
+}
+
+
+/* ======================================================
+   COMPANY BRAND
+====================================================== */
+
+.widget-appearance-editor__company {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 8px;
+
+  background: #F9FAFB;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__company-logo {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 72px;
+
+  height: 48px;
+
+  flex-shrink: 0;
+
+}
+
+
+.widget-appearance-editor__company-logo img {
+
+  display: block;
+
+  width: auto;
+
+  height: auto;
+
+  max-width: 72px;
+
+  max-height: 48px;
+
+  object-fit: contain;
+
+}
+
+
+.widget-appearance-editor__company-placeholder {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 72px;
+
+  height: 48px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 6px;
+
+  background: #FFFFFF;
+
+  color: #6B7280;
+
+  font-size: 11px;
+
+  text-align: center;
+
+}
+
+
+.widget-appearance-editor__company-info {
+
+  min-width: 0;
+
+}
+
+
+.widget-appearance-editor__company-name {
+
+  display: block;
+
+  margin: 0 0 4px;
+
+  color: #08204B;
+
+  font-size: .9rem;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+
+}
+
+
+.widget-appearance-editor__company-description {
+
+  display: block;
+
+  margin: 0;
+
+  color: #6B7280;
+
+  font-size: .75rem;
+
+  line-height: 1.5;
+
+}
+
+
+/* ======================================================
+   COLOR CONTROL
+====================================================== */
+
+.widget-appearance-editor__color {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__color-picker {
+
+  width: 44px;
+
+  height: 40px;
+
+  flex: 0 0 44px;
+
+  padding: 3px;
+
+  border: 1px solid #D8DEE8;
+
+  border-radius: 8px;
+
+  background: #FFFFFF;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__color-picker:disabled {
+
+  cursor: default;
+
+  opacity: .7;
+
+}
+
+
+.widget-appearance-editor__color-input {
+
+  width: 100%;
+
+  min-width: 0;
+
+  flex: 1;
+
+  padding: 10px 12px;
+
+  border: 1px solid #D8DEE8;
+
+  border-radius: 8px;
+
+  background: #FFFFFF;
+
+  color: #374151;
+
+  font-family: monospace;
+
+  font-size: .9rem;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__color-input:focus {
+
+  outline: none;
+
+  border-color: #08204B;
+
+  box-shadow:
+    0 0 0 3px rgba(8, 32, 75, .08);
+
+}
+
+
+.widget-appearance-editor__color-input:disabled {
+
+  background: #F3F4F6;
+
+  color: #6B7280;
+
+  cursor: default;
+
+}
+
+
+/* ======================================================
+   SELECT
+====================================================== */
+
+.widget-appearance-editor__select {
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #D8DEE8;
+
+  border-radius: 8px;
+
+  background: #FFFFFF;
+
+  color: #374151;
+
+  font-size: .9rem;
+
+  line-height: 1.4;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+}
+
+
+.widget-appearance-editor__select:focus {
+
+  outline: none;
+
+  border-color: #08204B;
+
+  box-shadow:
+    0 0 0 3px rgba(8, 32, 75, .08);
+
+}
+
+
+/* ======================================================
+   RANGE
+====================================================== */
+
+.widget-appearance-editor__range {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  width: 100%;
+
+}
+
+
+.widget-appearance-editor__range input {
+
+  flex: 1;
+
+  min-width: 0;
+
+  cursor: pointer;
+
+}
+
+
+.widget-appearance-editor__range-value {
+
+  min-width: 48px;
+
+  color: #08204B;
+
+  font-size: .85rem;
+
+  font-weight: 600;
+
+  text-align: right;
+
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 600px) {
+
+  .widget-appearance-editor__company {
+
+    align-items: flex-start;
+
+  }
+
+
+  .widget-appearance-editor__color {
+
+    gap: 8px;
+
+  }
+
+}
+
+
+@media (max-width: 400px) {
+
+  .widget-appearance-editor__company {
+
+    flex-direction: column;
+
+  }
+
+
+  .widget-appearance-editor__company-logo,
+  .widget-appearance-editor__company-placeholder {
+
+    width: 64px;
+
+    height: 44px;
+
+  }
+
+
+  .widget-appearance-editor__company-logo img {
+
+    max-width: 64px;
+
+    max-height: 44px;
+
+  }
+
+}

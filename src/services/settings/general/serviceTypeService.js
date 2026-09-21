@@ -6,187 +6,437 @@ import {
   doc,
   Timestamp
 } from "firebase/firestore";
+
 import { db } from "../../../firebase";
 
-/* ===============================
-   CONSTANTES (ESCALABLE)
-================================= */
 
-export const SERVICE_CATEGORIES = {
-  TRANSPORTATION: "transportation",
-  ADVENTURE: "adventure"
-};
+export const SERVICE_CATEGORY = "transportation";
 
-/* ===============================
-   GET SERVICE TYPES
-================================= */
+const SERVICE_CODE_MIN_LENGTH = 3;
+const SERVICE_CODE_MAX_LENGTH = 50;
 
-export const getServiceTypes = async (companyId, category = null) => {
-  if (!companyId) throw new Error("Empresa requerida.");
+const SERVICE_TYPES_COLLECTION = "serviceTypes";
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "serviceTypes")
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const getServiceTypesCollection = (companyId) =>
+  collection(
+    db,
+    "companies",
+    companyId,
+    SERVICE_TYPES_COLLECTION
   );
 
-  let data = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 
-  // 🔥 Filtrar por categoría (adventure / transportation)
-  if (category) {
-    data = data.filter(t => t.category === category);
+const getUserId = (user) =>
+  user?.uid || user?.id || null;
+
+
+const normalizeServiceCode = (code = "") =>
+  typeof code === "string"
+    ? code
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    : "";
+
+
+const validateServiceCode = (code) => {
+  const normalizedCode =
+    normalizeServiceCode(code);
+
+  if (!normalizedCode) {
+    throw new Error(
+      "El código del servicio es obligatorio."
+    );
   }
 
-  return data;
+  if (
+    normalizedCode.length <
+    SERVICE_CODE_MIN_LENGTH
+  ) {
+    throw new Error(
+      `El código del servicio debe tener al menos ${SERVICE_CODE_MIN_LENGTH} caracteres.`
+    );
+  }
+
+  if (
+    normalizedCode.length >
+    SERVICE_CODE_MAX_LENGTH
+  ) {
+    throw new Error(
+      `El código del servicio no puede superar los ${SERVICE_CODE_MAX_LENGTH} caracteres.`
+    );
+  }
+
+  if (
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+      normalizedCode
+    )
+  ) {
+    throw new Error(
+      "El código del servicio solo puede contener letras minúsculas, números y guiones."
+    );
+  }
+
+  return normalizedCode;
 };
 
-/* ===============================
-   VALIDACIONES BASE
-================================= */
+
+/* =========================================================
+   VALIDATION
+========================================================= */
 
 const validateServiceType = (data) => {
-  if (!data.name?.trim()) throw new Error("El nombre es obligatorio.");
-  if (!data.color) throw new Error("Debe seleccionar un color.");
-  if (!data.currency) throw new Error("Debe seleccionar una moneda.");
-  if (!data.category) throw new Error("La categoría es obligatoria.");
+  if (!data.name?.trim()) {
+    throw new Error(
+      "El nombre es obligatorio."
+    );
+  }
 
-  // 🔥 Validar categoría permitida
+  if (!data.color) {
+    throw new Error(
+      "Debe seleccionar un color."
+    );
+  }
+
+  if (!data.currency) {
+    throw new Error(
+      "Debe seleccionar una moneda."
+    );
+  }
+
   if (
-    data.category !== SERVICE_CATEGORIES.TRANSPORTATION &&
-    data.category !== SERVICE_CATEGORIES.ADVENTURE
+    data.category !== SERVICE_CATEGORY
   ) {
-    throw new Error("Categoría inválida.");
+    throw new Error(
+      "El tipo de servicio debe pertenecer a la categoría de transporte."
+    );
   }
 };
 
-/* ===============================
-   NORMALIZAR PRECIO
-================================= */
+
+/* =========================================================
+   NORMALIZATION
+========================================================= */
 
 const normalizePricing = (data) => {
-  let basePrice = data.basePrice ?? null;
-  let currency = data.currency ?? null;
-  let symbol = data.symbol ?? null;
+  let basePrice =
+    data.basePrice ?? null;
+
+  const currency =
+    data.currency ?? null;
+
+  const symbol =
+    data.symbol ?? null;
 
   if (data.pricingMode === "fixed") {
-    if (!basePrice || Number(basePrice) <= 0) {
-      throw new Error("El precio base debe ser mayor a 0.");
+    if (
+      basePrice === null ||
+      basePrice === "" ||
+      Number(basePrice) <= 0
+    ) {
+      throw new Error(
+        "El precio base debe ser mayor a 0."
+      );
     }
+
     basePrice = Number(basePrice);
   } else {
     basePrice = null;
   }
 
-  return { basePrice, currency, symbol };
+  return {
+    basePrice,
+    currency,
+    symbol
+  };
 };
 
-/* ===============================
-   STAFF PAYMENT (COMISIONES)
-================================= */
 
 const normalizeStaffPayment = (data) => {
-  const staffPayment =
-    data.staffPayment?.enabled
-      ? {
-          enabled: true,
-          type: data.staffPayment.type || "fixed",
-          value:
-            data.staffPayment.value === "" ||
-            data.staffPayment.value === undefined
-              ? null
-              : Number(data.staffPayment.value)
-        }
-      : null;
-
-  if (staffPayment) {
-    if (staffPayment.value !== null && staffPayment.value < 0) {
-      throw new Error("El pago al staff no puede ser negativo.");
-    }
-
-    if (
-      staffPayment.type === "percentage" &&
-      staffPayment.value !== null &&
-      staffPayment.value > 100
-    ) {
-      throw new Error("La comisión no puede ser mayor a 100%.");
-    }
+  if (!data.staffPayment?.enabled) {
+    return null;
   }
 
-  return staffPayment;
+  const value =
+    data.staffPayment.value === "" ||
+    data.staffPayment.value === undefined ||
+    data.staffPayment.value === null
+      ? null
+      : Number(data.staffPayment.value);
+
+  const type =
+    data.staffPayment.type || "fixed";
+
+  if (
+    value !== null &&
+    value < 0
+  ) {
+    throw new Error(
+      "El pago al staff no puede ser negativo."
+    );
+  }
+
+  if (
+    type === "percentage" &&
+    value !== null &&
+    value > 100
+  ) {
+    throw new Error(
+      "La comisión no puede ser mayor a 100%."
+    );
+  }
+
+  return {
+    enabled: true,
+    type,
+    value
+  };
 };
 
-/* ===============================
-   CREATE SERVICE TYPE
-================================= */
+
+const normalizeServiceData = (data) => {
+  const serviceData = {
+    ...data,
+    category: SERVICE_CATEGORY
+  };
+
+  validateServiceType(serviceData);
+
+  const code = validateServiceCode(
+    serviceData.code
+  );
+
+  const pricing =
+    normalizePricing(serviceData);
+
+  const staffPayment =
+    normalizeStaffPayment(serviceData);
+
+  return {
+    code,
+
+    name:
+      serviceData.name.trim(),
+
+    category:
+      SERVICE_CATEGORY,
+
+    pricingMode:
+      serviceData.pricingMode,
+
+    pricingType:
+      serviceData.pricingType ||
+      "per_booking",
+
+    basePrice:
+      pricing.basePrice,
+
+    currency:
+      pricing.currency,
+
+    symbol:
+      pricing.symbol,
+
+    durationMinutes:
+      serviceData.durationMinutes ?? null,
+
+    color:
+      serviceData.color,
+
+    staffPayment,
+
+    isActive:
+      serviceData.isActive ?? true
+  };
+};
+
+
+/* =========================================================
+   USER VALIDATION
+========================================================= */
+
+const requireUserId = (user) => {
+  const userId = getUserId(user);
+
+  if (!userId) {
+    throw new Error(
+      "Usuario no autenticado."
+    );
+  }
+
+  return userId;
+};
+
+
+/* =========================================================
+   GET SERVICE TYPES
+========================================================= */
+
+export const getServiceTypes = async (
+  companyId
+) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
+
+  const snapshot = await getDocs(
+    getServiceTypesCollection(companyId)
+  );
+
+  return snapshot.docs
+    .map((document) => ({
+      id: document.id,
+      ...document.data()
+    }))
+    .filter(
+      service =>
+        service.category ===
+        SERVICE_CATEGORY
+    );
+};
+
+
+/* =========================================================
+   DUPLICATE CHECKS
+========================================================= */
+
+const findDuplicateName = (
+  types,
+  name,
+  serviceTypeId = null
+) => {
+  const normalizedName =
+    name.trim().toLowerCase();
+
+  return types.find(
+    service =>
+      service.id !== serviceTypeId &&
+      service.category ===
+        SERVICE_CATEGORY &&
+      service.name?.trim().toLowerCase() ===
+        normalizedName
+  );
+};
+
+
+const findDuplicateCode = (
+  types,
+  code,
+  serviceTypeId = null
+) => {
+  return types.find(
+    service =>
+      service.id !== serviceTypeId &&
+      service.category ===
+        SERVICE_CATEGORY &&
+      service.code === code
+  );
+};
+
+
+const validateDuplicates = (
+  types,
+  serviceData,
+  serviceTypeId = null
+) => {
+  if (
+    findDuplicateName(
+      types,
+      serviceData.name,
+      serviceTypeId
+    )
+  ) {
+    throw new Error(
+      "Ya existe un tipo de servicio con ese nombre."
+    );
+  }
+
+  if (
+    findDuplicateCode(
+      types,
+      serviceData.code,
+      serviceTypeId
+    )
+  ) {
+    throw new Error(
+      "Ya existe un tipo de servicio con ese código."
+    );
+  }
+};
+
+
+/* =========================================================
+   CREATE
+========================================================= */
 
 export const createServiceType = async (
   companyId,
   data,
   user
 ) => {
-
-  if (!companyId) throw new Error("Empresa requerida.");
-  if (!user) throw new Error("Usuario no autenticado.");
-
-  validateServiceType(data);
-
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "serviceTypes")
-  );
-
-  const types = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  // 🚫 Evitar duplicados
-  const duplicate = types.find(
-    t =>
-      t.name.toLowerCase() === data.name.trim().toLowerCase() &&
-      t.category === data.category
-  );
-
-  if (duplicate) {
-    throw new Error("Ya existe un tipo de servicio con ese nombre.");
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
   }
 
-  const { basePrice, currency, symbol } = normalizePricing(data);
-  const staffPayment = normalizeStaffPayment(data);
+  const userId =
+    requireUserId(user);
 
-  return await addDoc(
-    collection(db, "companies", companyId, "serviceTypes"),
+  const serviceData =
+    normalizeServiceData(data);
+
+  const snapshot = await getDocs(
+    getServiceTypesCollection(companyId)
+  );
+
+  const types = snapshot.docs.map(
+    document => ({
+      id: document.id,
+      ...document.data()
+    })
+  );
+
+  validateDuplicates(
+    types,
+    serviceData
+  );
+
+  const timestamp =
+    Timestamp.now();
+
+  return addDoc(
+    getServiceTypesCollection(companyId),
     {
-      name: data.name.trim(),
-      category: data.category,
+      ...serviceData,
 
-      pricingMode: data.pricingMode,
+      createdAt:
+        timestamp,
 
-      // 🔥 NUEVO (CLAVE)
-      pricingType: data.pricingType || "per_booking",
+      updatedAt:
+        timestamp,
 
-      basePrice,
-      currency,
-      symbol,
+      createdBy:
+        userId,
 
-      durationMinutes: data.durationMinutes ?? null,
-      color: data.color,
-
-      staffPayment,
-
-      isActive: data.isActive ?? true,
-
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      createdBy: user.uid,
-      updatedBy: user.uid
+      updatedBy:
+        userId
     }
   );
 };
 
-/* ===============================
-   UPDATE SERVICE TYPE
-================================= */
+
+/* =========================================================
+   UPDATE
+========================================================= */
 
 export const updateServiceType = async (
   companyId,
@@ -194,113 +444,196 @@ export const updateServiceType = async (
   data,
   user
 ) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
 
-  if (!companyId) throw new Error("Empresa requerida.");
-  if (!serviceTypeId) throw new Error("ID requerido.");
-  if (!user) throw new Error("Usuario no autenticado.");
+  if (!serviceTypeId) {
+    throw new Error(
+      "ID requerido."
+    );
+  }
 
-  validateServiceType(data);
+  const userId =
+    requireUserId(user);
+
+  const serviceData =
+    normalizeServiceData(data);
 
   const snapshot = await getDocs(
-    collection(db, "companies", companyId, "serviceTypes")
+    getServiceTypesCollection(companyId)
   );
 
-  const types = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  // 🚫 duplicados
-  const duplicate = types.find(
-    t =>
-      t.name.toLowerCase() === data.name.trim().toLowerCase() &&
-      t.category === data.category &&
-      t.id !== serviceTypeId
+  const types = snapshot.docs.map(
+    document => ({
+      id: document.id,
+      ...document.data()
+    })
   );
 
-  if (duplicate) {
-    throw new Error("Ya existe un tipo de servicio con ese nombre.");
-  }
-
-  // 🚫 mínimo 1 activo
-  if (data.isActive === false) {
-    const activeTypes = types.filter(
-      t => t.isActive && t.category === data.category
+  const currentService =
+    types.find(
+      service =>
+        service.id === serviceTypeId
     );
 
-    if (activeTypes.length === 1) {
-      throw new Error(
-        "Debe existir al menos un tipo activo en esta categoría."
-      );
-    }
+  if (!currentService) {
+    throw new Error(
+      "Tipo de servicio no encontrado."
+    );
   }
 
-  const { basePrice, currency, symbol } = normalizePricing(data);
-  const staffPayment = normalizeStaffPayment(data);
+  if (
+    currentService.category !==
+    SERVICE_CATEGORY
+  ) {
+    throw new Error(
+      "El tipo de servicio no pertenece a transporte."
+    );
+  }
 
-  return await updateDoc(
-    doc(db, "companies", companyId, "serviceTypes", serviceTypeId),
+  validateDuplicates(
+    types,
+    serviceData,
+    serviceTypeId
+  );
+
+  validateMinimumActiveServices(
+    types,
+    serviceData.isActive,
+    serviceTypeId
+  );
+
+  return updateDoc(
+    doc(
+      db,
+      "companies",
+      companyId,
+      SERVICE_TYPES_COLLECTION,
+      serviceTypeId
+    ),
     {
-      name: data.name.trim(),
-      category: data.category,
+      ...serviceData,
 
-      pricingMode: data.pricingMode,
+      updatedAt:
+        Timestamp.now(),
 
-      // 🔥 NUEVO (CLAVE)
-      pricingType: data.pricingType || "per_booking",
-
-      basePrice,
-      currency,
-      symbol,
-
-      durationMinutes: data.durationMinutes ?? null,
-      color: data.color,
-
-      staffPayment,
-
-      isActive: data.isActive,
-
-      updatedAt: Timestamp.now(),
-      updatedBy: user.uid
+      updatedBy:
+        userId
     }
   );
 };
 
-/* ===============================
+
+/* =========================================================
+   ACTIVE SERVICE VALIDATION
+========================================================= */
+
+const validateMinimumActiveServices = (
+  types,
+  isActive,
+  serviceTypeId
+) => {
+  if (isActive !== false) {
+    return;
+  }
+
+  const activeServices =
+    types.filter(
+      service =>
+        service.isActive &&
+        service.category ===
+          SERVICE_CATEGORY
+    );
+
+  const isLastActiveService =
+    activeServices.length === 1 &&
+    activeServices[0].id ===
+      serviceTypeId;
+
+  if (isLastActiveService) {
+    throw new Error(
+      "Debe existir al menos un servicio de transporte activo."
+    );
+  }
+};
+
+
+/* =========================================================
    TOGGLE STATUS
-================================= */
+========================================================= */
 
 export const toggleServiceTypeStatus = async (
   companyId,
   serviceTypeId,
-  currentStatus,
-  category
+  currentStatus
 ) => {
-
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "serviceTypes")
-  );
-
-  const types = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  const activeTypes = types.filter(
-    t => t.isActive && t.category === category
-  );
-
-  if (currentStatus && activeTypes.length === 1) {
+  if (!companyId) {
     throw new Error(
-      "Debe existir al menos un tipo activo en esta categoría."
+      "Empresa requerida."
     );
   }
 
-  return await updateDoc(
-    doc(db, "companies", companyId, "serviceTypes", serviceTypeId),
+  if (!serviceTypeId) {
+    throw new Error(
+      "ID requerido."
+    );
+  }
+
+  const snapshot = await getDocs(
+    getServiceTypesCollection(companyId)
+  );
+
+  const types = snapshot.docs.map(
+    document => ({
+      id: document.id,
+      ...document.data()
+    })
+  );
+
+  const currentService =
+    types.find(
+      service =>
+        service.id === serviceTypeId
+    );
+
+  if (!currentService) {
+    throw new Error(
+      "Tipo de servicio no encontrado."
+    );
+  }
+
+  if (
+    currentService.category !==
+    SERVICE_CATEGORY
+  ) {
+    throw new Error(
+      "El tipo de servicio no pertenece a transporte."
+    );
+  }
+
+  validateMinimumActiveServices(
+    types,
+    !currentStatus,
+    serviceTypeId
+  );
+
+  return updateDoc(
+    doc(
+      db,
+      "companies",
+      companyId,
+      SERVICE_TYPES_COLLECTION,
+      serviceTypeId
+    ),
     {
-      isActive: !currentStatus,
-      updatedAt: Timestamp.now()
+      isActive:
+        !currentStatus,
+
+      updatedAt:
+        Timestamp.now()
     }
   );
 };

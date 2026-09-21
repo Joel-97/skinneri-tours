@@ -11,342 +11,464 @@ import {
 
 import { db } from "../../../firebase";
 
-/* ==========================================
-   GET DRIVERS
-========================================== */
 
-export const getDrivers = async (companyId) => {
+const DRIVERS_COLLECTION = "drivers";
+
+
+/* =========================================================
+   COLLECTION
+========================================================= */
+
+const getDriversCollection = (companyId) =>
+  collection(
+    db,
+    "companies",
+    companyId,
+    DRIVERS_COLLECTION
+  );
+
+
+const getDriverDocument = (
+  companyId,
+  driverId
+) =>
+  doc(
+    db,
+    "companies",
+    companyId,
+    DRIVERS_COLLECTION,
+    driverId
+  );
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const normalizeVehicleId = (
+  vehicleId
+) => {
+  if (
+    vehicleId === null ||
+    vehicleId === undefined ||
+    vehicleId === ""
+  ) {
+    return "";
+  }
+
+  if (
+    typeof vehicleId === "object"
+  ) {
+    return String(
+      vehicleId.value ??
+      vehicleId.id ??
+      ""
+    ).trim();
+  }
+
+  return String(
+    vehicleId
+  ).trim();
+};
+
+
+const normalizeEmail = (
+  email
+) =>
+  email?.trim().toLowerCase() || "";
+
+
+const getUserId = (
+  user
+) =>
+  user?.uid ||
+  user?.id ||
+  null;
+
+
+const mapSnapshot = (
+  snapshot
+) =>
+  snapshot.docs.map(
+    driverDoc => ({
+      id: driverDoc.id,
+      ...driverDoc.data()
+    })
+  );
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+const validateCompanyId = (
+  companyId
+) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
+};
+
+
+const validateUser = (
+  user
+) => {
+  if (!user) {
+    throw new Error(
+      "Usuario no autenticado."
+    );
+  }
+
+  return getUserId(user);
+};
+
+
+const validateDriverData = (
+  data
+) => {
+  if (!data?.name?.trim()) {
+    throw new Error(
+      "El nombre del conductor es obligatorio."
+    );
+  }
+
+  return {
+    name: data.name.trim(),
+
+    phone:
+      data.phone?.trim() || "",
+
+    email:
+      normalizeEmail(
+        data.email
+      ),
+
+    licenses:
+      Array.isArray(data.licenses)
+        ? data.licenses
+        : [],
+
+    driverType:
+      data.driverType || "",
+
+    vehicleId:
+      normalizeVehicleId(
+        data.vehicleId
+      ),
+
+    isAvailable:
+      data.isAvailable ?? true,
+
+    isActive:
+      data.isActive ?? true
+  };
+};
+
+
+/* =========================================================
+   EMAIL VALIDATION
+========================================================= */
+
+const validateDuplicateEmail = async (
+  companyId,
+  email,
+  driverId = null
+) => {
+  if (!email) {
+    return;
+  }
 
   const snapshot = await getDocs(
-
-    collection(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "drivers"
-
+    query(
+      getDriversCollection(
+        companyId
+      ),
+      where(
+        "email",
+        "==",
+        email
+      )
     )
-
   );
 
-  return snapshot.docs.map(doc => ({
+  const duplicate =
+    snapshot.docs.find(
+      driverDoc =>
+        driverDoc.id !== driverId
+    );
 
-    id: doc.id,
-
-    ...doc.data()
-
-  }));
-
+  if (duplicate) {
+    throw new Error(
+      "Ya existe un conductor con ese correo electrónico."
+    );
+  }
 };
 
-/* ==========================================
+
+/* =========================================================
+   VEHICLE ASSIGNMENT VALIDATION
+========================================================= */
+
+const validateVehicleAssignment = async (
+  companyId,
+  vehicleId,
+  driverId = null
+) => {
+  /*
+   * No vehicle means there is nothing
+   * to validate.
+   */
+  if (!vehicleId) {
+    return;
+  }
+
+  const snapshot = await getDocs(
+    query(
+      getDriversCollection(
+        companyId
+      ),
+      where(
+        "vehicleId",
+        "==",
+        vehicleId
+      )
+    )
+  );
+
+  /*
+   * When editing a driver, ignore
+   * the driver's own document.
+   */
+  const assignedDriver =
+    snapshot.docs.find(
+      driverDoc =>
+        driverDoc.id !== driverId
+    );
+
+  if (assignedDriver) {
+    const driverData =
+      assignedDriver.data();
+
+    const driverName =
+      driverData.name?.trim();
+
+    throw new Error(
+      driverName
+        ? `El vehículo ya está asignado al conductor ${driverName}.`
+        : "El vehículo ya está asignado a otro conductor."
+    );
+  }
+};
+
+
+/* =========================================================
+   GET DRIVERS
+========================================================= */
+
+export const getDrivers = async (
+  companyId
+) => {
+  validateCompanyId(
+    companyId
+  );
+
+  const snapshot = await getDocs(
+    getDriversCollection(
+      companyId
+    )
+  );
+
+  return mapSnapshot(
+    snapshot
+  );
+};
+
+
+/* =========================================================
    CREATE DRIVER
-========================================== */
+========================================================= */
 
 export const createDriver = async (
-
   companyId,
-
   data,
-
   user
-
 ) => {
+  validateCompanyId(
+    companyId
+  );
 
-  /* ----------------------------------------
-     DUPLICATE EMAIL
-  ---------------------------------------- */
+  const userId =
+    validateUser(user);
 
-  if (data.email?.trim()) {
+  const driverData =
+    validateDriverData(data);
 
-    const snapshot = await getDocs(
+  /*
+   * Validate email before creating.
+   */
+  await validateDuplicateEmail(
+    companyId,
+    driverData.email
+  );
 
-      query(
+  /*
+   * Validate that the selected vehicle
+   * is not already assigned.
+   */
+  await validateVehicleAssignment(
+    companyId,
+    driverData.vehicleId
+  );
 
-        collection(
+  const timestamp =
+    Timestamp.now();
 
-          db,
-
-          "companies",
-
-          companyId,
-
-          "drivers"
-
-        ),
-
-        where(
-
-          "email",
-
-          "==",
-
-          data.email.trim().toLowerCase()
-
-        )
-
-      )
-
-    );
-
-    if (!snapshot.empty) {
-
-      throw new Error(
-
-        "Ya existe un conductor con ese correo electrónico."
-
-      );
-
-    }
-
-  }
-
-  /* ----------------------------------------
-     CREATE
-  ---------------------------------------- */
-
-  return await addDoc(
-
-    collection(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "drivers"
-
+  return addDoc(
+    getDriversCollection(
+      companyId
     ),
-
     {
-
-      name:
-
-        data.name.trim(),
-
-      phone:
-
-        data.phone?.trim() || "",
-
-      email:
-
-        data.email?.trim().toLowerCase() || "",
-
-      licenses:
-
-        data.licenses || [],
-
-      driverType:
-
-        data.driverType,
-
-      isAvailable:
-
-        data.isAvailable ?? true,
-
-      isActive:
-
-        data.isActive ?? true,
+      ...driverData,
 
       createdAt:
-
-        Timestamp.now(),
+        timestamp,
 
       updatedAt:
-
-        Timestamp.now(),
+        timestamp,
 
       createdBy:
-
-        user.uid,
+        userId,
 
       updatedBy:
-
-        user.uid
-
+        userId
     }
-
   );
-
 };
 
-/* ==========================================
+
+/* =========================================================
    UPDATE DRIVER
-========================================== */
+========================================================= */
 
 export const updateDriver = async (
-
   companyId,
-
   driverId,
-
   data,
-
   user
-
 ) => {
+  validateCompanyId(
+    companyId
+  );
 
-  /* ----------------------------------------
-     DUPLICATE EMAIL
-  ---------------------------------------- */
-
-  if (data.email?.trim()) {
-
-    const snapshot = await getDocs(
-
-      query(
-
-        collection(
-
-          db,
-
-          "companies",
-
-          companyId,
-
-          "drivers"
-
-        ),
-
-        where(
-
-          "email",
-
-          "==",
-
-          data.email.trim().toLowerCase()
-
-        )
-
-      )
-
+  if (!driverId) {
+    throw new Error(
+      "ID del conductor requerido."
     );
-
-    const duplicate = snapshot.docs.find(
-
-      doc => doc.id !== driverId
-
-    );
-
-    if (duplicate) {
-
-      throw new Error(
-
-        "Ya existe un conductor con ese correo electrónico."
-
-      );
-
-    }
-
   }
 
-  /* ----------------------------------------
-     UPDATE
-  ---------------------------------------- */
+  const userId =
+    validateUser(user);
 
-  return await updateDoc(
+  const driverData =
+    validateDriverData(data);
 
-    doc(
+  /*
+   * Verify that the driver exists.
+   */
+  const currentDriverSnapshot =
+    await getDocs(
+      query(
+        getDriversCollection(
+          companyId
+        ),
+        where(
+          "__name__",
+          "==",
+          driverId
+        )
+      )
+    );
 
-      db,
+  if (
+    currentDriverSnapshot.empty
+  ) {
+    throw new Error(
+      "Conductor no encontrado."
+    );
+  }
 
-      "companies",
+  /*
+   * Validate email.
+   */
+  await validateDuplicateEmail(
+    companyId,
+    driverData.email,
+    driverId
+  );
 
+  /*
+   * Validate vehicle assignment.
+   *
+   * driverId is passed so the current
+   * driver's own vehicle does not
+   * conflict with itself.
+   */
+  await validateVehicleAssignment(
+    companyId,
+    driverData.vehicleId,
+    driverId
+  );
+
+  return updateDoc(
+    getDriverDocument(
       companyId,
-
-      "drivers",
-
       driverId
-
     ),
-
     {
-
-      name:
-
-        data.name.trim(),
-
-      phone:
-
-        data.phone?.trim() || "",
-
-      email:
-
-        data.email?.trim().toLowerCase() || "",
-
-      licenses:
-
-        data.licenses || [],
-
-      driverType:
-
-        data.driverType,
-
-      isAvailable:
-
-        data.isAvailable,
-
-      isActive:
-
-        data.isActive,
+      ...driverData,
 
       updatedAt:
-
         Timestamp.now(),
 
       updatedBy:
-
-        user.uid
-
+        userId
     }
-
   );
-
 };
 
-/* ==========================================
-   TOGGLE STATUS
-========================================== */
+
+/* =========================================================
+   TOGGLE DRIVER STATUS
+========================================================= */
 
 export const toggleDriverStatus = async (
-
   companyId,
-
   driverId,
-
   currentStatus
-
 ) => {
-
-  return await updateDoc(
-
-    doc(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "drivers",
-
-      driverId
-
-    ),
-
-    {
-
-      isActive: !currentStatus,
-
-      updatedAt: Timestamp.now()
-
-    }
-
+  validateCompanyId(
+    companyId
   );
 
+  if (!driverId) {
+    throw new Error(
+      "ID del conductor requerido."
+    );
+  }
+
+  return updateDoc(
+    getDriverDocument(
+      companyId,
+      driverId
+    ),
+    {
+      isActive:
+        !currentStatus,
+
+      updatedAt:
+        Timestamp.now()
+    }
+  );
 };

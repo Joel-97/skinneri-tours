@@ -1,0 +1,214 @@
+/* ======================================================
+   WIDGET PREVIEW FIELD
+====================================================== */
+
+.tw-preview-field {
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: stretch;
+
+  justify-content: flex-start;
+
+  width: 100%;
+
+  min-width: 0;
+
+  margin: 0 0 14px;
+
+  padding: 0;
+
+  gap: 6px;
+
+  box-sizing: border-box;
+
+}
+
+
+/* ======================================================
+   LABEL
+====================================================== */
+
+.tw-preview-field__label {
+
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  color:
+    var(
+      --tw-preview-text,
+      #111827
+    );
+
+  font-size: .69rem;
+
+  font-weight: 600;
+
+  line-height: 1.4;
+
+  text-align: left;
+
+}
+
+
+.tw-preview-field__required {
+
+  display: inline;
+
+  color:
+    var(
+      --tw-preview-primary,
+      #2563EB
+    );
+
+}
+
+
+/* ======================================================
+   INPUT
+====================================================== */
+
+.tw-preview-field__input {
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: 40px;
+
+  margin: 0;
+
+  padding: 9px 11px;
+
+  border: 1px solid #CBD5E1;
+
+  border-radius:
+    var(
+      --tw-preview-radius,
+      8px
+    );
+
+  background:
+    var(
+      --tw-preview-field-background,
+      #FFFFFF
+    );
+
+  color:
+    var(
+      --tw-preview-text,
+      #111827
+    );
+
+  font-family:
+    var(
+      --tw-preview-font,
+      Inter
+    );
+
+  font-size: .69rem;
+
+  font-weight: 400;
+
+  line-height: 1.4;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+}
+
+
+/* ======================================================
+   INPUT TEXT
+====================================================== */
+
+.tw-preview-field__text {
+
+  display: block;
+
+  flex: 1 1 auto;
+
+  min-width: 0;
+
+  margin: 0;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  color:
+    var(
+      --tw-preview-text,
+      #111827
+    );
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+
+/* ======================================================
+   CHEVRON
+====================================================== */
+
+.tw-preview-field__chevron {
+
+  display: block;
+
+  flex: 0 0 auto;
+
+  width: 16px;
+
+  margin-left: 8px;
+
+  color: #94A3B8;
+
+  font-size: 14px;
+
+  line-height: 1;
+
+  text-align: center;
+
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 400px) {
+
+  .tw-preview-field {
+
+    margin-bottom: 14px;
+
+  }
+
+
+  .tw-preview-field__input {
+
+    min-height: 40px;
+
+    padding: 9px 10px;
+
+  }
+
+}

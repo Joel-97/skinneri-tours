@@ -72,3 +72,62 @@ export {
     verifyEmailDomain
 
 } from "./controllers/emailDomainController.js";
+
+
+/**
+ * ==========================================================
+ * TRANSPORTATION INTEGRATIONS
+ * ==========================================================
+ */
+
+export {
+
+    createTransportationIntegration,
+
+    getTransportationIntegration,
+
+    updateTransportationIntegrationCompanyCode,
+
+    updateTransportationIntegrationStatus,
+
+    getPublicTransportationConfiguration,
+
+    rotateTransportationIntegrationApiKey,
+
+    migrateTransportationIntegrationWidget,
+
+    getTransportationWidgetConfiguration,
+
+    updateTransportationWidgetAppearance,
+
+    createTransportationWidgetReservation
+
+} from "./controllers/transportationIntegrationController.js";
+
+
+/**
+ * ==========================================================
+ * TRANSPORTATION RESERVATION API
+ * ==========================================================
+ */
+
+export {
+
+    createPublicTransportationReservation
+
+} from "./controllers/transportationIntegrationController.js";
+
+
+/**
+ * ==========================================================
+ * INTERNAL TRANSPORTATION RESERVATIONS
+ * ==========================================================
+ */
+
+export {
+
+    createTransportationReservation,
+
+    confirmTransportationReservation
+
+} from "./controllers/transportationReservationController.js";

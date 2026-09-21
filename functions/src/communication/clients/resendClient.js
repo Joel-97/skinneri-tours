@@ -6,6 +6,7 @@
 
 import { Resend } from "resend";
 
+
 /*
 ==========================================================
 CLIENT
@@ -13,6 +14,7 @@ CLIENT
 */
 
 let resendClient = null;
+
 
 /*
 ==========================================================
@@ -43,4 +45,5 @@ export function getResendClient() {
     }
 
     return resendClient;
+
 }

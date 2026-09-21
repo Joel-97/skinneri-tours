@@ -11,211 +11,463 @@ import {
 
 import { db } from "../../../firebase";
 
-/* ==========================================
-   GET PAYERS
-========================================== */
 
-export const getPayers = async (companyId) => {
+/* ======================================================
+   CONSTANTS
+====================================================== */
+
+const PAYERS_COLLECTION = "payers";
+
+
+/* ======================================================
+   FIRESTORE HELPERS
+====================================================== */
+
+const getPayersCollection = (companyId) => {
+
+  return collection(
+    db,
+    "companies",
+    companyId,
+    PAYERS_COLLECTION
+  );
+
+};
+
+
+const getPayerDocument = (
+  companyId,
+  payerId
+) => {
+
+  return doc(
+    db,
+    "companies",
+    companyId,
+    PAYERS_COLLECTION,
+    payerId
+  );
+
+};
+
+
+/* ======================================================
+   VALIDATION HELPERS
+====================================================== */
+
+const validateCompanyId = (companyId) => {
+
+  if (
+    !companyId ||
+    typeof companyId !== "string"
+  ) {
+
+    throw new Error(
+      "No se encontró una empresa válida."
+    );
+
+  }
+
+};
+
+
+const validatePayerId = (payerId) => {
+
+  if (
+    !payerId ||
+    typeof payerId !== "string"
+  ) {
+
+    throw new Error(
+      "No se encontró un pagador válido."
+    );
+
+  }
+
+};
+
+
+const getUserId = (user) => {
+
+  return (
+    user?.uid ||
+    user?.id ||
+    null
+  );
+
+};
+
+
+const requireUserId = (user) => {
+
+  const userId =
+    getUserId(user);
+
+  if (!userId) {
+
+    throw new Error(
+      "No se encontró un usuario válido."
+    );
+
+  }
+
+  return userId;
+
+};
+
+
+/* ======================================================
+   NORMALIZATION
+====================================================== */
+
+const normalizeName = (
+  name = ""
+) => {
+
+  if (
+    typeof name !== "string"
+  ) {
+    return "";
+  }
+
+  return name
+    .trim()
+    .replace(/\s+/g, " ");
+
+};
+
+
+const normalizePhone = (
+  phone = ""
+) => {
+
+  if (
+    typeof phone !== "string"
+  ) {
+    return "";
+  }
+
+  return phone.trim();
+
+};
+
+
+const normalizeEmail = (
+  email = ""
+) => {
+
+  if (
+    typeof email !== "string"
+  ) {
+    return "";
+  }
+
+  return email
+    .trim()
+    .toLowerCase();
+
+};
+
+
+const normalizePayerType = (
+  payerType
+) => {
+
+  if (!payerType) {
+    return null;
+  }
+
+  return {
+    value:
+      payerType.value || "",
+
+    label:
+      payerType.label || ""
+  };
+
+};
+
+
+/* ======================================================
+   DATA VALIDATION
+====================================================== */
+
+const validatePayerData = (
+  data
+) => {
+
+  const name =
+    normalizeName(data?.name);
+
+  if (!name) {
+
+    throw new Error(
+      "El nombre del pagador es obligatorio."
+    );
+
+  }
+
+
+  if (!data?.payerType) {
+
+    throw new Error(
+      "El tipo de pagador es obligatorio."
+    );
+
+  }
+
+
+  const payerType =
+    normalizePayerType(
+      data.payerType
+    );
+
+
+  if (
+    !payerType?.value ||
+    !payerType?.label
+  ) {
+
+    throw new Error(
+      "El tipo de pagador seleccionado no es válido."
+    );
+
+  }
+
+
+  return {
+
+    name,
+
+    payerType,
+
+    phone:
+      normalizePhone(
+        data?.phone
+      ),
+
+    email:
+      normalizeEmail(
+        data?.email
+      ),
+
+    isActive:
+      data?.isActive ?? true
+
+  };
+
+};
+
+
+/* ======================================================
+   DUPLICATE NAME
+====================================================== */
+
+const validateDuplicateName = async (
+  companyId,
+  name,
+  payerId = null
+) => {
 
   const snapshot = await getDocs(
 
-    collection(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "payers"
-
-    )
-
-  );
-
-  return snapshot.docs.map(doc => ({
-
-    id: doc.id,
-
-    ...doc.data()
-
-  }));
-
-};
-
-/* ==========================================
-   CREATE PAYER
-========================================== */
-
-export const createPayer = async (
-
-  companyId,
-
-  data,
-
-  user
-
-) => {
-
-  /* ----------------------------------------
-     DUPLICATE NAME
-  ---------------------------------------- */
-
-  const normalizedName =
-
-    data.name
-
-      .trim()
-
-      .replace(/\s+/g, " ");
-
-  const nameSnapshot = await getDocs(
-
     query(
-
-      collection(
-
-        db,
-
-        "companies",
-
-        companyId,
-
-        "payers"
-
+      getPayersCollection(
+        companyId
       ),
 
       where(
-
         "name",
-
         "==",
-
-        normalizedName
-
+        name
       )
-
     )
 
   );
 
-  if (!nameSnapshot.empty) {
+
+  const duplicate =
+    snapshot.docs.find(
+      (document) =>
+        document.id !== payerId
+    );
+
+
+  if (duplicate) {
 
     throw new Error(
-
       "Ya existe un pagador con ese nombre."
-
     );
 
   }
 
-  /* ----------------------------------------
-     DUPLICATE EMAIL
-  ---------------------------------------- */
+};
 
-  if (data.email?.trim()) {
 
-    const emailSnapshot = await getDocs(
+/* ======================================================
+   DUPLICATE EMAIL
+====================================================== */
 
-      query(
+const validateDuplicateEmail = async (
+  companyId,
+  email,
+  payerId = null
+) => {
 
-        collection(
+  /*
+   * El correo es opcional.
+   * No necesitamos comprobar duplicados
+   * cuando está vacío.
+   */
 
-          db,
+  if (!email) {
+    return;
+  }
 
-          "companies",
 
-          companyId,
+  const snapshot = await getDocs(
 
-          "payers"
+    query(
+      getPayersCollection(
+        companyId
+      ),
 
-        ),
-
-        where(
-
-          "email",
-
-          "==",
-
-          data.email
-
-            .trim()
-
-            .toLowerCase()
-
-        )
-
+      where(
+        "email",
+        "==",
+        email
       )
+    )
 
+  );
+
+
+  const duplicate =
+    snapshot.docs.find(
+      (document) =>
+        document.id !== payerId
     );
 
-    if (!emailSnapshot.empty) {
 
-      throw new Error(
+  if (duplicate) {
 
-        "Ya existe un pagador con ese correo electrónico."
-
-      );
-
-    }
+    throw new Error(
+      "Ya existe un pagador con ese correo electrónico."
+    );
 
   }
 
-  /* ----------------------------------------
-     CREATE
-  ---------------------------------------- */
+};
+
+
+/* ======================================================
+   MAP SNAPSHOT
+====================================================== */
+
+const mapSnapshot = (
+  snapshot
+) => {
+
+  return snapshot.docs.map(
+    (document) => ({
+      id: document.id,
+      ...document.data()
+    })
+  );
+
+};
+
+
+/* ======================================================
+   GET PAYERS
+====================================================== */
+
+export const getPayers = async (
+  companyId
+) => {
+
+  validateCompanyId(
+    companyId
+  );
+
+
+  const snapshot =
+    await getDocs(
+      getPayersCollection(
+        companyId
+      )
+    );
+
+
+  return mapSnapshot(
+    snapshot
+  );
+
+};
+
+
+/* ======================================================
+   CREATE PAYER
+====================================================== */
+
+export const createPayer = async (
+  companyId,
+  data,
+  user
+) => {
+
+  validateCompanyId(
+    companyId
+  );
+
+
+  const userId =
+    requireUserId(user);
+
+
+  const payerData =
+    validatePayerData(
+      data
+    );
+
+
+  await validateDuplicateName(
+    companyId,
+    payerData.name
+  );
+
+
+  await validateDuplicateEmail(
+    companyId,
+    payerData.email
+  );
+
+
+  const now =
+    Timestamp.now();
+
 
   return await addDoc(
 
-    collection(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "payers"
-
+    getPayersCollection(
+      companyId
     ),
 
     {
 
-      name:
-
-        normalizedName,
-
-      payerType:
-
-        data.payerType,
-
-      phone:
-
-        data.phone?.trim() || "",
-
-      email:
-
-        data.email?.trim().toLowerCase() || "",
-
-      isActive:
-
-        data.isActive ?? true,
+      ...payerData,
 
       createdAt:
-
-        Timestamp.now(),
+        now,
 
       updatedAt:
-
-        Timestamp.now(),
+        now,
 
       createdBy:
-
-        user.uid,
+        userId,
 
       updatedBy:
-
-        user.uid
+        userId
 
     }
 
@@ -223,195 +475,100 @@ export const createPayer = async (
 
 };
 
-/* ==========================================
+
+/* ======================================================
    UPDATE PAYER
-========================================== */
+====================================================== */
 
 export const updatePayer = async (
-
   companyId,
-
   payerId,
-
   data,
-
   user
-
 ) => {
 
-  /* ----------------------------------------
-     DUPLICATE NAME
-  ---------------------------------------- */
-
-  const normalizedName =
-
-    data.name
-
-      .trim()
-
-      .replace(/\s+/g, " ");
-
-  const nameSnapshot = await getDocs(
-
-    query(
-
-      collection(
-
-        db,
-
-        "companies",
-
-        companyId,
-
-        "payers"
-
-      ),
-
-      where(
-
-        "name",
-
-        "==",
-
-        normalizedName
-
-      )
-
-    )
-
+  validateCompanyId(
+    companyId
   );
 
-  const duplicateName =
 
-    nameSnapshot.docs.find(
+  validatePayerId(
+    payerId
+  );
 
-      doc =>
 
-        doc.id !== payerId
+  const userId =
+    requireUserId(user);
 
+
+  const payerData =
+    validatePayerData(
+      data
     );
 
-  if (duplicateName) {
 
-    throw new Error(
+  /*
+   * Verificamos que el pagador
+   * actual exista.
+   */
 
-      "Ya existe un pagador con ese nombre."
-
-    );
-
-  }
-
-  /* ----------------------------------------
-     DUPLICATE EMAIL
-  ---------------------------------------- */
-
-  if (data.email?.trim()) {
-
-    const emailSnapshot = await getDocs(
+  const payerSnapshot =
+    await getDocs(
 
       query(
-
-        collection(
-
-          db,
-
-          "companies",
-
-          companyId,
-
-          "payers"
-
+        getPayersCollection(
+          companyId
         ),
 
         where(
-
-          "email",
-
+          "__name__",
           "==",
-
-          data.email
-
-            .trim()
-
-            .toLowerCase()
-
+          payerId
         )
-
       )
 
     );
 
-    const duplicateEmail =
 
-      emailSnapshot.docs.find(
+  if (payerSnapshot.empty) {
 
-        doc =>
-
-          doc.id !== payerId
-
-      );
-
-    if (duplicateEmail) {
-
-      throw new Error(
-
-        "Ya existe un pagador con ese correo electrónico."
-
-      );
-
-    }
+    throw new Error(
+      "El pagador no existe."
+    );
 
   }
 
-  /* ----------------------------------------
-     UPDATE
-  ---------------------------------------- */
+
+  await validateDuplicateName(
+    companyId,
+    payerData.name,
+    payerId
+  );
+
+
+  await validateDuplicateEmail(
+    companyId,
+    payerData.email,
+    payerId
+  );
+
 
   return await updateDoc(
 
-    doc(
-
-      db,
-
-      "companies",
-
+    getPayerDocument(
       companyId,
-
-      "payers",
-
       payerId
-
     ),
 
     {
 
-      name:
-
-        normalizedName,
-
-      payerType:
-
-        data.payerType,
-
-      phone:
-
-        data.phone?.trim() || "",
-
-      email:
-
-        data.email?.trim().toLowerCase() || "",
-
-      isActive:
-
-        data.isActive,
+      ...payerData,
 
       updatedAt:
-
         Timestamp.now(),
 
       updatedBy:
-
-        user.uid
+        userId
 
     }
 
@@ -419,41 +576,41 @@ export const updatePayer = async (
 
 };
 
-/* ==========================================
+
+/* ======================================================
    TOGGLE STATUS
-========================================== */
+====================================================== */
 
 export const togglePayerStatus = async (
-
   companyId,
-
   payerId,
-
   currentStatus
-
 ) => {
+
+  validateCompanyId(
+    companyId
+  );
+
+
+  validatePayerId(
+    payerId
+  );
+
 
   return await updateDoc(
 
-    doc(
-
-      db,
-
-      "companies",
-
+    getPayerDocument(
       companyId,
-
-      "payers",
-
       payerId
-
     ),
 
     {
 
-      isActive: !currentStatus,
+      isActive:
+        !currentStatus,
 
-      updatedAt: Timestamp.now()
+      updatedAt:
+        Timestamp.now()
 
     }
 

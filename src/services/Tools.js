@@ -108,90 +108,95 @@ function twoDigitPad(num) {
   return num < 10 ? "0" + num : num;
 }
 
-  /* =============================================================== 
-  * SE UTILIZA PARA OBTENER LA FECHA FINAL
-  * Genera la fecha final (endDate) a partir de la fecha inicial y la duración en minutos. 
-  =============================================================== */
+/* =============================================================== 
+* SE UTILIZA PARA OBTENER LA FECHA FINAL
+* Genera la fecha final (endDate) a partir de la fecha inicial y la duración en minutos. 
+=============================================================== */
 
-  const getEndDate = (startDate, durationMinutes) => {
+const getEndDate = (startDate, durationMinutes) => {
 
-    const start = new Date(startDate);
+  const start = new Date(startDate);
 
-    const end = new Date(
-      start.getTime() + durationMinutes * 60000
-    );
+  const end = new Date(
+    start.getTime() + durationMinutes * 60000
+  );
 
-    const formattedEnd =
-      end.getFullYear() +
-      "-" +
-      String(end.getMonth() + 1).padStart(2, "0") +
-      "-" +
-      String(end.getDate()).padStart(2, "0") +
-      "T" +
-      String(end.getHours()).padStart(2, "0") +
-      ":" +
-      String(end.getMinutes()).padStart(2, "0");
+  const formattedEnd =
+    end.getFullYear() +
+    "-" +
+    String(end.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(end.getDate()).padStart(2, "0") +
+    "T" +
+    String(end.getHours()).padStart(2, "0") +
+    ":" +
+    String(end.getMinutes()).padStart(2, "0");
 
-    return formattedEnd;
-  };
+  return formattedEnd;
+};
 
-  /* =============================================================== 
-  * GENERADOR DE NÚMERO DE RESERVA (MULTI-CATEGORÍA)
-  =============================================================== */
+/* =============================================================== 
+* GENERADOR DE NÚMERO DE RESERVA (MULTI-CATEGORÍA)
+=============================================================== */
 
-  const generateReservationNumber = (category = "transportation") => {
+const generateReservationNumber = (
+  category = "transportation"
+) => {
 
-    const now = new Date();
+  const now = new Date();
 
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day =
+    String(now.getDate()).padStart(2, "0");
 
-    const random = Math.floor(10000 + Math.random() * 90000);
-    const extra = Date.now().toString().slice(-2); // 2 dígitos extra
+  const month =
+    String(now.getMonth() + 1).padStart(2, "0");
 
-    // 🔥 Prefijo dinámico
-    let prefix = "TR"; // default
+  const prefix =
+    category === "adventure"
+      ? "AD"
+      : "TR";
 
-    if (category === "adventure") {
-      prefix = "AD";
-    } else if (category === "transportation") {
-      prefix = "TR";
-    }
+  const random =
+    window.crypto.getRandomValues(
+      new Uint32Array(1)
+    )[0] % 9000000 + 1000000;
 
-    return `${prefix}-${day}${month}-${random}${extra}`;
-  };
+  return `${prefix}-${day}${month}-${random}`;
+};
 
-  /* =============================================================== 
-  * FORMATEAR LA FECHA PARA QUE SE VEA DD/MM/YYYY
-  =============================================================== */
-  const formatDateCustom = (dateStr) => {
-    if (!dateStr) return "-";
+/* =============================================================== 
+* FORMATEAR LA FECHA PARA QUE SE VEA DD/MM/YYYY
+=============================================================== */
+const formatDateCustom = (dateStr) => {
+  if (!dateStr) return "-";
 
-    const [year, month, day] = dateStr.split("-");
-    return `${day}/${month}/${year}`;
-  };
-
-
-  /* =============================================================== 
-  * A LOS NUMEROS LES PONE SOLO DOS DECIMALES
-  =============================================================== */
-  
-  const safe = (value) => Number(value || 0).toFixed(2);
-
- /* =============================================================== 
-  * FORMATEA LA MONEDA QUE SE INGRESE, CR - USD
-  =============================================================== */
-
-  const formatCurrency = (value, currency = "USD") => {
-    return new Intl.NumberFormat("es-CR", {
-      style: "currency",
-      currency
-    }).format(Number(value || 0));
-  };
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
 
 
-export { numtoDate, monthNames, dayOfWeekNames, formatDateCustom, twoDigitPad, columnsNotifications, 
-  getEndDate, generateReservationNumber, safe, formatCurrency }
+/* =============================================================== 
+* A LOS NUMEROS LES PONE SOLO DOS DECIMALES
+=============================================================== */
 
-  export const roleVisit = 'visit';
-  export const roleSuperAdmin = 'superAdmin';
+const safe = (value) => Number(value || 0).toFixed(2);
+
+/* =============================================================== 
+ * FORMATEA LA MONEDA QUE SE INGRESE, CR - USD
+ =============================================================== */
+
+const formatCurrency = (value, currency = "USD") => {
+  return new Intl.NumberFormat("es-CR", {
+    style: "currency",
+    currency
+  }).format(Number(value || 0));
+};
+
+
+export {
+  numtoDate, monthNames, dayOfWeekNames, formatDateCustom, twoDigitPad, columnsNotifications,
+  getEndDate, generateReservationNumber, safe, formatCurrency
+}
+
+export const roleVisit = 'visit';
+export const roleSuperAdmin = 'superAdmin';

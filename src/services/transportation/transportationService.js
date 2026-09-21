@@ -12,7 +12,101 @@ import {
   deleteField
 } from "firebase/firestore";
 
-import { db } from "../../firebase";
+import {
+  getFunctions,
+  httpsCallable
+} from "firebase/functions";
+
+import {
+  db,
+  app
+} from "../../firebase";
+
+
+/* =========================================================
+   FIREBASE FUNCTIONS
+========================================================= */
+
+const functions =
+  getFunctions(app);
+
+
+/* =========================================================
+   COLLECTION
+========================================================= */
+
+const TRANSPORTATION_COLLECTION =
+  "transportation";
+
+
+const getTransportationCollection = (
+  companyId
+) =>
+  collection(
+    db,
+    "companies",
+    companyId,
+    TRANSPORTATION_COLLECTION
+  );
+
+
+const getTransportationDocument = (
+  companyId,
+  reservationId
+) =>
+  doc(
+    db,
+    "companies",
+    companyId,
+    TRANSPORTATION_COLLECTION,
+    reservationId
+  );
+
+
+/* =========================================================
+   USER HELPERS
+========================================================= */
+
+/**
+ * Returns the authenticated user's ID.
+ *
+ * Supports both:
+ * - Firebase Auth user.uid
+ * - Custom user.id
+ */
+const getUserId = (
+  user
+) =>
+  user?.uid ||
+  user?.id ||
+  null;
+
+
+/**
+ * Validates the authenticated user
+ * and returns the user ID.
+ */
+const validateUser = (
+  user
+) => {
+  const userId =
+    getUserId(user);
+
+  if (!userId) {
+    const error =
+      new Error(
+        "Usuario no autenticado."
+      );
+
+    error.code =
+      "user_required";
+
+    throw error;
+  }
+
+  return userId;
+};
+
 
 /* =========================================================
    DATE HELPERS
@@ -24,13 +118,15 @@ CONVERT VALUE TO TIMESTAMP
 =========================================================
 */
 
-const toTimestamp = (value, fieldName) => {
+const toTimestamp = (
+  value,
+  fieldName
+) => {
 
   if (!value) {
-
     return null;
-
   }
+
 
   /*
   ---------------------------------------------------------
@@ -39,23 +135,17 @@ const toTimestamp = (value, fieldName) => {
   */
 
   if (
-
     value instanceof Timestamp ||
-
     (
       typeof value?.toDate === "function" &&
       typeof value?.seconds === "number"
     )
-
   ) {
-
     return Timestamp.fromDate(
-
       value.toDate()
-
     );
-
   }
+
 
   /*
   ---------------------------------------------------------
@@ -63,25 +153,30 @@ const toTimestamp = (value, fieldName) => {
   ---------------------------------------------------------
   */
 
-  if (value instanceof Date) {
+  if (
+    value instanceof Date
+  ) {
+    if (
+      Number.isNaN(
+        value.getTime()
+      )
+    ) {
+      const error =
+        new Error(
+          `Fecha inválida en ${fieldName}`
+        );
 
-    if (Number.isNaN(value.getTime())) {
-
-      const error = new Error(
-
-        `Fecha inválida en ${fieldName}`
-
-      );
-
-      error.code = "invalid_date";
+      error.code =
+        "invalid_date";
 
       throw error;
-
     }
 
-    return Timestamp.fromDate(value);
-
+    return Timestamp.fromDate(
+      value
+    );
   }
+
 
   /*
   ---------------------------------------------------------
@@ -89,27 +184,33 @@ const toTimestamp = (value, fieldName) => {
   ---------------------------------------------------------
   */
 
-  if (typeof value === "string") {
+  if (
+    typeof value === "string"
+  ) {
+    const date =
+      new Date(value);
 
-    const date = new Date(value);
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      const error =
+        new Error(
+          `Fecha inválida en ${fieldName}`
+        );
 
-    if (Number.isNaN(date.getTime())) {
-
-      const error = new Error(
-
-        `Fecha inválida en ${fieldName}`
-
-      );
-
-      error.code = "invalid_date";
+      error.code =
+        "invalid_date";
 
       throw error;
-
     }
 
-    return Timestamp.fromDate(date);
-
+    return Timestamp.fromDate(
+      date
+    );
   }
+
 
   /*
   ---------------------------------------------------------
@@ -117,113 +218,123 @@ const toTimestamp = (value, fieldName) => {
   ---------------------------------------------------------
   */
 
-  const error = new Error(
+  const error =
+    new Error(
+      `Fecha inválida en ${fieldName}`
+    );
 
-    `Fecha inválida en ${fieldName}`
-
-  );
-
-  error.code = "invalid_date";
+  error.code =
+    "invalid_date";
 
   throw error;
-
 };
 
 
 /* =========================================================
-   OBTENER RESERVAS
+   GET TRANSPORTATION RESERVATIONS
 ========================================================= */
 
-export const getTransportation = async (companyId) => {
-
-  if (!companyId) {
-
-    const error = new Error("company_required");
-
-    error.code = "company_required";
-
-    throw error;
-
-  }
-
-  const q = query(
-
-    collection(
-
-      db,
-
-      "companies",
-
-      companyId,
-
-      "transportation"
-
-    ),
-
-    orderBy("date", "desc")
-
-  );
-
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map(doc => ({
-
-    id: doc.id,
-
-    ...doc.data()
-
-  }));
-
-};
-
-
-/* =========================================================
-   CREAR RESERVA
-========================================================= */
-
-export const createTransportation = async (
-
-  companyId,
-
-  data,
-
-  user
-
+export const getTransportation = async (
+  companyId
 ) => {
 
   if (!companyId) {
+    const error =
+      new Error(
+        "company_required"
+      );
 
-    const error = new Error("company_required");
-
-    error.code = "company_required";
-
-    throw error;
-
-  }
-
-  if (!user) {
-
-    const error = new Error("user_required");
-
-    error.code = "user_required";
+    error.code =
+      "company_required";
 
     throw error;
-
   }
 
-  if (!data.date) {
 
-    const error = new Error(
-
-      "Por favor agregue una fecha"
-
+  const q =
+    query(
+      getTransportationCollection(
+        companyId
+      ),
+      orderBy(
+        "date",
+        "desc"
+      )
     );
 
-    error.code = "date_required";
+
+  const snapshot =
+    await getDocs(q);
+
+
+  return snapshot.docs.map(
+    reservationDoc => ({
+      id:
+        reservationDoc.id,
+
+      ...reservationDoc.data()
+    })
+  );
+};
+
+
+/* =========================================================
+   CREATE RESERVATION
+========================================================= */
+
+export const createTransportation = async (
+  companyId,
+  data,
+  user
+) => {
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE COMPANY
+  ---------------------------------------------------------
+  */
+
+  if (!companyId) {
+    const error =
+      new Error(
+        "company_required"
+      );
+
+    error.code =
+      "company_required";
 
     throw error;
-
   }
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE USER
+  ---------------------------------------------------------
+  */
+
+  const userId =
+    validateUser(user);
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE DATE
+  ---------------------------------------------------------
+  */
+
+  if (!data?.date) {
+    const error =
+      new Error(
+        "Por favor agregue una fecha"
+      );
+
+    error.code =
+      "date_required";
+
+    throw error;
+  }
+
 
   /*
   ---------------------------------------------------------
@@ -231,25 +342,21 @@ export const createTransportation = async (
   ---------------------------------------------------------
   */
 
-  const dateTimestamp = toTimestamp(
+  const dateTimestamp =
+    toTimestamp(
+      data.date,
+      "date"
+    );
 
-    data.date,
 
-    "date"
+  const endTimestamp =
+    data.end
+      ? toTimestamp(
+          data.end,
+          "end"
+        )
+      : null;
 
-  );
-
-  const endTimestamp = data.end
-
-    ? toTimestamp(
-
-        data.end,
-
-        "end"
-
-      )
-
-    : null;
 
   /*
   ---------------------------------------------------------
@@ -258,14 +365,11 @@ export const createTransportation = async (
   */
 
   const {
-
     start,
-
     endDate,
-
     ...cleanData
-
   } = data;
+
 
   /*
   ---------------------------------------------------------
@@ -273,29 +377,24 @@ export const createTransportation = async (
   ---------------------------------------------------------
   */
 
-  const transportationRef = collection(
+  const transportationRef =
+    getTransportationCollection(
+      companyId
+    );
 
-    db,
 
-    "companies",
+  const timestamp =
+    Timestamp.now();
 
-    companyId,
-
-    "transportation"
-
-  );
 
   return await addDoc(
-
     transportationRef,
-
     {
-
       ...cleanData,
 
       clientId:
-
         data.clientId || null,
+
 
       /*
       -----------------------------------------------------
@@ -304,12 +403,11 @@ export const createTransportation = async (
       */
 
       date:
-
         dateTimestamp,
 
       end:
-
         endTimestamp,
+
 
       /*
       -----------------------------------------------------
@@ -318,81 +416,98 @@ export const createTransportation = async (
       */
 
       createdBy:
-
-        user.uid,
+        userId,
 
       updatedBy:
-
-        user.uid,
+        userId,
 
       createdAt:
-
-        Timestamp.now(),
+        timestamp,
 
       updatedAt:
-
-        Timestamp.now()
-
+        timestamp
     }
-
   );
-
 };
 
 
 /* =========================================================
-   ACTUALIZAR RESERVA
+   UPDATE RESERVATION
 ========================================================= */
 
 export const updateTransportation = async (
-
   companyId,
-
   id,
-
   data,
-
   user
-
 ) => {
 
+  /*
+  ---------------------------------------------------------
+  VALIDATE COMPANY
+  ---------------------------------------------------------
+  */
+
   if (!companyId) {
+    const error =
+      new Error(
+        "company_required"
+      );
 
-    const error = new Error("company_required");
-
-    error.code = "company_required";
+    error.code =
+      "company_required";
 
     throw error;
-
   }
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE RESERVATION ID
+  ---------------------------------------------------------
+  */
 
   if (!id) {
+    const error =
+      new Error(
+        "reservation_id_required"
+      );
 
-    const error = new Error(
-
-      "reservation_id_required"
-
-    );
-
-    error.code = "reservation_id_required";
-
-    throw error;
-
-  }
-
-  if (!data.date) {
-
-    const error = new Error(
-
-      "Por favor agregue una fecha"
-
-    );
-
-    error.code = "date_required";
+    error.code =
+      "reservation_id_required";
 
     throw error;
-
   }
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE USER
+  ---------------------------------------------------------
+  */
+
+  const userId =
+    validateUser(user);
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE DATE
+  ---------------------------------------------------------
+  */
+
+  if (!data?.date) {
+    const error =
+      new Error(
+        "Por favor agregue una fecha"
+      );
+
+    error.code =
+      "date_required";
+
+    throw error;
+  }
+
 
   /*
   ---------------------------------------------------------
@@ -400,25 +515,21 @@ export const updateTransportation = async (
   ---------------------------------------------------------
   */
 
-  const dateTimestamp = toTimestamp(
+  const dateTimestamp =
+    toTimestamp(
+      data.date,
+      "date"
+    );
 
-    data.date,
 
-    "date"
+  const endTimestamp =
+    data.end
+      ? toTimestamp(
+          data.end,
+          "end"
+        )
+      : null;
 
-  );
-
-  const endTimestamp = data.end
-
-    ? toTimestamp(
-
-        data.end,
-
-        "end"
-
-      )
-
-    : null;
 
   /*
   ---------------------------------------------------------
@@ -427,14 +538,11 @@ export const updateTransportation = async (
   */
 
   const {
-
     start,
-
     endDate,
-
     ...cleanData
-
   } = data;
+
 
   /*
   ---------------------------------------------------------
@@ -442,19 +550,12 @@ export const updateTransportation = async (
   ---------------------------------------------------------
   */
 
-  const ref = doc(
+  const ref =
+    getTransportationDocument(
+      companyId,
+      id
+    );
 
-    db,
-
-    "companies",
-
-    companyId,
-
-    "transportation",
-
-    id
-
-  );
 
   /*
   ---------------------------------------------------------
@@ -463,12 +564,10 @@ export const updateTransportation = async (
   */
 
   return await updateDoc(
-
     ref,
-
     {
-
       ...cleanData,
+
 
       /*
       -----------------------------------------------------
@@ -477,12 +576,11 @@ export const updateTransportation = async (
       */
 
       date:
-
         dateTimestamp,
 
       end:
-
         endTimestamp,
+
 
       /*
       -----------------------------------------------------
@@ -491,12 +589,11 @@ export const updateTransportation = async (
       */
 
       start:
-
         deleteField(),
 
       endDate:
-
         deleteField(),
+
 
       /*
       -----------------------------------------------------
@@ -505,133 +602,201 @@ export const updateTransportation = async (
       */
 
       updatedBy:
-
-        user?.uid || null,
+        userId,
 
       updatedAt:
-
         Timestamp.now()
-
     }
-
   );
-
 };
 
 
 /* =========================================================
-   ELIMINAR RESERVA
+   DELETE RESERVATION
 ========================================================= */
 
 export const deleteTransportation = async (
-
   companyId,
-
   id
-
 ) => {
 
+  /*
+  ---------------------------------------------------------
+  VALIDATE COMPANY
+  ---------------------------------------------------------
+  */
+
   if (!companyId) {
+    const error =
+      new Error(
+        "company_required"
+      );
 
-    const error = new Error("company_required");
-
-    error.code = "company_required";
+    error.code =
+      "company_required";
 
     throw error;
-
   }
+
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE RESERVATION ID
+  ---------------------------------------------------------
+  */
 
   if (!id) {
+    const error =
+      new Error(
+        "reservation_id_required"
+      );
 
-    const error = new Error(
-
-      "reservation_id_required"
-
-    );
-
-    error.code = "reservation_id_required";
+    error.code =
+      "reservation_id_required";
 
     throw error;
-
   }
 
-  const ref = doc(
 
-    db,
+  /*
+  ---------------------------------------------------------
+  DELETE
+  ---------------------------------------------------------
+  */
 
-    "companies",
+  const ref =
+    getTransportationDocument(
+      companyId,
+      id
+    );
 
-    companyId,
 
-    "transportation",
-
-    id
-
+  return await deleteDoc(
+    ref
   );
-
-  return await deleteDoc(ref);
-
 };
 
 
 /* =========================================================
-   VERIFICAR SI EXISTE NUMERO DE RESERVACION
+   CHECK RESERVATION NUMBER
 ========================================================= */
 
 export const reservationNumberExists = async (
-
   companyId,
-
   reservationNumber
-
 ) => {
 
   try {
 
-    const q = query(
+    const q =
+      query(
+        getTransportationCollection(
+          companyId
+        ),
+        where(
+          "reservationNumber",
+          "==",
+          reservationNumber
+        )
+      );
 
-      collection(
 
-        db,
+    const snapshot =
+      await getDocs(q);
 
-        "companies",
-
-        companyId,
-
-        "transportation"
-
-      ),
-
-      where(
-
-        "reservationNumber",
-
-        "==",
-
-        reservationNumber
-
-      )
-
-    );
-
-    const snapshot = await getDocs(q);
 
     return !snapshot.empty;
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(
-
       "Error verificando reservationNumber:",
-
       error
-
     );
 
     return false;
+  }
+};
 
+
+/* =========================================================
+   CONFIRM RESERVATION
+========================================================= */
+
+export const confirmTransportationReservation = async (
+  companyId,
+  reservationId
+) => {
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE COMPANY
+  ---------------------------------------------------------
+  */
+
+  if (!companyId) {
+    const error =
+      new Error(
+        "company_required"
+      );
+
+    error.code =
+      "company_required";
+
+    throw error;
   }
 
+
+  /*
+  ---------------------------------------------------------
+  VALIDATE RESERVATION ID
+  ---------------------------------------------------------
+  */
+
+  if (!reservationId) {
+    const error =
+      new Error(
+        "reservation_id_required"
+      );
+
+    error.code =
+      "reservation_id_required";
+
+    throw error;
+  }
+
+
+  /*
+  ---------------------------------------------------------
+  CLOUD FUNCTION
+  ---------------------------------------------------------
+  */
+
+  const functionCall =
+    httpsCallable(
+      functions,
+      "confirmTransportationReservation"
+    );
+
+
+  /*
+  ---------------------------------------------------------
+  CONFIRM
+  ---------------------------------------------------------
+  */
+
+  const response =
+    await functionCall({
+      companyId,
+      reservationId
+    });
+
+
+  /*
+  ---------------------------------------------------------
+  RESULT
+  ---------------------------------------------------------
+  */
+
+  return response.data;
 };

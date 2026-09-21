@@ -4,11 +4,20 @@ export default function TransportationFooter({
 
   mode,
 
+  status,
+
   onCancel,
 
-  onSave
+  onSave,
+
+  onConfirm
 
 }) {
+
+  const isPending =
+
+    status === "pending";
+
 
   return (
 
@@ -21,6 +30,7 @@ export default function TransportationFooter({
         Cancelar
       </button>
 
+
       <button
         onClick={onSave}
         className="btn-primary"
@@ -29,6 +39,18 @@ export default function TransportationFooter({
           ? "Crear reserva"
           : "Guardar cambios"}
       </button>
+
+
+      {mode !== "create" && isPending && (
+
+        <button
+          onClick={onConfirm}
+          className="btn-primary"
+        >
+          Confirmar reserva
+        </button>
+
+      )}
 
     </div>
 

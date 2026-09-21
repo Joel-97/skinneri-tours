@@ -6,66 +6,325 @@ import {
   doc,
   Timestamp
 } from "firebase/firestore";
+
 import { db } from "../../../firebase";
 
-/* ===============================
-   GET ALL Locations
-================================= */
 
-export const getLocations = async (companyId) => {
+const LOCATIONS_COLLECTION = "locations";
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "locations")
+const LOCATION_CODE_MIN_LENGTH = 3;
+const LOCATION_CODE_MAX_LENGTH = 50;
+
+const MIN_ACTIVE_LOCATION_ERROR =
+  "Debe existir al menos un lugar de recogida activo.";
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const getLocationsCollection = (companyId) =>
+  collection(
+    db,
+    "companies",
+    companyId,
+    LOCATIONS_COLLECTION
   );
 
-  return snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+
+const getLocationDocument = (
+  companyId,
+  locationId
+) =>
+  doc(
+    db,
+    "companies",
+    companyId,
+    LOCATIONS_COLLECTION,
+    locationId
+  );
+
+
+const getUserId = (user) =>
+  user?.uid || user?.id || null;
+
+
+const requireUserId = (user) => {
+  const userId = getUserId(user);
+
+  if (!userId) {
+    throw new Error(
+      "Usuario no autenticado."
+    );
+  }
+
+  return userId;
 };
 
 
-/* ===============================
-   CREATE LOCATIONS
-================================= */
+const normalizeLocationCode = (
+  code = ""
+) =>
+  typeof code === "string"
+    ? code
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    : "";
 
-export const createLocations = async (companyId, data, user) => {
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "locations")
-  );
+const validateLocationCode = (code) => {
+  const normalizedCode =
+    normalizeLocationCode(code);
 
-  const locations = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  // 🚫 Evitar nombre duplicado
-  const duplicate = locations.find(
-    p => p.name.toLowerCase() === data.name.trim().toLowerCase()
-  );
-
-  if (duplicate) {
-    throw new Error("Ya existe un lugar con ese nombre.");
+  if (!normalizedCode) {
+    throw new Error(
+      "El código del lugar es obligatorio."
+    );
   }
 
-  return await addDoc(
-    collection(db, "companies", companyId, "locations"),
+  if (
+    normalizedCode.length <
+    LOCATION_CODE_MIN_LENGTH
+  ) {
+    throw new Error(
+      `El código del lugar debe tener al menos ${LOCATION_CODE_MIN_LENGTH} caracteres.`
+    );
+  }
+
+  if (
+    normalizedCode.length >
+    LOCATION_CODE_MAX_LENGTH
+  ) {
+    throw new Error(
+      `El código del lugar no puede superar los ${LOCATION_CODE_MAX_LENGTH} caracteres.`
+    );
+  }
+
+  if (
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+      normalizedCode
+    )
+  ) {
+    throw new Error(
+      "El código del lugar solo puede contener letras minúsculas, números y guiones."
+    );
+  }
+
+  return normalizedCode;
+};
+
+
+const validateLocationData = (
+  data
+) => {
+  if (!data?.name?.trim()) {
+    throw new Error(
+      "El nombre del lugar es obligatorio."
+    );
+  }
+
+  return {
+    code: validateLocationCode(
+      data.code
+    ),
+    name: data.name.trim(),
+    isActive:
+      data.isActive ?? true
+  };
+};
+
+
+const findLocationById = (
+  locations,
+  locationId
+) =>
+  locations.find(
+    location =>
+      location.id === locationId
+  );
+
+
+const findDuplicateName = (
+  locations,
+  name,
+  locationId = null
+) => {
+  const normalizedName =
+    name.trim().toLowerCase();
+
+  return locations.find(
+    location =>
+      location.id !== locationId &&
+      location.name?.trim().toLowerCase() ===
+        normalizedName
+  );
+};
+
+
+const findDuplicateCode = (
+  locations,
+  code,
+  locationId = null
+) =>
+  locations.find(
+    location =>
+      location.id !== locationId &&
+      location.code === code
+  );
+
+
+const validateDuplicates = (
+  locations,
+  data,
+  locationId = null
+) => {
+  if (
+    findDuplicateName(
+      locations,
+      data.name,
+      locationId
+    )
+  ) {
+    throw new Error(
+      "Ya existe un lugar con ese nombre."
+    );
+  }
+
+  if (
+    findDuplicateCode(
+      locations,
+      data.code,
+      locationId
+    )
+  ) {
+    throw new Error(
+      "Ya existe un lugar con ese código."
+    );
+  }
+};
+
+
+const validateMinimumActiveLocations = (
+  locations,
+  locationId
+) => {
+  const activeLocations =
+    locations.filter(
+      location =>
+        location.isActive
+    );
+
+  if (
+    activeLocations.length === 1 &&
+    activeLocations[0].id === locationId
+  ) {
+    throw new Error(
+      MIN_ACTIVE_LOCATION_ERROR
+    );
+  }
+};
+
+
+const mapSnapshot = (
+  snapshot
+) =>
+  snapshot.docs.map(
+    document => ({
+      id: document.id,
+      ...document.data()
+    })
+  );
+
+
+/* =========================================================
+   GET LOCATIONS
+========================================================= */
+
+export const getLocations = async (
+  companyId
+) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
+
+  const snapshot = await getDocs(
+    getLocationsCollection(
+      companyId
+    )
+  );
+
+  return mapSnapshot(snapshot);
+};
+
+
+/* =========================================================
+   CREATE LOCATION
+========================================================= */
+
+export const createLocations = async (
+  companyId,
+  data,
+  user
+) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
+
+  const userId =
+    requireUserId(user);
+
+  const locationData =
+    validateLocationData(data);
+
+  const snapshot = await getDocs(
+    getLocationsCollection(
+      companyId
+    )
+  );
+
+  const locations =
+    mapSnapshot(snapshot);
+
+  validateDuplicates(
+    locations,
+    locationData
+  );
+
+  const timestamp =
+    Timestamp.now();
+
+  return addDoc(
+    getLocationsCollection(
+      companyId
+    ),
     {
-      name: data.name.trim(),
-      isActive: data.isActive ?? true,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      createdBy: user.uid,
-      updatedBy: user.uid
+      ...locationData,
+
+      createdAt:
+        timestamp,
+
+      updatedAt:
+        timestamp,
+
+      createdBy:
+        userId,
+
+      updatedBy:
+        userId
     }
   );
 };
 
 
-/* ===============================
+/* =========================================================
    UPDATE LOCATION
-================================= */
+========================================================= */
 
 export const updateLocations = async (
   companyId,
@@ -73,83 +332,144 @@ export const updateLocations = async (
   data,
   user
 ) => {
+  if (!companyId) {
+    throw new Error(
+      "Empresa requerida."
+    );
+  }
+
+  if (!locationId) {
+    throw new Error(
+      "ID del lugar requerido."
+    );
+  }
+
+  const userId =
+    requireUserId(user);
+
+  const locationData =
+    validateLocationData(data);
 
   const snapshot = await getDocs(
-    collection(db, "companies", companyId, "locations")
+    getLocationsCollection(
+      companyId
+    )
   );
 
-  const locations = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+  const locations =
+    mapSnapshot(snapshot);
 
-  // 🚫 Evitar nombre duplicado (excepto el actual)
-  const duplicate = locations.find(
-    p =>
-      p.name.toLowerCase() === data.name.trim().toLowerCase() &&
-      p.id !== locationId
+  const currentLocation =
+    findLocationById(
+      locations,
+      locationId
+    );
+
+  if (!currentLocation) {
+    throw new Error(
+      "Lugar no encontrado."
+    );
+  }
+
+  validateDuplicates(
+    locations,
+    locationData,
+    locationId
   );
 
-  if (duplicate) {
-    throw new Error("Ya existe un lugar con ese nombre.");
+  if (
+    locationData.isActive === false &&
+    currentLocation.isActive
+  ) {
+    validateMinimumActiveLocations(
+      locations,
+      locationId
+    );
   }
 
-  // 🚫 Evitar dejar 0 activos
-  if (data.isActive === false) {
-    const activeLocations = locations.filter(p => p.isActive);
-
-    if (activeLocations.length === 1) {
-      throw new Error(
-        "Debe existir al menos un lugar de recogida activo."
-      );
-    }
-  }
-
-  return await updateDoc(
-    doc(db, "companies", companyId, "locations", locationId),
+  return updateDoc(
+    getLocationDocument(
+      companyId,
+      locationId
+    ),
     {
-      name: data.name.trim(),
-      isActive: data.isActive,
-      updatedAt: Timestamp.now(),
-      updatedBy: user.uid
+      ...locationData,
+
+      updatedAt:
+        Timestamp.now(),
+
+      updatedBy:
+        userId
     }
   );
 };
 
 
-/* ===============================
-   TOGGLE STATUS
-================================= */
+/* =========================================================
+   TOGGLE LOCATION STATUS
+========================================================= */
 
 export const toggleLocationStatus = async (
   companyId,
   locationId,
   currentStatus
 ) => {
-
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "locations")
-  );
-
-  const locations = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  const activeLocations = locations.filter(p => p.isActive);
-
-  // 🚫 Evitar desactivar el último activo
-  if (currentStatus && activeLocations.length === 1) {
+  if (!companyId) {
     throw new Error(
-      "Debe existir al menos un lugar de recogida activo."
+      "Empresa requerida."
     );
   }
 
-  return await updateDoc(
-    doc(db, "companies", companyId, "locations", locationId),
+  if (!locationId) {
+    throw new Error(
+      "ID del lugar requerido."
+    );
+  }
+
+  const snapshot = await getDocs(
+    getLocationsCollection(
+      companyId
+    )
+  );
+
+  const locations =
+    mapSnapshot(snapshot);
+
+  const currentLocation =
+    findLocationById(
+      locations,
+      locationId
+    );
+
+  if (!currentLocation) {
+    throw new Error(
+      "Lugar no encontrado."
+    );
+  }
+
+  if (
+    currentStatus &&
+    locations.filter(
+      location =>
+        location.isActive
+    ).length === 1
+  ) {
+    throw new Error(
+      MIN_ACTIVE_LOCATION_ERROR
+    );
+  }
+
+  return updateDoc(
+    getLocationDocument(
+      companyId,
+      locationId
+    ),
     {
-      isActive: !currentStatus,
-      updatedAt: Timestamp.now()
+      isActive:
+        !currentStatus,
+
+      updatedAt:
+        Timestamp.now()
     }
   );
 };

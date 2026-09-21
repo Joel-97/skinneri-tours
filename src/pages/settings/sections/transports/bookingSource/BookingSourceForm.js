@@ -1,147 +1,145 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Modal from "../../../../../components/general/modal";
 
 import "../../../../../style/settings/transportation/catalog/catalogForm.css";
 
+
 const EMPTY_FORM = {
-
   name: "",
-
   description: "",
-
   isActive: true
-
 };
+
+
+const buildInitialForm = (bookingSource) => {
+  if (!bookingSource) {
+    return {
+      ...EMPTY_FORM
+    };
+  }
+
+  return {
+    name:
+      bookingSource.name || "",
+
+    description:
+      bookingSource.description || "",
+
+    isActive:
+      bookingSource.isActive ?? true
+  };
+};
+
+
+const validateForm = (formData) => {
+  const errors = {};
+
+  if (!formData.name?.trim()) {
+    errors.name =
+      "El nombre es obligatorio.";
+  }
+
+  return errors;
+};
+
 
 const BookingSourceForm = ({
   bookingSource = null,
   onClose,
   onSave
 }) => {
+  const isEditing =
+    Boolean(bookingSource);
 
-  /* ======================================================
-     STATE
-  ====================================================== */
+  const [formData, setFormData] =
+    useState(
+      () => buildInitialForm(
+        bookingSource
+      )
+    );
 
-  const isEditing = useMemo(
-    () => !!bookingSource,
-    [bookingSource]
-  );
+  const [errors, setErrors] =
+    useState({});
 
-  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [errors, setErrors] = useState({});
-
-  const [loading, setLoading] = useState(false);
-
-  /* ======================================================
-     LOAD DATA
-  ====================================================== */
 
   useEffect(() => {
-
-    if (bookingSource) {
-
-      setFormData({
-
-        name: bookingSource.name || "",
-
-        description: bookingSource.description || "",
-
-        isActive: bookingSource.isActive ?? true
-
-      });
-
-    } else {
-
-      setFormData(EMPTY_FORM);
-
-    }
+    setFormData(
+      buildInitialForm(
+        bookingSource
+      )
+    );
 
     setErrors({});
-
   }, [bookingSource]);
 
-  /* ======================================================
-     HANDLE CHANGE
-  ====================================================== */
 
-  const handleChange = (field, value) => {
-
-    setFormData(prev => ({
-
-      ...prev,
-
+  const updateField = (
+    field,
+    value
+  ) => {
+    setFormData(previous => ({
+      ...previous,
       [field]: value
-
     }));
 
-    if (errors[field]) {
+    setErrors(previous => {
+      if (!previous[field]) {
+        return previous;
+      }
 
-      setErrors(prev => ({
+      const next = {
+        ...previous
+      };
 
-        ...prev,
+      delete next[field];
 
-        [field]: null
-
-      }));
-
-    }
-
+      return next;
+    });
   };
 
-  /* ======================================================
-     VALIDATION
-  ====================================================== */
 
-  const validateForm = () => {
+  const handleSubmit = async (
+    event
+  ) => {
+    event.preventDefault();
 
-    const newErrors = {};
+    const validationErrors =
+      validateForm(formData);
 
-    if (!formData.name.trim()) {
-
-      newErrors.name =
-        "El nombre es obligatorio.";
-
+    if (
+      Object.keys(validationErrors)
+        .length > 0
+    ) {
+      setErrors(validationErrors);
+      return;
     }
 
-    setErrors(newErrors);
+    const finalData = {
+      name:
+        formData.name.trim(),
 
-    return Object.keys(newErrors).length === 0;
+      description:
+        formData.description?.trim() || "",
 
-  };
-
-  /* ======================================================
-     SUBMIT
-  ====================================================== */
-
-  const handleSubmit = async (e) => {
-
-    e.preventDefault();
-
-    if (!validateForm()) return;
+      isActive:
+        Boolean(formData.isActive)
+    };
 
     try {
-
       setLoading(true);
 
-      await onSave(formData);
-
+      await onSave(finalData);
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-  /* ======================================================
-     RENDER
-  ====================================================== */
 
   return (
-
     <Modal
       size="md"
       onClose={onClose}
@@ -152,48 +150,30 @@ const BookingSourceForm = ({
         onSubmit={handleSubmit}
       >
 
-        {/* ==================================================
-            HEADER
-        ================================================== */}
-
         <div className="catalog-form-header">
 
           <div className="catalog-form-header-left">
 
             <h2>
-
-              {
-
-                isEditing
-
-                  ? "Editar origen"
-
-                  : "Nuevo origen"
-
-              }
-
+              {isEditing
+                ? "Editar origen"
+                : "Nuevo origen"}
             </h2>
 
             <p>
-
-              {
-
-                isEditing
-
-                  ? "Actualiza la información del origen de la reserva."
-
-                  : "Completa la información para registrar un nuevo origen de reserva."
-
-              }
-
+              {isEditing
+                ? "Actualiza la información del origen de la reserva."
+                : "Completa la información para registrar un nuevo origen de reserva."}
             </p>
 
           </div>
+
 
           <button
             type="button"
             className="catalog-form-close"
             onClick={onClose}
+            disabled={loading}
             aria-label="Cerrar"
           >
             ×
@@ -201,79 +181,72 @@ const BookingSourceForm = ({
 
         </div>
 
-        {/* ==================================================
-            BODY
-        ================================================== */}
 
         <div className="catalog-form-body">
 
           <section className="catalog-form-section">
 
             <h3>
-
               Información general
-
             </h3>
+
 
             <div className="catalog-form-grid catalog-form-grid-1">
 
               <div className="catalog-form-group">
 
-                <label>
-
+                <label htmlFor="booking-source-name">
                   Nombre <span>*</span>
-
                 </label>
 
                 <input
+                  id="booking-source-name"
                   type="text"
                   value={formData.name}
                   placeholder="Ej. Website"
-                  onChange={(e) =>
-                    handleChange(
+                  maxLength={100}
+                  onChange={event =>
+                    updateField(
                       "name",
-                      e.target.value
+                      event.target.value
                     )
                   }
+                  required
                 />
 
-                {
-
-                  errors.name && (
-
-                    <small>
-
-                      {errors.name}
-
-                    </small>
-
-                  )
-
-                }
+                {errors.name && (
+                  <small className="catalog-form-error">
+                    {errors.name}
+                  </small>
+                )}
 
               </div>
+
 
               <div className="catalog-form-group">
 
-                <label>
-
+                <label htmlFor="booking-source-description">
                   Descripción
-
                 </label>
 
                 <textarea
+                  id="booking-source-description"
                   rows={4}
-                  value={formData.description}
+                  value={
+                    formData.description
+                  }
                   placeholder="Información adicional sobre este origen..."
-                  onChange={(e) =>
-                    handleChange(
+                  maxLength={500}
+                  onChange={event =>
+                    updateField(
                       "description",
-                      e.target.value
+                      event.target.value
                     )
                   }
                 />
 
               </div>
+
 
               <div className="catalog-form-checkbox">
 
@@ -281,16 +254,21 @@ const BookingSourceForm = ({
 
                   <input
                     type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) =>
-                      handleChange(
+                    checked={
+                      formData.isActive
+                    }
+                    onChange={event =>
+                      updateField(
                         "isActive",
-                        e.target.checked
+                        event.target.checked
                       )
                     }
+                    disabled={loading}
                   />
 
-                  Activo
+                  <span>
+                    Activo
+                  </span>
 
                 </label>
 
@@ -302,9 +280,6 @@ const BookingSourceForm = ({
 
         </div>
 
-        {/* ==================================================
-            FOOTER
-        ================================================== */}
 
         <div className="catalog-form-footer">
 
@@ -319,26 +294,17 @@ const BookingSourceForm = ({
               Cancelar
             </button>
 
+
             <button
               type="submit"
               className="btn-primary"
               disabled={loading}
             >
-
-              {
-
-                loading
-
-                  ? "Guardando..."
-
-                  : isEditing
-
-                    ? "Guardar cambios"
-
-                    : "Guardar"
-
-              }
-
+              {loading
+                ? "Guardando..."
+                : isEditing
+                  ? "Guardar cambios"
+                  : "Guardar"}
             </button>
 
           </div>
@@ -348,9 +314,8 @@ const BookingSourceForm = ({
       </form>
 
     </Modal>
-
   );
-
 };
+
 
 export default BookingSourceForm;
