@@ -1,0 +1,1359 @@
+/* ==========================================================
+   TRANSPORTATION FINANCIAL REPORT
+   ========================================================== */
+
+.transportation-financial-report,
+.transportation-financial {
+    --primary: #08204B;
+    --purple: #5B2D8B;
+    --muted: #607080;
+    --light-muted: #829CB0;
+    --text: #263548;
+    --border: #dce2e8;
+    --border-light: #edf1f4;
+    --surface: #ffffff;
+    --surface-soft: #f7f9fb;
+    --success: #287A45;
+    --danger: #C62828;
+
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.transportation-financial-report *,
+.transportation-financial-report *::before,
+.transportation-financial-report *::after,
+.transportation-financial *,
+.transportation-financial *::before,
+.transportation-financial *::after {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+.transportation-financial-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.transportation-financial-header-left {
+    min-width: 0;
+}
+
+.transportation-financial-header-title {
+    margin: 0;
+    color: var(--primary);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.transportation-financial-header-description {
+    max-width: 720px;
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   HEADER ACTIONS
+   ========================================================== */
+
+.transportation-financial-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.transportation-financial-export-button,
+.transportation-financial-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 13px;
+    border: 1px solid #d5dce4;
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--text);
+    font: 600 12px/1 inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.transportation-financial-export-button svg,
+.transportation-financial-filter-button svg {
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.transportation-financial-export-button:hover:not(:disabled),
+.transportation-financial-filter-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(8, 32, 75, .08);
+}
+
+.transportation-financial-export-button:active:not(:disabled),
+.transportation-financial-filter-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.transportation-financial-export-button:disabled,
+.transportation-financial-filter-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+
+/* Excel / PDF */
+
+.transportation-financial-export-excel {
+    color: #16833B;
+}
+
+.transportation-financial-export-excel:hover:not(:disabled) {
+    background: #f5fbf7;
+    border-color: #b9dcc6;
+}
+
+.transportation-financial-export-pdf {
+    color: var(--danger);
+}
+
+.transportation-financial-export-pdf:hover:not(:disabled) {
+    background: #fff7f7;
+    border-color: #e1bcbc;
+}
+
+
+/* Filter button */
+
+.transportation-financial-filter-button:hover:not(:disabled) {
+    color: var(--primary);
+    background: var(--surface-soft);
+    border-color: #bfc8d3;
+}
+
+.transportation-financial-filter-button.active {
+    color: #fff;
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.transportation-financial-filter-button.active:hover {
+    background: #061a3e;
+}
+
+.transportation-financial-filter-indicator {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--purple);
+}
+
+
+/* ==========================================================
+   CURRENCY
+   ========================================================== */
+
+.transportation-financial-currency {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 13px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.transportation-financial-currency-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.transportation-financial-currency-label {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.transportation-financial-currency-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 8px;
+    background: #f1edf6;
+    color: var(--purple);
+}
+
+.transportation-financial-currency-label > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.transportation-financial-currency-title {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-financial-currency-description {
+    color: var(--light-muted);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.transportation-financial-currency-control {
+    flex: 0 0 190px;
+}
+
+.transportation-financial-currency-control select {
+    width: 100%;
+    height: 38px;
+    padding: 0 34px 0 11px;
+    border: 1px solid #ccd4dd;
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+    font: 600 12px/38px inherit;
+    outline: none;
+    cursor: pointer;
+}
+
+.transportation-financial-currency-control select:hover {
+    border-color: #bfc8d3;
+    background: #fbfcfd;
+}
+
+.transportation-financial-currency-control select:focus {
+    border-color: var(--light-muted);
+    box-shadow: 0 0 0 2px rgba(130, 156, 176, .14);
+}
+
+.transportation-financial-currency-control select:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+
+/* ==========================================================
+   FILTERS
+   ========================================================== */
+
+.transportation-financial-filters {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+}
+
+.transportation-financial-filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px;
+}
+
+.transportation-financial-filters-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.transportation-financial-filters-title svg {
+    color: var(--purple);
+}
+
+.transportation-financial-filters-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.transportation-financial-clear-filters {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 9px;
+    border: 1px solid #d9d1e3;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--purple);
+    font: 600 10px/1 inherit;
+    cursor: pointer;
+}
+
+.transportation-financial-clear-filters:hover {
+    background: #f8f5fa;
+    border-color: #bca9ca;
+}
+
+.transportation-financial-filters-chevron {
+    color: #526777;
+    font-size: 11px;
+}
+
+.transportation-financial-filter-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.transportation-financial-filter-grid-main {
+    grid-template-columns:
+        minmax(320px, 2fr)
+        repeat(3, minmax(150px, 1fr));
+}
+
+.transportation-financial-filter-grid-advanced,
+.transportation-financial-advanced-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+}
+
+.transportation-financial-advanced-filters {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px solid var(--border-light);
+}
+
+.transportation-financial-advanced-title {
+    margin-bottom: 9px;
+    color: #526777;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.transportation-financial-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.transportation-financial-filter-group label,
+.transportation-financial-filter-label {
+    color: #34465A;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+
+/* ==========================================================
+   INPUTS
+   ========================================================== */
+
+.transportation-financial-filter-input {
+    width: 100%;
+    height: 34px;
+    padding: 0 9px;
+    border: 1px solid #ccd4dd;
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text);
+    font: 400 11px/34px inherit;
+    outline: none;
+}
+
+.transportation-financial-filter-input::placeholder {
+    color: #a0a9b5;
+}
+
+.transportation-financial-filter-input:hover {
+    border-color: #bfc8d3;
+}
+
+.transportation-financial-filter-input:focus {
+    border-color: var(--light-muted);
+    box-shadow: 0 0 0 2px rgba(130, 156, 176, .12);
+}
+
+
+/* Search */
+
+.transportation-financial-filter-group--search {
+    min-width: 0;
+}
+
+.transportation-financial-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.transportation-financial-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 9px;
+    z-index: 2;
+    color: var(--text);
+    font-size: 12px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.transportation-financial-search-wrapper
+.transportation-financial-filter-input {
+    padding-left: 30px;
+}
+
+
+/* ==========================================================
+   REACT SELECT
+   ========================================================== */
+
+.transportation-financial-select__control {
+    min-height: 34px !important;
+    height: 34px !important;
+    border: 1px solid #ccd4dd !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+
+.transportation-financial-select__control:hover {
+    border-color: #bfc8d3 !important;
+}
+
+.transportation-financial-select__control--is-focused {
+    border-color: var(--light-muted) !important;
+    box-shadow: 0 0 0 2px rgba(130, 156, 176, .12) !important;
+}
+
+.transportation-financial-select__value-container {
+    padding: 0 9px !important;
+}
+
+.transportation-financial-select__single-value {
+    color: var(--text) !important;
+}
+
+.transportation-financial-select__placeholder {
+    color: #9aaab5 !important;
+}
+
+.transportation-financial-select__single-value,
+.transportation-financial-select__placeholder,
+.transportation-financial-select__input {
+    font-size: 11px !important;
+}
+
+.transportation-financial-select__input-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.transportation-financial-select__indicator-separator {
+    display: none !important;
+}
+
+.transportation-financial-select__dropdown-indicator,
+.transportation-financial-select__clear-indicator {
+    color: var(--light-muted) !important;
+}
+
+.transportation-financial-select__dropdown-indicator:hover {
+    color: var(--purple) !important;
+}
+
+.transportation-financial-select__clear-indicator:hover {
+    color: var(--danger) !important;
+}
+
+.transportation-financial-select__menu {
+    z-index: 1000 !important;
+    margin-top: 3px !important;
+    border: 1px solid #dce5ea !important;
+    border-radius: 7px !important;
+    box-shadow: 0 7px 18px rgba(8, 32, 75, .11) !important;
+    overflow: hidden !important;
+}
+
+.transportation-financial-select__menu-list {
+    max-height: 220px !important;
+    padding: 4px !important;
+}
+
+.transportation-financial-select__option {
+    padding: 7px 8px !important;
+    border-radius: 5px !important;
+    color: #34465A !important;
+    background: #fff !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+}
+
+.transportation-financial-select__option--is-focused {
+    color: var(--primary) !important;
+    background: #f3f5f8 !important;
+}
+
+.transportation-financial-select__option--is-selected,
+.transportation-financial-select__option--is-selected:hover {
+    color: #fff !important;
+    background: var(--primary) !important;
+}
+
+
+/* ==========================================================
+   SUMMARY
+   ========================================================== */
+
+.transportation-financial-summary {
+    width: 100%;
+    margin: 16px 0;
+}
+
+.transportation-financial-summary-main {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.transportation-financial-summary-card {
+    position: relative;
+    min-width: 0;
+    padding: 15px 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    overflow: hidden;
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.transportation-financial-summary-card::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--primary);
+}
+
+.transportation-financial-summary-card.gross-sales::after {
+    background: var(--primary);
+}
+
+.transportation-financial-summary-card.discounts::after {
+    background: #C38A25;
+}
+
+.transportation-financial-summary-card.taxes::after {
+    background: var(--purple);
+}
+
+.transportation-financial-summary-card.commissions::after {
+    background: var(--light-muted);
+}
+
+.transportation-financial-summary-card.total::after {
+    background: #1F7A5A;
+}
+
+.transportation-financial-summary-card:hover {
+    border-color: #cbd5df;
+    box-shadow: 0 3px 10px rgba(8, 32, 75, .07);
+    transform: translateY(-1px);
+}
+
+.transportation-financial-summary-card-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.transportation-financial-summary-card-text {
+    min-width: 0;
+}
+
+.transportation-financial-summary-card-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.transportation-financial-summary-card-value {
+    display: block;
+    overflow: hidden;
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.15;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.transportation-financial-summary-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 9px;
+    background: #eef3f8;
+    color: var(--primary);
+    font-size: 16px;
+}
+
+.transportation-financial-summary-card.discounts
+.transportation-financial-summary-card-icon {
+    background: #faf5e9;
+    color: #A56B00;
+}
+
+.transportation-financial-summary-card.taxes
+.transportation-financial-summary-card-icon {
+    background: #f1edf6;
+    color: var(--purple);
+}
+
+.transportation-financial-summary-card.commissions
+.transportation-financial-summary-card-icon {
+    background: #eef3f6;
+    color: var(--muted);
+}
+
+.transportation-financial-summary-card.total
+.transportation-financial-summary-card-icon {
+    background: #eaf5ee;
+    color: var(--success);
+}
+
+
+/* Secondary summary */
+
+.transportation-financial-summary-secondary {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.transportation-financial-summary-secondary-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 190px;
+    padding: 13px 15px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+}
+
+.transportation-financial-summary-secondary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 9px;
+    background: #f1edf6;
+    color: var(--purple);
+    font-size: 15px;
+}
+
+.transportation-financial-summary-secondary-label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.transportation-financial-summary-secondary-value {
+    display: block;
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+/* ==========================================================
+   CHART
+   ========================================================== */
+
+.transportation-financial-chart {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.transportation-financial-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.transportation-financial-chart-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-financial-chart-title svg {
+    color: var(--purple);
+}
+
+.transportation-financial-chart-container {
+    width: 100%;
+    height: 330px;
+}
+
+.transportation-financial-chart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    height: 280px;
+    color: var(--light-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+.transportation-financial-chart-empty svg {
+    color: var(--light-muted);
+    font-size: 22px;
+}
+
+
+/* Recharts */
+
+.transportation-financial-chart
+.recharts-cartesian-axis-tick-value {
+    fill: var(--light-muted);
+    font-size: 11px;
+}
+
+.transportation-financial-chart
+.recharts-cartesian-axis-line,
+.transportation-financial-chart
+.recharts-cartesian-axis-tick-line {
+    stroke: #e4eaee;
+}
+
+.transportation-financial-chart
+.recharts-cartesian-grid-horizontal line {
+    stroke: #edf1f4;
+}
+
+.transportation-financial-chart
+.recharts-cartesian-grid-vertical line {
+    stroke: transparent;
+}
+
+.transportation-financial-chart
+.recharts-legend-item-text {
+    color: #526777 !important;
+    font-size: 11px;
+}
+
+.transportation-financial-chart
+.recharts-tooltip-wrapper {
+    outline: none;
+}
+
+
+/* Chart tooltip */
+
+.transportation-financial-chart-tooltip {
+    min-width: 170px;
+    padding: 11px 13px;
+    border: 1px solid #dce5ea;
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(8, 32, 75, .12);
+}
+
+.transportation-financial-chart-tooltip-date {
+    margin-bottom: 8px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.transportation-financial-chart-tooltip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 4px;
+    color: #526777;
+    font-size: 11px;
+}
+
+.transportation-financial-chart-tooltip-value {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+
+/* ==========================================================
+   TABLE
+   ========================================================== */
+
+.transportation-financial-table-container {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.transportation-financial-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 15px 18px;
+    border-bottom: 1px solid #e8edf1;
+}
+
+.transportation-financial-table-title {
+    margin: 0;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-financial-table-count {
+    color: var(--light-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.transportation-financial-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transportation-financial-table-container thead {
+    background: var(--surface-soft);
+}
+
+.transportation-financial-table-container th {
+    height: 42px;
+    padding: 0 13px;
+    border-bottom: 1px solid #dfe7ec;
+    color: #526777;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.transportation-financial-table-container td {
+    height: 50px;
+    padding: 8px 13px;
+    border-bottom: 1px solid var(--border-light);
+    color: #344B5B;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.transportation-financial-table-container tbody tr {
+    transition: background-color .15s ease;
+}
+
+.transportation-financial-table-container tbody tr:hover {
+    background: #fafbfd;
+}
+
+.transportation-financial-table-container tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* Financial columns */
+
+.transportation-financial-table-container th:nth-child(n + 6):nth-child(-n + 10) {
+    text-align: center;
+}
+
+
+/* Table cells */
+
+.transportation-financial-reservation-number {
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.transportation-financial-date {
+    color: #34465A;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.transportation-financial-client-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.transportation-financial-client-name,
+.transportation-financial-client-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.transportation-financial-client-name {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.transportation-financial-client-email {
+    color: #82909D;
+    font-size: 10px;
+}
+
+.transportation-financial-service-name {
+    color: #34465A;
+    font-size: 11px;
+}
+
+.transportation-financial-amount {
+    color: #34465A;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.transportation-financial-commission {
+    color: var(--purple);
+    font-weight: 600;
+}
+
+.transportation-financial-total {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+
+/* Status */
+
+.transportation-financial-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.transportation-financial-status.pending {
+    background: #fff4db;
+    color: #A56B00;
+}
+
+.transportation-financial-status.confirmed {
+    background: #e8f5ed;
+    color: var(--success);
+}
+
+.transportation-financial-status.completed {
+    background: #e8eef7;
+    color: #315B91;
+}
+
+.transportation-financial-status.cancelled,
+.transportation-financial-status.canceled {
+    background: #fbeaea;
+    color: #B33A3A;
+}
+
+.transportation-financial-status.draft {
+    background: #eef1f4;
+    color: #65717D;
+}
+
+
+/* ==========================================================
+   EMPTY / LOADING
+   ========================================================== */
+
+.transportation-financial-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 30px;
+    text-align: center;
+}
+
+.transportation-financial-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: #eef3f8;
+    color: var(--light-muted);
+}
+
+.transportation-financial-empty-title {
+    margin: 0 0 5px;
+    color: #34465A;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-financial-empty-description {
+    max-width: 430px;
+    margin: 0;
+    color: #82909D;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* Loading */
+
+.transportation-financial-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    padding: 30px;
+}
+
+.transportation-financial-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: #82909D;
+    font-size: 12px;
+}
+
+.transportation-financial-spinner,
+.transportation-financial-filtering-spinner {
+    border-radius: 50%;
+    animation: transportationFinancialSpin .7s linear infinite;
+}
+
+.transportation-financial-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #e5eaf0;
+    border-top-color: var(--purple);
+}
+
+.transportation-financial-filtering {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #82909D;
+    font-size: 11px;
+}
+
+.transportation-financial-filtering-spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid #dfe6eb;
+    border-top-color: var(--purple);
+}
+
+@keyframes transportationFinancialSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==========================================================
+   ERROR
+   ========================================================== */
+
+.transportation-financial-error {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid #f0cccc;
+    border-radius: 8px;
+    background: #fdf1f1;
+    color: #8D2D2D;
+    font-size: 13px;
+}
+
+.transportation-financial-error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+}
+
+.transportation-financial-error-title {
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.transportation-financial-error-message {
+    line-height: 1.45;
+}
+
+.transportation-financial-error button {
+    flex-shrink: 0;
+    min-height: 32px;
+    padding: 0 11px;
+    border: 1px solid #e6baba;
+    border-radius: 6px;
+    background: #fff;
+    color: #8D2D2D;
+    font: 600 12px/1 inherit;
+    cursor: pointer;
+}
+
+.transportation-financial-error button:hover {
+    background: #fffafa;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1100px) {
+
+    .transportation-financial-summary-main {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .transportation-financial-filter-grid-main {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .transportation-financial-filter-grid-main
+    .transportation-financial-filter-group--search {
+        grid-column: 1 / -1;
+    }
+
+    .transportation-financial-filter-grid-advanced,
+    .transportation-financial-advanced-grid {
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+    }
+
+    .transportation-financial-table-container {
+        overflow-x: auto;
+    }
+
+    .transportation-financial-table-container table {
+        min-width: 900px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .transportation-financial-header {
+        flex-direction: column;
+    }
+
+    .transportation-financial-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .transportation-financial-currency-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .transportation-financial-currency-control {
+        width: 100%;
+        min-width: 0;
+        flex-basis: auto;
+    }
+
+    .transportation-financial-summary-main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .transportation-financial-summary-secondary {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .transportation-financial-filter-grid-main,
+    .transportation-financial-filter-grid-advanced,
+    .transportation-financial-advanced-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .transportation-financial-filter-grid-main
+    .transportation-financial-filter-group--search {
+        grid-column: auto;
+    }
+
+    .transportation-financial-chart-container {
+        height: 280px;
+    }
+
+    .transportation-financial-table-container {
+        overflow-x: auto;
+    }
+
+    .transportation-financial-table-container table {
+        min-width: 900px;
+    }
+
+    .transportation-financial-error {
+        flex-direction: column;
+    }
+
+    .transportation-financial-error button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .transportation-financial-header-title {
+        font-size: 19px;
+    }
+
+    .transportation-financial-header-description {
+        font-size: 12px;
+    }
+
+    .transportation-financial-header-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .transportation-financial-export-button,
+    .transportation-financial-filter-button {
+        min-width: 0;
+        padding: 0 8px;
+    }
+
+    .transportation-financial-export-button span,
+    .transportation-financial-filter-button span {
+        font-size: 11px;
+    }
+
+    .transportation-financial-currency {
+        padding: 12px;
+    }
+
+    .transportation-financial-currency-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .transportation-financial-currency-title {
+        font-size: 12px;
+    }
+
+    .transportation-financial-currency-description {
+        font-size: 10px;
+    }
+
+    .transportation-financial-summary {
+        margin: 14px 0;
+    }
+
+    .transportation-financial-summary-main {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .transportation-financial-summary-secondary {
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .transportation-financial-summary-secondary-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .transportation-financial-summary-card {
+        padding: 14px;
+    }
+
+    .transportation-financial-summary-card-value {
+        font-size: 18px;
+    }
+
+    .transportation-financial-chart {
+        padding: 12px;
+    }
+
+    .transportation-financial-chart-container {
+        height: 240px;
+    }
+
+    .transportation-financial-table-header {
+        padding: 14px;
+    }
+}

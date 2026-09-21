@@ -1,0 +1,1545 @@
+/* ==========================================================
+   TRANSPORTATION COMMISSION REPORT
+   ========================================================== */
+
+.transportation-commission-report {
+    --primary: #08204B;
+    --purple: #5B2D8B;
+    --muted: #607080;
+    --light-muted: #829CB0;
+    --text: #263548;
+    --border: #dce2e8;
+    --border-light: #edf1f4;
+    --surface: #ffffff;
+    --surface-soft: #f7f9fb;
+    --success: #287A45;
+    --danger: #C62828;
+
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.transportation-commission-report *,
+.transportation-commission-report *::before,
+.transportation-commission-report *::after {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+.transportation-commission-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.transportation-commission-header-left {
+    min-width: 0;
+}
+
+.transportation-commission-header-title {
+    margin: 0;
+    color: var(--primary);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.transportation-commission-header-description {
+    max-width: 720px;
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   HEADER ACTIONS
+   ========================================================== */
+
+.transportation-commission-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.transportation-commission-export-button,
+.transportation-commission-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 36px;
+    padding: 0 13px;
+
+    border: 1px solid #d5dce4;
+    border-radius: 7px;
+
+    background: var(--surface);
+    color: var(--text);
+
+    font: 600 12px/1 inherit;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.transportation-commission-export-button svg,
+.transportation-commission-filter-button svg {
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.transportation-commission-export-button:hover:not(:disabled),
+.transportation-commission-filter-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(8, 32, 75, .08);
+}
+
+.transportation-commission-export-button:active:not(:disabled),
+.transportation-commission-filter-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.transportation-commission-export-button:disabled,
+.transportation-commission-filter-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+
+/* ==========================================================
+   EXCEL / PDF
+   ========================================================== */
+
+.transportation-commission-export-excel {
+    color: #16833B;
+}
+
+.transportation-commission-export-excel:hover:not(:disabled) {
+    background: #f5fbf7;
+    border-color: #b9dcc6;
+}
+
+.transportation-commission-export-pdf {
+    color: var(--danger);
+}
+
+.transportation-commission-export-pdf:hover:not(:disabled) {
+    background: #fff7f7;
+    border-color: #e1bcbc;
+}
+
+
+/* ==========================================================
+   FILTER BUTTON
+   ========================================================== */
+
+.transportation-commission-filter-button:hover:not(:disabled) {
+    background: var(--surface-soft);
+    border-color: #bfc8d3;
+    color: var(--primary);
+}
+
+.transportation-commission-filter-button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.transportation-commission-filter-button.active:hover:not(:disabled) {
+    background: #061A3E;
+    border-color: #061A3E;
+}
+
+.transportation-commission-filter-indicator {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--purple);
+}
+
+
+/* ==========================================================
+   CURRENCY
+   ========================================================== */
+
+.transportation-commission-currency {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 13px 16px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: var(--surface);
+}
+
+.transportation-commission-currency-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.transportation-commission-currency-label {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.transportation-commission-currency-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+
+    border-radius: 8px;
+
+    background: #f1edf6;
+    color: var(--purple);
+}
+
+.transportation-commission-currency-label > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.transportation-commission-currency-title {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.transportation-commission-currency-description {
+    color: var(--light-muted);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.transportation-commission-currency-control {
+    flex: 0 0 190px;
+}
+
+.transportation-commission-currency-control select {
+    width: 100%;
+    height: 38px;
+    padding: 0 34px 0 11px;
+
+    border: 1px solid #ccd4dd;
+    border-radius: 7px;
+
+    background: #fff;
+    color: var(--text);
+
+    font: 600 12px/38px inherit;
+
+    outline: none;
+    cursor: pointer;
+}
+
+.transportation-commission-currency-control select:hover {
+    border-color: #bfc8d3;
+    background: #fbfcfd;
+}
+
+.transportation-commission-currency-control select:focus {
+    border-color: var(--light-muted);
+    box-shadow: 0 0 0 2px rgba(130, 156, 176, .14);
+}
+
+.transportation-commission-currency-control select:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+
+/* ==========================================================
+   FILTERS
+   ========================================================== */
+
+.transportation-commission-filters {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 13px 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: var(--surface);
+}
+
+.transportation-commission-filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px;
+}
+
+.transportation-commission-filters-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin: 0;
+
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.transportation-commission-filters-title svg {
+    color: var(--purple);
+}
+
+.transportation-commission-filters-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.transportation-commission-clear-filters {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 28px;
+    padding: 0 9px;
+
+    border: 1px solid #d9d1e3;
+    border-radius: 6px;
+
+    background: transparent;
+    color: var(--purple);
+
+    font: 600 10px/1 inherit;
+
+    cursor: pointer;
+}
+
+.transportation-commission-clear-filters:hover {
+    background: #f8f5fa;
+    border-color: #bca9ca;
+}
+
+.transportation-commission-filters-chevron {
+    color: #526777;
+    font-size: 11px;
+}
+
+
+/* ==========================================================
+   FILTER GRID
+   ========================================================== */
+
+.transportation-commission-filter-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.transportation-commission-filter-grid-main {
+    grid-template-columns:
+        minmax(320px, 2fr)
+        repeat(2, minmax(150px, 1fr));
+}
+
+.transportation-commission-filter-grid-advanced {
+    grid-template-columns:
+        repeat(3, minmax(150px, 1fr));
+}
+
+.transportation-commission-advanced-filters {
+    margin-top: 11px;
+    padding-top: 11px;
+    border-top: 1px solid var(--border-light);
+}
+
+.transportation-commission-advanced-title {
+    margin-bottom: 9px;
+    color: #526777;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.transportation-commission-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.transportation-commission-filter-group label,
+.transportation-commission-filter-label {
+    color: #34465A;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+
+/* ==========================================================
+   INPUTS
+   ========================================================== */
+
+.transportation-commission-filter-input {
+    width: 100%;
+    height: 34px;
+    padding: 0 9px;
+
+    border: 1px solid #ccd4dd;
+    border-radius: 6px;
+
+    background: #fff;
+    color: var(--text);
+
+    font: 400 11px/34px inherit;
+
+    outline: none;
+}
+
+.transportation-commission-filter-input::placeholder {
+    color: #a0a9b5;
+}
+
+.transportation-commission-filter-input:hover {
+    border-color: #bfc8d3;
+}
+
+.transportation-commission-filter-input:focus {
+    border-color: var(--light-muted);
+    box-shadow: 0 0 0 2px rgba(130, 156, 176, .12);
+}
+
+.transportation-commission-filter-input[type="date"] {
+    cursor: pointer;
+}
+
+
+/* ==========================================================
+   SEARCH
+   ========================================================== */
+
+.transportation-commission-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.transportation-commission-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 9px;
+
+    z-index: 2;
+
+    color: var(--text);
+    font-size: 12px;
+
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.transportation-commission-search-wrapper
+.transportation-commission-filter-input {
+    padding-left: 30px;
+}
+
+
+/* ==========================================================
+   REACT SELECT
+   ========================================================== */
+
+.transportation-commission-select__control {
+    min-height: 34px !important;
+    height: 34px !important;
+
+    border: 1px solid #ccd4dd !important;
+    border-radius: 6px !important;
+
+    background: #fff !important;
+    box-shadow: none !important;
+
+    cursor: pointer !important;
+}
+
+.transportation-commission-select__control:hover {
+    border-color: #bfc8d3 !important;
+}
+
+.transportation-commission-select__control--is-focused {
+    border-color: var(--light-muted) !important;
+    box-shadow:
+        0 0 0 2px rgba(130, 156, 176, .12) !important;
+}
+
+.transportation-commission-select__value-container {
+    padding: 0 9px !important;
+}
+
+.transportation-commission-select__single-value,
+.transportation-commission-select__placeholder,
+.transportation-commission-select__input {
+    font-size: 11px !important;
+}
+
+.transportation-commission-select__single-value {
+    color: var(--text) !important;
+}
+
+.transportation-commission-select__placeholder {
+    color: #9aaab5 !important;
+}
+
+.transportation-commission-select__input-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.transportation-commission-select__indicator-separator {
+    display: none !important;
+}
+
+.transportation-commission-select__dropdown-indicator,
+.transportation-commission-select__clear-indicator {
+    color: var(--light-muted) !important;
+}
+
+.transportation-commission-select__dropdown-indicator:hover {
+    color: var(--purple) !important;
+}
+
+.transportation-commission-select__clear-indicator:hover {
+    color: var(--danger) !important;
+}
+
+.transportation-commission-select__menu {
+    z-index: 1000 !important;
+
+    margin-top: 3px !important;
+
+    border: 1px solid #dce5ea !important;
+    border-radius: 7px !important;
+
+    box-shadow:
+        0 7px 18px rgba(8, 32, 75, .11) !important;
+
+    overflow: hidden !important;
+}
+
+.transportation-commission-select__menu-list {
+    max-height: 220px !important;
+    padding: 4px !important;
+}
+
+.transportation-commission-select__option {
+    padding: 7px 8px !important;
+
+    border-radius: 5px !important;
+
+    color: #34465A !important;
+    background: #fff !important;
+
+    font-size: 11px !important;
+
+    cursor: pointer !important;
+}
+
+.transportation-commission-select__option--is-focused {
+    color: var(--primary) !important;
+    background: #f3f5f8 !important;
+}
+
+.transportation-commission-select__option--is-selected,
+.transportation-commission-select__option--is-selected:hover {
+    color: #fff !important;
+    background: var(--primary) !important;
+}
+
+
+/* ==========================================================
+   SUMMARY
+   ========================================================== */
+
+.transportation-commission-summary {
+    width: 100%;
+    margin: 16px 0;
+}
+
+.transportation-commission-summary-main {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.transportation-commission-summary-card {
+    position: relative;
+
+    min-width: 0;
+    padding: 15px 16px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: #fff;
+
+    overflow: hidden;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+.transportation-commission-summary-card::after {
+    content: "";
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    height: 3px;
+
+    background: var(--primary);
+}
+
+.transportation-commission-summary-card--commissions::after {
+    background: var(--purple);
+}
+
+.transportation-commission-summary-card--rate::after {
+    background: var(--light-muted);
+}
+
+.transportation-commission-summary-card--total::after {
+    background: #1F7A5A;
+}
+
+.transportation-commission-summary-card:hover {
+    border-color: #cbd5df;
+    box-shadow: 0 3px 10px rgba(8, 32, 75, .07);
+    transform: translateY(-1px);
+}
+
+.transportation-commission-summary-card-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.transportation-commission-summary-card-text {
+    min-width: 0;
+}
+
+.transportation-commission-summary-card-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.transportation-commission-summary-card-value {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--primary);
+
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.15;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.transportation-commission-summary-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+
+    border-radius: 9px;
+
+    background: #eef3f8;
+    color: var(--primary);
+
+    font-size: 16px;
+}
+
+.transportation-commission-summary-card--commissions
+.transportation-commission-summary-card-icon {
+    background: #f1edf6;
+    color: var(--purple);
+}
+
+.transportation-commission-summary-card--rate
+.transportation-commission-summary-card-icon {
+    background: #eef3f6;
+    color: var(--muted);
+}
+
+.transportation-commission-summary-card--total
+.transportation-commission-summary-card-icon {
+    background: #eaf5ee;
+    color: var(--success);
+}
+
+
+/* ==========================================================
+   SECONDARY SUMMARY
+   ========================================================== */
+
+.transportation-commission-summary-secondary {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.transportation-commission-summary-secondary-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 190px;
+    padding: 13px 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    background: #fff;
+}
+
+.transportation-commission-summary-secondary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+
+    border-radius: 9px;
+
+    background: #f1edf6;
+    color: var(--purple);
+
+    font-size: 15px;
+}
+
+.transportation-commission-summary-secondary-label {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.transportation-commission-summary-secondary-value {
+    display: block;
+
+    color: var(--primary);
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+/* ==========================================================
+   CHART
+   ========================================================== */
+
+.transportation-commission-chart {
+    width: 100%;
+    margin-bottom: 16px;
+    padding: 18px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: #fff;
+}
+
+.transportation-commission-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.transportation-commission-chart-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin: 0;
+
+    color: var(--primary);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-commission-chart-title svg {
+    color: var(--purple);
+}
+
+.transportation-commission-chart-container {
+    width: 100%;
+    height: 330px;
+}
+
+.transportation-commission-chart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+    height: 280px;
+
+    color: var(--light-muted);
+
+    font-size: 12px;
+    text-align: center;
+}
+
+.transportation-commission-chart-empty svg {
+    color: var(--light-muted);
+    font-size: 22px;
+}
+
+
+/* ==========================================================
+   RECHARTS
+   ========================================================== */
+
+.transportation-commission-chart
+.recharts-cartesian-axis-tick-value {
+    fill: var(--light-muted);
+    font-size: 11px;
+}
+
+.transportation-commission-chart
+.recharts-cartesian-axis-line,
+.transportation-commission-chart
+.recharts-cartesian-axis-tick-line {
+    stroke: #e4eaee;
+}
+
+.transportation-commission-chart
+.recharts-cartesian-grid-horizontal line {
+    stroke: #edf1f4;
+}
+
+.transportation-commission-chart
+.recharts-cartesian-grid-vertical line {
+    stroke: transparent;
+}
+
+.transportation-commission-chart
+.recharts-legend-item-text {
+    color: #526777 !important;
+    font-size: 11px;
+}
+
+.transportation-commission-chart
+.recharts-tooltip-wrapper {
+    outline: none;
+}
+
+
+/* ==========================================================
+   CHART TOOLTIP
+   ========================================================== */
+
+.transportation-commission-chart-tooltip {
+    min-width: 170px;
+    padding: 11px 13px;
+
+    border: 1px solid #dce5ea;
+    border-radius: 7px;
+
+    background: #fff;
+
+    box-shadow:
+        0 6px 18px rgba(8, 32, 75, .12);
+}
+
+.transportation-commission-chart-tooltip-date {
+    margin-bottom: 8px;
+
+    color: var(--primary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.transportation-commission-chart-tooltip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+    margin-top: 4px;
+
+    color: #526777;
+
+    font-size: 11px;
+}
+
+.transportation-commission-chart-tooltip-value {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+
+/* ==========================================================
+   TABLE
+   ========================================================== */
+
+.transportation-commission-table-container {
+    width: 100%;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: #fff;
+
+    overflow: hidden;
+}
+
+.transportation-commission-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+    padding: 15px 18px;
+
+    border-bottom: 1px solid #e8edf1;
+}
+
+.transportation-commission-table-title {
+    margin: 0;
+
+    color: var(--primary);
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.transportation-commission-table-count {
+    color: var(--light-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.transportation-commission-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.transportation-commission-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transportation-commission-table-container thead {
+    background: var(--surface-soft);
+}
+
+.transportation-commission-table-container th {
+    height: 42px;
+    padding: 0 13px;
+
+    border-bottom: 1px solid #dfe7ec;
+
+    color: #526777;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: left;
+    white-space: nowrap;
+}
+
+.transportation-commission-table-container td {
+    height: 50px;
+    padding: 8px 13px;
+
+    border-bottom: 1px solid var(--border-light);
+
+    color: #344B5B;
+
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.transportation-commission-table-container tbody tr {
+    transition: background-color .15s ease;
+}
+
+.transportation-commission-table-container tbody tr:hover {
+    background: #fafbfd;
+}
+
+.transportation-commission-table-container tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.transportation-commission-table-center {
+    text-align: center;
+}
+
+.transportation-commission-table-right {
+    text-align: right;
+}
+
+.transportation-commission-table-index {
+    width: 45px;
+    min-width: 45px;
+
+    color: var(--light-muted);
+
+    font-size: 11px;
+    text-align: center;
+}
+
+
+/* ==========================================================
+   TABLE CELLS
+   ========================================================== */
+
+.transportation-commission-reservation-number {
+    color: var(--primary);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.transportation-commission-date,
+.transportation-commission-service-name,
+.transportation-commission-driver-name {
+    color: #34465A;
+    font-size: 11px;
+}
+
+.transportation-commission-date,
+.transportation-commission-driver-name {
+    white-space: nowrap;
+}
+
+.transportation-commission-client-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.transportation-commission-client-name,
+.transportation-commission-client-email {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.transportation-commission-client-name {
+    color: var(--text);
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.transportation-commission-client-email {
+    color: #82909D;
+    font-size: 10px;
+}
+
+.transportation-commission-location {
+    display: block;
+
+    max-width: 190px;
+    overflow: hidden;
+
+    color: #34465A;
+
+    font-size: 11px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.transportation-commission-amount {
+    color: #34465A;
+
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+
+    text-align: center;
+    white-space: nowrap;
+}
+
+.transportation-commission-amount-primary {
+    color: var(--purple);
+    font-weight: 700;
+}
+
+.transportation-commission-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    background: #f1edf6;
+    color: var(--purple);
+
+    font-size: 10px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   STATUS
+   ========================================================== */
+
+.transportation-commission-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 72px;
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.transportation-commission-status.is-pending {
+    background: #fff4db;
+    color: #A56B00;
+}
+
+.transportation-commission-status.is-confirmed {
+    background: #e8f5ed;
+    color: var(--success);
+}
+
+.transportation-commission-status.is-completed {
+    background: #e8eef7;
+    color: #315B91;
+}
+
+.transportation-commission-status.is-cancelled {
+    background: #fbeaea;
+    color: #B33A3A;
+}
+
+.transportation-commission-status.is-draft,
+.transportation-commission-status.is-default {
+    background: #eef1f4;
+    color: #65717D;
+}
+
+
+/* ==========================================================
+   EMPTY / LOADING
+   ========================================================== */
+
+.transportation-commission-table-empty,
+.transportation-commission-table-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+    min-height: 220px;
+    padding: 30px;
+
+    text-align: center;
+}
+
+.transportation-commission-table-loading {
+    min-height: 250px;
+    color: var(--light-muted);
+    font-size: 12px;
+}
+
+.transportation-commission-table-empty svg {
+    width: 44px;
+    height: 44px;
+
+    margin-bottom: 6px;
+    padding: 10px;
+
+    border-radius: 50%;
+
+    background: #eef3f8;
+    color: var(--light-muted);
+}
+
+.transportation-commission-table-empty strong {
+    color: #34465A;
+    font-size: 14px;
+}
+
+.transportation-commission-table-empty span {
+    max-width: 430px;
+
+    color: #82909D;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.transportation-commission-table-loading-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 50%;
+
+    background: #eef3f8;
+    color: var(--light-muted);
+}
+
+
+/* ==========================================================
+   FILTERING
+   ========================================================== */
+
+.transportation-commission-filtering {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #82909D;
+    font-size: 11px;
+}
+
+.transportation-commission-filtering-spinner {
+    width: 13px;
+    height: 13px;
+
+    border: 2px solid #dfe6eb;
+    border-top-color: var(--purple);
+    border-radius: 50%;
+
+    animation: transportationCommissionSpin .7s linear infinite;
+}
+
+
+/* ==========================================================
+   ERROR
+   ========================================================== */
+
+.transportation-commission-error {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 18px;
+    margin-bottom: 20px;
+    padding: 13px 15px;
+
+    border: 1px solid #f0cccc;
+    border-radius: 8px;
+
+    background: #fdf1f1;
+    color: #8D2D2D;
+
+    font-size: 13px;
+}
+
+.transportation-commission-error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+}
+
+.transportation-commission-error-title {
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.transportation-commission-error-message {
+    line-height: 1.45;
+}
+
+.transportation-commission-error button {
+    flex-shrink: 0;
+
+    min-height: 32px;
+    padding: 0 11px;
+
+    border: 1px solid #e6baba;
+    border-radius: 6px;
+
+    background: #fff;
+    color: #8D2D2D;
+
+    font: 600 12px/1 inherit;
+
+    cursor: pointer;
+}
+
+.transportation-commission-error button:hover {
+    background: #fffafa;
+}
+
+
+/* ==========================================================
+   ANIMATION
+   ========================================================== */
+
+@keyframes transportationCommissionSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE — TABLET
+   ========================================================== */
+
+@media (max-width: 1100px) {
+
+    .transportation-commission-summary-main {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .transportation-commission-filter-grid-main {
+        grid-template-columns:
+            repeat(2, minmax(160px, 1fr));
+    }
+
+    .transportation-commission-filter-grid-main
+    .transportation-commission-filter-group--search {
+        grid-column: 1 / -1;
+    }
+
+    .transportation-commission-filter-grid-advanced {
+        grid-template-columns:
+            repeat(2, minmax(150px, 1fr));
+    }
+
+    .transportation-commission-table-container table {
+        min-width: 1050px;
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE — MOBILE
+   ========================================================== */
+
+@media (max-width: 700px) {
+
+    .transportation-commission-header {
+        flex-direction: column;
+    }
+
+    .transportation-commission-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .transportation-commission-currency-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .transportation-commission-currency-control {
+        width: 100%;
+        flex-basis: auto;
+    }
+
+    .transportation-commission-summary-main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .transportation-commission-summary-secondary {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .transportation-commission-filter-grid-main,
+    .transportation-commission-filter-grid-advanced {
+        grid-template-columns: 1fr;
+    }
+
+    .transportation-commission-filter-grid-main
+    .transportation-commission-filter-group--search {
+        grid-column: auto;
+    }
+
+    .transportation-commission-chart-container {
+        height: 280px;
+    }
+
+    .transportation-commission-table-container table {
+        min-width: 1050px;
+    }
+
+    .transportation-commission-error {
+        flex-direction: column;
+    }
+
+    .transportation-commission-error button {
+        width: 100%;
+    }
+}
+
+
+/* ==========================================================
+   RESPONSIVE — SMALL MOBILE
+   ========================================================== */
+
+@media (max-width: 480px) {
+
+    .transportation-commission-header-title {
+        font-size: 19px;
+    }
+
+    .transportation-commission-header-description {
+        font-size: 12px;
+    }
+
+    .transportation-commission-header-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .transportation-commission-export-button,
+    .transportation-commission-filter-button {
+        min-width: 0;
+        padding: 0 8px;
+    }
+
+    .transportation-commission-export-button span,
+    .transportation-commission-filter-button span {
+        font-size: 11px;
+    }
+
+    .transportation-commission-currency {
+        padding: 12px;
+    }
+
+    .transportation-commission-currency-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .transportation-commission-currency-title {
+        font-size: 12px;
+    }
+
+    .transportation-commission-currency-description {
+        font-size: 10px;
+    }
+
+    .transportation-commission-summary {
+        margin: 14px 0;
+    }
+
+    .transportation-commission-summary-main {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .transportation-commission-summary-secondary {
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .transportation-commission-summary-secondary-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .transportation-commission-summary-card {
+        padding: 14px;
+    }
+
+    .transportation-commission-summary-card-value {
+        font-size: 18px;
+    }
+
+    .transportation-commission-chart {
+        padding: 12px;
+    }
+
+    .transportation-commission-chart-container {
+        height: 240px;
+    }
+
+    .transportation-commission-table-header {
+        padding: 14px;
+    }
+
+    .transportation-commission-table-title {
+        font-size: 13px;
+    }
+
+    .transportation-commission-table-count {
+        font-size: 10px;
+    }
+}

@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 
 import {
   Plus
@@ -34,9 +39,6 @@ import DataTable from "../../../../../components/general/dataTable";
 
 import "../../../../../style/settings/transportation/catalog/catalogSection.css";
 
-/* ======================================================
-   COMPONENT
-====================================================== */
 
 const PayersSection = () => {
 
@@ -44,11 +46,14 @@ const PayersSection = () => {
      CONTEXT
   ====================================================== */
 
-  const { session } = useAuth();
+  const {
+    session
+  } = useAuth();
 
   const user = session?.user;
-
   const company = session?.company;
+  const companyId = company?.id;
+
 
   /* ======================================================
      STATE
@@ -60,10 +65,19 @@ const PayersSection = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [selectedPayer, setSelectedPayer] =
-    useState(null);
+  const [selectedPayer, setSelectedPayer] = useState(null);
 
   const [showModal, setShowModal] = useState(false);
+
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc"
+  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [itemsPerPage] = useState(10);
+
 
   /* ======================================================
      FETCH
@@ -71,43 +85,46 @@ const PayersSection = () => {
 
   const fetchPayers = useCallback(async () => {
 
-    if (!company?.id) return;
+    if (!companyId) {
+      setPayers([]);
+      setLoading(false);
+      return;
+    }
 
     try {
 
       setLoading(true);
 
       const data = await getPayers(
-
-        company.id
-
+        companyId
       );
 
-      setPayers(data);
+      setPayers(
+        Array.isArray(data)
+          ? data
+          : []
+      );
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-      console.error(error);
+      console.error(
+        "Error loading payers:",
+        error
+      );
 
       notifyError(
-
         error?.message ||
-
         "No fue posible cargar los pagadores."
-
       );
 
-    }
-
-    finally {
+    } finally {
 
       setLoading(false);
 
     }
 
-  }, [company]);
+  }, [companyId]);
+
 
   /* ======================================================
      EFFECTS
@@ -119,77 +136,238 @@ const PayersSection = () => {
 
   }, [fetchPayers]);
 
+
   /* ======================================================
-     FILTERED DATA
+     SEARCH
   ====================================================== */
 
   const filteredPayers = useMemo(() => {
 
-    const search =
+    const search = searchTerm
+      .trim()
+      .toLowerCase();
 
-      searchTerm.toLowerCase();
+    if (!search) {
+      return payers;
+    }
 
-    return payers.filter(payer => (
+    return payers.filter(
+      (payer) => {
 
-      payer.name
-        ?.toLowerCase()
-        .includes(search)
+        const name =
+          payer?.name
+            ?.toLowerCase() || "";
 
-      ||
+        const payerType =
+          payer?.payerType?.label
+            ?.toLowerCase() || "";
 
-      payer.payerType?.label
-        ?.toLowerCase()
-        .includes(search)
+        const phone =
+          payer?.phone
+            ?.toLowerCase() || "";
 
-      ||
+        const email =
+          payer?.email
+            ?.toLowerCase() || "";
 
-      payer.phone
-        ?.toLowerCase()
-        .includes(search)
+        return (
+          name.includes(search) ||
+          payerType.includes(search) ||
+          phone.includes(search) ||
+          email.includes(search)
+        );
 
-      ||
-
-      payer.email
-        ?.toLowerCase()
-        .includes(search)
-
-    ));
+      }
+    );
 
   }, [
-
     payers,
-
     searchTerm
-
   ]);
 
-    /* ======================================================
+
+  /* ======================================================
+     SORT
+  ====================================================== */
+
+  const sortedPayers = useMemo(() => {
+
+    const data = [
+      ...filteredPayers
+    ];
+
+    const {
+      key,
+      direction
+    } = sortConfig;
+
+    data.sort(
+      (a, b) => {
+
+        let valueA = "";
+        let valueB = "";
+
+        if (key === "payerType") {
+
+          valueA =
+            a?.payerType?.label || "";
+
+          valueB =
+            b?.payerType?.label || "";
+
+        } else {
+
+          valueA =
+            a?.[key] || "";
+
+          valueB =
+            b?.[key] || "";
+
+        }
+
+        valueA = String(valueA)
+          .toLowerCase();
+
+        valueB = String(valueB)
+          .toLowerCase();
+
+        if (valueA < valueB) {
+          return direction === "asc"
+            ? -1
+            : 1;
+        }
+
+        if (valueA > valueB) {
+          return direction === "asc"
+            ? 1
+            : -1;
+        }
+
+        return 0;
+
+      }
+    );
+
+    return data;
+
+  }, [
+    filteredPayers,
+    sortConfig
+  ]);
+
+
+  /* ======================================================
+     PAGINATION
+  ====================================================== */
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      sortedPayers.length /
+      itemsPerPage
+    )
+  );
+
+  const paginatedPayers = useMemo(() => {
+
+    const startIndex =
+      (currentPage - 1) *
+      itemsPerPage;
+
+    return sortedPayers.slice(
+      startIndex,
+      startIndex + itemsPerPage
+    );
+
+  }, [
+    sortedPayers,
+    currentPage,
+    itemsPerPage
+  ]);
+
+
+  /* ======================================================
+     SEARCH / PAGINATION EFFECT
+  ====================================================== */
+
+  useEffect(() => {
+
+    setCurrentPage(1);
+
+  }, [searchTerm]);
+
+
+  useEffect(() => {
+
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+
+  }, [
+    currentPage,
+    totalPages
+  ]);
+
+
+  /* ======================================================
+     SORT HANDLER
+  ====================================================== */
+
+  const handleSort = (key) => {
+
+    setSortConfig(
+      (current) => {
+
+        if (current.key !== key) {
+
+          return {
+            key,
+            direction: "asc"
+          };
+
+        }
+
+        return {
+          key,
+          direction:
+            current.direction === "asc"
+              ? "desc"
+              : "asc"
+        };
+
+      }
+    );
+
+  };
+
+
+  /* ======================================================
      MODAL
   ====================================================== */
 
   const openCreateModal = () => {
 
     setSelectedPayer(null);
-
     setShowModal(true);
 
   };
+
 
   const openEditModal = (payer) => {
 
     setSelectedPayer(payer);
-
     setShowModal(true);
 
   };
 
+
   const closeModal = () => {
 
     setShowModal(false);
-
     setSelectedPayer(null);
 
   };
+
 
   /* ======================================================
      SAVE
@@ -199,73 +377,67 @@ const PayersSection = () => {
 
     try {
 
+      if (!companyId) {
+        throw new Error(
+          "No se encontró la empresa actual."
+        );
+      }
+
       if (selectedPayer) {
 
         await updatePayer(
-
-          company.id,
-
+          companyId,
           selectedPayer.id,
-
           formData,
-
           user
-
         );
 
         notifySuccess(
-
           "Pagador actualizado",
-
           "Los cambios fueron guardados correctamente."
-
         );
 
-      }
-
-      else {
+      } else {
 
         await createPayer(
-
-          company.id,
-
+          companyId,
           formData,
-
           user
-
         );
 
         notifySuccess(
-
           "Pagador creado",
-
           "El pagador fue creado correctamente."
-
         );
 
       }
 
       closeModal();
 
-      fetchPayers();
+      await fetchPayers();
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-      console.error(error);
+      console.error(
+        "Error saving payer:",
+        error
+      );
 
       notifyError(
-
         error?.message ||
-
         "Ocurrió un error inesperado."
-
       );
+
+      /*
+       * El error se maneja aquí para que el formulario
+       * pueda finalizar correctamente su estado de loading.
+       */
+      throw error;
 
     }
 
   };
+
 
   /* ======================================================
      TOGGLE STATUS
@@ -273,69 +445,59 @@ const PayersSection = () => {
 
   const handleToggleStatus = async (payer) => {
 
+    if (!companyId || !payer?.id) {
+      return;
+    }
+
     const action =
-
       payer.isActive
-
         ? "desactivar"
-
         : "activar";
 
-    const confirmed = await notifyConfirm(
+    const confirmed =
+      await notifyConfirm(
+        `¿Deseas ${action} este pagador?`
+      );
 
-      `¿Deseas ${action} este pagador?`
-
-    );
-
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
 
       await togglePayerStatus(
-
-        company.id,
-
+        companyId,
         payer.id,
-
         payer.isActive
-
       );
 
       notifySuccess(
-
         "Estado actualizado",
-
         `El pagador fue ${
-
           action === "activar"
-
             ? "activado"
-
             : "desactivado"
-
         } correctamente.`
-
       );
 
-      fetchPayers();
+      await fetchPayers();
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-      console.error(error);
+      console.error(
+        "Error updating payer status:",
+        error
+      );
 
       notifyError(
-
         error?.message ||
-
         "No fue posible actualizar el estado."
-
       );
 
     }
 
   };
+
 
   /* ======================================================
      COLUMNS
@@ -344,74 +506,49 @@ const PayersSection = () => {
   const columns = [
 
     {
-
       key: "name",
-
       label: "Nombre",
-
       sortable: true,
-
       minWidth: "260px"
-
     },
 
     {
-
       key: "payerType",
-
       label: "Tipo",
-
+      sortable: true,
       minWidth: "220px"
-
     },
 
     {
-
       key: "phone",
-
       label: "Teléfono",
-
       minWidth: "180px"
-
     },
 
     {
-
       key: "email",
-
       label: "Email",
-
       minWidth: "260px"
-
     },
 
     {
-
       key: "status",
-
       label: "Estado",
-
       width: "140px",
-
       align: "center"
-
     },
 
     {
-
       key: "actions",
-
       label: "Acciones",
-
       width: "220px",
-
       align: "center"
-
     }
 
   ];
 
-    /* ======================================================
+
+  /* ======================================================
      RENDER
   ====================================================== */
 
@@ -437,6 +574,7 @@ const PayersSection = () => {
           />
 
           <button
+            type="button"
             className="btn-primary"
             onClick={openCreateModal}
           >
@@ -451,32 +589,36 @@ const PayersSection = () => {
 
       </CatalogHeader>
 
+
       {/* ==================================================
           CONTENT
       ================================================== */}
 
       <div className="catalog-content">
 
-        {
-
-          !loading &&
-          filteredPayers.length === 0 && (
+        {!loading &&
+          sortedPayers.length === 0 && (
 
             <CatalogEmpty
-              message="Todavía no hay pagadores registrados."
+              message={
+                searchTerm
+                  ? "No se encontraron pagadores que coincidan con la búsqueda."
+                  : "Todavía no hay pagadores registrados."
+              }
             />
 
-          )
+          )}
 
-        }
 
-        {
+        {sortedPayers.length > 0 && (
 
-          filteredPayers.length > 0 && (
+          <>
 
             <DataTable
               columns={columns}
-              data={filteredPayers}
+              data={paginatedPayers}
+              sortConfig={sortConfig}
+              onSort={handleSort}
               renderRow={(payer) => (
 
                 <>
@@ -488,12 +630,11 @@ const PayersSection = () => {
                   <td>
 
                     <strong>
-
                       {payer.name}
-
                     </strong>
 
                   </td>
+
 
                   {/* ======================================
                       TYPE
@@ -502,14 +643,12 @@ const PayersSection = () => {
                   <td>
 
                     {
-
                       payer.payerType?.label ||
-
                       "-"
-
                     }
 
                   </td>
+
 
                   {/* ======================================
                       PHONE
@@ -518,14 +657,12 @@ const PayersSection = () => {
                   <td>
 
                     {
-
                       payer.phone ||
-
                       "-"
-
                     }
 
                   </td>
+
 
                   {/* ======================================
                       EMAIL
@@ -534,14 +671,12 @@ const PayersSection = () => {
                   <td>
 
                     {
-
                       payer.email ||
-
                       "-"
-
                     }
 
                   </td>
+
 
                   {/* ======================================
                       STATUS
@@ -573,6 +708,7 @@ const PayersSection = () => {
 
                   </td>
 
+
                   {/* ======================================
                       ACTIONS
                   ====================================== */}
@@ -586,35 +722,28 @@ const PayersSection = () => {
                     <CatalogActions>
 
                       <button
+                        type="button"
                         className="catalog-action"
                         onClick={() =>
-                          openEditModal(
-                            payer
-                          )
+                          openEditModal(payer)
                         }
                       >
-
                         Editar
-
                       </button>
 
+
                       <button
+                        type="button"
                         className="catalog-action"
                         onClick={() =>
-                          handleToggleStatus(
-                            payer
-                          )
+                          handleToggleStatus(payer)
                         }
                       >
 
                         {
-
                           payer.isActive
-
                             ? "Desactivar"
-
                             : "Activar"
-
                         }
 
                       </button>
@@ -628,34 +757,91 @@ const PayersSection = () => {
               )}
             />
 
-          )
 
-        }
+            {/* ==========================================
+                PAGINATION
+            ========================================== */}
+
+            {totalPages > 1 && (
+
+              <div
+                className="catalog-pagination"
+              >
+
+                <button
+                  type="button"
+                  className="catalog-pagination__button"
+                  disabled={currentPage === 1}
+                  onClick={() =>
+                    setCurrentPage(
+                      (page) =>
+                        Math.max(
+                          1,
+                          page - 1
+                        )
+                    )
+                  }
+                >
+                  Anterior
+                </button>
+
+
+                <span
+                  className="catalog-pagination__info"
+                >
+                  Página {currentPage} de {totalPages}
+                </span>
+
+
+                <button
+                  type="button"
+                  className="catalog-pagination__button"
+                  disabled={
+                    currentPage === totalPages
+                  }
+                  onClick={() =>
+                    setCurrentPage(
+                      (page) =>
+                        Math.min(
+                          totalPages,
+                          page + 1
+                        )
+                    )
+                  }
+                >
+                  Siguiente
+                </button>
+
+              </div>
+
+            )}
+
+          </>
+
+        )}
 
       </div>
 
+
       {/* ==================================================
-          MODAL
+          FORM
       ================================================== */}
 
-      {
+      {showModal && (
 
-        showModal && (
+        <PayerForm
+          payer={selectedPayer}
+          onClose={closeModal}
+          onSave={handleSave}
+        />
 
-          <PayerForm
-            payer={selectedPayer}
-            onClose={closeModal}
-            onSave={handleSave}
-          />
-
-        )
-
-      }
+      )}
 
     </div>
 
   );
 
 };
+
 
 export default PayersSection;

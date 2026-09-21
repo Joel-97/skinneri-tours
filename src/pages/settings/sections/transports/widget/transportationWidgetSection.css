@@ -1,0 +1,670 @@
+/*
+==========================================================
+TRANSPORTATION WIDGET SECTION
+==========================================================
+*/
+
+
+/*
+==========================================================
+MAIN LAYOUT
+==========================================================
+*/
+
+.transportation-widget-section__layout {
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(320px, 1fr) minmax(420px, 1fr);
+
+  gap: 24px;
+
+  align-items: start;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+}
+
+
+/*
+==========================================================
+WIDGET INFORMATION
+==========================================================
+*/
+
+.transportation-widget-section__info {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+
+  width: 100%;
+
+  padding: 18px 20px;
+
+  flex-wrap: wrap;
+
+  box-sizing: border-box;
+
+}
+
+
+.transportation-widget-section__info-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  flex: 1;
+
+  min-width: 240px;
+
+}
+
+
+.transportation-widget-section__info-label {
+
+  flex-shrink: 0;
+
+  color: #6B7280;
+
+  font-size: .85rem;
+
+  font-weight: 600;
+
+  line-height: 1.4;
+
+}
+
+
+.transportation-widget-section__info-item strong {
+
+  color: #111827;
+
+  font-size: .9rem;
+
+  font-weight: 600;
+
+  line-height: 1.4;
+
+}
+
+
+.transportation-widget-section__info-item code {
+
+  color: #08204B;
+
+  font-size: .82rem;
+
+  line-height: 1.4;
+
+  word-break: break-all;
+
+}
+
+
+/*
+==========================================================
+CORPORATE COLOR
+==========================================================
+*/
+
+.transportation-widget-section__info-color {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 0;
+
+}
+
+
+.transportation-widget-section__color-dot {
+
+  display: inline-block;
+
+  width: 18px;
+
+  height: 18px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #D1D5DB;
+
+  border-radius: 50%;
+
+  box-sizing: border-box;
+
+}
+
+
+/*
+==========================================================
+EXTERNAL LINK
+==========================================================
+*/
+
+.transportation-widget-section__external-link {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+}
+
+
+/*
+==========================================================
+PANEL
+==========================================================
+*/
+
+.transportation-widget-section__panel {
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+}
+
+
+/*
+==========================================================
+PREVIEW HEADER
+==========================================================
+*/
+
+.transportation-widget-section__preview-header {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  width: 100%;
+
+  margin: 0 0 18px;
+
+  padding: 0;
+
+  box-sizing: border-box;
+
+}
+
+
+.transportation-widget-section__preview-header h4 {
+
+  margin: 0;
+
+  padding: 0;
+
+  color: #08204B;
+
+  font-size: 1.05rem;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+
+}
+
+
+.transportation-widget-section__preview-header p {
+
+  margin: 5px 0 0;
+
+  padding: 0;
+
+  color: #6B7280;
+
+  font-size: .88rem;
+
+  line-height: 1.5;
+
+}
+
+/*
+==========================================================
+WEBSITE INTEGRATION
+==========================================================
+*/
+
+.transportation-widget-section__integration {
+
+  width: 100%;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+}
+
+
+.transportation-widget-section__integration-header {
+
+  margin-bottom: 18px;
+
+}
+
+
+.transportation-widget-section__integration-header h4 {
+
+  margin: 0;
+
+  color: #08204B;
+
+  font-size: 1.05rem;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+
+}
+
+
+.transportation-widget-section__integration-header p {
+
+  margin: 5px 0 0;
+
+  color: #6B7280;
+
+  font-size: .88rem;
+
+  line-height: 1.5;
+
+}
+
+
+/*
+==========================================================
+INTEGRATION CODE
+==========================================================
+*/
+
+.transportation-widget-section__integration-code {
+
+  position: relative;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+}
+
+
+.transportation-widget-section__integration-code pre {
+
+  width: 100%;
+
+  margin: 0;
+
+  padding: 18px;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 8px;
+
+  background: #F8FAFC;
+
+  box-sizing: border-box;
+
+  overflow-x: auto;
+
+}
+
+
+.transportation-widget-section__integration-code code {
+
+  display: block;
+
+  color: #1F2937;
+
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+
+  font-size: .82rem;
+
+  line-height: 1.6;
+
+  white-space: pre;
+
+}
+
+
+/*
+==========================================================
+COPY CODE
+==========================================================
+*/
+
+.transportation-widget-section__copy-code {
+
+  margin-top: 12px;
+
+}
+
+
+/*
+==========================================================
+INTEGRATION HELP
+==========================================================
+*/
+
+.transportation-widget-section__integration-help {
+
+  margin-top: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 8px;
+
+  background: #F9FAFB;
+
+  box-sizing: border-box;
+
+}
+
+
+.transportation-widget-section__integration-help strong {
+
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #374151;
+
+  font-size: .85rem;
+
+  font-weight: 600;
+
+}
+
+
+.transportation-widget-section__integration-help p {
+
+  margin: 0;
+
+  color: #6B7280;
+
+  font-size: .8rem;
+
+  line-height: 1.5;
+
+}
+
+/*
+==========================================================
+RESPONSIVE — LARGE DESKTOP
+==========================================================
+*/
+
+@media (max-width: 1200px) {
+
+  .transportation-widget-section__layout {
+
+    grid-template-columns:
+      minmax(300px, 1fr) minmax(390px, 1fr);
+
+    gap: 20px;
+
+  }
+
+
+  .transportation-widget-section__panel {
+
+    padding: 22px;
+
+  }
+
+
+  .transportation-widget-section__info {
+
+    gap: 16px;
+
+  }
+
+
+  .transportation-widget-section__info-item {
+
+    min-width: 220px;
+
+  }
+
+}
+
+
+/*
+==========================================================
+RESPONSIVE — TABLET
+==========================================================
+*/
+
+@media (max-width: 1024px) {
+
+  .transportation-widget-section__layout {
+
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+
+  }
+
+
+  .transportation-widget-section__panel {
+
+    padding: 20px;
+
+  }
+
+
+  .transportation-widget-section__info {
+
+    gap: 14px;
+
+  }
+
+
+  .transportation-widget-section__info-item {
+
+    min-width: 220px;
+
+  }
+
+}
+
+
+/*
+==========================================================
+RESPONSIVE — MOBILE
+==========================================================
+*/
+
+@media (max-width: 768px) {
+
+  .transportation-widget-section__layout {
+
+    gap: 18px;
+
+  }
+
+
+  .transportation-widget-section__panel {
+
+    padding: 18px;
+
+  }
+
+
+  .transportation-widget-section__info {
+
+    align-items: stretch;
+
+    gap: 14px;
+
+    padding: 15px;
+
+  }
+
+
+  .transportation-widget-section__info-item {
+
+    width: 100%;
+
+    min-width: 100%;
+
+  }
+
+
+  .transportation-widget-section__external-link {
+
+    width: 100%;
+
+  }
+
+
+  .transportation-widget-section__preview-header {
+
+    margin-bottom: 16px;
+
+  }
+
+  .transportation-widget-section__integration {
+
+    padding: 18px;
+
+  }
+
+  .transportation-widget-section__integration-code pre {
+
+    padding: 14px;
+
+  }
+
+  .transportation-widget-section__integration-code code {
+
+    font-size: .75rem;
+
+  }
+
+}
+
+
+/*
+==========================================================
+RESPONSIVE — SMALL MOBILE
+==========================================================
+*/
+
+@media (max-width: 600px) {
+
+  .transportation-widget-section__panel {
+
+    padding: 16px;
+
+  }
+
+
+  .transportation-widget-section__info {
+
+    padding: 14px;
+
+  }
+
+
+  .transportation-widget-section__info-item {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 5px;
+
+  }
+
+
+  .transportation-widget-section__info-label {
+
+    font-size: .8rem;
+
+  }
+
+
+  .transportation-widget-section__preview-header h4 {
+
+    font-size: 1rem;
+
+  }
+
+
+  .transportation-widget-section__preview-header p {
+
+    font-size: .82rem;
+
+  }
+
+}
+
+
+/*
+==========================================================
+RESPONSIVE — VERY SMALL MOBILE
+==========================================================
+*/
+
+@media (max-width: 400px) {
+
+  .transportation-widget-section__panel {
+
+    padding: 14px;
+
+  }
+
+
+  .transportation-widget-section__info {
+
+    padding: 12px;
+
+  }
+
+
+  .transportation-widget-section__preview-header {
+
+    margin-bottom: 14px;
+
+  }
+
+}

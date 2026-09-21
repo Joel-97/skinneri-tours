@@ -98,7 +98,9 @@ export {
 
     getTransportationWidgetConfiguration,
 
-    updateTransportationWidgetAppearance
+    updateTransportationWidgetAppearance,
+
+    createTransportationWidgetReservation
 
 } from "./controllers/transportationIntegrationController.js";
 

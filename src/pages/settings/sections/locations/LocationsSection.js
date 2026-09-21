@@ -1,7 +1,8 @@
 import React, {
+  useCallback,
   useEffect,
-  useState,
-  useMemo
+  useMemo,
+  useState
 } from "react";
 
 import {
@@ -15,11 +16,32 @@ import {
   useAuth
 } from "../../../../context/AuthContext";
 
-import Modal from "../../../../components/general/modal";
+import DataTable
+  from "../../../../components/general/dataTable";
 
-import Pagination from "../../../../components/general/pagination";
+import Loading
+  from "../../../../components/general/loading";
 
-import DataTable from "../../../../components/general/dataTable";
+import LocationsForm
+  from "./LocationsForm";
+
+import CatalogHeader
+  from "../../components/CatalogHeader";
+
+import CatalogSearch
+  from "../../components/CatalogSearch";
+
+import CatalogToolbar
+  from "../../components/CatalogToolbar";
+
+import CatalogEmpty
+  from "../../components/CatalogEmpty";
+
+import CatalogStatusBadge
+  from "../../components/CatalogStatusBadge";
+
+import CatalogActions
+  from "../../components/CatalogActions";
 
 import {
   notifySuccess,
@@ -29,25 +51,63 @@ import {
 
 import "../../../../style/settings/transportation/locationsSection.css";
 
-import Loading from "../../../../components/general/loading";
+
+const LOCATION_STATUS_OPTIONS = [
+  {
+    value: "active",
+    label: "Activo"
+  },
+  {
+    value: "inactive",
+    label: "Inactivo"
+  }
+];
 
 
-/* ===============================
-   COMPONENT
-================================= */
+const TABLE_COLUMNS = [
+  {
+    key: "code",
+    label: "Código",
+    sortable: true
+  },
+  {
+    key: "name",
+    label: "Nombre",
+    sortable: true
+  },
+  {
+    key: "isActive",
+    label: "Estado",
+    sortable: true
+  },
+  {
+    key: "actions",
+    label: "Acciones",
+    sortable: false
+  }
+];
+
+
+const compareValues = (a, b) => {
+  if (typeof a === "boolean") {
+    return Number(a) - Number(b);
+  }
+
+  return String(a ?? "")
+    .toLowerCase()
+    .localeCompare(
+      String(b ?? "").toLowerCase()
+    );
+};
+
 
 const LocationsSection = () => {
-
   const { session } = useAuth();
 
   const user = session?.user;
+  const companyId =
+    session?.company?.id;
 
-  const companyId = session?.company?.id;
-
-
-  /* ===============================
-     DATA
-  ================================= */
 
   const [locations, setLocations] =
     useState([]);
@@ -55,54 +115,14 @@ const LocationsSection = () => {
   const [loading, setLoading] =
     useState(true);
 
-
-  /* ===============================
-     FORM
-  ================================= */
-
   const [showForm, setShowForm] =
     useState(false);
 
-  const [editingId, setEditingId] =
+  const [selectedLocation, setSelectedLocation] =
     useState(null);
-
-  const [form, setForm] =
-    useState({
-
-      code: "",
-
-      name: "",
-
-      isActive: true
-
-    });
-
-
-  /* ===============================
-     SORT
-  ================================= */
-
-  const [sortConfig, setSortConfig] =
-    useState({
-
-      key: "name",
-
-      direction: "asc"
-
-    });
-
-
-  /* ===============================
-     SEARCH
-  ================================= */
 
   const [searchTerm, setSearchTerm] =
     useState("");
-
-
-  /* ===============================
-     PAGINATION
-  ================================= */
 
   const [currentPage, setCurrentPage] =
     useState(1);
@@ -110,257 +130,137 @@ const LocationsSection = () => {
   const [rowsPerPage, setRowsPerPage] =
     useState(10);
 
-
-  /* ===============================
-     SORT HANDLER
-  ================================= */
-
-  const handleSort = (key) => {
-
-    setSortConfig(prev => ({
-
-      key,
-
-      direction:
-        prev.key === key &&
-        prev.direction === "asc"
-
-          ? "desc"
-
-          : "asc"
-
-    }));
-
-  };
+  const [sortConfig, setSortConfig] =
+    useState({
+      key: "name",
+      direction: "asc"
+    });
 
 
-  /* ===============================
-     NORMALIZE CODE INPUT
-  ================================= */
+  /*
+   * LOAD
+   */
 
-  const normalizeCodeInput = (
-    value
-  ) => {
+  const fetchLocations =
+    useCallback(async () => {
+      if (!companyId) {
+        setLocations([]);
+        setLoading(false);
+        return;
+      }
 
-    if (
-      typeof value !==
-      "string"
-    ) {
+      try {
+        setLoading(true);
 
-      return "";
+        const data =
+          await getLocations(
+            companyId
+          );
 
-    }
+        setLocations(
+          [...data].sort(
+            (a, b) =>
+              String(a.name || "")
+                .localeCompare(
+                  String(b.name || "")
+                )
+          )
+        );
+      } catch (error) {
+        console.error(
+          "Error loading locations:",
+          error
+        );
 
-
-    return value
-
-      .toLowerCase()
-
-      .replace(
-        /[^a-z0-9-]/g,
-        "-"
-      )
-
-      .replace(
-        /-+/g,
-        "-"
-      )
-
-      .replace(
-        /^-+|-+$/g,
-        "");
-
-  };
-
-
-  /* ===============================
-     GENERATE CODE FROM NAME
-  ================================= */
-
-  const generateCodeFromName = (
-    name
-  ) => {
-
-    if (
-      typeof name !==
-      "string"
-    ) {
-
-      return "";
-
-    }
+        notifyError(
+          error?.message ||
+          "No se pudieron cargar los lugares."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, [companyId]);
 
 
-    return name
-
-      .trim()
-
-      .toLowerCase()
-
-      .replace(
-        /[^a-z0-9]+/g,
-        "-"
-      )
-
-      .replace(
-        /^-+|-+$/g,
-        "");
-
-  };
+  useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
 
 
-  /* ===============================
-     PROCESSING
-     FILTER + SORT
-  ================================= */
+  /*
+   * RESET PAGINATION
+   */
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    rowsPerPage
+  ]);
+
+
+  /*
+   * SORT
+   */
+
+  const handleSort = useCallback(
+    key => {
+      setSortConfig(previous => ({
+        key,
+        direction:
+          previous.key === key &&
+          previous.direction === "asc"
+            ? "desc"
+            : "asc"
+      }));
+    },
+    []
+  );
+
+
+  /*
+   * FILTER + SORT
+   */
 
   const processedLocations =
     useMemo(() => {
+      const term =
+        searchTerm
+          .trim()
+          .toLowerCase();
 
-      let result =
-        locations;
+      const filtered = term
+        ? locations.filter(
+            location =>
+              [
+                location.code,
+                location.name
+              ].some(value =>
+                String(value || "")
+                  .toLowerCase()
+                  .includes(term)
+              )
+          )
+        : [...locations];
 
+      const {
+        key,
+        direction
+      } = sortConfig;
 
-      /* ===============================
-         FILTER
-      ================================= */
+      return filtered.sort(
+        (a, b) => {
+          const result =
+            compareValues(
+              a?.[key],
+              b?.[key]
+            );
 
-      if (searchTerm) {
-
-        const term =
-          searchTerm
-            .toLowerCase()
-            .trim();
-
-
-        result =
-          result.filter((location) => (
-
-            location.code
-              ?.toLowerCase()
-              .includes(term)
-
-            ||
-
-            location.name
-              ?.toLowerCase()
-              .includes(term)
-
-          ));
-
-      }
-
-
-      /* ===============================
-         SORT
-      ================================= */
-
-      result =
-        [...result].sort((a, b) => {
-
-          let aValue =
-            a[sortConfig.key];
-
-          let bValue =
-            b[sortConfig.key];
-
-
-          /* ===============================
-             BOOLEAN
-          ================================= */
-
-          if (
-            typeof aValue ===
-            "boolean"
-          ) {
-
-            aValue =
-              aValue ? 1 : 0;
-
-            bValue =
-              bValue ? 1 : 0;
-
-          }
-
-
-          /* ===============================
-             STRING
-          ================================= */
-
-          if (
-            typeof aValue ===
-            "string"
-          ) {
-
-            aValue =
-              aValue.toLowerCase();
-
-            bValue =
-              bValue.toLowerCase();
-
-          }
-
-
-          /* ===============================
-             NULL SAFETY
-          ================================= */
-
-          if (
-            aValue == null
-          ) {
-
-            aValue = "";
-
-          }
-
-          if (
-            bValue == null
-          ) {
-
-            bValue = "";
-
-          }
-
-
-          /* ===============================
-             COMPARE
-          ================================= */
-
-          if (
-            aValue < bValue
-          ) {
-
-            return (
-              sortConfig.direction ===
-              "asc"
-            )
-              ? -1
-              : 1;
-
-          }
-
-
-          if (
-            aValue > bValue
-          ) {
-
-            return (
-              sortConfig.direction ===
-              "asc"
-            )
-              ? 1
-              : -1;
-
-          }
-
-
-          return 0;
-
-        });
-
-
-      return result;
-
+          return direction === "asc"
+            ? result
+            : -result;
+        }
+      );
     }, [
       locations,
       searchTerm,
@@ -368,923 +268,302 @@ const LocationsSection = () => {
     ]);
 
 
-  /* ===============================
-     PAGINATION
-  ================================= */
+  /*
+   * MODAL
+   */
 
-  const totalPages =
-    Math.ceil(
-      processedLocations.length /
-      rowsPerPage
-    );
-
-
-  const currentLocations =
-    useMemo(() => {
-
-      const start =
-        (currentPage - 1) *
-        rowsPerPage;
-
-
-      return processedLocations.slice(
-        start,
-        start + rowsPerPage
-      );
-
-    }, [
-      processedLocations,
-      currentPage,
-      rowsPerPage
-    ]);
-
-
-  /* ===============================
-     LOAD DATA
-  ================================= */
-
-  const cargarLocations = async () => {
-
-    if (!companyId) {
-
-      return;
-
-    }
-
-
-    try {
-
-      const data =
-        await getLocations(
-          companyId
-        );
-
-
-      const ordenados =
-        [...data].sort((a, b) =>
-          (a.name || "").localeCompare(
-            b.name || ""
-          )
-        );
-
-
-      setLocations(
-        ordenados
-      );
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      notifyError(
-        "Error cargando lugares",
-        error.message ||
-        "No se pudieron cargar los lugares."
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
+  const openCreateForm = () => {
+    setSelectedLocation(null);
+    setShowForm(true);
   };
 
 
-  /* ===============================
-     INITIAL LOAD
-  ================================= */
-
-  useEffect(() => {
-
-    cargarLocations();
-
-  }, [companyId]);
-
-
-  /* ===============================
-     RESET PAGINATION
-  ================================= */
-
-  useEffect(() => {
-
-    setCurrentPage(1);
-
-  }, [
-    rowsPerPage,
-    searchTerm
-  ]);
-
-
-  /* ===============================
-     RESET FORM
-  ================================= */
-
-  const resetForm = () => {
-
-    setForm({
-
-      code: "",
-
-      name: "",
-
-      isActive: true
-
-    });
-
-
-    setEditingId(
-      null
-    );
-
-
-    setShowForm(
-      false
-    );
-
-  };
-
-
-  /* ===============================
-     CREATE / UPDATE
-  ================================= */
-
-  const handleSubmit = async (
-    e
+  const openEditForm = (
+    location
   ) => {
+    setSelectedLocation(location);
+    setShowForm(true);
+  };
 
-    e.preventDefault();
+
+  const closeForm = () => {
+    setSelectedLocation(null);
+    setShowForm(false);
+  };
 
 
-    /* ===============================
-       VALIDATE NAME
-    ================================= */
+  /*
+   * SAVE
+   */
 
-    if (
-      !form.name?.trim()
-    ) {
-
-      notifyError(
-        "El nombre es obligatorio."
+  const handleSave = async (
+    formData
+  ) => {
+    if (!companyId) {
+      throw new Error(
+        "No se encontró la empresa."
       );
-
-      return;
-
     }
 
-
-    /* ===============================
-       VALIDATE CODE
-    ================================= */
-
-    if (
-      !form.code?.trim()
-    ) {
-
-      notifyError(
-        "El código es obligatorio."
+    if (!user) {
+      throw new Error(
+        "No se encontró el usuario autenticado."
       );
-
-      return;
-
     }
-
 
     try {
-
-      const finalForm = {
-
-        ...form,
-
-        code:
-          normalizeCodeInput(
-            form.code
-          ),
-
-        name:
-          form.name.trim()
-
-      };
-
-
-      /* ===============================
-         UPDATE
-      ================================= */
-
-      if (editingId) {
-
+      if (selectedLocation?.id) {
         await updateLocations(
-
           companyId,
-
-          editingId,
-
-          finalForm,
-
+          selectedLocation.id,
+          formData,
           user
-
         );
-
 
         notifySuccess(
           "Lugar actualizado",
-          "Los cambios fueron guardados."
+          "Los cambios fueron guardados correctamente."
         );
-
-      }
-
-
-      /* ===============================
-         CREATE
-      ================================= */
-
-      else {
-
+      } else {
         await createLocations(
-
           companyId,
-
-          finalForm,
-
+          formData,
           user
-
         );
-
 
         notifySuccess(
           "Lugar creado",
           "El lugar fue creado correctamente."
         );
-
       }
 
-
-      /* ===============================
-         RESET + RELOAD
-      ================================= */
-
-      resetForm();
-
-      await cargarLocations();
-
-
+      closeForm();
+      await fetchLocations();
     } catch (error) {
-
-      console.error(error);
+      console.error(
+        "Error saving location:",
+        error
+      );
 
       notifyError(
-        error.message ||
-        "Ocurrió un error inesperado."
+        error?.message ||
+        "No fue posible guardar el lugar."
       );
 
+      throw error;
     }
-
   };
 
 
-  /* ===============================
-     EDIT
-  ================================= */
-
-  const handleEdit = (
-    location
-  ) => {
-
-    /*
-    ==========================================
-    LEGACY LOCATION
-
-    Si una ubicación antigua no tiene código,
-    generamos uno automáticamente a partir
-    del nombre.
-    ==========================================
-    */
-
-    const locationCode =
-      location.code ||
-      generateCodeFromName(
-        location.name
-      );
-
-
-    setForm({
-
-      code:
-        locationCode,
-
-      name:
-        location.name ||
-        "",
-
-      isActive:
-        location.isActive ??
-        true
-
-    });
-
-
-    setEditingId(
-      location.id
-    );
-
-
-    setShowForm(
-      true
-    );
-
-  };
-
-
-  /* ===============================
-     TOGGLE STATUS
-  ================================= */
+  /*
+   * TOGGLE
+   */
 
   const handleToggle = async (
     location
   ) => {
+    const isActive =
+      Boolean(location.isActive);
+
+    const action =
+      isActive
+        ? "desactivar"
+        : "activar";
 
     const confirmed =
       await notifyConfirm(
-
-        `¿Deseas ${
-          location.isActive
-            ? "desactivar"
-            : "activar"
-        } este lugar?`
-
+        `¿Deseas ${action} este lugar?`
       );
-
 
     if (!confirmed) {
-
       return;
-
     }
 
-
     try {
-
       await toggleLocationStatus(
-
         companyId,
-
         location.id,
-
-        location.isActive
-
+        isActive
       );
 
-
       notifySuccess(
-
         "Estado actualizado",
-
         `El lugar fue ${
-          location.isActive
+          isActive
             ? "desactivado"
             : "activado"
         } correctamente.`
-
       );
 
-
-      await cargarLocations();
-
-
+      await fetchLocations();
     } catch (error) {
+      console.error(
+        "Error updating location status:",
+        error
+      );
 
       notifyError(
-        error.message ||
-        "No se pudo actualizar."
+        error?.message ||
+        "No se pudo actualizar el estado."
       );
-
     }
-
   };
 
 
-  /* ===============================
-     RENDER
-  ================================= */
+  /*
+   * LOADING
+   */
 
   if (loading) {
-
     return <Loading />;
-
   }
 
 
-  return (
+  /*
+   * RENDER
+   */
 
+  return (
     <div className="locations-container">
 
+      <CatalogHeader
+        title="Lugares"
+        description="Administra los puntos disponibles para reservas."
+      >
+        <CatalogToolbar>
 
-      {/* ===============================
-          HEADER
-      ================================= */}
-
-      <div className="locations-header">
-
-
-        {/* ===============================
-            LEFT
-        ================================= */}
-
-        <div className="locations-header-left">
-
-          <h3>
-            Lugares
-          </h3>
-
-          <p>
-            Administra los puntos disponibles para reservas.
-          </p>
-
-        </div>
-
-
-        {/* ===============================
-            RIGHT
-        ================================= */}
-
-        <div className="locations-header-right">
-
-
-          <input
-
-            type="text"
-
-            className="search-input"
-
+          <CatalogSearch
+            value={searchTerm}
+            onChange={setSearchTerm}
             placeholder="Buscar lugar..."
-
-            value={
-              searchTerm
-            }
-
-            onChange={(e) => {
-
-              setSearchTerm(
-                e.target.value
-              );
-
-              setCurrentPage(1);
-
-            }}
-
           />
 
-
           <button
-
+            type="button"
             className="btn-primary"
-
-            onClick={() =>
-              setShowForm(true)
-            }
-
+            onClick={openCreateForm}
           >
-
             + Agregar lugar
-
           </button>
 
+        </CatalogToolbar>
+      </CatalogHeader>
 
-        </div>
-
-
-      </div>
-
-
-      {/* ===============================
-          FORM MODAL
-      ================================= */}
 
       {showForm && (
-
-        <Modal
-          onClose={
-            resetForm
+        <LocationsForm
+          location={
+            selectedLocation
           }
-        >
-
-          <div className="app-modal-header">
-
-            <h4>
-
-              {
-                editingId
-                  ? "Editar lugar"
-                  : "Nuevo lugar"
-              }
-
-            </h4>
-
-
-            <button
-
-              className="close-btn"
-
-              onClick={
-                resetForm
-              }
-
-            >
-
-              ✕
-
-            </button>
-
-          </div>
-
-
-          <form
-            onSubmit={
-              handleSubmit
-            }
-          >
-
-
-            {/* ===============================
-                CODE
-            ================================= */}
-
-            <div className="form-group">
-
-              <label>
-                Código
-              </label>
-
-
-              <input
-
-                type="text"
-
-                value={
-                  form.code
-                }
-
-                onChange={(e) =>
-                  setForm({
-
-                    ...form,
-
-                    code:
-                      normalizeCodeInput(
-                        e.target.value
-                      )
-
-                  })
-                }
-
-                placeholder="Ej: aeropuerto-lir"
-
-                maxLength={50}
-
-                required
-
-              />
-
-
-              <small>
-
-                Identificador público del lugar. Usa letras, números y guiones.
-
-              </small>
-
-            </div>
-
-
-            {/* ===============================
-                NAME
-            ================================= */}
-
-            <div className="form-group">
-
-              <label>
-                Lugar
-              </label>
-
-
-              <input
-
-                type="text"
-
-                value={
-                  form.name
-                }
-
-                onChange={(e) =>
-                  setForm({
-
-                    ...form,
-
-                    name:
-                      e.target.value
-
-                  })
-                }
-
-                required
-
-              />
-
-            </div>
-
-
-            {/* ===============================
-                ACTIVE
-            ================================= */}
-
-            <div className="form-checkbox">
-
-              <label>
-
-                <input
-
-                  type="checkbox"
-
-                  checked={
-                    form.isActive
-                  }
-
-                  onChange={(e) =>
-                    setForm({
-
-                      ...form,
-
-                      isActive:
-                        e.target.checked
-
-                    })
-                  }
-
-                />
-
-                Activo
-
-              </label>
-
-            </div>
-
-
-            {/* ===============================
-                BUTTONS
-            ================================= */}
-
-            <div className="form-actions">
-
-
-              <button
-
-                type="button"
-
-                className="btn-secondary"
-
-                onClick={
-                  resetForm
-                }
-
-              >
-
-                Cancelar
-
-              </button>
-
-
-              <button
-
-                className="btn-primary"
-
-                type="submit"
-
-              >
-
-                {
-                  editingId
-                    ? "Actualizar"
-                    : "Crear"
-                }
-
-              </button>
-
-
-            </div>
-
-
-          </form>
-
-        </Modal>
-
+          onClose={closeForm}
+          onSave={handleSave}
+        />
       )}
 
 
-      {/* ===============================
-          TABLE
-      ================================= */}
-
       <div className="locations-content">
 
-
-        {locations.length === 0 ? (
-
-          <div className="locations-empty">
-
-            <p>
-              No hay lugares registrados todavía.
-            </p>
-
-          </div>
-
+        {processedLocations.length === 0 ? (
+          <CatalogEmpty
+            message="No hay lugares registrados todavía."
+          />
         ) : (
-
           <DataTable
-
             data={
-              currentLocations
+              processedLocations
             }
-
+            currentPage={
+              currentPage
+            }
             rowsPerPage={
               rowsPerPage
             }
-
-            columns={[
-
-              {
-                key:
-                  "code",
-
-                label:
-                  "Código",
-
-                sortable:
-                  true
-
-              },
-
-              {
-                key:
-                  "name",
-
-                label:
-                  "Nombre",
-
-                sortable:
-                  true
-
-              },
-
-              {
-                key:
-                  "isActive",
-
-                label:
-                  "Estado",
-
-                sortable:
-                  true
-
-              },
-
-              {
-                key:
-                  "actions",
-
-                label:
-                  "Acciones",
-
-                sortable:
-                  false
-
-              }
-
-            ]}
-
-
-            renderRow={(location) => (
-
-              <>
-
-
-                {/* ===============================
-                    CODE
-                ================================= */}
-
-                <td>
-
-                  <span>
-
-                    {
-                      location.code ||
-                      "—"
-                    }
-
-                  </span>
-
-                </td>
-
-
-                {/* ===============================
-                    NAME
-                ================================= */}
-
-                <td>
-
-                  {
-                    location.name
-                  }
-
-                </td>
-
-
-                {/* ===============================
-                    STATUS
-                ================================= */}
-
-                <td>
-
-                  <span
-
-                    className={
-
-                      location.isActive
-
-                        ? "badge-active"
-
-                        : "badge-inactive"
-
-                    }
-
-                  >
-
-                    {
-                      location.isActive
-                        ? "Activo"
-                        : "Inactivo"
-                    }
-
-                  </span>
-
-                </td>
-
-
-                {/* ===============================
-                    ACTIONS
-                ================================= */}
-
-                <td>
-
-                  <button
-
-                    className="btn-link"
-
-                    onClick={() =>
-                      handleEdit(location)
-                    }
-
-                  >
-
-                    Editar
-
-                  </button>
-
-
-                  <button
-
-                    className="btn-link"
-
-                    onClick={() =>
-                      handleToggle(location)
-                    }
-
-                  >
-
-                    {
-                      location.isActive
-                        ? "Desactivar"
-                        : "Activar"
-                    }
-
-                  </button>
-
-                </td>
-
-
-              </>
-
-            )}
-
+            sortConfig={
+              sortConfig
+            }
+            onSort={
+              handleSort
+            }
+            columns={
+              TABLE_COLUMNS
+            }
+            renderRow={
+              location => (
+                <React.Fragment
+                  key={location.id}
+                >
+
+                  <td>
+                    {location.code ||
+                      "—"}
+                  </td>
+
+
+                  <td>
+                    {location.name ||
+                      "—"}
+                  </td>
+
+
+                  <td>
+                    <CatalogStatusBadge
+                      value={
+                        location.isActive
+                          ? "active"
+                          : "inactive"
+                      }
+                      options={
+                        LOCATION_STATUS_OPTIONS
+                      }
+                    />
+                  </td>
+
+
+                  <td>
+                    <CatalogActions>
+
+                      <button
+                        type="button"
+                        className="catalog-action"
+                        onClick={() =>
+                          openEditForm(
+                            location
+                          )
+                        }
+                      >
+                        Editar
+                      </button>
+
+
+                      <button
+                        type="button"
+                        className="catalog-action"
+                        onClick={() =>
+                          handleToggle(
+                            location
+                          )
+                        }
+                      >
+                        {
+                          location.isActive
+                            ? "Desactivar"
+                            : "Activar"
+                        }
+                      </button>
+
+                    </CatalogActions>
+                  </td>
+
+                </React.Fragment>
+              )
+            }
           />
-
         )}
 
       </div>
 
     </div>
-
   );
-
 };
 
 

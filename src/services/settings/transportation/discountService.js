@@ -4,102 +4,365 @@ import {
   getDocs,
   updateDoc,
   doc,
+  query,
+  where,
+  serverTimestamp,
   Timestamp
 } from "firebase/firestore";
+
 import { db } from "../../../firebase";
+
+const DISCOUNTS_COLLECTION = "discounts";
+
+/* ===============================
+   FIRESTORE HELPERS
+================================ */
+
+const getDiscountsCollection = (companyId) =>
+  collection(
+    db,
+    "companies",
+    companyId,
+    DISCOUNTS_COLLECTION
+  );
+
+const getDiscountDoc = (
+  companyId,
+  discountId
+) =>
+  doc(
+    db,
+    "companies",
+    companyId,
+    DISCOUNTS_COLLECTION,
+    discountId
+  );
+
+/* ===============================
+   VALIDATION HELPERS
+================================ */
+
+const validateCompanyId = (companyId) => {
+  if (
+    !companyId ||
+    typeof companyId !== "string"
+  ) {
+    throw new Error(
+      "Company ID is required."
+    );
+  }
+};
+
+const validateDiscountId = (
+  discountId
+) => {
+  if (
+    !discountId ||
+    typeof discountId !== "string"
+  ) {
+    throw new Error(
+      "Discount ID is required."
+    );
+  }
+};
+
+const validateUser = (user) => {
+  if (!user) {
+    throw new Error(
+      "Authenticated user is required."
+    );
+  }
+};
+
+const getUserId = (user) => {
+  return user?.uid || user?.id || null;
+};
+
+const validateDiscountData = (
+  data
+) => {
+  if (
+    !data ||
+    typeof data !== "object"
+  ) {
+    throw new Error(
+      "Discount data is required."
+    );
+  }
+
+  if (
+    !data.name ||
+    !data.name.trim()
+  ) {
+    throw new Error(
+      "El nombre es obligatorio."
+    );
+  }
+
+  if (!data.type) {
+    throw new Error(
+      "Debe seleccionar un tipo."
+    );
+  }
+
+  if (
+    data.type !== "percentage" &&
+    data.type !== "fixed"
+  ) {
+    throw new Error(
+      "El tipo de descuento no es válido."
+    );
+  }
+
+  if (
+    data.value === "" ||
+    data.value === null ||
+    data.value === undefined ||
+    Number.isNaN(Number(data.value)) ||
+    Number(data.value) <= 0
+  ) {
+    throw new Error(
+      "El valor debe ser mayor a 0."
+    );
+  }
+
+  if (
+    data.type === "fixed" &&
+    (!data.currency ||
+      !data.currency.trim())
+  ) {
+    throw new Error(
+      "Debe seleccionar una moneda."
+    );
+  }
+
+  if (
+    data.type === "percentage" &&
+    Number(data.value) > 100
+  ) {
+    throw new Error(
+      "El porcentaje no puede ser mayor a 100."
+    );
+  }
+};
+
+/* ===============================
+   NORMALIZATION
+================================ */
+
+const normalizeName = (
+  value = ""
+) => {
+  return value
+    .trim()
+    .replace(/\s+/g, " ");
+};
+
+const normalizeCurrency = (
+  value = ""
+) => {
+  return value
+    .trim()
+    .toUpperCase();
+};
+
+const normalizeDiscountData = (
+  data = {}
+) => {
+  const type = data.type;
+
+  return {
+    name: normalizeName(data.name),
+    type,
+    value: Number(data.value),
+    currency:
+      type === "fixed"
+        ? normalizeCurrency(data.currency)
+        : null,
+    expirationDate:
+      data.expirationDate || "",
+    isActive:
+      data.isActive !== false
+  };
+};
+
+/* ===============================
+   EXPIRATION DATE
+================================ */
+
+const buildExpirationTimestamp = (
+  expirationDate
+) => {
+  if (!expirationDate) {
+    return null;
+  }
+
+  if (
+    expirationDate instanceof Timestamp
+  ) {
+    return expirationDate;
+  }
+
+  if (
+    expirationDate?.toDate
+  ) {
+    return Timestamp.fromDate(
+      expirationDate.toDate()
+    );
+  }
+
+  const date = new Date(
+    `${expirationDate}T00:00:00`
+  );
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(
+      "La fecha de expiración no es válida."
+    );
+  }
+
+  return Timestamp.fromDate(date);
+};
+
+/* ===============================
+   DUPLICATE NAME VALIDATION
+================================ */
+
+const validateDuplicateName = async (
+  companyId,
+  name,
+  discountId = null
+) => {
+  const ref =
+    getDiscountsCollection(
+      companyId
+    );
+
+  const q = query(
+    ref,
+    where("name", "==", name)
+  );
+
+  const snapshot =
+    await getDocs(q);
+
+  const duplicate =
+    snapshot.docs.find(
+      (discount) =>
+        discount.id !== discountId
+    );
+
+  if (duplicate) {
+    throw new Error(
+      "Ya existe un descuento con ese nombre."
+    );
+  }
+};
 
 /* ===============================
    GET DISCOUNTS
-================================= */
+================================ */
 
-export const getDiscounts = async (companyId) => {
+export const getDiscounts = async (
+  companyId
+) => {
+  validateCompanyId(companyId);
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "discounts")
+  const ref =
+    getDiscountsCollection(
+      companyId
+    );
+
+  const snapshot =
+    await getDocs(ref);
+
+  return snapshot.docs.map(
+    (discount) => ({
+      id: discount.id,
+      ...discount.data()
+    })
   );
-
-  return snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 };
-
 
 /* ===============================
    CREATE DISCOUNT
-================================= */
+================================ */
 
 export const createDiscount = async (
   companyId,
   data,
   user
 ) => {
+  validateCompanyId(companyId);
+  validateUser(user);
+  validateDiscountData(data);
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "discounts")
+  const normalizedData =
+    normalizeDiscountData(data);
+
+  await validateDuplicateName(
+    companyId,
+    normalizedData.name
   );
 
-  const discounts = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+  const ref =
+    getDiscountsCollection(
+      companyId
+    );
 
-  // 🚫 Evitar nombre duplicado
-  const duplicate = discounts.find(
-    d => d.name.toLowerCase() === data.name.trim().toLowerCase()
-  );
+  const userId =
+    getUserId(user);
 
-  if (duplicate) {
-    throw new Error("Ya existe un descuento con ese nombre.");
-  }
+  const discountData = {
+    name: normalizedData.name,
 
-  // 🚫 Validaciones por tipo
-  if (!data.name) {
-    throw new Error("El nombre es obligatorio.");
-  }
+    type: normalizedData.type,
 
-  if (!data.type) {
-    throw new Error("Debe seleccionar un tipo.");
-  }
+    value: normalizedData.value,
 
-  if (!data.value || data.value <= 0) {
-    throw new Error("El valor debe ser mayor a 0.");
-  }
+    currency:
+      normalizedData.currency,
 
-  if (data.type === "fixed" && !data.currency) {
-    throw new Error("Debe seleccionar una moneda.");
-  }
+    expirationDate:
+      buildExpirationTimestamp(
+        normalizedData.expirationDate
+      ),
 
-  if (data.type === "percentage" && data.value > 100) {
-    throw new Error("El porcentaje no puede ser mayor a 100.");
-  }
+    appliesTo: {
+      serviceTypes: []
+    },
 
-  return await addDoc(
-    collection(db, "companies", companyId, "discounts"),
-    {
-      name: data.name.trim(),
-      type: data.type,
-      value: data.value,
-      currency: data.type === "fixed" ? data.currency : null,
-      expirationDate: data.expirationDate
-        ? Timestamp.fromDate(new Date(data.expirationDate))
-        : null,
-      appliesTo: {
-        serviceTypes: [] // preparado para futuro
-      },
-      isActive: data.isActive ?? true,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
-      createdBy: user.uid,
-      updatedBy: user.uid
-    }
-  );
+    isActive:
+      normalizedData.isActive,
+
+    createdAt:
+      serverTimestamp(),
+
+    updatedAt:
+      serverTimestamp(),
+
+    createdBy:
+      userId,
+
+    updatedBy:
+      userId
+  };
+
+  const document =
+    await addDoc(
+      ref,
+      discountData
+    );
+
+  return {
+    id: document.id,
+    ...discountData
+  };
 };
-
 
 /* ===============================
    UPDATE DISCOUNT
-================================= */
+================================ */
 
 export const updateDiscount = async (
   companyId,
@@ -107,104 +370,189 @@ export const updateDiscount = async (
   data,
   user
 ) => {
+  validateCompanyId(companyId);
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "discounts")
+  validateDiscountId(
+    discountId
   );
 
-  const discounts = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+  validateUser(user);
+  validateDiscountData(data);
 
-  // 🚫 Evitar duplicados
-  const duplicate = discounts.find(
-    d =>
-      d.name.toLowerCase() === data.name.trim().toLowerCase() &&
-      d.id !== discountId
+  const normalizedData =
+    normalizeDiscountData(data);
+
+  await validateDuplicateName(
+    companyId,
+    normalizedData.name,
+    discountId
   );
 
-  if (duplicate) {
-    throw new Error("Ya existe un descuento con ese nombre.");
-  }
+  /*
+   * Prevent the company from
+   * having zero active discounts.
+   */
+  if (
+    normalizedData.isActive === false
+  ) {
+    const ref =
+      getDiscountsCollection(
+        companyId
+      );
 
-  if (!data.name) {
-    throw new Error("El nombre es obligatorio.");
-  }
+    const activeQuery = query(
+      ref,
+      where("isActive", "==", true)
+    );
 
-  if (!data.value || data.value <= 0) {
-    throw new Error("El valor debe ser mayor a 0.");
-  }
+    const snapshot =
+      await getDocs(activeQuery);
 
-  if (data.type === "fixed" && !data.currency) {
-    throw new Error("Debe seleccionar una moneda.");
-  }
+    const hasAnotherActiveDiscount =
+      snapshot.docs.some(
+        (discount) =>
+          discount.id !== discountId
+      );
 
-  if (data.type === "percentage" && data.value > 100) {
-    throw new Error("El porcentaje no puede ser mayor a 100.");
-  }
-
-  // 🚫 No permitir 0 activos
-  if (data.isActive === false) {
-    const activeDiscounts = discounts.filter(d => d.isActive);
-
-    if (activeDiscounts.length === 1) {
+    if (
+      !hasAnotherActiveDiscount
+    ) {
       throw new Error(
         "Debe existir al menos un descuento activo."
       );
     }
   }
 
-  return await updateDoc(
-    doc(db, "companies", companyId, "discounts", discountId),
-    {
-      name: data.name.trim(),
-      type: data.type,
-      value: data.value,
-      currency: data.type === "fixed" ? data.currency : null,
-      expirationDate: data.expirationDate
-        ? Timestamp.fromDate(new Date(data.expirationDate))
-        : null,
-      isActive: data.isActive,
-      updatedAt: Timestamp.now(),
-      updatedBy: user.uid
-    }
+  const ref =
+    getDiscountDoc(
+      companyId,
+      discountId
+    );
+
+  const userId =
+    getUserId(user);
+
+  const updateData = {
+    name: normalizedData.name,
+
+    type: normalizedData.type,
+
+    value: normalizedData.value,
+
+    currency:
+      normalizedData.currency,
+
+    expirationDate:
+      buildExpirationTimestamp(
+        normalizedData.expirationDate
+      ),
+
+    isActive:
+      normalizedData.isActive,
+
+    updatedAt:
+      serverTimestamp(),
+
+    updatedBy:
+      userId
+  };
+
+  await updateDoc(
+    ref,
+    updateData
   );
+
+  return {
+    id: discountId,
+    ...updateData
+  };
 };
 
-
 /* ===============================
-   TOGGLE STATUS
-================================= */
+   TOGGLE DISCOUNT STATUS
+================================ */
 
 export const toggleDiscountStatus = async (
   companyId,
   discountId,
-  currentStatus
+  currentStatus,
+  user
 ) => {
+  validateCompanyId(companyId);
 
-  const snapshot = await getDocs(
-    collection(db, "companies", companyId, "discounts")
+  validateDiscountId(
+    discountId
   );
 
-  const discounts = snapshot.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+  validateUser(user);
 
-  const activeDiscounts = discounts.filter(d => d.isActive);
+  /*
+   * Only validate the minimum
+   * active discount rule when
+   * disabling an active discount.
+   */
+  if (currentStatus === true) {
+    const ref =
+      getDiscountsCollection(
+        companyId
+      );
 
-  if (currentStatus && activeDiscounts.length === 1) {
-    throw new Error(
-      "Debe existir al menos un descuento activo."
+    const activeQuery = query(
+      ref,
+      where("isActive", "==", true)
     );
+
+    const snapshot =
+      await getDocs(activeQuery);
+
+    /*
+     * Check whether another
+     * active discount exists.
+     */
+    const hasAnotherActiveDiscount =
+      snapshot.docs.some(
+        (discount) =>
+          discount.id !== discountId
+      );
+
+    if (
+      !hasAnotherActiveDiscount
+    ) {
+      throw new Error(
+        "Debe existir al menos un descuento activo."
+      );
+    }
   }
 
-  return await updateDoc(
-    doc(db, "companies", companyId, "discounts", discountId),
-    {
-      isActive: !currentStatus,
-      updatedAt: Timestamp.now()
-    }
+  const ref =
+    getDiscountDoc(
+      companyId,
+      discountId
+    );
+
+  const userId =
+    getUserId(user);
+
+  const newStatus =
+    !currentStatus;
+
+  const updateData = {
+    isActive: newStatus,
+
+    updatedAt:
+      serverTimestamp(),
+
+    updatedBy:
+      userId
+  };
+
+  await updateDoc(
+    ref,
+    updateData
   );
+
+  return {
+    id: discountId,
+    isActive: newStatus
+  };
 };

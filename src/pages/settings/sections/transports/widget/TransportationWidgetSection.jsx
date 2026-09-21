@@ -11,19 +11,21 @@ import React, {
 } from "react";
 
 import {
+  Code,
+  Copy,
+  ExternalLink,
   Palette,
   RotateCcw,
-  Save,
-  Copy,
-  ExternalLink
+  Save
 } from "lucide-react";
 
-import { useAuth } from "../../../../../context/AuthContext";
+import { useAuth }
+  from "../../../../../context/AuthContext";
 
 import {
-  notifySuccess,
+  notifyConfirm,
   notifyError,
-  notifyConfirm
+  notifySuccess
 } from "../../../../../services/notificationService";
 
 import {
@@ -35,88 +37,24 @@ import {
   updateTransportationWidgetAppearance
 } from "../../../../../services/platform/transportationWidgetService";
 
-import CatalogHeader from "../../../components/CatalogHeader";
-import CatalogToolbar from "../../../components/CatalogToolbar";
+import CatalogHeader
+  from "../../../components/CatalogHeader";
 
-import "../../../../../style/settings/transportation/catalog/catalogSection.css";
-import "../../../../../style/settings/transportation/widget/transportationWidgetSection.css";
+import CatalogToolbar
+  from "../../../components/CatalogToolbar";
 
+import WidgetAppearanceEditor
+  from "./components/appearanceEditor/WidgetAppearanceEditor";
 
-/*
-==========================================================
-DEFAULT APPEARANCE
-==========================================================
-*/
+import WidgetPreview
+  from "./components/preview/WidgetPreview";
 
-const DEFAULT_APPEARANCE = Object.freeze({
+import {
+  DEFAULT_APPEARANCE,
+  DEFAULT_COMPANY_BRANDING
+} from "./widgetConstants";
 
-  primaryColor: "#2563EB",
-
-  backgroundColor: "#FFFFFF",
-
-  textColor: "#111827",
-
-  fieldBackgroundColor: "#FFFFFF",
-
-  borderRadius: 8,
-
-  fontFamily: "Inter",
-
-  buttonStyle: "filled"
-
-});
-
-
-/*
-==========================================================
-FONT OPTIONS
-==========================================================
-*/
-
-const FONT_OPTIONS = [
-
-  {
-    value: "Inter",
-    label: "Inter"
-  },
-
-  {
-    value: "Arial",
-    label: "Arial"
-  },
-
-  {
-    value: "Helvetica",
-    label: "Helvetica"
-  },
-
-  {
-    value: "system-ui",
-    label: "System"
-  }
-
-];
-
-
-/*
-==========================================================
-BUTTON STYLE OPTIONS
-==========================================================
-*/
-
-const BUTTON_STYLE_OPTIONS = [
-
-  {
-    value: "filled",
-    label: "Relleno"
-  },
-
-  {
-    value: "outline",
-    label: "Contorno"
-  }
-
-];
+import "./transportationWidgetSection.css";
 
 
 /*
@@ -128,51 +66,73 @@ COMPONENT
 const TransportationWidgetSection = () => {
 
   /*
-  ==========================================================
+  ========================================================
   CONTEXT
-  ==========================================================
+  ========================================================
   */
 
-  const { session } = useAuth();
+  const { session } =
+    useAuth();
 
-  const company = session?.company;
+  const company =
+    session?.company;
+
+  const companyId =
+    company?.id || "";
 
 
   /*
-  ==========================================================
+  ========================================================
   STATE
-  ==========================================================
+  ========================================================
   */
 
-  const [widgetId, setWidgetId] =
-    useState("");
+  const [
+    widgetId,
+    setWidgetId
+  ] = useState("");
 
-  const [appearance, setAppearance] =
-    useState({
-      ...DEFAULT_APPEARANCE
-    });
+  const [
+    appearance,
+    setAppearance
+  ] = useState({
+    ...DEFAULT_APPEARANCE
+  });
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    companyBranding,
+    setCompanyBranding
+  ] = useState({
+    ...DEFAULT_COMPANY_BRANDING
+  });
 
-  const [saving, setSaving] =
-    useState(false);
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
-  const [resetting, setResetting] =
-    useState(false);
+  const [
+    saving,
+    setSaving
+  ] = useState(false);
+
+  const [
+    resetting,
+    setResetting
+  ] = useState(false);
 
 
   /*
-  ==========================================================
-  FETCH WIDGET
-  ==========================================================
+  ========================================================
+  FETCH WIDGET CONFIGURATION
+  ========================================================
   */
 
   const fetchWidgetConfiguration =
     useCallback(
       async () => {
 
-        if (!company?.id) {
+        if (!companyId) {
 
           setLoading(false);
 
@@ -187,27 +147,25 @@ const TransportationWidgetSection = () => {
 
           /*
           --------------------------------------------------
-          GET INTEGRATION
+          GET TRANSPORTATION INTEGRATION
           --------------------------------------------------
           */
 
           const integrationResult =
             await getTransportationIntegration(
-              company.id
+              companyId
             );
-
 
           const integration =
             integrationResult?.data;
 
-
           const currentWidgetId =
-            integration?.widgetId;
+            integration?.widgetId || "";
 
 
           /*
           --------------------------------------------------
-          VALIDATE WIDGET
+          NO WIDGET
           --------------------------------------------------
           */
 
@@ -217,6 +175,22 @@ const TransportationWidgetSection = () => {
 
             setAppearance({
               ...DEFAULT_APPEARANCE
+            });
+
+            setCompanyBranding({
+
+              ...DEFAULT_COMPANY_BRANDING,
+
+              name:
+                company?.name || "",
+
+              logoURL:
+                company?.logoURL || "",
+
+              primaryColor:
+                company?.primaryColor ||
+                DEFAULT_COMPANY_BRANDING.primaryColor
+
             });
 
             return;
@@ -246,18 +220,50 @@ const TransportationWidgetSection = () => {
               currentWidgetId
             );
 
-
           const widgetData =
             widgetResult?.data;
 
-
           const widgetAppearance =
-            widgetData?.appearance;
+            widgetData?.appearance || {};
+
+          const widgetCompany =
+            widgetData?.company || {};
 
 
           /*
           --------------------------------------------------
-          MERGE WITH DEFAULTS
+          COMPANY BRANDING
+          
+          Logo and primary color come from the company
+          configuration.
+          --------------------------------------------------
+          */
+
+          setCompanyBranding({
+
+            ...DEFAULT_COMPANY_BRANDING,
+
+            name:
+              widgetCompany?.name ||
+              company?.name ||
+              "",
+
+            logoURL:
+              widgetCompany?.logoURL ||
+              company?.logoURL ||
+              "",
+
+            primaryColor:
+              widgetCompany?.primaryColor ||
+              company?.primaryColor ||
+              DEFAULT_COMPANY_BRANDING.primaryColor
+
+          });
+
+
+          /*
+          --------------------------------------------------
+          APPEARANCE
           --------------------------------------------------
           */
 
@@ -265,7 +271,7 @@ const TransportationWidgetSection = () => {
 
             ...DEFAULT_APPEARANCE,
 
-            ...(widgetAppearance || {})
+            ...widgetAppearance
 
           });
 
@@ -273,7 +279,10 @@ const TransportationWidgetSection = () => {
 
         catch (error) {
 
-          console.error(error);
+          console.error(
+            "Unable to load transportation Widget configuration:",
+            error
+          );
 
           notifyError(
             error?.message ||
@@ -289,14 +298,19 @@ const TransportationWidgetSection = () => {
         }
 
       },
-      [company]
+      [
+        companyId,
+        company?.name,
+        company?.logoURL,
+        company?.primaryColor
+      ]
     );
 
 
   /*
-  ==========================================================
-  EFFECT
-  ==========================================================
+  ========================================================
+  LOAD
+  ========================================================
   */
 
   useEffect(() => {
@@ -309,9 +323,9 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
-  HANDLE CHANGE
-  ==========================================================
+  ========================================================
+  HANDLE APPEARANCE CHANGE
+  ========================================================
   */
 
   const handleAppearanceChange = (
@@ -324,7 +338,8 @@ const TransportationWidgetSection = () => {
 
         ...current,
 
-        [field]: value
+        [field]:
+          value
 
       })
     );
@@ -333,20 +348,22 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
+  ========================================================
   SAVE
-  ==========================================================
+  ========================================================
   */
 
   const handleSave = async () => {
 
     if (
       !widgetId ||
-      saving
+      saving ||
+      resetting
     ) {
-      return;
-    }
 
+      return;
+
+    }
 
     try {
 
@@ -354,19 +371,56 @@ const TransportationWidgetSection = () => {
 
 
       /*
-      ------------------------------------------------------
-      SAVE APPEARANCE
-      ------------------------------------------------------
+      --------------------------------------------------
+      ONLY SAVE WIDGET-SPECIFIC APPEARANCE
+      --------------------------------------------------
       */
+
+      const appearanceToSave = {
+
+        backgroundColor:
+          appearance?.backgroundColor ||
+          DEFAULT_APPEARANCE.backgroundColor,
+
+        textColor:
+          appearance?.textColor ||
+          DEFAULT_APPEARANCE.textColor,
+
+        fieldBackgroundColor:
+          appearance?.fieldBackgroundColor ||
+          DEFAULT_APPEARANCE.fieldBackgroundColor,
+
+        borderRadius:
+          Number(
+            appearance?.borderRadius ??
+            DEFAULT_APPEARANCE.borderRadius
+          ),
+
+        fontFamily:
+          appearance?.fontFamily ||
+          DEFAULT_APPEARANCE.fontFamily,
+
+        buttonStyle:
+          appearance?.buttonStyle ||
+          DEFAULT_APPEARANCE.buttonStyle
+
+      };
+
 
       await updateTransportationWidgetAppearance(
 
         widgetId,
 
-        appearance
+        appearanceToSave
 
       );
 
+
+      /*
+      --------------------------------------------------
+      SUCCESS
+      --------------------------------------------------
+      */
 
       notifySuccess(
         "Configuración guardada",
@@ -377,7 +431,10 @@ const TransportationWidgetSection = () => {
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        "Unable to save transportation Widget appearance:",
+        error
+      );
 
       notifyError(
         error?.message ||
@@ -396,9 +453,9 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
+  ========================================================
   RESET DEFAULTS
-  ==========================================================
+  ========================================================
   */
 
   const handleReset = async () => {
@@ -408,7 +465,9 @@ const TransportationWidgetSection = () => {
       resetting ||
       saving
     ) {
+
       return;
+
     }
 
 
@@ -419,7 +478,9 @@ const TransportationWidgetSection = () => {
 
 
     if (!confirmed) {
+
       return;
+
     }
 
 
@@ -429,9 +490,9 @@ const TransportationWidgetSection = () => {
 
 
       /*
-      ------------------------------------------------------
-      RESET
-      ------------------------------------------------------
+      --------------------------------------------------
+      SAVE DEFAULT APPEARANCE
+      --------------------------------------------------
       */
 
       await updateTransportationWidgetAppearance(
@@ -446,9 +507,9 @@ const TransportationWidgetSection = () => {
 
 
       /*
-      ------------------------------------------------------
+      --------------------------------------------------
       UPDATE LOCAL STATE
-      ------------------------------------------------------
+      --------------------------------------------------
       */
 
       setAppearance({
@@ -465,7 +526,10 @@ const TransportationWidgetSection = () => {
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        "Unable to reset transportation Widget appearance:",
+        error
+      );
 
       notifyError(
         error?.message ||
@@ -484,15 +548,17 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
+  ========================================================
   COPY WIDGET ID
-  ==========================================================
+  ========================================================
   */
 
   const handleCopyWidgetId = async () => {
 
     if (!widgetId) {
+
       return;
+
     }
 
 
@@ -512,7 +578,10 @@ const TransportationWidgetSection = () => {
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        "Unable to copy Widget ID:",
+        error
+      );
 
       notifyError(
         "No fue posible copiar el Widget ID."
@@ -524,103 +593,70 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
-  WIDGET URL
-  ==========================================================
+  ========================================================
+    WIDGET URL
+  ========================================================
   */
 
   const widgetUrl =
     widgetId
-
       ? `https://widget.skinneri.com/transportation/${widgetId}`
-
       : "";
 
+  const widgetEmbedCode =
+    widgetId
+      ? `<script src="https://widget.skinneri.com/transportation-widget.js" data-widget-id="${widgetId}"></script>`
+      : "";
 
-  /*
-  ==========================================================
-  PREVIEW BUTTON STYLE
-  ==========================================================
-  */
+  const handleCopyWidgetEmbedCode = async () => {
 
-  const previewButtonStyle = {
+    if (!widgetEmbedCode) {
+      return;
+    }
 
-    backgroundColor:
-      appearance.buttonStyle === "filled"
+    try {
 
-        ? appearance.primaryColor
+      await navigator.clipboard.writeText(
+        widgetEmbedCode
+      );
 
-        : "transparent",
+      notifySuccess(
+        "Código copiado",
+        "El código de integración fue copiado al portapapeles."
+      );
 
-    color:
-      appearance.buttonStyle === "filled"
+    }
 
-        ? "#FFFFFF"
+    catch (error) {
 
-        : appearance.primaryColor,
+      console.error(
+        "Unable to copy Widget embed code:",
+        error
+      );
 
-    border:
-      `1px solid ${appearance.primaryColor}`,
+      notifyError(
+        "No fue posible copiar el código de integración."
+      );
 
-    borderRadius:
-      `${appearance.borderRadius}px`
-
-  };
-
-
-  /*
-  ==========================================================
-  PREVIEW STYLE
-  ==========================================================
-  */
-
-  const previewStyle = {
-
-    backgroundColor:
-      appearance.backgroundColor,
-
-    color:
-      appearance.textColor,
-
-    fontFamily:
-      appearance.fontFamily,
-
-    borderRadius:
-      `${appearance.borderRadius}px`
+    }
 
   };
 
-
   /*
-  ==========================================================
-  FIELD PREVIEW STYLE
-  ==========================================================
+  ========================================================
+  PRIMARY COLOR
+  ========================================================
   */
 
-  const fieldPreviewStyle = {
-
-    backgroundColor:
-      appearance.fieldBackgroundColor,
-
-    borderColor:
-      "#D8DEE8",
-
-    borderRadius:
-      `${appearance.borderRadius}px`,
-
-    color:
-      appearance.textColor,
-
-    fontFamily:
-      appearance.fontFamily
-
-  };
+  const primaryColor =
+    companyBranding?.primaryColor ||
+    DEFAULT_COMPANY_BRANDING.primaryColor;
 
 
   /*
-  ==========================================================
+  ========================================================
   NO WIDGET
-  ==========================================================
+  ========================================================
   */
 
   if (
@@ -643,6 +679,7 @@ const TransportationWidgetSection = () => {
 
             <Palette
               size={32}
+              aria-hidden="true"
             />
 
             <p>
@@ -654,10 +691,7 @@ const TransportationWidgetSection = () => {
             </p>
 
             <p>
-
-              Primero debes crear o vincular el Widget
-              desde la sección de Integraciones.
-
+              Primero debes crear o vincular el Widget desde la sección de Integraciones.
             </p>
 
           </div>
@@ -672,9 +706,9 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
+  ========================================================
   LOADING
-  ==========================================================
+  ========================================================
   */
 
   if (loading) {
@@ -708,74 +742,72 @@ const TransportationWidgetSection = () => {
 
 
   /*
-  ==========================================================
+  ========================================================
   RENDER
-  ==========================================================
+  ========================================================
   */
 
   return (
 
     <div className="catalog-container">
 
-
-      {/* ==================================================
-          HEADER
-      ================================================== */}
+      {/*
+      ======================================================
+      HEADER
+      ======================================================
+      */}
 
       <CatalogHeader
-
         title="Widget de transportes"
-
         description="Personaliza la apariencia del Widget que utilizarán tus clientes para solicitar reservas."
-
       >
 
         <CatalogToolbar>
 
           <button
-
+            type="button"
             className="catalog-action"
-
             onClick={handleReset}
-
             disabled={
               resetting ||
               saving
             }
-
           >
 
             <RotateCcw
               size={16}
+              aria-hidden="true"
             />
 
-            {resetting
-              ? "Restaurando..."
-              : "Restaurar valores"}
+            {
+              resetting
+                ? "Restaurando..."
+                : "Restaurar valores"
+            }
 
           </button>
 
 
           <button
-
+            type="button"
             className="btn-primary"
-
             onClick={handleSave}
-
             disabled={
               saving ||
               resetting
             }
-
           >
 
             <Save
               size={16}
+              aria-hidden="true"
             />
 
-            {saving
-              ? "Guardando..."
-              : "Guardar cambios"}
+            {
+              saving
+                ? "Guardando..."
+                : "Guardar cambios"
+            }
 
           </button>
 
@@ -784,18 +816,61 @@ const TransportationWidgetSection = () => {
       </CatalogHeader>
 
 
-      {/* ==================================================
-          WIDGET INFORMATION
-      ================================================== */}
+      {/* 
+======================================================
+WIDGET INFORMATION
+======================================================
+*/}
 
       <div className="catalog-content">
 
-        <div className="widget-info-bar">
+        <div className="transportation-widget-section__info">
+
+          <div className="transportation-widget-section__info-item">
+
+            <span className="transportation-widget-section__info-label">
+              Empresa
+            </span>
+
+            <strong>
+              {
+                companyBranding?.name ||
+                "Empresa"
+              }
+            </strong>
+
+          </div>
 
 
-          <div className="widget-info-item">
+          <div className="transportation-widget-section__info-item">
 
-            <span className="widget-info-label">
+            <span className="transportation-widget-section__info-label">
+              Color corporativo
+            </span>
+
+            <div className="transportation-widget-section__info-color">
+
+              <span
+                className="transportation-widget-section__color-dot"
+                style={{
+                  backgroundColor:
+                    primaryColor
+                }}
+                aria-hidden="true"
+              />
+
+              <code>
+                {primaryColor}
+              </code>
+
+            </div>
+
+          </div>
+
+
+          <div className="transportation-widget-section__info-item">
+
+            <span className="transportation-widget-section__info-label">
               Widget ID
             </span>
 
@@ -807,15 +882,14 @@ const TransportationWidgetSection = () => {
 
 
           <button
-
+            type="button"
             className="catalog-action"
-
             onClick={handleCopyWidgetId}
-
           >
 
             <Copy
               size={15}
+              aria-hidden="true"
             />
 
             Copiar ID
@@ -827,19 +901,15 @@ const TransportationWidgetSection = () => {
             widgetUrl && (
 
               <a
-
-                className="catalog-action widget-external-link"
-
+                className="catalog-action transportation-widget-section__external-link"
                 href={widgetUrl}
-
                 target="_blank"
-
                 rel="noopener noreferrer"
-
               >
 
                 <ExternalLink
                   size={15}
+                  aria-hidden="true"
                 />
 
                 Abrir Widget
@@ -849,655 +919,166 @@ const TransportationWidgetSection = () => {
             )
           }
 
-
         </div>
 
       </div>
 
 
-      {/* ==================================================
-          CONFIGURATION + PREVIEW
-      ================================================== */}
+      {/* 
+======================================================
+WEBSITE INTEGRATION
+======================================================
+*/}
 
-      <div className="widget-editor-layout">
+      <div className="catalog-content">
+
+        <div className="transportation-widget-section__integration">
+
+          <div className="transportation-widget-section__integration-header">
+
+            <div>
+
+              <h4>
+                Integrar en tu sitio web
+              </h4>
+
+              <p>
+                Copia este código y pégalo en el lugar de tu sitio web donde quieras mostrar el formulario de transporte.
+              </p>
+
+            </div>
+
+          </div>
 
 
-        {/* ==================================================
-            CONFIGURATION
-        ================================================== */}
+          <div className="transportation-widget-section__integration-code">
 
-        <div className="catalog-content">
+            <pre>
+              <code>
+                {widgetEmbedCode}
+              </code>
+            </pre>
 
-          <div className="widget-editor-panel">
 
+            <button
+              type="button"
+              className="catalog-action transportation-widget-section__copy-code"
+              onClick={handleCopyWidgetEmbedCode}
+              disabled={!widgetEmbedCode}
+            >
 
-            <div className="widget-section-title">
-
-              <Palette
-                size={19}
+              <Code
+                size={15}
+                aria-hidden="true"
               />
 
-              <div>
+              Copiar código
 
-                <h4>
-                  Apariencia
-                </h4>
+            </button>
 
-                <p>
-                  Personaliza los colores y estilos básicos del Widget.
-                </p>
+          </div>
 
-              </div>
 
-            </div>
+          <div className="transportation-widget-section__integration-help">
 
+            <strong>
+              ¿Cómo funciona?
+            </strong>
 
-            {/* ==============================================
-                PRIMARY COLOR
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Color principal
-              </label>
-
-              <div className="widget-color-control">
-
-                <input
-
-                  type="color"
-
-                  value={
-                    appearance.primaryColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "primaryColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-                <input
-
-                  type="text"
-
-                  value={
-                    appearance.primaryColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "primaryColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ==============================================
-                BACKGROUND COLOR
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Color de fondo
-              </label>
-
-              <div className="widget-color-control">
-
-                <input
-
-                  type="color"
-
-                  value={
-                    appearance.backgroundColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "backgroundColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-                <input
-
-                  type="text"
-
-                  value={
-                    appearance.backgroundColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "backgroundColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ==============================================
-                TEXT COLOR
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Color del texto
-              </label>
-
-              <div className="widget-color-control">
-
-                <input
-
-                  type="color"
-
-                  value={
-                    appearance.textColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "textColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-                <input
-
-                  type="text"
-
-                  value={
-                    appearance.textColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "textColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ==============================================
-                FIELD BACKGROUND
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Fondo de los campos
-              </label>
-
-              <div className="widget-color-control">
-
-                <input
-
-                  type="color"
-
-                  value={
-                    appearance.fieldBackgroundColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "fieldBackgroundColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-                <input
-
-                  type="text"
-
-                  value={
-                    appearance.fieldBackgroundColor
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "fieldBackgroundColor",
-                      event.target.value
-                    )
-
-                  }
-
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ==============================================
-                BORDER RADIUS
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Radio de bordes
-              </label>
-
-              <div className="widget-range-control">
-
-                <input
-
-                  type="range"
-
-                  min="0"
-
-                  max="24"
-
-                  step="1"
-
-                  value={
-                    appearance.borderRadius
-                  }
-
-                  onChange={(event) =>
-
-                    handleAppearanceChange(
-                      "borderRadius",
-                      Number(event.target.value)
-                    )
-
-                  }
-
-                />
-
-                <span>
-                  {appearance.borderRadius}px
-                </span>
-
-              </div>
-
-            </div>
-
-
-            {/* ==============================================
-                FONT
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Fuente
-              </label>
-
-              <select
-
-                value={
-                  appearance.fontFamily
-                }
-
-                onChange={(event) =>
-
-                  handleAppearanceChange(
-                    "fontFamily",
-                    event.target.value
-                  )
-
-                }
-
-              >
-
-                {
-                  FONT_OPTIONS.map(
-                    option => (
-
-                      <option
-
-                        key={
-                          option.value
-                        }
-
-                        value={
-                          option.value
-                        }
-
-                      >
-
-                        {option.label}
-
-                      </option>
-
-                    )
-                  )
-                }
-
-              </select>
-
-            </div>
-
-
-            {/* ==============================================
-                BUTTON STYLE
-            ============================================== */}
-
-            <div className="widget-form-group">
-
-              <label>
-                Estilo del botón
-              </label>
-
-              <select
-
-                value={
-                  appearance.buttonStyle
-                }
-
-                onChange={(event) =>
-
-                  handleAppearanceChange(
-                    "buttonStyle",
-                    event.target.value
-                  )
-
-                }
-
-              >
-
-                {
-                  BUTTON_STYLE_OPTIONS.map(
-                    option => (
-
-                      <option
-
-                        key={
-                          option.value
-                        }
-
-                        value={
-                          option.value
-                        }
-
-                      >
-
-                        {option.label}
-
-                      </option>
-
-                    )
-                  )
-                }
-
-              </select>
-
-            </div>
-
+            <p>
+              El Widget se cargará automáticamente dentro de tu sitio web. No necesitas configurar ninguna API key ni agregar código adicional.
+            </p>
 
           </div>
 
         </div>
-
-
-        {/* ==================================================
-            PREVIEW
-        ================================================== */}
-
-        <div className="catalog-content">
-
-          <div className="widget-preview-panel">
-
-
-            <div className="widget-preview-header">
-
-              <div>
-
-                <h4>
-                  Vista previa
-                </h4>
-
-                <p>
-                  Así se verá el formulario para tus clientes.
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div className="widget-preview-area">
-
-
-              <div
-
-                className="widget-preview-card"
-
-                style={
-                  previewStyle
-                }
-
-              >
-
-                {/* ==========================================
-                    PREVIEW TITLE
-                ========================================== */}
-
-                <div className="widget-preview-card-header">
-
-                  <h3>
-                    Solicita tu transporte
-                  </h3>
-
-                  <p>
-                    Completa los datos de tu reserva.
-                  </p>
-
-                </div>
-
-
-                {/* ==========================================
-                    SERVICE
-                ========================================== */}
-
-                <div className="widget-preview-field">
-
-                  <label>
-                    Servicio
-                  </label>
-
-                  <div
-
-                    className="widget-preview-input"
-
-                    style={
-                      fieldPreviewStyle
-                    }
-
-                  >
-
-                    Selecciona un servicio
-
-                  </div>
-
-                </div>
-
-
-                {/* ==========================================
-                    FROM
-                ========================================== */}
-
-                <div className="widget-preview-field">
-
-                  <label>
-                    Desde
-                  </label>
-
-                  <div
-
-                    className="widget-preview-input"
-
-                    style={
-                      fieldPreviewStyle
-                    }
-
-                  >
-
-                    Selecciona el lugar de origen
-
-                  </div>
-
-                </div>
-
-
-                {/* ==========================================
-                    TO
-                ========================================== */}
-
-                <div className="widget-preview-field">
-
-                  <label>
-                    Hasta
-                  </label>
-
-                  <div
-
-                    className="widget-preview-input"
-
-                    style={
-                      fieldPreviewStyle
-                    }
-
-                  >
-
-                    Selecciona el destino
-
-                  </div>
-
-                </div>
-
-
-                {/* ==========================================
-                    DATE
-                ========================================== */}
-
-                <div className="widget-preview-field">
-
-                  <label>
-                    Fecha y hora
-                  </label>
-
-                  <div
-
-                    className="widget-preview-input"
-
-                    style={
-                      fieldPreviewStyle
-                    }
-
-                  >
-
-                    Selecciona fecha y hora
-
-                  </div>
-
-                </div>
-
-
-                {/* ==========================================
-                    PASSENGERS
-                ========================================== */}
-
-                <div className="widget-preview-field">
-
-                  <label>
-                    Pasajeros
-                  </label>
-
-                  <div
-
-                    className="widget-preview-input"
-
-                    style={
-                      fieldPreviewStyle
-                    }
-
-                  >
-
-                    1
-
-                  </div>
-
-                </div>
-
-
-                {/* ==========================================
-                    BUTTON
-                ========================================== */}
-
-                <button
-
-                  type="button"
-
-                  className="widget-preview-button"
-
-                  style={
-                    previewButtonStyle
-                  }
-
-                >
-
-                  Solicitar reserva
-
-                </button>
-
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
 
       </div>
 
+
+      {/*
+      ======================================================
+      EDITOR + PREVIEW
+      ======================================================
+      */}
+
+      <div className="transportation-widget-section__layout">
+
+        {/*
+        ====================================================
+        APPEARANCE EDITOR
+        ====================================================
+        */}
+
+        <div className="transportation-widget-section__panel">
+
+          <WidgetAppearanceEditor
+
+            appearance={
+              appearance
+            }
+
+            companyBranding={
+              companyBranding
+            }
+
+            primaryColor={
+              primaryColor
+            }
+
+            onAppearanceChange={
+              handleAppearanceChange
+            }
+
+          />
+
+        </div>
+
+
+        {/*
+        ====================================================
+        PREVIEW
+        ====================================================
+        */}
+
+        <div className="transportation-widget-section__panel">
+
+          <div className="transportation-widget-section__preview-header">
+
+            <div>
+
+              <h4>
+                Vista previa
+              </h4>
+
+              <p>
+                Así se verá el formulario para tus clientes.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <WidgetPreview
+
+            companyBranding={
+              companyBranding
+            }
+
+            appearance={
+              appearance
+            }
+
+            primaryColor={
+              primaryColor
+            }
+
+          />
+
+        </div>
+
+      </div>
 
     </div>
 

@@ -10,6 +10,7 @@ import EmptyState from "../general/EmptyState";
 
 import "../../style/general/dataTable.css";
 
+
 /* ======================================================
    COMPONENT
 ====================================================== */
@@ -26,6 +27,7 @@ const DataTable = ({
 
   renderRow,
 
+
   /* ==========================================
      SELECTION
   ========================================== */
@@ -35,6 +37,7 @@ const DataTable = ({
   selectedRow = null,
 
   onRowClick = null,
+
 
   /* ==========================================
      EMPTY STATE
@@ -46,11 +49,13 @@ const DataTable = ({
 
   emptyAction = null,
 
+
   /* ==========================================
      LOADING
   ========================================== */
 
   loading = false,
+
 
   /* ==========================================
      PAGINATION
@@ -70,6 +75,7 @@ const DataTable = ({
 
   defaultRowsPerPage = 10,
 
+
   /* ==========================================
      EVENTS
   ========================================== */
@@ -80,6 +86,7 @@ const DataTable = ({
 
   onRowsPerPageChange,
 
+
   /* ==========================================
      STYLES
   ========================================== */
@@ -87,6 +94,7 @@ const DataTable = ({
   customSelectStyles
 
 }) => {
+
 
   /* ======================================================
      STATE
@@ -100,6 +108,7 @@ const DataTable = ({
 
   ] = useState(1);
 
+
   const [
 
     rowsPerPage,
@@ -107,6 +116,7 @@ const DataTable = ({
     setRowsPerPage
 
   ] = useState(defaultRowsPerPage);
+
 
   const [
 
@@ -122,243 +132,589 @@ const DataTable = ({
 
   });
 
+
   /* ======================================================
      SORT
   ====================================================== */
 
   const handleSort = (column) => {
 
-    if (!column.sortable) return;
+    if (!column.sortable) {
 
-    setSortConfig(prev => {
+      return;
 
-      const direction =
+    }
 
-        prev.key === column.key &&
 
-        prev.direction === "asc"
+    setSortConfig(
 
-          ? "desc"
+      previous => {
 
-          : "asc";
+        const direction =
 
-      const config = {
+          previous.key === column.key &&
 
-        key: column.key,
+          previous.direction === "asc"
 
-        direction
+            ? "desc"
 
-      };
+            : "asc";
 
-      onSortChange?.(config);
 
-      return config;
+        const config = {
 
-    });
+          key: column.key,
+
+          direction
+
+        };
+
+
+        onSortChange?.(
+          config
+        );
+
+
+        return config;
+
+      }
+
+    );
 
   };
+
 
   /* ======================================================
      SORTED DATA
   ====================================================== */
 
-  const sortedData = useMemo(() => {
+  const sortedData = useMemo(
 
-    if (!sortConfig.key) {
+    () => {
 
-      return [...data];
+      if (!sortConfig.key) {
 
-    }
-
-    const result = [...data];
-
-    result.sort((a, b) => {
-
-      let aValue = a[sortConfig.key];
-
-      let bValue = b[sortConfig.key];
-
-      if (aValue?.toDate) {
-
-        aValue = aValue.toDate();
+        return [
+          ...data
+        ];
 
       }
 
-      if (bValue?.toDate) {
 
-        bValue = bValue.toDate();
+      const result = [
+        ...data
+      ];
 
-      }
 
-      if (typeof aValue === "boolean") {
+      result.sort(
 
-        aValue = Number(aValue);
+        (a, b) => {
 
-        bValue = Number(bValue);
+          let aValue =
+            a?.[
+              sortConfig.key
+            ];
 
-      }
 
-      if (typeof aValue === "string") {
+          let bValue =
+            b?.[
+              sortConfig.key
+            ];
 
-        aValue = aValue.toLowerCase();
 
-        bValue = bValue.toLowerCase();
+          /* =================================================
+             NORMALIZE FIRESTORE / DATE VALUES
+          ================================================= */
 
-      }
+          if (
 
-      if (aValue == null) return 1;
+            aValue &&
 
-      if (bValue == null) return -1;
+            typeof aValue.toDate ===
+              "function"
 
-      if (aValue < bValue) {
+          ) {
 
-        return sortConfig.direction === "asc"
+            aValue =
+              aValue.toDate();
 
-          ? -1
+          }
 
-          : 1;
 
-      }
+          if (
 
-      if (aValue > bValue) {
+            bValue &&
 
-        return sortConfig.direction === "asc"
+            typeof bValue.toDate ===
+              "function"
 
-          ? 1
+          ) {
 
-          : -1;
+            bValue =
+              bValue.toDate();
 
-      }
+          }
 
-      return 0;
 
-    });
+          /* =================================================
+             EMPTY VALUES
 
-    return result;
+             Empty values are always placed at the end,
+             independently of the selected direction.
+          ================================================= */
 
-  }, [
+          const aIsEmpty =
 
-    data,
+            aValue === null ||
 
-    sortConfig
+            aValue === undefined ||
 
-  ]);
+            (
+
+              typeof aValue ===
+                "string" &&
+
+              aValue.trim() === ""
+
+            );
+
+
+          const bIsEmpty =
+
+            bValue === null ||
+
+            bValue === undefined ||
+
+            (
+
+              typeof bValue ===
+                "string" &&
+
+              bValue.trim() === ""
+
+            );
+
+
+          if (
+
+            aIsEmpty &&
+
+            bIsEmpty
+
+          ) {
+
+            return 0;
+
+          }
+
+
+          if (aIsEmpty) {
+
+            return 1;
+
+          }
+
+
+          if (bIsEmpty) {
+
+            return -1;
+
+          }
+
+
+          /* =================================================
+             BOOLEAN
+          ================================================= */
+
+          if (
+
+            typeof aValue ===
+              "boolean" &&
+
+            typeof bValue ===
+              "boolean"
+
+          ) {
+
+            aValue =
+              Number(
+                aValue
+              );
+
+
+            bValue =
+              Number(
+                bValue
+              );
+
+          }
+
+
+          /* =================================================
+             DATE
+          ================================================= */
+
+          if (
+
+            aValue instanceof Date &&
+
+            bValue instanceof Date
+
+          ) {
+
+            const timeA =
+              aValue.getTime();
+
+
+            const timeB =
+              bValue.getTime();
+
+
+            if (timeA < timeB) {
+
+              return (
+
+                sortConfig.direction ===
+                "asc"
+
+              )
+
+                ? -1
+
+                : 1;
+
+            }
+
+
+            if (timeA > timeB) {
+
+              return (
+
+                sortConfig.direction ===
+                "asc"
+
+              )
+
+                ? 1
+
+                : -1;
+
+            }
+
+
+            return 0;
+
+          }
+
+
+          /* =================================================
+             NUMBERS
+
+             Important for:
+
+             - passengers
+             - total
+             - amounts
+             - quantities
+
+             Only use numeric comparison when both values
+             are actually numbers.
+          ================================================= */
+
+          if (
+
+            typeof aValue ===
+              "number" &&
+
+            typeof bValue ===
+              "number"
+
+          ) {
+
+            if (aValue < bValue) {
+
+              return (
+
+                sortConfig.direction ===
+                "asc"
+
+              )
+
+                ? -1
+
+                : 1;
+
+            }
+
+
+            if (aValue > bValue) {
+
+              return (
+
+                sortConfig.direction ===
+                "asc"
+
+              )
+
+                ? 1
+
+                : -1;
+
+            }
+
+
+            return 0;
+
+          }
+
+
+          /* =================================================
+             STRING / MIXED VALUES
+
+             Convert both remaining values to strings before
+             using string comparison.
+
+             This prevents errors such as:
+
+             bValue.toLowerCase is not a function
+
+             when one value is undefined, null, a number,
+             boolean, or another non-string type.
+          ================================================= */
+
+          const stringA =
+
+            String(
+              aValue
+            )
+              .trim()
+              .toLowerCase();
+
+
+          const stringB =
+
+            String(
+              bValue
+            )
+              .trim()
+              .toLowerCase();
+
+
+          return (
+
+            stringA.localeCompare(
+
+              stringB,
+
+              undefined,
+
+              {
+
+                sensitivity:
+                  "base",
+
+                numeric:
+                  true
+
+              }
+
+            )
+
+          ) *
+
+          (
+
+            sortConfig.direction ===
+            "asc"
+
+              ? 1
+
+              : -1
+
+          );
+
+        }
+
+      );
+
+
+      return result;
+
+    },
+
+    [
+
+      data,
+
+      sortConfig
+
+    ]
+
+  );
+
 
   /* ======================================================
      PAGINATION
   ====================================================== */
 
-  const totalPages = Math.max(
+  const totalPages =
 
-    1,
+    Math.max(
 
-    Math.ceil(
+      1,
 
-      sortedData.length /
+      Math.ceil(
 
-      rowsPerPage
+        sortedData.length /
 
-    )
+        rowsPerPage
 
-  );
-
-  const currentData = useMemo(() => {
-
-    const start =
-
-      (currentPage - 1) *
-
-      rowsPerPage;
-
-    return sortedData.slice(
-
-      start,
-
-      start + rowsPerPage
+      )
 
     );
 
-  }, [
 
-    sortedData,
+  const currentData = useMemo(
 
-    currentPage,
+    () => {
 
-    rowsPerPage
+      const start =
 
-  ]);
+        (
+
+          currentPage - 1
+
+        ) *
+
+        rowsPerPage;
+
+
+      return sortedData.slice(
+
+        start,
+
+        start +
+        rowsPerPage
+
+      );
+
+    },
+
+    [
+
+      sortedData,
+
+      currentPage,
+
+      rowsPerPage
+
+    ]
+
+  );
+
 
   /* ======================================================
      EFFECTS
   ====================================================== */
 
-  useEffect(() => {
+  useEffect(
 
-    setCurrentPage(1);
+    () => {
 
-  }, [
+      setCurrentPage(
+        1
+      );
 
-    data,
+    },
 
-    rowsPerPage
+    [
 
-  ]);
-
-  useEffect(() => {
-
-    onPageChange?.(
-
-      currentPage
-
-    );
-
-  }, [
-
-    currentPage,
-
-    onPageChange
-
-  ]);
-
-  useEffect(() => {
-
-    onRowsPerPageChange?.(
+      data,
 
       rowsPerPage
 
-    );
+    ]
 
-  }, [
+  );
 
-    rowsPerPage,
 
-    onRowsPerPageChange
+  useEffect(
 
-  ]);
+    () => {
+
+      onPageChange?.(
+
+        currentPage
+
+      );
+
+    },
+
+    [
+
+      currentPage,
+
+      onPageChange
+
+    ]
+
+  );
+
+
+  useEffect(
+
+    () => {
+
+      onRowsPerPageChange?.(
+
+        rowsPerPage
+
+      );
+
+    },
+
+    [
+
+      rowsPerPage,
+
+      onRowsPerPageChange
+
+    ]
+
+  );
+
 
   /* ======================================================
      ROW OPTIONS
   ====================================================== */
 
-  const rowsOptions = useMemo(() => {
+  const rowsOptions = useMemo(
 
-    return rowsPerPageOptions.map(
+    () => {
 
-      value => ({
+      return rowsPerPageOptions.map(
 
-        value,
+        value => ({
 
-        label: value
+          value,
 
-      })
+          label:
+            value
 
-    );
+        })
 
-  }, [
+      );
 
-    rowsPerPageOptions
+    },
 
-  ]);
+    [
+
+      rowsPerPageOptions
+
+    ]
+
+  );
+
 
   /* ======================================================
      SELECT STYLES
@@ -376,9 +732,11 @@ const DataTable = ({
 
       ...base,
 
-      minHeight:36,
+      minHeight:
+        36,
 
-      borderRadius:8,
+      borderRadius:
+        8,
 
       borderColor:
 
@@ -388,51 +746,65 @@ const DataTable = ({
 
           : "#CBD5E1",
 
-      boxShadow:"none",
+      boxShadow:
+        "none",
 
-      cursor:"pointer",
+      cursor:
+        "pointer",
 
-      "&:hover":{
+      "&:hover": {
 
-        borderColor:"#08204B"
+        borderColor:
+          "#08204B"
 
       }
 
     }),
 
-    valueContainer:(base)=>({
 
-      ...base,
+    valueContainer:
+      (base) => ({
 
-      padding:"0 8px"
+        ...base,
 
-    }),
+        padding:
+          "0 8px"
 
-    menuPortal:(base)=>({
+      }),
 
-      ...base,
 
-      zIndex:9999
+    menuPortal:
+      (base) => ({
 
-    }),
+        ...base,
 
-    menu:(base)=>({
+        zIndex:
+          9999
 
-      ...base,
+      }),
 
-      borderRadius:10,
 
-      overflow:"hidden"
+    menu:
+      (base) => ({
 
-    }),
+        ...base,
 
-    option:(
+        borderRadius:
+          10,
+
+        overflow:
+          "hidden"
+
+      }),
+
+
+    option: (
 
       base,
 
       state
 
-    )=>({
+    ) => ({
 
       ...base,
 
@@ -460,89 +832,121 @@ const DataTable = ({
 
   };
 
+
   const selectStyles =
 
     customSelectStyles ||
 
     defaultSelectStyles;
 
-    /* ======================================================
-      RENDER
-    ====================================================== */
 
-    return (
+  /* ======================================================
+     RENDER
+  ====================================================== */
 
-      <div className="table-container">
+  return (
 
-        {/* ==================================================
-            TABLE
-        ================================================== */}
+    <div className="table-container">
 
-        <div className="table-wrapper">
 
-          <table className="table">
+      {/* ==================================================
+          TABLE
+      ================================================== */}
 
-            {/* ==================================================
-                COLUMN WIDTHS
-            ================================================== */}
+      <div className="table-wrapper">
 
-            <colgroup>
+        <table className="table">
 
-              <col
-                style={{
-                  width: "70px"
-                }}
-              />
 
-              {
+          {/* ==================================================
+              COLUMN WIDTHS
+          ================================================== */}
 
-                columns.map(column => (
+          <colgroup>
+
+            <col
+
+              style={{
+
+                width:
+                  "70px"
+
+              }}
+
+            />
+
+
+            {
+
+              columns.map(
+
+                column => (
 
                   <col
 
-                    key={column.key}
+                    key={
+                      column.key
+                    }
 
                     style={{
 
-                      width: column.width,
+                      width:
+                        column.width,
 
-                      minWidth: column.minWidth,
+                      minWidth:
+                        column.minWidth,
 
-                      maxWidth: column.maxWidth
+                      maxWidth:
+                        column.maxWidth
 
                     }}
 
                   />
 
-                ))
+                )
 
-              }
+              )
 
-            </colgroup>
+            }
 
-            {/* ==================================================
-                HEADER
-            ================================================== */}
+          </colgroup>
 
-            <thead>
 
-              <tr>
+          {/* ==================================================
+              HEADER
+          ================================================== */}
 
-                <th className="table-index">
+          <thead>
 
-                  #
+            <tr>
 
-                </th>
 
-                {
+              <th
+                className="table-index"
+              >
 
-                  columns.map(column => (
+                #
+
+              </th>
+
+
+              {
+
+                columns.map(
+
+                  column => (
 
                     <th
 
-                      key={column.key}
+                      key={
+                        column.key
+                      }
 
-                      onClick={() => handleSort(column)}
+                      onClick={() =>
+                        handleSort(
+                          column
+                        )
+                      }
 
                       className={[
 
@@ -552,29 +956,39 @@ const DataTable = ({
                           ? "table-sortable"
                           : "",
 
-                        `table-${column.align || "left"}`
+                        `table-${
+                          column.align ||
+                          "left"
+                        }`
 
                       ]
 
-                        .filter(Boolean)
+                        .filter(
+                          Boolean
+                        )
 
                         .join(" ")}
 
                     >
 
-                      {column.label}
+                      {
+                        column.label
+                      }
+
 
                       {
 
                         column.sortable &&
 
-                        sortConfig.key === column.key && (
+                        sortConfig.key ===
+                          column.key && (
 
                           <span className="table-sort-indicator">
 
                             {
 
-                              sortConfig.direction === "asc"
+                              sortConfig.direction ===
+                              "asc"
 
                                 ? "▲"
 
@@ -590,35 +1004,47 @@ const DataTable = ({
 
                     </th>
 
-                  ))
+                  )
 
-                }
+                )
 
-              </tr>
+              }
 
-            </thead>
+            </tr>
 
-            {/* ==================================================
-                BODY
-            ================================================== */}
+          </thead>
 
-            <tbody>
 
-              {
+          {/* ==================================================
+              BODY
+          ================================================== */}
 
-                currentData.length > 0
+          <tbody>
 
-                  ? currentData.map((row, index) => (
+            {
+
+              currentData.length > 0
+
+                ? currentData.map(
+
+                    (row, index) => (
 
                       <tr
 
-                        key={row.id || index}
+                        key={
+                          row.id ||
+                          index
+                        }
 
                         onClick={() => {
 
-                          if (selectableRows) {
+                          if (
+                            selectableRows
+                          ) {
 
-                            onRowClick?.(row);
+                            onRowClick?.(
+                              row
+                            );
 
                           }
 
@@ -630,45 +1056,49 @@ const DataTable = ({
                             ? "table-row-selectable"
                             : "",
 
-                          selectedRow === row.id
+                          selectedRow ===
+                            row.id
                             ? "table-row-selected"
                             : ""
 
                         ]
 
-                          .filter(Boolean)
+                          .filter(
+                            Boolean
+                          )
 
-                          .join(" ")
-
-                        }
+                          .join(" ")}
 
                       >
+
 
                         {/* ============================
                             INDEX
                         ============================ */}
 
-                        <td className="table-index">
+                        <td
+                          className="table-index"
+                        >
 
                           {
 
-                            (currentPage - 1)
+                            (
 
-                            *
+                              currentPage -
+                              1
 
-                            rowsPerPage
+                            ) *
 
-                            +
+                            rowsPerPage +
 
-                            index
-
-                            +
+                            index +
 
                             1
 
                           }
 
                         </td>
+
 
                         {/* ============================
                             CELLS
@@ -698,24 +1128,38 @@ const DataTable = ({
 
                       </tr>
 
-                    ))
+                    )
 
-                  : (
+                  )
+
+                : (
 
                   <tr>
 
                     <td
-                      colSpan={columns.length + 1}
+
+                      colSpan={
+                        columns.length +
+                        1
+                      }
+
                       className="table-empty"
+
                     >
 
                       <EmptyState
 
-                        title={emptyTitle}
+                        title={
+                          emptyTitle
+                        }
 
-                        description={emptyDescription}
+                        description={
+                          emptyDescription
+                        }
 
-                        action={emptyAction}
+                        action={
+                          emptyAction
+                        }
 
                       />
 
@@ -723,53 +1167,61 @@ const DataTable = ({
 
                   </tr>
 
-                  )
-
-              }
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-        {/* ==================================================
-            FOOTER
-        ================================================== */}
-
-        <div className="table-pagination">
-
-          {/* ================================
-              ROWS
-          ================================= */}
-
-          <div className="rows-selector">
-
-            <span>
-
-              Mostrar
-
-            </span>
-
-            <Select
-
-              classNamePrefix="react-select"
-
-              options={rowsOptions}
-
-              value={
-
-                rowsOptions.find(
-
-                  option=>
-
-                    option.value===rowsPerPage
-
                 )
 
-              }
+            }
 
-              onChange={(selected)=>{
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      {/* ==================================================
+          FOOTER
+      ================================================== */}
+
+      <div className="table-pagination">
+
+
+        {/* ================================================
+            ROWS
+        ================================================= */}
+
+        <div className="rows-selector">
+
+          <span>
+
+            Mostrar
+
+          </span>
+
+
+          <Select
+
+            classNamePrefix="react-select"
+
+            options={
+              rowsOptions
+            }
+
+            value={
+
+              rowsOptions.find(
+
+                option =>
+
+                  option.value ===
+                  rowsPerPage
+
+              )
+
+            }
+
+            onChange={
+
+              (selected) => {
 
                 setRowsPerPage(
 
@@ -777,106 +1229,127 @@ const DataTable = ({
 
                 );
 
-              }}
-
-              isSearchable={false}
-
-              styles={selectStyles}
-
-              menuPortalTarget={document.body}
-
-              menuPosition="fixed"
-
-            />
-
-            <span>
-
-              registros
-
-            </span>
-
-          </div>
-
-          {/* ================================
-              PAGINATION
-          ================================= */}
-
-          <div className="page-controls">
-
-            <button
-
-              disabled={
-
-                currentPage===1
-
               }
 
-              onClick={()=>
+            }
 
-                setCurrentPage(
+            isSearchable={
+              false
+            }
 
-                  prev=>prev-1
+            styles={
+              selectStyles
+            }
 
-                )
+            menuPortalTarget={
+              document.body
+            }
 
-              }
+            menuPosition="fixed"
 
-            >
+          />
 
-              ◀
 
-            </button>
+          <span>
 
-            <span>
+            registros
 
-              Página
+          </span>
 
-              {" "}
+        </div>
 
-              {currentPage}
 
-              {" "}
+        {/* ================================================
+            PAGINATION
+        ================================================= */}
 
-              de
+        <div className="page-controls">
 
-              {" "}
+          <button
 
-              {totalPages}
+            disabled={
 
-            </span>
+              currentPage ===
+              1
 
-            <button
+            }
 
-              disabled={
+            onClick={() =>
 
-                currentPage===totalPages
+              setCurrentPage(
 
-              }
+                previous =>
+                  previous - 1
 
-              onClick={()=>
+              )
 
-                setCurrentPage(
+            }
 
-                  prev=>prev+1
+          >
 
-                )
+            ◀
 
-              }
+          </button>
 
-            >
 
-              ▶
+          <span>
 
-            </button>
+            Página
 
-          </div>
+            {" "}
+
+            {
+              currentPage
+            }
+
+            {" "}
+
+            de
+
+            {" "}
+
+            {
+              totalPages
+            }
+
+          </span>
+
+
+          <button
+
+            disabled={
+
+              currentPage ===
+              totalPages
+
+            }
+
+            onClick={() =>
+
+              setCurrentPage(
+
+                previous =>
+                  previous + 1
+
+              )
+
+            }
+
+          >
+
+            ▶
+
+          </button>
 
         </div>
 
       </div>
 
-    );
+    </div>
+
+  );
 
 };
+
 
 export default DataTable;

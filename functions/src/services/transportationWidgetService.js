@@ -28,17 +28,27 @@ const INTEGRATION_TYPE =
     "transportation";
 
 
+const TRANSPORTATION_CATEGORY =
+    "transportation";
+
+
 /*
 ==========================================================
 DEFAULT APPEARANCE
 ==========================================================
 */
 
+/*
+The primaryColor is intentionally NOT stored here.
+
+The primaryColor belongs to the company and is inherited
+by the Widget from:
+
+companies/{companyId}.primaryColor
+*/
+
 const DEFAULT_WIDGET_APPEARANCE =
     Object.freeze({
-
-        primaryColor:
-            "#2563EB",
 
         backgroundColor:
             "#FFFFFF",
@@ -169,6 +179,268 @@ function normalizeColor(
 
 /*
 ==========================================================
+GET COMPANY BY ID
+==========================================================
+*/
+
+async function getCompanyById(
+    companyId
+) {
+
+    if (
+        !companyId
+    ) {
+
+        return null;
+
+    }
+
+
+    const companyReference =
+        db
+            .collection(
+                FIRESTORE_COLLECTIONS
+                    .COMPANIES
+            )
+            .doc(
+                companyId
+            );
+
+
+    const snapshot =
+        await companyReference.get();
+
+
+    if (
+        !snapshot.exists
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        id:
+            snapshot.id,
+
+        ...snapshot.data()
+
+    };
+
+}
+
+
+/*
+==========================================================
+GET ACTIVE CATALOG
+==========================================================
+*/
+
+/*
+This function reads only active documents from the
+company catalog.
+
+It is used by the public Widget configuration so that
+the Widget never receives inactive services or locations.
+*/
+
+async function getActiveCatalog(
+    companyId,
+    collectionName
+) {
+
+    if (
+        !companyId ||
+        !collectionName
+    ) {
+
+        return [];
+
+    }
+
+
+    const snapshot =
+        await db
+            .collection(
+                FIRESTORE_COLLECTIONS
+                    .COMPANIES
+            )
+            .doc(
+                companyId
+            )
+            .collection(
+                collectionName
+            )
+            .where(
+                "isActive",
+                "==",
+                true
+            )
+            .get();
+
+
+    return snapshot.docs.map(
+        document => ({
+
+            id:
+                document.id,
+
+            ...document.data()
+
+        })
+    );
+
+}
+
+
+/*
+==========================================================
+BUILD PUBLIC SERVICE TYPES
+==========================================================
+*/
+
+/*
+Only expose fields required by the public Widget.
+
+Private/internal service configuration is intentionally
+not returned.
+*/
+
+function buildPublicServiceTypes(
+    serviceTypes
+) {
+
+    return serviceTypes
+
+        .filter(
+            serviceType =>
+
+                serviceType.category ===
+                TRANSPORTATION_CATEGORY &&
+
+                typeof serviceType.code ===
+                "string" &&
+
+                serviceType.code.trim() !== ""
+
+        )
+
+        .map(
+            serviceType => ({
+
+                code:
+                    serviceType.code
+                        .trim()
+                        .toLowerCase(),
+
+                name:
+                    serviceType.name || ""
+
+            })
+        );
+
+}
+
+
+/*
+==========================================================
+BUILD PUBLIC LOCATIONS
+==========================================================
+*/
+
+/*
+Only expose the public code and name.
+
+Internal fields remain inside Firestore.
+*/
+
+function buildPublicLocations(
+    locations
+) {
+
+    return locations
+
+        .filter(
+            location =>
+
+                typeof location.code ===
+                "string" &&
+
+                location.code.trim() !== ""
+
+        )
+
+        .map(
+            location => ({
+
+                code:
+                    location.code
+                        .trim()
+                        .toLowerCase(),
+
+                name:
+                    location.name || ""
+
+            })
+        );
+
+}
+
+
+/*
+==========================================================
+BUILD PUBLIC COMPANY
+==========================================================
+*/
+
+/*
+The Widget needs company branding.
+
+The primaryColor is included because it belongs to the
+company and must be inherited by the Widget.
+
+No private company information is exposed here.
+*/
+
+function buildPublicCompany(
+    company
+) {
+
+    return {
+
+        name:
+            typeof company.name ===
+                "string"
+
+                ? company.name
+
+                : "",
+
+
+        logoURL:
+            typeof company.logoURL ===
+                "string"
+
+                ? company.logoURL
+
+                : "",
+
+
+        primaryColor:
+            normalizeColor(
+                company.primaryColor,
+                "#2563EB"
+            )
+
+    };
+
+}
+
+
+/*
+==========================================================
 VALIDATE APPEARANCE
 ==========================================================
 */
@@ -286,13 +558,16 @@ function validateAppearance(
 
     /*
     ------------------------------------------------------
-    COLORS
+    WIDGET COLORS
+    ------------------------------------------------------
+
+    primaryColor is intentionally excluded.
+
+    It belongs to the company.
     ------------------------------------------------------
     */
 
     const colorFields = [
-
-        "primaryColor",
 
         "backgroundColor",
 
@@ -650,14 +925,255 @@ async function verifyWidgetOwnership({
 
 /*
 ==========================================================
+VERIFY PUBLIC WIDGET
+==========================================================
+*/
+
+async function verifyPublicWidget(
+    widget
+) {
+
+    if (
+        !widget
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .NOT_FOUND
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    COMPANY
+    ------------------------------------------------------
+    */
+
+    if (
+        !widget.companyId
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    INTEGRATION ID
+    ------------------------------------------------------
+    */
+
+    if (
+        !widget.integrationId
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    GET INTEGRATION
+    ------------------------------------------------------
+    */
+
+    const integration =
+        await getIntegrationById(
+            widget.integrationId
+        );
+
+
+    if (
+        !integration
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .NOT_FOUND
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    INTEGRATION TYPE
+    ------------------------------------------------------
+    */
+
+    if (
+        integration.type !==
+        INTEGRATION_TYPE
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    INTEGRATION COMPANY
+    ------------------------------------------------------
+    */
+
+    if (
+        integration.companyId !==
+        widget.companyId
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    INTEGRATION WIDGET
+    ------------------------------------------------------
+    */
+
+    if (
+        integration.widgetId !==
+        widget.widgetId
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    INTEGRATION STATUS
+    ------------------------------------------------------
+    */
+
+    if (
+        integration.status !==
+        "active"
+    ) {
+
+        return {
+
+            valid: false,
+
+            code:
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+        };
+
+    }
+
+
+    /*
+    ------------------------------------------------------
+    SUCCESS
+    ------------------------------------------------------
+    */
+
+    return {
+
+        valid: true,
+
+        code: null,
+
+        integration
+
+    };
+
+}
+
+
+/*
+==========================================================
 GET TRANSPORTATION WIDGET CONFIGURATION
 ==========================================================
 */
 
+/*
+PUBLIC SERVICE
+
+Input:
+
+{
+    widgetId
+}
+
+The company is resolved internally through:
+
+transportationWidgets/{widgetId}
+        ↓
+companyId
+        ↓
+companies/{companyId}
+
+The service also returns:
+
+- company branding
+- company primaryColor
+- active transportation service types
+- active locations
+- widget appearance
+*/
+
 export async function
 getTransportationWidgetConfigurationService({
-
-    companyId,
 
     widgetId
 
@@ -672,7 +1188,6 @@ getTransportationWidgetConfigurationService({
         */
 
         if (
-            !companyId ||
             typeof widgetId !==
                 "string" ||
             !widgetId.trim()
@@ -716,26 +1231,22 @@ getTransportationWidgetConfigurationService({
 
         /*
         ==================================================
-        VERIFY OWNERSHIP
+        VERIFY PUBLIC WIDGET
         ==================================================
         */
 
-        const ownership =
-            await verifyWidgetOwnership({
-
-                widget,
-
-                companyId
-
-            });
+        const validation =
+            await verifyPublicWidget(
+                widget
+            );
 
 
         if (
-            !ownership.valid
+            !validation.valid
         ) {
 
             return failure(
-                ownership.code
+                validation.code
             );
 
         }
@@ -743,7 +1254,7 @@ getTransportationWidgetConfigurationService({
 
         /*
         ==================================================
-        STATUS
+        WIDGET STATUS
         ==================================================
         */
 
@@ -764,17 +1275,154 @@ getTransportationWidgetConfigurationService({
 
         /*
         ==================================================
+        GET COMPANY
+        ==================================================
+        */
+
+        const company =
+            await getCompanyById(
+                widget.companyId
+            );
+
+
+        if (
+            !company
+        ) {
+
+            return failure(
+
+                PLATFORM_ERRORS
+                    .NOT_FOUND
+
+            );
+
+        }
+
+
+        /*
+        ==================================================
+        COMPANY STATUS
+        ==================================================
+        */
+
+        if (
+            company.status !==
+            "active"
+        ) {
+
+            return failure(
+
+                PLATFORM_ERRORS
+                    .PERMISSION_DENIED
+
+            );
+
+        }
+
+
+        /*
+        ==================================================
+        GET ACTIVE CATALOG
+        ==================================================
+        */
+
+        const [
+            serviceTypes,
+            locations
+        ] = await Promise.all([
+
+            getActiveCatalog(
+                widget.companyId,
+                FIRESTORE_COLLECTIONS
+                    .SERVICE_TYPES
+            ),
+
+            getActiveCatalog(
+                widget.companyId,
+                FIRESTORE_COLLECTIONS
+                    .LOCATIONS
+            )
+
+        ]);
+
+
+        /*
+        ==================================================
+        TRANSPORTATION SERVICES
+        ==================================================
+        */
+
+        const transportationServiceTypes =
+            serviceTypes.filter(
+                serviceType =>
+
+                    serviceType.category ===
+                    TRANSPORTATION_CATEGORY
+
+            );
+
+
+        /*
+        ==================================================
+        COMPANY BRANDING
+        ==================================================
+        */
+
+        const publicCompany =
+            buildPublicCompany(
+                company
+            );
+
+
+        /*
+        ==================================================
         APPEARANCE
         ==================================================
+        */
+
+        /*
+        IMPORTANT:
+
+        primaryColor always comes from the company.
+
+        Any old primaryColor stored inside the Widget
+        is intentionally ignored.
         */
 
         const appearance = {
 
             ...DEFAULT_WIDGET_APPEARANCE,
 
-            ...(widget.appearance || {})
+            ...(widget.appearance || {}),
+
+            primaryColor:
+                publicCompany.primaryColor
 
         };
+
+
+        /*
+        ==================================================
+        PUBLIC SERVICE TYPES
+        ==================================================
+        */
+
+        const publicServiceTypes =
+            buildPublicServiceTypes(
+                transportationServiceTypes
+            );
+
+
+        /*
+        ==================================================
+        PUBLIC LOCATIONS
+        ==================================================
+        */
+
+        const publicLocations =
+            buildPublicLocations(
+                locations
+            );
 
 
         /*
@@ -800,7 +1448,16 @@ getTransportationWidgetConfigurationService({
             status:
                 widget.status,
 
-            appearance
+            company:
+                publicCompany,
+
+            appearance,
+
+            serviceTypes:
+                publicServiceTypes,
+
+            locations:
+                publicLocations
 
         });
 
@@ -830,6 +1487,23 @@ getTransportationWidgetConfigurationService({
 ==========================================================
 UPDATE TRANSPORTATION WIDGET APPEARANCE
 ==========================================================
+*/
+
+/*
+ADMINISTRATIVE SERVICE
+
+The following values belong to the Widget:
+
+- backgroundColor
+- textColor
+- fieldBackgroundColor
+- borderRadius
+- fontFamily
+- buttonStyle
+
+primaryColor does NOT belong here.
+
+It is inherited from the company.
 */
 
 export async function
@@ -972,13 +1646,6 @@ updateTransportationWidgetAppearanceService({
         */
 
         const normalizedAppearance = {
-
-            primaryColor:
-                normalizeColor(
-                    appearance.primaryColor,
-                    DEFAULT_WIDGET_APPEARANCE
-                        .primaryColor
-                ),
 
             backgroundColor:
                 normalizeColor(

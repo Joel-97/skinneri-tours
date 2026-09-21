@@ -40,6 +40,17 @@ import {
 
 /*
  * ==========================================================
+ * TRANSPORTATION WIDGET RESERVATION SERVICE
+ * ==========================================================
+ */
+
+import {
+    createTransportationWidgetReservationService
+} from "../services/transportationWidgetReservationService.js";
+
+
+/*
+ * ==========================================================
  * PUBLIC TRANSPORTATION SERVICES
  * ==========================================================
  */
@@ -451,6 +462,26 @@ export const migrateTransportationIntegrationWidget = onCall(
  * ==========================================================
  * GET TRANSPORTATION WIDGET CONFIGURATION
  * ==========================================================
+ *
+ * PUBLIC CALLABLE FUNCTION
+ *
+ * Authentication:
+ *
+ * Not required.
+ *
+ * The Widget ID is public.
+ *
+ * The backend resolves:
+ *
+ * transportationWidgets/{widgetId}
+ *          ↓
+ *       companyId
+ *          ↓
+ *       company
+ *
+ * The service validates the Widget, integration and company.
+ *
+ * ==========================================================
  */
 
 export const getTransportationWidgetConfiguration = onCall(
@@ -458,39 +489,6 @@ export const getTransportationWidgetConfiguration = onCall(
     withCloudFunction(
 
         async (request) => {
-
-            /*
-            ==================================================
-            AUTHENTICATION
-            ==================================================
-            */
-
-            const auth =
-                await requireCompanyAdmin(
-                    request
-                );
-
-
-            /*
-            ==================================================
-            COMPANY
-            ==================================================
-            */
-
-            const targetCompanyId =
-                auth.isSuperAdmin
-                    ? request.data?.companyId
-                    : auth.companyId;
-
-
-            if (!targetCompanyId) {
-
-                throw new Error(
-                    "companyId is required."
-                );
-
-            }
-
 
             /*
             ==================================================
@@ -504,6 +502,25 @@ export const getTransportationWidgetConfiguration = onCall(
 
             /*
             ==================================================
+            VALIDATION
+            ==================================================
+            */
+
+            if (
+                !widgetId ||
+                typeof widgetId !== "string" ||
+                !widgetId.trim()
+            ) {
+
+                throw new Error(
+                    "widgetId is required."
+                );
+
+            }
+
+
+            /*
+            ==================================================
             SERVICE
             ==================================================
             */
@@ -511,10 +528,142 @@ export const getTransportationWidgetConfiguration = onCall(
             const result =
                 await getTransportationWidgetConfigurationService({
 
-                    companyId:
-                        targetCompanyId,
+                    widgetId:
+                        widgetId.trim()
 
-                    widgetId
+                });
+
+
+            /*
+            ==================================================
+            RESULT
+            ==================================================
+            */
+
+            return handleServiceResult(
+                result
+            );
+
+        }
+
+    )
+
+);
+
+
+/*
+ * ==========================================================
+ * CREATE TRANSPORTATION WIDGET RESERVATION
+ * ==========================================================
+ *
+ * PUBLIC CALLABLE FUNCTION
+ *
+ * Authentication:
+ *
+ * Not required.
+ *
+ * The Widget ID is public.
+ *
+ * The service validates:
+ *
+ * 1. Widget
+ * 2. Widget status
+ * 3. Integration
+ * 4. Integration type
+ * 5. Integration status
+ * 6. Company
+ * 7. Company status
+ * 8. Service type
+ * 9. Pickup location
+ * 10. Destination
+ * 11. Reservation data
+ *
+ * The public client cannot control:
+ *
+ * - price
+ * - currency
+ * - payment type
+ * - driver
+ * - vehicle
+ * - commissions
+ * - taxes
+ * - internal staff
+ * - financial fields
+ *
+ * ==========================================================
+ */
+
+export const createTransportationWidgetReservation = onCall(
+
+    withCloudFunction(
+
+        async (request) => {
+
+            /*
+            ==================================================
+            REQUEST DATA
+            ==================================================
+            */
+
+            const data =
+                request.data;
+
+
+            /*
+            ==================================================
+            VALIDATION
+            ==================================================
+            */
+
+            if (
+                !data ||
+                typeof data !== "object" ||
+                Array.isArray(data)
+            ) {
+
+                throw new Error(
+                    "Invalid request data."
+                );
+
+            }
+
+
+            /*
+            ==================================================
+            WIDGET ID
+            ==================================================
+            */
+
+            const widgetId =
+                data.widgetId;
+
+
+            if (
+                !widgetId ||
+                typeof widgetId !== "string" ||
+                !widgetId.trim()
+            ) {
+
+                throw new Error(
+                    "widgetId is required."
+                );
+
+            }
+
+
+            /*
+            ==================================================
+            SERVICE
+            ==================================================
+            */
+
+            const result =
+                await createTransportationWidgetReservationService({
+
+                    widgetId:
+                        widgetId.trim(),
+
+                    data
 
                 });
 

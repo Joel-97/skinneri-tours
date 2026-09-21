@@ -3,16 +3,16 @@ import React, {
   useState
 } from "react";
 
-import TaxesSection from "./sections/general/TaxesSection";
-import CurrenciesSection from "./sections/general/CurrenciesSection";
-import ServiceTypesSection from "./sections/general/ServiceTypesSection";
-import CommissionAgents from "./sections/general/CommissionAgentsSection";
-import PaymentTypesSection from "./sections/general/PaymentTypesSection";
-import CompanyProfileSection from "./sections/general/CompanyProfileSection";
-import EmailSettingsSection from "./sections/general/EmailSettingsSection";
-import DiscountsSection from "./sections/general/DiscountsSection";
+import TaxesSection from "./sections/general/taxes/TaxesSection";
+import CurrenciesSection from "./sections/general/currencies/CurrenciesSection";
+import CommissionAgentsSection from "./sections/general/commissionAgents/CommissionAgentsSection";
+import PaymentTypesSection from "./sections/general/paymentTypes/PaymentTypesSection";
+import CompanyProfileSection from "./sections/general/companyProfile/CompanyProfileSection";
+import EmailSettingsSection from "./sections/general/emailSettings/EmailSettingsSection";
+import DiscountsSection from "./sections/general/discounts/DiscountsSection";
 // import StaffSection from "./sections/general/StaffSection";
 
+import ServiceTypesSection from "./sections/transports/ServiceTypes/ServiceTypesSection";
 import SignTemplatesSection from "./sections/template/SignTemplatesSection";
 import LocationsSection from "./sections/locations/LocationsSection";
 import VehiclesSection from "./sections/transports/vehicles/VehiclesSection";
@@ -265,7 +265,7 @@ const SettingsPage = () => {
 
         return (
 
-          <CommissionAgents />
+          <CommissionAgentsSection />
 
         );
 
@@ -981,7 +981,7 @@ const SettingsPage = () => {
 
               */}
 
-
+{/* 
               <button
 
                 className={
@@ -1008,7 +1008,7 @@ const SettingsPage = () => {
 
                 Código de rutas
 
-              </button>
+              </button> */}
 
 
               <button
