@@ -16,6 +16,17 @@ export function calculateFinancials({
 
     /*
     --------------------------------------------------
+    PRECIO
+    --------------------------------------------------
+    */
+
+    const price = Number(
+        data.price || 0
+    );
+
+
+    /*
+    --------------------------------------------------
     DESCUENTO
     --------------------------------------------------
     */
@@ -38,13 +49,15 @@ export function calculateFinancials({
             if (selectedDiscount.type === "percentage") {
 
                 discountAmount =
-                    data.price * (selectedDiscount.value / 100);
+                    price *
+                    (Number(selectedDiscount.value || 0) / 100);
 
             }
 
             else if (selectedDiscount.type === "fixed") {
 
-                discountAmount = selectedDiscount.value;
+                discountAmount =
+                    Number(selectedDiscount.value || 0);
 
             }
 
@@ -52,19 +65,32 @@ export function calculateFinancials({
 
     }
 
+
     /*
     --------------------------------------------------
-    SUBTOTAL
+    NORMALIZE DISCOUNT
+    --------------------------------------------------
+    */
+
+    const discount = Number(
+        discountAmount || 0
+    );
+
+
+    /*
+    --------------------------------------------------
+    SUBTOTAL AFTER DISCOUNT
     --------------------------------------------------
     */
 
     const subtotalAfterDiscount = Math.max(
 
-        Number(data.price || 0) - discountAmount,
+        price - discount,
 
         0
 
     );
+
 
     /*
     --------------------------------------------------
@@ -74,15 +100,22 @@ export function calculateFinancials({
 
     const activeTaxes = taxes.filter(
 
-        tax => data.activeTaxIds.includes(tax.id)
+        tax =>
+            data.activeTaxIds?.includes(
+                tax.id
+            )
 
     );
 
     const taxBreakdown = activeTaxes.map(tax => {
 
-        const rate = Number(tax.rate || 0);
+        const rate = Number(
+            tax.rate || 0
+        );
 
-        const amount = subtotalAfterDiscount * (rate / 100);
+        const amount =
+            subtotalAfterDiscount *
+            (rate / 100);
 
         return {
 
@@ -92,41 +125,204 @@ export function calculateFinancials({
 
             rate,
 
-            amount: Number(amount.toFixed(2))
+            amount:
+                Number(
+                    amount.toFixed(2)
+                )
 
         };
 
     });
 
+
+    /*
+    --------------------------------------------------
+    TOTAL DE IMPUESTOS
+    --------------------------------------------------
+    */
+
     const totalTax = taxBreakdown.reduce(
 
-        (sum, tax) => sum + tax.amount,
+        (sum, tax) =>
+            sum + tax.amount,
 
         0
 
     );
 
+
+    /*
+    ==================================================
+    COMISIONES
+    ==================================================
+    */
+
+
     /*
     --------------------------------------------------
-    TOTALES
+    BASE ORIGINAL
+    --------------------------------------------------
+
+    Precio antes de aplicar descuentos.
+    */
+
+    const originalCommissionBase = Number(
+
+        price.toFixed(2)
+
+    );
+
+
+    /*
+    --------------------------------------------------
+    BASE DESPUÉS DEL DESCUENTO
+    --------------------------------------------------
+
+    Precio después de aplicar el descuento.
+    */
+
+    const discountedCommissionBase = Number(
+
+        subtotalAfterDiscount.toFixed(2)
+
+    );
+
+
+    /*
+    --------------------------------------------------
+    BASE DE COMISIÓN SELECCIONADA
+    --------------------------------------------------
+
+    Si existe descuento:
+
+        original
+            → precio original
+
+        afterDiscount
+            → precio después del descuento
+
+    Si no existe descuento, ambas bases
+    tendrán el mismo valor.
+
+    Por seguridad, cualquier valor diferente
+    de "original" utiliza afterDiscount.
+    */
+
+    const commissionBase =
+        data.commissionBase === "original"
+            ? "original"
+            : "afterDiscount";
+
+
+    /*
+    --------------------------------------------------
+    MONTO BASE DE LA COMISIÓN
     --------------------------------------------------
     */
 
-    const price = Number(data.price || 0);
+    const commissionBaseAmount = Number(
 
-    const discount = Number(discountAmount || 0);
-
-    const baseForCommission = Number(
-
-        (price - discount).toFixed(2)
+        (
+            commissionBase === "original"
+                ? originalCommissionBase
+                : discountedCommissionBase
+        ).toFixed(2)
 
     );
+
+
+    /*
+    --------------------------------------------------
+    VALOR DE COMISIÓN
+    --------------------------------------------------
+    */
+
+    const commissionValue = Number(
+
+        data.commissionValue || 0
+
+    );
+
+
+    /*
+    --------------------------------------------------
+    MONTO DE COMISIÓN
+    --------------------------------------------------
+    */
+
+    let commissionAmount = 0;
+
+
+    if (data.commissionEnabled) {
+
+        /*
+        ----------------------------------------------
+        COMISIÓN PORCENTUAL
+        ----------------------------------------------
+        */
+
+        if (
+            data.commissionType ===
+            "percentage"
+        ) {
+
+            commissionAmount =
+                commissionBaseAmount *
+                (commissionValue / 100);
+
+        }
+
+
+        /*
+        ----------------------------------------------
+        COMISIÓN FIJA
+        ----------------------------------------------
+        */
+
+        else if (
+            data.commissionType ===
+            "fixed"
+        ) {
+
+            commissionAmount =
+                commissionValue;
+
+        }
+
+    }
+
+
+    /*
+    --------------------------------------------------
+    NORMALIZE COMMISSION AMOUNT
+    --------------------------------------------------
+    */
+
+    commissionAmount = Number(
+
+        commissionAmount.toFixed(2)
+
+    );
+
+
+    /*
+    --------------------------------------------------
+    TOTAL
+    --------------------------------------------------
+
+    El total de la reserva siempre se calcula
+    utilizando el subtotal después del descuento
+    más los impuestos.
+
+    La base de comisión NO afecta el total
+    de la reserva.
+    */
 
     const total = Number(
 
         (
 
-            baseForCommission +
+            subtotalAfterDiscount +
 
             Number(totalTax || 0)
 
@@ -134,13 +330,42 @@ export function calculateFinancials({
 
     );
 
+
+    /*
+    ==================================================
+    RETURN
+    ==================================================
+    */
+
     return {
+
+        /*
+        ----------------------------------------------
+        DESCUENTO
+        ----------------------------------------------
+        */
 
         selectedDiscount,
 
         discountAmount,
 
+        discount,
+
+
+        /*
+        ----------------------------------------------
+        SUBTOTAL
+        ----------------------------------------------
+        */
+
         subtotalAfterDiscount,
+
+
+        /*
+        ----------------------------------------------
+        IMPUESTOS
+        ----------------------------------------------
+        */
 
         activeTaxes,
 
@@ -148,11 +373,53 @@ export function calculateFinancials({
 
         totalTax,
 
+
+        /*
+        ----------------------------------------------
+        PRECIO
+        ----------------------------------------------
+        */
+
         price,
 
-        discount,
 
-        baseForCommission,
+        /*
+        ----------------------------------------------
+        COMISIONES
+        ----------------------------------------------
+        */
+
+        originalCommissionBase,
+
+        discountedCommissionBase,
+
+        commissionBase,
+
+        commissionBaseAmount,
+
+        commissionAmount,
+
+
+        /*
+        ----------------------------------------------
+        COMPATIBILIDAD TEMPORAL
+        ----------------------------------------------
+
+        Se mantiene mientras otros componentes
+        todavía utilicen baseForCommission.
+
+        Posteriormente podremos eliminarlo.
+        */
+
+        baseForCommission:
+            commissionBaseAmount,
+
+
+        /*
+        ----------------------------------------------
+        TOTAL
+        ----------------------------------------------
+        */
 
         total
 

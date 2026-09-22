@@ -1,1771 +1,1867 @@
-import React, { useState, useEffect } from "react";
-import { defaultSignTemplate } from "../../../../components/signs/signTemplateDefault";
-import { generateLayerId } from "../../../../components/signs/utils/generateLayerId";
-import SignLayerProperties from "../../../../components/signs/SignLayerProperties";
-import SignToolbar from "../../../../components/signs/SignToolbar";
-import SignCanvas from "../../../../components/signs/SignCanvas";
-import SignLayersPanel from "../../../../components/signs/SignLayersPanel";
-import TemplatesList from "../../../../components/signs/TemplatesList";
+import React, {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
 import {
-  createSignTemplate,
-  updateSignTemplate,
-  deleteSignTemplate,
-  getSignTemplates,
-  uploadTemplateImage,
-  deleteTemplateImage,
+    defaultSignTemplate
+} from "../../../../components/signs/signTemplateDefault";
+
+import {
+    generateLayerId
+} from "../../../../components/signs/utils/generateLayerId";
+
+import SignLayerProperties
+    from "../../../../components/signs/SignLayerProperties";
+
+import SignToolbar
+    from "../../../../components/signs/SignToolbar";
+
+import SignCanvas
+    from "../../../../components/signs/SignCanvas";
+
+import SignLayersPanel
+    from "../../../../components/signs/SignLayersPanel";
+
+import TemplatesList
+    from "../../../../components/signs/TemplatesList";
+
+import {
+    createSignTemplate,
+    updateSignTemplate,
+    deleteSignTemplate,
+    getSignTemplates,
+    uploadTemplateImage,
+    deleteTemplateImage
 } from "../../../../services/sign/signTemplatesService";
 
 import {
-  notifySuccess,
-  notifyError,
-  notifyConfirm
+    notifySuccess,
+    notifyError,
+    notifyConfirm
 } from "../../../../services/notificationService";
 
-import { useAuth } from "../../../../context/AuthContext";
-
+import {
+    useAuth
+} from "../../../../context/AuthContext";
 
 import "../../../../style/settings/template/signTemplates.css";
 
+
+const MAX_TEMPLATES = 5;
+
+const DEFAULT_TEMPLATE_NAME =
+    "Plantilla sin título";
+
+
+const createDefaultTextLayer = (
+    text
+) => ({
+    id: generateLayerId(),
+    type: "text",
+
+    text,
+
+    x: 200,
+    y: 200,
+
+    width: 600,
+    height: 120,
+
+    fontSize: 72,
+    fontWeight: 700,
+
+    color: "#000000",
+
+    textAlign: "center",
+    fontFamily: "Arial"
+});
+
+
+const normalizeLayers = (
+    layers = []
+) =>
+    layers.map((layer) => {
+
+        if (layer.type === "text") {
+            return {
+                fontSize: 72,
+                fontWeight: 700,
+                color: "#000000",
+                textAlign: "center",
+                fontFamily: "Arial",
+                width: 600,
+                height: 120,
+                ...layer
+            };
+        }
+
+        if (layer.type === "shape") {
+            return {
+                backgroundColor: "#000000",
+                opacity: 0.2,
+                borderRadius: 20,
+                width: 300,
+                height: 200,
+                ...layer
+            };
+        }
+
+        if (layer.type === "image") {
+            return {
+                width: 300,
+                height: 300,
+                ...layer
+            };
+        }
+
+        return layer;
+    });
+
+
+const isStorageObjectNotFound = (
+    error
+) =>
+    error?.code ===
+        "storage/object-not-found" ||
+    error?.code ===
+        "storage/object-not-found";
+
+
 const SignTemplatesSection = () => {
 
-  const { session } = useAuth();
+    const {
+        session
+    } = useAuth();
 
-  const user = session?.user;
+    const user =
+        session?.user;
 
-  const company = session?.company;
+    const company =
+        session?.company;
 
-  const companyId = company?.id;
+    const companyId =
+        company?.id;
 
-  const [template, setTemplate] = useState(defaultSignTemplate);
-  const [selectedLayerId, setSelectedLayerId] = useState(null);
-  const [rightPanelTab, setRightPanelTab] = useState("properties");
-  const [templates, setTemplates] = useState([]);
-  const [templateName, setTemplateName] = useState("Plantilla sin título");
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  const [copiedLayer, setCopiedLayer] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [future,  setFuture] = useState([]);
-  const hasReachedTemplateLimit = templates.length >= 5;
-  /*
-  |--------------------------------------------------------------------------
-  | EXAMPLE DATA
-  |--------------------------------------------------------------------------
-  */
 
-    const reservation = {
+    /* ========================================================
+       STATE
+       ======================================================== */
 
-    clientName:
-        "Nombre del cliente",
+    const [
+        template,
+        setTemplate
+    ] = useState(
+        defaultSignTemplate
+    );
 
-    clientEmail:
-        "Correo electrónico",
+    const [
+        selectedLayerId,
+        setSelectedLayerId
+    ] = useState(null);
 
-    phone:
-        "Número de teléfono",
+    const [
+        rightPanelTab,
+        setRightPanelTab
+    ] = useState("properties");
 
-    reservationNumber:
-        "Número de reserva",
+    const [
+        templates,
+        setTemplates
+    ] = useState([]);
 
-    reservationDate:
-        "Fecha de reserva",
+    const [
+        templateName,
+        setTemplateName
+    ] = useState(
+        DEFAULT_TEMPLATE_NAME
+    );
 
-    passengers:
-        "# de pasajeros",
+    const [
+        selectedTemplateId,
+        setSelectedTemplateId
+    ] = useState(null);
 
-    serviceTypeName:
-        "Tipo de servicio",
+    const [
+        copiedLayer,
+        setCopiedLayer
+    ] = useState(null);
 
-    serviceCategory:
-        "Categoría del servicio",
+    const [
+        history,
+        setHistory
+    ] = useState([]);
 
-    locationFromName:
-        "Lugar de recogida",
+    const [
+        future,
+        setFuture
+    ] = useState([]);
 
-    locationToName:
-        "Lugar de destino",
 
-    durationLabel:
-        "Duración",
+    const hasReachedTemplateLimit =
+        templates.length >= MAX_TEMPLATES;
 
-    subtotal:
-        "Subtotal",
 
-    taxAmount:
-        "Impuestos",
+    /* ========================================================
+       SIGN DATA
+       ======================================================== */
 
-    total:
-        "Total",
+    const signData = {
+        clientName:
+            "Nombre del cliente",
 
-    currency:
-        "Moneda",
+        reservationDate:
+            "Fecha de reserva",
 
-    symbol:
-        "$",
+        pickupLocation:
+            "Lugar de recogida",
 
-    status:
-        "Estado de la reserva",
+        reservationNumber:
+            "Número de reserva",
 
-    notes:
-        "Notas adicionales",
+        dropOff:
+            "Lugar de destino",
 
-    staffName:
-        "Nombre del staff",
-
-    title:
-        "Título de la reserva",
+        companyName:
+            company?.companyName ||
+            company?.name ||
+            ""
     };
 
-    // const company = {
 
-    // companyName:
-    //     "Nombre de la empresa",
-    // };
+    /* ========================================================
+       HISTORY
+       ======================================================== */
 
-  /*
-  |--------------------------------------------------------------------------
-  | SIGN DATA
-  |--------------------------------------------------------------------------
-  */
+    const saveHistory = useCallback(
+        () => {
 
-  const signData = {
-    clientName: reservation.clientName,
+            setHistory(
+                (previous) => [
+                    ...previous,
+                    structuredClone(template)
+                ]
+            );
 
-    reservationDate: reservation.reservationDate,
+            setFuture([]);
 
-    pickupLocation: reservation.pickupLocation,
-
-    reservationNumber: reservation.reservationNumber,
-
-    dropOff: reservation.dropOff,
-
-    companyName: company.companyName,
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | GUARDA EL HISTORIAL DEL LAYER
-  |--------------------------------------------------------------------------
-  */
-  const saveHistory = () => {
-
-    setHistory((prev) => [
-        ...prev,
-        structuredClone(template),
-    ]);
-
-    /*
-    -----------------------------------
-    CLEAR FUTURE
-    -----------------------------------
-    */
-
-    setFuture([]);
-  };
-
-    const undo = () => {
-
-        if (history.length === 0) {
-            return;
-        }
-
-        /*
-        -----------------------------------
-        LAST HISTORY
-        -----------------------------------
-        */
-
-        const previousState = history[history.length - 1];
-
-        /*
-        -----------------------------------
-        SAVE CURRENT TO FUTURE
-        -----------------------------------
-        */
-
-        setFuture((prev) => [
-            structuredClone(template),
-            ...prev,
-        ]);
-
-        /*
-        -----------------------------------
-        REMOVE LAST HISTORY
-        -----------------------------------
-        */
-
-        setHistory((prev) =>  prev.slice(0, -1));
-
-        /*
-        -----------------------------------
-        RESTORE
-        -----------------------------------
-        */
-
-        setTemplate(previousState);
-    };
-
-    const redo = () => {
-
-        if (future.length === 0) {
-            return;
-        }
-
-        /*
-        -----------------------------------
-        NEXT STATE
-        -----------------------------------
-        */
-        const nextState = future[0];
-        /*
-        -----------------------------------
-        SAVE CURRENT
-        -----------------------------------
-        */
-
-        setHistory((prev) => [
-            ...prev,
-            structuredClone(template),
-        ]);
-
-        /*
-        -----------------------------------
-        REMOVE FUTURE
-        -----------------------------------
-        */
-
-        setFuture((prev) => prev.slice(1));
-
-        /*
-        -----------------------------------
-        RESTORE
-        -----------------------------------
-        */
-
-        setTemplate(nextState);
-    };
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE LAYER
-  |--------------------------------------------------------------------------
-  */
-
-  const updateLayer = (layerId, updates) => {
-    saveHistory();
-    const updatedLayers = template.layers.map((layer) => {
-
-      if (layer.id === layerId) {
-        return {
-          ...layer,
-          ...updates,
-        };
-      }
-
-      return layer;
-    });
-
-    setTemplate({
-      ...template,
-      layers: updatedLayers,
-    });
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | ACTUALIZAR HORIENTACION DEL ARCHIVO
-  |--------------------------------------------------------------------------
-  */
-
-  const setCanvasOrientation = (
-    orientation
-    ) => {
-
-    if (orientation === "landscape") {
-
-        setTemplate({
-        ...template,
-
-        canvas: {
-            ...template.canvas,
-
-            orientation: "landscape",
-
-            width: 1400,
-
-            height: 900,
         },
-        });
+        [template]
+    );
 
-        return;
-    }
 
-    setTemplate({
-        ...template,
+    const undo = useCallback(
+        () => {
 
-        canvas: {
-        ...template.canvas,
-
-        orientation: "portrait",
-
-        width: 900,
-
-        height: 1400,
-        },
-    });
-  };
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD TEMPLATES
-    |--------------------------------------------------------------------------
-    */
-
-    const loadTemplates = async () => {
-
-        try {
-
-            /*
-            -----------------------------------
-            GET TEMPLATES
-            -----------------------------------
-            */
-
-            const data = await getSignTemplates(companyId);
-
-            /*
-            -----------------------------------
-            SORT BY UPDATED DATE
-            -----------------------------------
-            */
-
-            const sortedTemplates =
-                [...data].sort((a, b) => {
-
-                const aDate = a.updatedAt?.seconds || 0;
-                const bDate = b.updatedAt?.seconds || 0;
-
-                return bDate - aDate;
-            });
-
-            /*
-            -----------------------------------
-            SET LIST
-            -----------------------------------
-            */
-
-            setTemplates(sortedTemplates);
-
-            /*
-            -----------------------------------
-            AUTO OPEN TEMPLATE
-            -----------------------------------
-            */
-
-            if (sortedTemplates.length > 0) {
-
-            const firstTemplate = sortedTemplates[0];
-
-            setTemplate({
-
-                canvas:
-                firstTemplate.canvas ||
-                defaultSignTemplate.canvas,
-
-                layers:
-                firstTemplate.layers || [],
-            });
-
-            setTemplateName(
-
-                firstTemplate.name ||
-                "Plantilla sin título"
-            );
-
-            setSelectedTemplateId(
-                firstTemplate.id
-            );
-
-            /*
-            -----------------------------------
-            RESET SELECTED LAYER
-            -----------------------------------
-            */
-
-            setSelectedLayerId(
-                null
-            );
-
-            } else {
-
-            /*
-            -----------------------------------
-            EMPTY STATE
-            -----------------------------------
-            */
-
-            setTemplate(
-                defaultSignTemplate
-            );
-
-            setTemplateName(
-                "Plantilla sin título"
-            );
-
-            setSelectedTemplateId(
-                null
-            );
-
-            setSelectedLayerId(
-                null
-            );
+            if (!history.length) {
+                return;
             }
 
-        } catch (error) {
+            const previousState =
+                history[
+                    history.length - 1
+                ];
 
-            console.error(error);
-        }
-    };
+            setFuture(
+                (previous) => [
+                    structuredClone(template),
+                    ...previous
+                ]
+            );
 
-    useEffect(() => {
+            setHistory(
+                (previous) =>
+                    previous.slice(0, -1)
+            );
 
-    if (!companyId) return;
+            setTemplate(
+                previousState
+            );
 
-        loadTemplates();
+        },
+        [
+            history,
+            template
+        ]
+    );
 
-    }, [companyId]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | USE EFFECT PARA VER CUANDO SE TOCA EL TECLADO
-    |--------------------------------------------------------------------------
-    */
+    const redo = useCallback(
+        () => {
 
-    useEffect(() => {
+            if (!future.length) {
+                return;
+            }
 
-        window.addEventListener("keydown", handleKeyDown);
+            const nextState =
+                future[0];
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
+            setHistory(
+                (previous) => [
+                    ...previous,
+                    structuredClone(template)
+                ]
+            );
 
-        }, [
-        selectedLayerId,
-        template,
-    ]);
+            setFuture(
+                (previous) =>
+                    previous.slice(1)
+            );
 
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE TEMPLATE
-    |--------------------------------------------------------------------------
-    */
+            setTemplate(
+                nextState
+            );
+
+        },
+        [
+            future,
+            template
+        ]
+    );
+
+
+    /* ========================================================
+       LAYER UPDATE
+       ======================================================== */
+
+    const updateLayer = useCallback(
+        (
+            layerId,
+            updates
+        ) => {
+
+            const layer =
+                template.layers.find(
+                    (item) =>
+                        item.id === layerId
+                );
+
+            if (!layer) {
+                return;
+            }
+
+            saveHistory();
+
+            setTemplate(
+                (previous) => ({
+                    ...previous,
+
+                    layers:
+                        previous.layers.map(
+                            (item) =>
+                                item.id === layerId
+                                    ? {
+                                        ...item,
+                                        ...updates
+                                    }
+                                    : item
+                        )
+                })
+            );
+
+        },
+        [
+            template.layers,
+            saveHistory
+        ]
+    );
+
+
+    /* ========================================================
+       CANVAS ORIENTATION
+       ======================================================== */
+
+    const setCanvasOrientation =
+        useCallback(
+            (orientation) => {
+
+                if (
+                    orientation !==
+                        "landscape" &&
+                    orientation !==
+                        "portrait"
+                ) {
+                    return;
+                }
+
+                const canvas =
+                    orientation ===
+                        "landscape"
+                        ? {
+                            orientation,
+                            width: 1400,
+                            height: 900
+                        }
+                        : {
+                            orientation,
+                            width: 900,
+                            height: 1400
+                        };
+
+                saveHistory();
+
+                setTemplate(
+                    (previous) => ({
+                        ...previous,
+                        canvas: {
+                            ...previous.canvas,
+                            ...canvas
+                        }
+                    })
+                );
+
+            },
+            [saveHistory]
+        );
+
+
+    /* ========================================================
+       LOAD TEMPLATES
+       ======================================================== */
+
+    const loadTemplates =
+        useCallback(
+            async () => {
+
+                if (!companyId) {
+                    setTemplates([]);
+                    return;
+                }
+
+                try {
+
+                    const data =
+                        await getSignTemplates(
+                            companyId
+                        );
+
+                    const safeTemplates =
+                        Array.isArray(data)
+                            ? data
+                            : [];
+
+                    const sortedTemplates =
+                        [...safeTemplates].sort(
+                            (a, b) => {
+
+                                const aDate =
+                                    a.updatedAt?.seconds ||
+                                    0;
+
+                                const bDate =
+                                    b.updatedAt?.seconds ||
+                                    0;
+
+                                return (
+                                    bDate -
+                                    aDate
+                                );
+                            }
+                        );
+
+                    setTemplates(
+                        sortedTemplates
+                    );
+
+                    if (!sortedTemplates.length) {
+
+                        setTemplate(
+                            defaultSignTemplate
+                        );
+
+                        setTemplateName(
+                            DEFAULT_TEMPLATE_NAME
+                        );
+
+                        setSelectedTemplateId(
+                            null
+                        );
+
+                        setSelectedLayerId(
+                            null
+                        );
+
+                        return;
+                    }
+
+                    const firstTemplate =
+                        sortedTemplates[0];
+
+                    setTemplate({
+                        canvas:
+                            firstTemplate.canvas ||
+                            defaultSignTemplate.canvas,
+
+                        layers:
+                            normalizeLayers(
+                                firstTemplate.layers ||
+                                []
+                            )
+                    });
+
+                    setTemplateName(
+                        firstTemplate.name ||
+                        DEFAULT_TEMPLATE_NAME
+                    );
+
+                    setSelectedTemplateId(
+                        firstTemplate.id
+                    );
+
+                    setSelectedLayerId(
+                        null
+                    );
+
+                    setHistory([]);
+                    setFuture([]);
+
+                } catch (error) {
+
+                    console.error(
+                        "Error loading sign templates:",
+                        error
+                    );
+
+                    notifyError(
+                        "No se pudieron cargar las plantillas."
+                    );
+                }
+
+            },
+            [companyId]
+        );
+
+
+    useEffect(
+        () => {
+            loadTemplates();
+        },
+        [loadTemplates]
+    );
+
+
+    /* ========================================================
+       SAVE TEMPLATE
+       ======================================================== */
 
     const handleSaveTemplate =
         async () => {
 
-        try {
+            if (!companyId) {
+                notifyError(
+                    "No se encontró la empresa."
+                );
+                return;
+            }
 
-        /*
-        -----------------------------------
-        UPDATE
-        -----------------------------------
-        */
+            try {
 
-        if (selectedTemplateId) {
+                if (selectedTemplateId) {
 
-            await updateSignTemplate({
-            companyId,
+                    await updateSignTemplate({
+                        companyId,
+                        templateId:
+                            selectedTemplateId,
+                        template,
+                        templateName
+                    });
 
-            templateId:
-                selectedTemplateId,
+                    notifySuccess(
+                        "Plantilla actualizada"
+                    );
 
-            template,
+                } else {
 
-            templateName,
-            });
-            notifySuccess("Plantilla actualizada");
+                    if (
+                        templates.length >=
+                        MAX_TEMPLATES
+                    ) {
+                        notifyError(
+                            "Has alcanzado el límite de 5 plantillas."
+                        );
+                        return;
+                    }
 
-        } else {
+                    const newTemplateId =
+                        await createSignTemplate({
+                            companyId,
+                            user,
+                            template,
+                            templateName
+                        });
 
-            /*
-            -----------------------------------
-            CREATE
-            -----------------------------------
-            */
+                    setSelectedTemplateId(
+                        newTemplateId
+                    );
 
-            const newTemplateId =
-            await createSignTemplate({
-                companyId,
+                    notifySuccess(
+                        "Plantilla guardada"
+                    );
+                }
 
-                user,
+                await loadTemplates();
 
-                template,
+            } catch (error) {
 
-                templateName,
-            });
+                console.error(
+                    "Error saving sign template:",
+                    error
+                );
 
-            setSelectedTemplateId(
-            newTemplateId
-            );
-            notifySuccess("Plantilla guardada");
-        }
+                notifyError(
+                    "Error guardando plantilla."
+                );
+            }
+        };
 
-        await loadTemplates();
 
-        } catch (error) {
-
-        console.error(error);
-
-        notifyError("Error guardando plantilla");
-        }
-    };
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE TEMPLATE
-    |--------------------------------------------------------------------------
-    */
+    /* ========================================================
+       DELETE TEMPLATE
+       ======================================================== */
 
     const handleDeleteTemplate =
-    async () => {
+        async () => {
 
-    /*
-    -----------------------------------
-    VALIDATE TEMPLATE
-    -----------------------------------
-    */
+            if (
+                !companyId ||
+                !selectedTemplateId
+            ) {
+                return;
+            }
 
-    if (!selectedTemplateId) {
-        return;
-    }
+            const confirmed =
+                await notifyConfirm(
+                    "Eliminar plantilla",
+                    "Esta acción eliminará la plantilla permanentemente."
+                );
 
-    /*
-    -----------------------------------
-    CONFIRM DELETE
-    -----------------------------------
-    */
+            if (!confirmed) {
+                return;
+            }
 
-    const confirmDelete =
-        await notifyConfirm(
-        "Eliminar plantilla",
-        "Esta acción eliminará la plantilla permanentemente."
-        );
+            try {
 
-    if (!confirmDelete) {
-        return;
-    }
+                const imageLayers =
+                    template.layers.filter(
+                        (layer) =>
+                            layer.type === "image" &&
+                            layer.storagePath
+                    );
 
-    try {
+                for (
+                    const imageLayer
+                    of imageLayers
+                ) {
 
-    /*
-    -----------------------------------
-    GET TEMPLATE IMAGES
-    -----------------------------------
-    */
+                    try {
 
-    const templateImages =
-        template.layers.filter(
-        (layer) =>
+                        await deleteTemplateImage(
+                            imageLayer.storagePath
+                        );
 
-            layer.type === "image" &&
-            layer.storagePath
-        );
+                    } catch (error) {
 
-    /*
-    -----------------------------------
-    DELETE STORAGE IMAGES
-    -----------------------------------
-    */
+                        /*
+                         * Si el archivo ya no existe,
+                         * podemos continuar con el borrado
+                         * de la plantilla.
+                         */
 
-    for (const imageLayer of templateImages) {
+                        if (
+                            !isStorageObjectNotFound(
+                                error
+                            )
+                        ) {
 
-        try {
+                            console.warn(
+                                "No se pudo eliminar la imagen:",
+                                error
+                            );
+                        }
+                    }
+                }
 
-            await deleteTemplateImage(imageLayer.storagePath);
+                await deleteSignTemplate(
+                    companyId,
+                    selectedTemplateId
+                );
 
-        } catch (error) {
-            console.error("Error deleting image:", error);
-        }
-    }
+                notifySuccess(
+                    "Plantilla eliminada"
+                );
 
-    /*
-    -----------------------------------
-    DELETE TEMPLATE
-    -----------------------------------
-    */
+                setSelectedTemplateId(
+                    null
+                );
 
-    await deleteSignTemplate(companyId, selectedTemplateId);
+                setSelectedLayerId(
+                    null
+                );
 
-    /*
-    -----------------------------------
-    RELOAD TEMPLATES
-    -----------------------------------
-    */
+                setTemplate(
+                    defaultSignTemplate
+                );
 
-    await loadTemplates();
+                setTemplateName(
+                    DEFAULT_TEMPLATE_NAME
+                );
 
-    /*
-    -----------------------------------
-    SUCCESS
-    -----------------------------------
-    */
+                setHistory([]);
+                setFuture([]);
 
-    notifySuccess("Plantilla eliminada");
+                await loadTemplates();
 
-    } catch (error) {
+            } catch (error) {
 
-        console.error(error);
-        notifyError("Error eliminando plantilla");
-    }
-    };
+                console.error(
+                    "Error deleting sign template:",
+                    error
+                );
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE TEMPLATE
-    |--------------------------------------------------------------------------
-    */
+                notifyError(
+                    "Error eliminando plantilla."
+                );
+            }
+        };
 
-    const handleCreateNewTemplate = () => {
-        setTemplate(defaultSignTemplate);
 
-        setSelectedTemplateId(null);
+    /* ========================================================
+       CREATE NEW TEMPLATE
+       ======================================================== */
 
-        setSelectedLayerId(null);
+    const handleCreateNewTemplate =
+        () => {
 
-        setTemplateName("Plantilla sin título");
-    };
+            if (hasReachedTemplateLimit) {
+                return;
+            }
 
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN TEMPLATE
-    |--------------------------------------------------------------------------
-    */
+            saveHistory();
 
-    const openTemplate = (
-    selectedTemplate
+            setTemplate(
+                structuredClone(
+                    defaultSignTemplate
+                )
+            );
+
+            setSelectedTemplateId(
+                null
+            );
+
+            setSelectedLayerId(
+                null
+            );
+
+            setTemplateName(
+                DEFAULT_TEMPLATE_NAME
+            );
+
+            setRightPanelTab(
+                "properties"
+            );
+        };
+
+
+    /* ========================================================
+       OPEN TEMPLATE
+       ======================================================== */
+
+    const openTemplate =
+        (selectedTemplate) => {
+
+            if (!selectedTemplate) {
+                return;
+            }
+
+            setTemplate({
+                canvas:
+                    selectedTemplate.canvas ||
+                    defaultSignTemplate.canvas,
+
+                layers:
+                    normalizeLayers(
+                        selectedTemplate.layers ||
+                        []
+                    )
+            });
+
+            setTemplateName(
+                selectedTemplate.name ||
+                DEFAULT_TEMPLATE_NAME
+            );
+
+            setSelectedTemplateId(
+                selectedTemplate.id
+            );
+
+            setSelectedLayerId(
+                null
+            );
+
+            setHistory([]);
+            setFuture([]);
+
+        };
+
+
+    /* ========================================================
+       CREATE LAYER
+       ======================================================== */
+
+    const addLayer = (
+        layer
     ) => {
 
-    const normalizedLayers =
-        selectedTemplate.layers.map(
-        (layer) => {
+        saveHistory();
 
-            /*
-            -----------------------------------
-            TEXT
-            -----------------------------------
-            */
+        setTemplate(
+            (previous) => ({
+                ...previous,
 
-            if (layer.type === "text") {
-
-            return {
-                fontSize: 72,
-
-                fontWeight: 700,
-
-                color: "#000000",
-
-                textAlign: "center",
-
-                fontFamily: "Arial",
-
-                width: 600,
-
-                height: 120,
-
-                ...layer,
-            };
-            }
-
-            /*
-            -----------------------------------
-            SHAPE
-            -----------------------------------
-            */
-
-            if (layer.type === "shape") {
-
-            return {
-                backgroundColor: "#000000",
-
-                opacity: 0.2,
-
-                borderRadius: 20,
-
-                width: 300,
-
-                height: 200,
-
-                ...layer,
-            };
-            }
-
-            /*
-            -----------------------------------
-            IMAGE
-            -----------------------------------
-            */
-
-            if (layer.type === "image") {
-
-            return {
-                width: 300,
-
-                height: 300,
-
-                ...layer,
-            };
-            }
-
-            return layer;
-        }
+                layers: [
+                    ...previous.layers,
+                    layer
+                ]
+            })
         );
 
-    setTemplate({
-        canvas: selectedTemplate.canvas,
+        setSelectedLayerId(
+            layer.id
+        );
 
-        layers: normalizedLayers,
-    });
-
-    setTemplateName(
-        selectedTemplate.name
-    );
-
-    setSelectedTemplateId(
-        selectedTemplate.id
-    );
-
+        setRightPanelTab(
+            "properties"
+        );
     };
 
-  /*
-  |--------------------------------------------------------------------------
-  | CREATE TEXT LAYER
-  |--------------------------------------------------------------------------
-  */
 
-  const createTextLayer = (textValue) => {
-    saveHistory();
-    const newLayer = {
-      id: generateLayerId(),
+    const createTextLayer = (
+        text
+    ) => {
 
-      type: "text",
-
-      text: textValue,
-
-      x: 200,
-      y: 200,
-
-      width: 600,
-      height: 120,
-
-      fontSize: 72,
-
-      fontWeight: 700,
-
-      color: "#000000",
-
-      textAlign: "center",
-
-      fontFamily: "Arial",
+        addLayer(
+            createDefaultTextLayer(
+                text
+            )
+        );
     };
 
-    setTemplate({
-      ...template,
-      layers: [...template.layers, newLayer],
-    });
 
-    setSelectedLayerId(newLayer.id);
+    const addDynamicFieldLayer = (
+        field
+    ) => {
 
-    setRightPanelTab("properties");
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | DYNAMIC FIELDS
-  |--------------------------------------------------------------------------
-  */
-
-  const addDynamicFieldLayer = (
-    fieldValue
-  ) => {
-
-  createTextLayer(fieldValue);
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | STATIC TEXT
-  |--------------------------------------------------------------------------
-  */
-
-  const addStaticTextLayer = () => {
-    createTextLayer("Nuevo texto");
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | SHAPE
-  |--------------------------------------------------------------------------
-  */
-
-  const addShapeLayer = () => {
-    saveHistory();
-
-    const newLayer = {
-      id: generateLayerId(),
-
-      type: "shape",
-
-      x: 200,
-      y: 200,
-
-      width: 300,
-      height: 200,
-
-      backgroundColor: "#000000",
-
-      opacity: 0.2,
-
-      borderRadius: 20,
+        createTextLayer(
+            field
+        );
     };
 
-    setTemplate({
-      ...template,
-      layers: [...template.layers, newLayer],
-    });
 
-    setSelectedLayerId(newLayer.id);
-    setRightPanelTab("properties");
-  };
+    const addStaticTextLayer = () => {
 
-  /*
-  |--------------------------------------------------------------------------
-  | IMAGE
-  |--------------------------------------------------------------------------
-  */
+        createTextLayer(
+            "Nuevo texto"
+        );
+    };
 
-    const addImageLayer = async (event) => {
-        saveHistory();
-        try {
 
-            /*
-            -----------------------------------
-            FILE
-            -----------------------------------
-            */
+    const addShapeLayer = () => {
 
-            const file = event.target.files[0];
-
-            if (!file) {
-            return;
-            }
-
-            /*
-            -----------------------------------
-            UPLOAD TO FIREBASE STORAGE
-            -----------------------------------
-            */
-
-            const result = await uploadTemplateImage({ companyId, file,});
-
-            /*
-            -----------------------------------
-            CREATE IMAGE LAYER
-            -----------------------------------
-            */
-
-            const newLayer = {
+        addLayer({
             id: generateLayerId(),
 
-            type: "image",
-
-            src: result.url,
-
-            storagePath:
-                result.path,
+            type: "shape",
 
             x: 200,
             y: 200,
 
             width: 300,
-            height: 300,
+            height: 200,
+
+            backgroundColor:
+                "#000000",
+
+            opacity: 0.2,
+
+            borderRadius: 20
+        });
+    };
+
+
+    /* ========================================================
+       IMAGE
+       ======================================================== */
+
+    const addImageLayer =
+        async (event) => {
+
+            const file =
+                event.target.files?.[0];
+
+            event.target.value = "";
+
+            if (!file || !companyId) {
+                return;
+            }
+
+            try {
+
+                const result =
+                    await uploadTemplateImage({
+                        companyId,
+                        file
+                    });
+
+                const newLayer = {
+                    id: generateLayerId(),
+
+                    type: "image",
+
+                    src: result.url,
+
+                    storagePath:
+                        result.path,
+
+                    x: 200,
+                    y: 200,
+
+                    width: 300,
+                    height: 300
+                };
+
+                addLayer(
+                    newLayer
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Error uploading template image:",
+                    error
+                );
+
+                notifyError(
+                    "Error cargando imagen."
+                );
+            }
+        };
+
+
+    /* ========================================================
+       DELETE LAYER
+       ======================================================== */
+
+    const deleteLayer =
+        async (layerId) => {
+
+            const layer =
+                template.layers.find(
+                    (item) =>
+                        item.id === layerId
+                );
+
+            if (!layer) {
+                return;
+            }
+
+            if (
+                layer.type === "image" &&
+                layer.storagePath
+            ) {
+
+                try {
+
+                    await deleteTemplateImage(
+                        layer.storagePath
+                    );
+
+                } catch (error) {
+
+                    if (
+                        !isStorageObjectNotFound(
+                            error
+                        )
+                    ) {
+
+                        console.warn(
+                            "No se pudo eliminar la imagen:",
+                            error
+                        );
+                    }
+                }
+            }
+
+            saveHistory();
+
+            setTemplate(
+                (previous) => ({
+                    ...previous,
+
+                    layers:
+                        previous.layers.filter(
+                            (item) =>
+                                item.id !== layerId
+                        )
+                })
+            );
+
+            if (
+                selectedLayerId ===
+                layerId
+            ) {
+                setSelectedLayerId(
+                    null
+                );
+            }
+        };
+
+
+    /* ========================================================
+       DUPLICATE
+       ======================================================== */
+
+    const duplicateLayer =
+        (layer) => {
+
+            if (!layer) {
+                return;
+            }
+
+            const duplicatedLayer = {
+                ...layer,
+
+                id: generateLayerId(),
+
+                x:
+                    (layer.x || 0) +
+                    40,
+
+                y:
+                    (layer.y || 0) +
+                    40
             };
 
-            /*
-            -----------------------------------
-            UPDATE TEMPLATE
-            -----------------------------------
-            */
-
-            setTemplate({
-            ...template,
-
-            layers: [
-                ...template.layers,
-                newLayer,
-            ],
-            });
-
-            /*
-            -----------------------------------
-            SELECT LAYER
-            -----------------------------------
-            */
-
-            setSelectedLayerId(newLayer.id);
-            setRightPanelTab("properties");
-            //notifySuccess("Imagen subida");
-
-        } catch (error) {
-
-            console.error(error);
-            notifyError("Error cargando imagen");
-        }
-    };
-
-  /*
-  |--------------------------------------------------------------------------
-  | DELETE
-  |--------------------------------------------------------------------------
-  */
-
-    const deleteLayer = async (layerId) => {
-    saveHistory();
-    /*
-    -----------------------------------
-    FIND LAYER
-    -----------------------------------
-    */
-
-    const layerToDelete =
-        template.layers.find(
-        (layer) =>
-            layer.id === layerId
-        );
-
-    /*
-    -----------------------------------
-    DELETE IMAGE FROM STORAGE
-    -----------------------------------
-    */
-
-    if (
-        layerToDelete?.type === "image" &&
-        layerToDelete?.storagePath
-    ) {
-
-        try {
-
-        await deleteTemplateImage(
-            layerToDelete.storagePath
-        );
-
-        } catch (error) {
-
-        console.error(
-            "Error deleting image:",
-            error
-        );
-        }
-    }
-
-    /*
-    -----------------------------------
-    REMOVE LAYER
-    -----------------------------------
-    */
-
-    const updatedLayers = template.layers.filter(
-        (layer) =>
-            layer.id !== layerId
-        );
-
-    setTemplate({
-        ...template,
-
-        layers: updatedLayers,
-    });
-
-    /*
-    -----------------------------------
-    RESET SELECTED
-    -----------------------------------
-    */
-
-    if (
-        selectedLayerId === layerId
-    ) {
-
-        setSelectedLayerId(
-        null
-        );
-    }
-    };
-
-  /*
-  |--------------------------------------------------------------------------
-  | DUPLICATE
-  |--------------------------------------------------------------------------
-  */
-
-  const duplicateLayer = (layer) => {
-    saveHistory();
-
-    const duplicatedLayer = {
-      ...layer,
-
-      id: generateLayerId(),
-
-      x: layer.x + 40,
-      y: layer.y + 40,
-    };
-
-    setTemplate({
-      ...template,
-      layers: [...template.layers, duplicatedLayer],
-    });
-
-    setSelectedLayerId(duplicatedLayer.id);
-
-    setRightPanelTab("properties");
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | MOVE UP
-  |--------------------------------------------------------------------------
-  */
-
-  const moveLayerUp = (index) => {
-    saveHistory();
-    if (index >= template.layers.length - 1) {
-      return;
-    }
-
-    const updatedLayers = [...template.layers];
-
-    [
-      updatedLayers[index],
-      updatedLayers[index + 1],
-    ] = [
-      updatedLayers[index + 1],
-      updatedLayers[index],
-    ];
-
-    setTemplate({
-      ...template,
-      layers: updatedLayers,
-    });
-  };
-
-  /*
-  |--------------------------------------------------------------------------
-  | MOVE DOWN
-  |--------------------------------------------------------------------------
-  */
-
-  const moveLayerDown = (index) => {
-    saveHistory();
-
-    if (index <= 0) {
-      return;
-    }
-
-    const updatedLayers = [...template.layers];
-
-    [
-      updatedLayers[index],
-      updatedLayers[index - 1],
-    ] = [
-      updatedLayers[index - 1],
-      updatedLayers[index],
-    ];
-
-    setTemplate({
-      ...template,
-      layers: updatedLayers,
-    });
-  };
-  
-  const moveSelectedLayer = (deltaX, deltaY ) => {
-    saveHistory();
-
-    /*
-    -----------------------------------
-    VALIDATE
-    -----------------------------------
-    */
-
-    if (!selectedLayerId) {
-        return;
-    }
-
-    /*
-    -----------------------------------
-    FIND LAYER
-    -----------------------------------
-    */
-
-    const selectedLayer =
-        template.layers.find(
-        (layer) =>
-            layer.id === selectedLayerId
-        );
-
-    if (!selectedLayer) {
-        return;
-    }
-
-    /*
-    -----------------------------------
-    UPDATE POSITION
-    -----------------------------------
-    */
-
-    updateLayer(
-        selectedLayerId,
-        {
-            x: selectedLayer.x + deltaX,
-            y: selectedLayer.y + deltaY,
-        }
-    );
-  };
-
-  const pasteLayer = () => {
-
-    /*
-    -----------------------------------
-    VALIDATE
-    -----------------------------------
-    */
-
-    if (!copiedLayer) {
-        return;
-    }
-
-    /*
-    -----------------------------------
-    DUPLICATE
-    -----------------------------------
-    */
-
-    const duplicatedLayer = {
-        ...copiedLayer,
-        id: generateLayerId(),
-        x: copiedLayer.x + 40,
-        y: copiedLayer.y + 40,
-    };
-
-    /*
-    -----------------------------------
-    UPDATE TEMPLATE
-    -----------------------------------
-    */
-
-    setTemplate({
-        ...template,
-
-        layers: [
-        ...template.layers,
-        duplicatedLayer,
-        ],
-    });
-
-    /*
-    -----------------------------------
-    SELECT
-    -----------------------------------
-    */
-
-    setSelectedLayerId(duplicatedLayer.id );
-
-    setRightPanelTab("properties");
-    };
-
-  const handleKeyDown = (
-    event
-    ) => {
-
-    /*
-    -----------------------------------
-    ACTIVE ELEMENT
-    -----------------------------------
-    */
-
-    const activeElement = document.activeElement;
-
-    const isTyping =
-        activeElement.tagName === "INPUT" ||
-        activeElement.tagName === "TEXTAREA";
-
-    /*
-    -----------------------------------
-    PREVENT SHORTCUTS
-    WHILE TYPING
-    -----------------------------------
-    */
-
-    if (isTyping) {
-        return;
-    }
-
-    /*
-    -----------------------------------
-    VALIDATE LAYER
-    -----------------------------------
-    */
-
-    const selectedLayer =
-        template.layers.find(
-        (layer) => layer.id === selectedLayerId);
-
-    /*
-    -----------------------------------
-    DELETE
-    -----------------------------------
-    */
-
-    if (
-        event.key === "Delete" ||
-        event.key === "Backspace"
-    ) {
-
-        if (!selectedLayerId) {
-        return;
-        }
-
-        event.preventDefault();
-        deleteLayer(selectedLayerId);
-
-        return;
-    }
-
-    /*
-    -----------------------------------
-    ESC
-    -----------------------------------
-    */
-
-    if (event.key === "Escape") {
-        setSelectedLayerId(null);
-        return;
-    }
-
-    /*
-    -----------------------------------
-    CTRL + D
-    -----------------------------------
-    */
-
-    if (
-        event.ctrlKey &&
-        event.key.toLowerCase() === "d"
-    ) {
-        event.preventDefault();
-
-        if (!selectedLayer) {
-        return;
-        }
-
-        duplicateLayer(selectedLayer);
-        return;
-    }
-
-    /*
-    -----------------------------------
-    CTRL + S
-    -----------------------------------
-    */
-
-    if ( event.ctrlKey && event.key.toLowerCase() === "s" ) {
-
-        event.preventDefault();
-        handleSaveTemplate();
-
-    return;
-    }
-
-    /*
-    -----------------------------------
-    CTRL + Z
-    -----------------------------------
-    */
-
-    if (event.ctrlKey && !event.shiftKey &&
-        event.key.toLowerCase() === "z") {
-
-        event.preventDefault();
-        undo();
-        return;
-    }
-
-    /*
-    -----------------------------------
-    REDO
-    CTRL + SHIFT + Z
-    CTRL + Y
-    -----------------------------------
-    */
-
-    if (
+            addLayer(
+                duplicatedLayer
+            );
+        };
+
+
+    /* ========================================================
+       MOVE LAYER ORDER
+       ======================================================== */
+
+    const moveLayerUp =
+        (index) => {
+
+            if (
+                index < 0 ||
+                index >=
+                    template.layers.length - 1
+            ) {
+                return;
+            }
+
+            saveHistory();
+
+            setTemplate(
+                (previous) => {
+
+                    const layers = [
+                        ...previous.layers
+                    ];
+
+                    [
+                        layers[index],
+                        layers[index + 1]
+                    ] = [
+                        layers[index + 1],
+                        layers[index]
+                    ];
+
+                    return {
+                        ...previous,
+                        layers
+                    };
+                }
+            );
+        };
+
+
+    const moveLayerDown =
+        (index) => {
+
+            if (
+                index <= 0 ||
+                index >=
+                    template.layers.length
+            ) {
+                return;
+            }
+
+            saveHistory();
+
+            setTemplate(
+                (previous) => {
+
+                    const layers = [
+                        ...previous.layers
+                    ];
+
+                    [
+                        layers[index],
+                        layers[index - 1]
+                    ] = [
+                        layers[index - 1],
+                        layers[index]
+                    ];
+
+                    return {
+                        ...previous,
+                        layers
+                    };
+                }
+            );
+        };
+
+
+    /* ========================================================
+       MOVE SELECTED LAYER
+       ======================================================== */
+
+    const moveSelectedLayer =
         (
-            event.ctrlKey && event.shiftKey &&
-            event.key.toLowerCase() === "z"
-        ) 
-        ||
-        (
-            event.ctrlKey &&
-            event.key.toLowerCase() === "y"
-        )
+            deltaX,
+            deltaY
+        ) => {
 
-    ) {
+            if (!selectedLayerId) {
+                return;
+            }
 
-        event.preventDefault();
-        redo();
-        return;
-    }
+            const layer =
+                template.layers.find(
+                    (item) =>
+                        item.id ===
+                        selectedLayerId
+                );
 
-    /*
-    -----------------------------------
-    CTRL + C
-    -----------------------------------
-    */
+            if (!layer) {
+                return;
+            }
 
-    if (event.ctrlKey && event.key.toLowerCase() === "c") {
+            updateLayer(
+                selectedLayerId,
+                {
+                    x:
+                        (layer.x || 0) +
+                        deltaX,
 
-        if (!selectedLayer) {
+                    y:
+                        (layer.y || 0) +
+                        deltaY
+                }
+            );
+        };
+
+
+    /* ========================================================
+       COPY / PASTE
+       ======================================================== */
+
+    const pasteLayer = () => {
+
+        if (!copiedLayer) {
             return;
         }
 
-        event.preventDefault();
-        setCopiedLayer(selectedLayer);
+        duplicateLayer(
+            copiedLayer
+        );
+    };
 
-        //notifySuccess("Layer copiado");
 
-        return;
-        }
+    /* ========================================================
+       KEYBOARD SHORTCUTS
+       ======================================================== */
 
-    /*
-    -----------------------------------
-    CTRL + V
-    -----------------------------------
-    */
+    const handleKeyDown =
+        useCallback(
+            (event) => {
 
-    if (
-    event.ctrlKey &&
-    event.key.toLowerCase() === "v"
-    ) {
+                const activeElement =
+                    document.activeElement;
 
-    event.preventDefault();
+                const isTyping =
+                    activeElement?.tagName ===
+                        "INPUT" ||
+                    activeElement?.tagName ===
+                        "TEXTAREA" ||
+                    activeElement?.isContentEditable;
 
-    pasteLayer();
-
-    return;
-    }
-
-    /*
-    -----------------------------------
-    MOVEMENT
-    -----------------------------------
-    */
-
-    const moveAmount = event.shiftKey ? 10 : 1;
-
-    switch (event.key) {
-
-        case "ArrowUp":
-            event.preventDefault();
-            moveSelectedLayer(0, -moveAmount);
-
-        break;
-
-        case "ArrowDown":
-            event.preventDefault();
-            moveSelectedLayer(0, moveAmount);
-
-        break;
-
-        case "ArrowLeft":
-            event.preventDefault();
-            moveSelectedLayer(-moveAmount, 0);
-
-        break;
-
-        case "ArrowRight":
-            event.preventDefault();
-            moveSelectedLayer(moveAmount, 0);
-
-        break;
-
-        default:
-        break;
-    }
-  };
-
-  return (
-    <div className="sign-template-editor">
-
-    {/* LEFT */}
-    <div className="sign-template-main">
-
-    {/* HEADER */}
-    <div className="sign-template-header">
-
-        {/* HIDDEN IMAGE INPUT */}
-        <input
-        id="sign-image-upload"
-
-        type="file"
-
-        accept="image/*"
-
-        style={{
-            display: "none"
-        }}
-
-        onChange={addImageLayer}
-        />
-        
-        {/* LEFT */}
-        <div className="sign-template-header-left">
-
-        {/* TITLE */}
-        <div className="sign-template-title-group">
-
-            <h3>
-            Plantillas de la empresa
-            </h3>
-
-            <p className="sign-template-subtitle">
-            Diseña plantillas dinámicas con campos personalizables.
-            </p>
-
-        </div>
-
-        {/* TEMPLATES */}
-        <div className="sign-template-templates-wrapper">
-
-        {/* LEFT */}
-        <div className="sign-template-templates-column">
-
-            <TemplatesList
-            templates={templates}
-            onSelectTemplate={openTemplate}
-            />
-
-        </div>
-
-        {/* RIGHT */}
-        <div className="sign-template-controls-column">
-
-            {/* INPUT */}
-            <div className="sign-template-input-wrapper">
-
-            <input
-                value={templateName}
-
-                onChange={(e) =>
-                setTemplateName(
-                    e.target.value
-                )
+                if (isTyping) {
+                    return;
                 }
 
-                placeholder="Nombre de la plantilla"
+                const selectedLayer =
+                    template.layers.find(
+                        (layer) =>
+                            layer.id ===
+                            selectedLayerId
+                    );
 
-                className="sign-template-name-input"
-            />
 
-            </div>
+                /* Delete */
 
-            {
-                hasReachedTemplateLimit && (
+                if (
+                    event.key ===
+                        "Delete" ||
+                    event.key ===
+                        "Backspace"
+                ) {
 
-                    <div className="sign-template-limit-message">
-                        <strong> Límite alcanzado:</strong>
-                        {" "}
-                        Ya tienes 5 plantillas creadas. Puedes editar o eliminar
-                        plantillas existentes para crear nuevas.
-                    </div>
-                )
-            }
+                    if (!selectedLayerId) {
+                        return;
+                    }
 
-            {/* BUTTONS */}
-            <div className="sign-template-buttons-row">
+                    event.preventDefault();
 
-            <button
-                onClick={handleCreateNewTemplate}
-                disabled={hasReachedTemplateLimit}
-                className={`sign-template-new-btn ${hasReachedTemplateLimit ? "disabled" : "" }`}
-            >
-                Nuevo
-            </button>
+                    deleteLayer(
+                        selectedLayerId
+                    );
 
-            {/* <button
-                onClick={handleCreateNewTemplate}
-                className="sign-template-new-btn"
-            >
-                Nuevo
-            </button> */}
-
-            <button
-                onClick={
-                handleSaveTemplate
+                    return;
                 }
 
-                className="sign-template-save-btn"
-            >
-                Guardar
-            </button>
 
-            <button
-                onClick={
-                handleDeleteTemplate
+                /* Escape */
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    setSelectedLayerId(
+                        null
+                    );
+
+                    return;
                 }
 
-                disabled={
-                !selectedTemplateId
+
+                /* Ctrl + D */
+
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() ===
+                        "d"
+                ) {
+
+                    event.preventDefault();
+
+                    if (selectedLayer) {
+                        duplicateLayer(
+                            selectedLayer
+                        );
+                    }
+
+                    return;
                 }
 
-                className={`sign-template-delete-btn ${!selectedTemplateId ? "disabled" : "" }`}
-            >
-                Eliminar
-            </button>
 
-            </div>
+                /* Ctrl + S */
 
-            {/* ORIENTATION */}
-            <div className="sign-orientation-toggle">
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() ===
+                        "s"
+                ) {
 
-            <button
-                className={
-                template.canvas
-                    .orientation ===
-                "landscape"
-                    ? "active"
-                    : ""
+                    event.preventDefault();
+
+                    handleSaveTemplate();
+
+                    return;
                 }
 
-                onClick={() =>
-                setCanvasOrientation(
-                    "landscape"
-                )
+
+                /* Ctrl + Z */
+
+                if (
+                    event.ctrlKey &&
+                    !event.shiftKey &&
+                    event.key.toLowerCase() ===
+                        "z"
+                ) {
+
+                    event.preventDefault();
+
+                    undo();
+
+                    return;
                 }
-            >
-                Horizontal
-            </button>
 
-            <button
-                className={
-                template.canvas
-                    .orientation ===
-                "portrait"
-                    ? "active"
-                    : ""
+
+                /* Ctrl + Shift + Z / Ctrl + Y */
+
+                if (
+                    (
+                        event.ctrlKey &&
+                        event.shiftKey &&
+                        event.key.toLowerCase() ===
+                            "z"
+                    ) ||
+                    (
+                        event.ctrlKey &&
+                        event.key.toLowerCase() ===
+                            "y"
+                    )
+                ) {
+
+                    event.preventDefault();
+
+                    redo();
+
+                    return;
                 }
 
-                onClick={() =>
-                setCanvasOrientation(
-                    "portrait"
-                )
+
+                /* Ctrl + C */
+
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() ===
+                        "c"
+                ) {
+
+                    if (!selectedLayer) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    setCopiedLayer(
+                        structuredClone(
+                            selectedLayer
+                        )
+                    );
+
+                    return;
                 }
-            >
-                Vertical
-            </button>
 
-            </div>
 
-        </div>
+                /* Ctrl + V */
 
-        </div>
+                if (
+                    event.ctrlKey &&
+                    event.key.toLowerCase() ===
+                        "v"
+                ) {
 
-       
+                    event.preventDefault();
 
-        </div>
+                    pasteLayer();
 
-        {/* RIGHT */}
-        <div className="sign-template-top-actions">
+                    return;
+                }
 
-        {/* TOOLBAR */}
-        <div className="sign-template-toolbar-wrapper">
 
-            <SignToolbar
+                /* Arrow movement */
 
-            onAddDynamicField={
-                addDynamicFieldLayer
-            }
+                const moveAmount =
+                    event.shiftKey
+                        ? 10
+                        : 1;
 
-            onAddStaticText={
-                addStaticTextLayer
-            }
+                switch (event.key) {
 
-            onAddShape={
-                addShapeLayer
-            }
+                    case "ArrowUp":
 
-            onAddImage={() => {
+                        event.preventDefault();
 
-                document
-                .getElementById(
-                    "sign-image-upload"
-                )
-                .click();
-            }}
-            />
+                        moveSelectedLayer(
+                            0,
+                            -moveAmount
+                        );
 
-        </div>
+                        break;
 
-        </div>
 
-    </div>
+                    case "ArrowDown":
 
-    {/* CANVAS */}
-    <div className="sign-template-canvas-wrapper">
+                        event.preventDefault();
 
-        <div
-        className="sign-template-canvas-scale"
+                        moveSelectedLayer(
+                            0,
+                            moveAmount
+                        );
 
-        style={{
-            width:
-            template.canvas.width,
+                        break;
 
-            height:
-            template.canvas.height,
-        }}
-        >
 
-        <SignCanvas
-            template={template}
-            setTemplate={setTemplate}
-            saveHistory={saveHistory}
-            signData={signData}
+                    case "ArrowLeft":
 
-            selectedLayerId={
-            selectedLayerId
-            }
+                        event.preventDefault();
 
-            setSelectedLayerId={(id) => {
+                        moveSelectedLayer(
+                            -moveAmount,
+                            0
+                        );
 
-            setSelectedLayerId(id);
+                        break;
 
-            setRightPanelTab(
-                "properties"
+
+                    case "ArrowRight":
+
+                        event.preventDefault();
+
+                        moveSelectedLayer(
+                            moveAmount,
+                            0
+                        );
+
+                        break;
+
+
+                    default:
+                        break;
+                }
+
+            },
+            [
+                template.layers,
+                selectedLayerId,
+                deleteLayer,
+                duplicateLayer,
+                handleSaveTemplate,
+                undo,
+                redo,
+                pasteLayer,
+                moveSelectedLayer
+            ]
+        );
+
+
+    useEffect(
+        () => {
+
+            window.addEventListener(
+                "keydown",
+                handleKeyDown
             );
-            }}
-        />
 
-        </div>
-
-    </div>
-
-    </div>
-
-    {/* RIGHT */}
-    <div className="sign-template-sidebar">
-
-        {/* TABS */}
-        <div className="sign-template-tabs">
-
-        <button
-            onClick={() =>
-            setRightPanelTab(
-                "properties"
-            )
-            }
-
-            className={
-            rightPanelTab ===
-            "properties"
-                ? "active"
-                : ""
-            }
-        >
-            Propiedades
-        </button>
-
-        <button
-            onClick={() =>
-            setRightPanelTab(
-                "layers"
-            )
-            }
-
-            className={
-            rightPanelTab ===
-            "layers"
-                ? "active"
-                : ""
-            }
-        >
-            Capas
-        </button>
-
-        </div>
-
-        {/* CONTENT */}
-        <div className="sign-template-sidebar-content">
-
-        {rightPanelTab ===
-            "properties" && (
-
-            <SignLayerProperties
-            selectedLayer={
-                template.layers.find(
-                (layer) =>
-                    layer.id ===
-                    selectedLayerId
-                )
-            }
-
-            updateLayer={
-                updateLayer
-            }
-            />
-
-        )}
-
-        {rightPanelTab ===
-            "layers" && (
-
-            <SignLayersPanel
-            layers={template.layers}
-
-            selectedLayerId={
-                selectedLayerId
-            }
-
-            setSelectedLayerId={(
-                id
-            ) => {
-
-                setSelectedLayerId(id);
-
-                setRightPanelTab(
-                "properties"
+            return () =>
+                window.removeEventListener(
+                    "keydown",
+                    handleKeyDown
                 );
-            }}
 
-            onDeleteLayer={
-                deleteLayer
-            }
+        },
+        [handleKeyDown]
+    );
 
-            onDuplicateLayer={
-                duplicateLayer
-            }
 
-            onMoveLayerUp={
-                moveLayerUp
-            }
+    /* ========================================================
+       RENDER
+       ======================================================== */
 
-            onMoveLayerDown={
-                moveLayerDown
-            }
-            />
+    const selectedLayer =
+        template.layers.find(
+            (layer) =>
+                layer.id ===
+                selectedLayerId
+        );
 
-        )}
+
+    return (
+        <div className="sign-template-editor">
+
+            {/* ==================================================
+                MAIN
+                ================================================== */}
+
+            <div className="sign-template-main">
+
+                <div className="sign-template-header">
+
+                    <input
+                        id="sign-image-upload"
+                        type="file"
+                        accept="image/*"
+                        style={{
+                            display: "none"
+                        }}
+                        onChange={
+                            addImageLayer
+                        }
+                    />
+
+
+                    {/* HEADER */}
+
+                    <div className="sign-template-header-left">
+
+                        <div className="sign-template-title-group">
+
+                            <h3>
+                                Plantillas de la empresa
+                            </h3>
+
+                            <p className="sign-template-subtitle">
+                                Diseña plantillas dinámicas con campos personalizables.
+                            </p>
+
+                        </div>
+
+
+                        {/* TEMPLATES */}
+
+                        <div className="sign-template-templates-wrapper">
+
+                            <div className="sign-template-templates-column">
+
+                                <TemplatesList
+                                    templates={
+                                        templates
+                                    }
+                                    onSelectTemplate={
+                                        openTemplate
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div className="sign-template-controls-column">
+
+                                <div className="sign-template-input-wrapper">
+
+                                    <input
+                                        value={
+                                            templateName
+                                        }
+                                        onChange={(
+                                            event
+                                        ) =>
+                                            setTemplateName(
+                                                event.target.value
+                                            )
+                                        }
+                                        placeholder="Nombre de la plantilla"
+                                        className="sign-template-name-input"
+                                    />
+
+                                </div>
+
+
+                                {hasReachedTemplateLimit && (
+
+                                    <div className="sign-template-limit-message">
+
+                                        <strong>
+                                            Límite alcanzado:
+                                        </strong>{" "}
+
+                                        Ya tienes 5 plantillas creadas. Puedes editar o eliminar plantillas existentes para crear nuevas.
+
+                                    </div>
+
+                                )}
+
+
+                                <div className="sign-template-buttons-row">
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            handleCreateNewTemplate
+                                        }
+                                        disabled={
+                                            hasReachedTemplateLimit
+                                        }
+                                        className={`sign-template-new-btn ${
+                                            hasReachedTemplateLimit
+                                                ? "disabled"
+                                                : ""
+                                        }`}
+                                    >
+                                        Nuevo
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            handleSaveTemplate
+                                        }
+                                        className="sign-template-save-btn"
+                                    >
+                                        Guardar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            handleDeleteTemplate
+                                        }
+                                        disabled={
+                                            !selectedTemplateId
+                                        }
+                                        className={`sign-template-delete-btn ${
+                                            !selectedTemplateId
+                                                ? "disabled"
+                                                : ""
+                                        }`}
+                                    >
+                                        Eliminar
+                                    </button>
+
+                                </div>
+
+
+                                {/* ORIENTATION */}
+
+                                <div className="sign-orientation-toggle">
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            template.canvas
+                                                .orientation ===
+                                            "landscape"
+                                                ? "active"
+                                                : ""
+                                        }
+                                        onClick={() =>
+                                            setCanvasOrientation(
+                                                "landscape"
+                                            )
+                                        }
+                                    >
+                                        Horizontal
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            template.canvas
+                                                .orientation ===
+                                            "portrait"
+                                                ? "active"
+                                                : ""
+                                        }
+                                        onClick={() =>
+                                            setCanvasOrientation(
+                                                "portrait"
+                                            )
+                                        }
+                                    >
+                                        Vertical
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {/* TOOLBAR */}
+
+                    <div className="sign-template-top-actions">
+
+                        <div className="sign-template-toolbar-wrapper">
+
+                            <SignToolbar
+                                onAddDynamicField={
+                                    addDynamicFieldLayer
+                                }
+                                onAddStaticText={
+                                    addStaticTextLayer
+                                }
+                                onAddShape={
+                                    addShapeLayer
+                                }
+                                onAddImage={() =>
+                                    document
+                                        .getElementById(
+                                            "sign-image-upload"
+                                        )
+                                        ?.click()
+                                }
+                            />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {/* CANVAS */}
+
+                <div className="sign-template-canvas-wrapper">
+
+                    <div
+                        className="sign-template-canvas-scale"
+                        style={{
+                            width:
+                                template.canvas.width,
+                            height:
+                                template.canvas.height
+                        }}
+                    >
+
+                        <SignCanvas
+                            template={
+                                template
+                            }
+                            setTemplate={
+                                setTemplate
+                            }
+                            saveHistory={
+                                saveHistory
+                            }
+                            signData={
+                                signData
+                            }
+                            selectedLayerId={
+                                selectedLayerId
+                            }
+                            setSelectedLayerId={(
+                                id
+                            ) => {
+
+                                setSelectedLayerId(
+                                    id
+                                );
+
+                                setRightPanelTab(
+                                    "properties"
+                                );
+                            }}
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* ==================================================
+                SIDEBAR
+                ================================================== */}
+
+            <div className="sign-template-sidebar">
+
+                <div className="sign-template-tabs">
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setRightPanelTab(
+                                "properties"
+                            )
+                        }
+                        className={
+                            rightPanelTab ===
+                            "properties"
+                                ? "active"
+                                : ""
+                        }
+                    >
+                        Propiedades
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setRightPanelTab(
+                                "layers"
+                            )
+                        }
+                        className={
+                            rightPanelTab ===
+                            "layers"
+                                ? "active"
+                                : ""
+                        }
+                    >
+                        Capas
+                    </button>
+
+                </div>
+
+
+                <div className="sign-template-sidebar-content">
+
+                    {rightPanelTab ===
+                        "properties" && (
+
+                        <SignLayerProperties
+                            selectedLayer={
+                                selectedLayer
+                            }
+                            updateLayer={
+                                updateLayer
+                            }
+                        />
+
+                    )}
+
+
+                    {rightPanelTab ===
+                        "layers" && (
+
+                        <SignLayersPanel
+                            layers={
+                                template.layers
+                            }
+                            selectedLayerId={
+                                selectedLayerId
+                            }
+                            setSelectedLayerId={(
+                                id
+                            ) => {
+
+                                setSelectedLayerId(
+                                    id
+                                );
+
+                                setRightPanelTab(
+                                    "properties"
+                                );
+                            }}
+                            onDeleteLayer={
+                                deleteLayer
+                            }
+                            onDuplicateLayer={
+                                duplicateLayer
+                            }
+                            onMoveLayerUp={
+                                moveLayerUp
+                            }
+                            onMoveLayerDown={
+                                moveLayerDown
+                            }
+                        />
+
+                    )}
+
+                </div>
+
+            </div>
 
         </div>
-
-    </div>
-
-    </div>
-  );
+    );
 };
+
 
 export default SignTemplatesSection;

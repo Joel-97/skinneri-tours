@@ -156,18 +156,14 @@ const TransportationFinancialTable = ({
 
                 <td className="transportation-financial-amount">
 
-    <span className="transportation-financial-amount-value">
+                    {
+                        formatCurrency(
+                            reservation.subtotal,
+                            currency
+                        )
+                    }
 
-        {
-            formatCurrency(
-                reservation.subtotal,
-                currency
-            )
-        }
-
-    </span>
-
-</td>
+                </td>
 
 
                 {/* =================================================
@@ -176,18 +172,14 @@ const TransportationFinancialTable = ({
 
                 <td className="transportation-financial-amount">
 
-    <span className="transportation-financial-amount-value">
+                    {
+                        formatCurrency(
+                            reservation.discountAmount,
+                            currency
+                        )
+                    }
 
-        {
-            formatCurrency(
-                reservation.discountAmount,
-                currency
-            )
-        }
-
-    </span>
-
-</td>
+                </td>
 
 
                 {/* =================================================
@@ -196,18 +188,14 @@ const TransportationFinancialTable = ({
 
                 <td className="transportation-financial-amount">
 
-    <span className="transportation-financial-amount-value">
+                    {
+                        formatCurrency(
+                            reservation.taxAmount,
+                            currency
+                        )
+                    }
 
-        {
-            formatCurrency(
-                reservation.taxAmount,
-                currency
-            )
-        }
-
-    </span>
-
-</td>
+                </td>
 
 
                 {/* =================================================
@@ -215,24 +203,20 @@ const TransportationFinancialTable = ({
                 ================================================== */}
 
                 <td
-    className="
-        transportation-financial-amount
-        transportation-financial-commission
-    "
->
+                    className="
+                        transportation-financial-amount
+                        transportation-financial-commission
+                    "
+                >
 
-    <span className="transportation-financial-amount-value">
+                    {
+                        formatCurrency(
+                            reservation.commissionAmount,
+                            currency
+                        )
+                    }
 
-        {
-            formatCurrency(
-                reservation.commissionAmount,
-                currency
-            )
-        }
-
-    </span>
-
-</td>
+                </td>
 
 
                 {/* =================================================
