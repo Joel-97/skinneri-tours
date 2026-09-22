@@ -13,6 +13,12 @@ import ServiceSection from "../transportation/components/sections/ServiceSection
 import FinancialSection from "../transportation/components/sections/FinancialSection";
 import NotesSection from "../transportation/components/sections/NotesSection";
 
+import {
+  notifyConfirm,
+  notifyError,
+  notifyWarning
+} from "../../../services/notificationService";
+
 import "../../../style/general/transportationModal.css";
 
 
@@ -36,13 +42,6 @@ export default function TransportationModal({
 
 }) {
 
-
-  /*
-  ==========================================================
-  CONTROLLER
-  ==========================================================
-  */
-
   const controller =
     useTransportationController({
 
@@ -60,123 +59,72 @@ export default function TransportationModal({
 
 
   const {
-
     form,
-
     clients,
-
     modals,
     actions
-
   } = controller;
 
 
-  /*
-  ==========================================================
-  FORM
-  ==========================================================
-  */
-
   const {
-
     data,
-
     setData,
-
-    hasUnsavedChanges
-
+    hasUnsavedChanges,
+    hasDraft
   } = form;
 
 
   const {
-
     handleSubmit,
-
+    clearDraft,
     resetUnsavedChanges
-
   } = actions;
 
 
-  /*
-  ==========================================================
-  CLIENTS
-  ==========================================================
-  */
-
   const {
-
     clientData,
-
     searchTerm,
-
     setSearchTerm,
-
     searchResults,
-
     isSearching,
-
     handleSelectClient,
-
     handleClientChange,
-
     handleCreateClient
-
   } = clients;
 
 
-  /*
-  ==========================================================
-  MODALS
-  ==========================================================
-  */
-
   const {
-
     showClientModal,
-
     setShowClientModal,
-
     showSearchModal,
-
     setShowSearchModal
-
   } = modals;
 
 
   /*
   ==========================================================
-  CLOSE CONFIRMATION
+  CLOSE MODAL
   ==========================================================
   */
 
-  const handleClose = () => {
+  const handleClose = async () => {
 
     /*
     --------------------------------------------------------
     CREATE MODE
     --------------------------------------------------------
+
+    New reservations use the temporary localStorage draft.
+
+    Closing the modal does not delete the draft and does not
+    ask for confirmation.
+
+    When the modal is opened again, the controller restores
+    the temporary draft automatically.
+    --------------------------------------------------------
     */
 
     if (mode === "create") {
-
-      if (hasUnsavedChanges) {
-
-        const shouldClose =
-          window.confirm(
-
-            "Hay cambios sin guardar. ¿Desea salir sin guardar los cambios?"
-
-          );
-
-
-        if (!shouldClose) {
-
-          return;
-
-        }
-
-      }
-
 
       onClose();
 
@@ -189,15 +137,18 @@ export default function TransportationModal({
     --------------------------------------------------------
     EDIT MODE
     --------------------------------------------------------
+
+    Existing reservations continue to warn the user when
+    there are unsaved changes.
+    --------------------------------------------------------
     */
 
     if (hasUnsavedChanges) {
 
       const shouldClose =
-        window.confirm(
-
-          "Hay cambios sin guardar. ¿Desea salir sin guardar los cambios?"
-
+        await notifyConfirm(
+          "Cambios sin guardar",
+          "Hay cambios pendientes de guardar. ¿Está seguro de que desea salir?"
         );
 
 
@@ -217,22 +168,55 @@ export default function TransportationModal({
 
   /*
   ==========================================================
+  SAVE RESERVATION
+  ==========================================================
+  */
+
+  const handleSave = async () => {
+
+    /*
+    --------------------------------------------------------
+    EXECUTE SAVE
+    --------------------------------------------------------
+    */
+
+    const saved =
+      await handleSubmit();
+
+
+    /*
+    --------------------------------------------------------
+    CLOSE ONLY AFTER SUCCESSFUL SAVE
+    --------------------------------------------------------
+
+    We intentionally call onClose() directly here instead
+    of handleClose().
+
+    handleClose() checks for unsaved changes and could show
+    the confirmation dialog before React has finished
+    updating the dirty state.
+    --------------------------------------------------------
+    */
+
+    if (saved === true) {
+
+      onClose();
+
+    }
+
+  };
+
+
+  /*
+  ==========================================================
   CONFIRM RESERVATION
   ==========================================================
   */
 
   const handleConfirm = async () => {
 
-    /*
-    --------------------------------------------------------
-    CONFIRMATION FUNCTION REQUIRED
-    --------------------------------------------------------
-    */
-
     if (!onConfirm) {
-
       return;
-
     }
 
 
@@ -244,6 +228,11 @@ export default function TransportationModal({
 
     if (data.status !== "pending") {
 
+      await notifyWarning(
+        "Reserva no disponible",
+        "Solo las reservas pendientes pueden ser confirmadas."
+      );
+
       return;
 
     }
@@ -251,57 +240,30 @@ export default function TransportationModal({
 
     /*
     --------------------------------------------------------
-    IF THERE ARE UNSAVED CHANGES
+    SAVE CHANGES BEFORE CONFIRMING
     --------------------------------------------------------
     */
 
     if (hasUnsavedChanges) {
 
       const shouldSave =
-        window.confirm(
-
+        await notifyConfirm(
+          "Guardar cambios antes de confirmar",
           "Hay cambios sin guardar. Debe guardar los cambios antes de confirmar la reserva.\n\n¿Desea guardar los cambios?"
-
         );
 
 
-      /*
-      ------------------------------------------------------
-      USER CHOSE NOT TO SAVE
-      ------------------------------------------------------
-      */
-
       if (!shouldSave) {
-
         return;
-
       }
 
-
-      /*
-      ------------------------------------------------------
-      SAVE FIRST
-      ------------------------------------------------------
-      */
 
       const saved =
         await handleSubmit();
 
 
-      /*
-      ------------------------------------------------------
-      SAVE FAILED
-      ------------------------------------------------------
-
-      IMPORTANT:
-      Do not continue to confirmation if the save failed.
-      ------------------------------------------------------
-      */
-
       if (!saved) {
-
         return;
-
       }
 
     }
@@ -309,7 +271,7 @@ export default function TransportationModal({
 
     /*
     --------------------------------------------------------
-    CONFIRM
+    CONFIRM RESERVATION
     --------------------------------------------------------
     */
 
@@ -317,39 +279,18 @@ export default function TransportationModal({
 
       const result =
         await onConfirm(
-
           data
-
         );
 
 
-      /*
-      ------------------------------------------------------
-      CONFIRMATION FAILED
-      ------------------------------------------------------
-
-      The parent handler returns false when the backend
-      confirmation did not succeed.
-      ------------------------------------------------------
-      */
-
       if (result === false) {
-
         return;
-
       }
 
 
       /*
       ------------------------------------------------------
-      UPDATE LOCAL FORM STATE
-      ------------------------------------------------------
-
-      The backend has now changed:
-
-          pending -> confirmed
-
-      Keep the modal synchronized with that state.
+      UPDATE LOCAL STATUS
       ------------------------------------------------------
       */
 
@@ -366,9 +307,6 @@ export default function TransportationModal({
       ------------------------------------------------------
       RESET DIRTY STATE
       ------------------------------------------------------
-
-      Confirmation is now the new clean state.
-      ------------------------------------------------------
       */
 
       resetUnsavedChanges();
@@ -378,11 +316,15 @@ export default function TransportationModal({
     catch (error) {
 
       console.error(
-
         "Error confirmando reserva:",
-
         error
+      );
 
+
+      await notifyError(
+        "Error al confirmar",
+        error?.message ||
+        "No fue posible confirmar la reserva. Inténtelo nuevamente."
       );
 
     }
@@ -399,13 +341,9 @@ export default function TransportationModal({
   const handleOverlayMouseDown = (e) => {
 
     if (
-
       e.target.classList.contains(
-
         "modal-overlay"
-
       )
-
     ) {
 
       handleClose();
@@ -422,17 +360,9 @@ export default function TransportationModal({
   */
 
   if (!isOpen) {
-
     return null;
-
   }
 
-
-  /*
-  ==========================================================
-  UI
-  ==========================================================
-  */
 
   return (
 
@@ -441,9 +371,7 @@ export default function TransportationModal({
       className="modal-overlay"
 
       onMouseDown={
-
         handleOverlayMouseDown
-
       }
 
     >
@@ -453,13 +381,10 @@ export default function TransportationModal({
         className="modal-card modern"
 
         onMouseDown={(e) =>
-
           e.stopPropagation()
-
         }
 
       >
-
 
         {/* ==================================================
             HEADER
@@ -470,18 +395,20 @@ export default function TransportationModal({
           mode={mode}
 
           reservationNumber={
-
             data.reservationNumber
-
           }
 
           onClose={handleClose}
+
+          onClear={clearDraft}
+
+          hasDraft={hasDraft}
 
         />
 
 
         {/* ==================================================
-            CLIENTE
+            CLIENT
         ================================================== */}
 
         <ClientSection
@@ -492,7 +419,7 @@ export default function TransportationModal({
 
 
         {/* ==================================================
-            SERVICIO
+            SERVICE
         ================================================== */}
 
         <ServiceSection
@@ -503,7 +430,7 @@ export default function TransportationModal({
 
 
         {/* ==================================================
-            FINANZAS
+            FINANCIAL
         ================================================== */}
 
         <FinancialSection
@@ -514,7 +441,7 @@ export default function TransportationModal({
 
 
         {/* ==================================================
-            NOTAS
+            NOTES
         ================================================== */}
 
         <NotesSection
@@ -525,7 +452,7 @@ export default function TransportationModal({
 
 
         {/* ==================================================
-            BUSCAR CLIENTE MODAL
+            CLIENT SEARCH MODAL
         ================================================== */}
 
         <ClientSearchModal
@@ -533,9 +460,7 @@ export default function TransportationModal({
           show={showSearchModal}
 
           onClose={() =>
-
             setShowSearchModal(false)
-
           }
 
           searchTerm={searchTerm}
@@ -547,16 +472,14 @@ export default function TransportationModal({
           searchResults={searchResults}
 
           onSelectClient={
-
             handleSelectClient
-
           }
 
         />
 
 
         {/* ==================================================
-            CREAR CLIENTE MODAL
+            CREATE CLIENT MODAL
         ================================================== */}
 
         <ClientCreateModal
@@ -564,9 +487,7 @@ export default function TransportationModal({
           show={showClientModal}
 
           onClose={() =>
-
             setShowClientModal(false)
-
           }
 
           clientData={clientData}
@@ -590,12 +511,11 @@ export default function TransportationModal({
 
           onCancel={handleClose}
 
-          onSave={handleSubmit}
+          onSave={handleSave}
 
           onConfirm={handleConfirm}
 
         />
-
 
       </div>
 

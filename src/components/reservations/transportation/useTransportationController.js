@@ -1,9 +1,3 @@
-/*
-==========================================================
-USE TRANSPORTATION CONTROLLER
-==========================================================
-*/
-
 import {
   useState,
   useEffect,
@@ -52,21 +46,17 @@ import {
 } from "./builders/transportationReservationBuilder";
 
 
-/*
-==========================================================
-FORM SNAPSHOT HELPERS
-==========================================================
-*/
-
 const normalizeValue = (value) => {
 
   if (value === undefined || value === null) {
     return null;
   }
 
+
   if (value instanceof Date) {
     return value.toISOString();
   }
+
 
   if (typeof value?.toDate === "function") {
 
@@ -80,9 +70,11 @@ const normalizeValue = (value) => {
 
   }
 
+
   if (Array.isArray(value)) {
     return value.map(normalizeValue);
   }
+
 
   if (typeof value === "object") {
 
@@ -99,6 +91,7 @@ const normalizeValue = (value) => {
 
   }
 
+
   return value;
 
 };
@@ -110,11 +103,120 @@ const createFormSnapshot = (value) =>
   );
 
 
-/*
-==========================================================
-CONTROLLER
-==========================================================
-*/
+const getDraftKey = (companyId) =>
+  companyId
+    ? `skinneri:transportation:draft:${companyId}`
+    : null;
+
+
+const readDraft = (key) => {
+
+  if (
+    !key ||
+    typeof window === "undefined"
+  ) {
+    return null;
+  }
+
+  try {
+
+    const stored =
+      window.localStorage.getItem(
+        key
+      );
+
+    if (!stored) {
+      return null;
+    }
+
+
+    const parsed =
+      JSON.parse(stored);
+
+    return (
+      parsed &&
+      typeof parsed === "object"
+    )
+      ? parsed
+      : null;
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Error leyendo el borrador de transporte:",
+      error
+    );
+
+    return null;
+
+  }
+
+};
+
+
+const writeDraft = (
+  key,
+  value
+) => {
+
+  if (
+    !key ||
+    typeof window === "undefined"
+  ) {
+    return;
+  }
+
+  try {
+
+    window.localStorage.setItem(
+      key,
+      JSON.stringify(value)
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Error guardando el borrador de transporte:",
+      error
+    );
+
+  }
+
+};
+
+
+const removeDraft = (key) => {
+
+  if (
+    !key ||
+    typeof window === "undefined"
+  ) {
+    return;
+  }
+
+  try {
+
+    window.localStorage.removeItem(
+      key
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Error eliminando el borrador de transporte:",
+      error
+    );
+
+  }
+
+};
+
 
 export default function useTransportationController({
 
@@ -126,19 +228,15 @@ export default function useTransportationController({
 
 }) {
 
-  /*
-  ======================================================
-  FORM
-  ======================================================
-  */
-
   const [data, setData] =
     useState(emptyForm);
+
 
   const initialFormSnapshot =
     useRef(
       createFormSnapshot(emptyForm)
     );
+
 
   const [
     hasUnsavedChanges,
@@ -146,16 +244,33 @@ export default function useTransportationController({
   ] = useState(false);
 
 
-  /*
-  ======================================================
-  MODALS
-  ======================================================
-  */
+  const [
+    hasDraft,
+    setHasDraft
+  ] = useState(false);
+
+
+  const draftKey =
+    getDraftKey(companyId);
+
+
+  const draftHydratedRef =
+    useRef(false);
+
+
+  const skipNextDraftWriteRef =
+    useRef(false);
+
+
+  const previousServiceTypeIdRef =
+    useRef(null);
+
 
   const [
     showClientModal,
     setShowClientModal
   ] = useState(false);
+
 
   const [
     showSearchModal,
@@ -163,80 +278,80 @@ export default function useTransportationController({
   ] = useState(false);
 
 
-  /*
-  ======================================================
-  CLIENTS
-  ======================================================
-  */
+  const [clientData, setClientData] =
+    useState({
+      name: "",
+      email: "",
+      phone: "",
+      notes: ""
+    });
 
-  const [clientData, setClientData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    notes: ""
-  });
 
   const [searchTerm, setSearchTerm] =
     useState("");
 
+
   const [searchResults, setSearchResults] =
     useState([]);
+
 
   const [isSearching, setIsSearching] =
     useState(false);
 
 
-  /*
-  ======================================================
-  SETTINGS
-  ======================================================
-  */
-
   const [serviceTypes, setServiceTypes] =
     useState([]);
+
 
   const [locations, setLocations] =
     useState([]);
 
+
   const [routes, setRoutes] =
     useState([]);
+
 
   const [vehicles, setVehicles] =
     useState([]);
 
+
   const [bookingSources, setBookingSources] =
     useState([]);
+
 
   const [payers, setPayers] =
     useState([]);
 
+
   const [taxes, setTaxes] =
     useState([]);
+
 
   const [discounts, setDiscounts] =
     useState([]);
 
+
   const [currencies, setCurrencies] =
     useState([]);
+
 
   const [drivers, setDrivers] =
     useState([]);
 
+
   const [paymentTypes, setPaymentTypes] =
     useState([]);
+
 
   const [commissionAgents, setCommissionAgents] =
     useState([]);
 
-  const [existingCommission, setExistingCommission] =
-    useState(null);
 
+  const [
+    existingCommission,
+    setExistingCommission
+  ] = useState(null);
 
-  /*
-  ======================================================
-  UNSAVED CHANGES
-  ======================================================
-  */
 
   useEffect(() => {
 
@@ -251,18 +366,13 @@ export default function useTransportationController({
   }, [data]);
 
 
-  /*
-  ======================================================
-  CLIENT HELPERS
-  ======================================================
-  */
-
   const handleClientChange = (e) => {
 
     const {
       name,
       value
     } = e.target;
+
 
     setClientData(prev => ({
       ...prev,
@@ -285,6 +395,7 @@ export default function useTransportationController({
 
     }
 
+
     try {
 
       const newClientRef =
@@ -294,10 +405,12 @@ export default function useTransportationController({
           user
         );
 
+
       const newClient = {
         id: newClientRef.id,
         ...clientData
       };
+
 
       setData(prev => ({
         ...prev,
@@ -307,12 +420,15 @@ export default function useTransportationController({
         phone: newClient.phone
       }));
 
+
       notifySuccess(
         "Cliente creado",
         "El cliente fue creado correctamente."
       );
 
+
       setShowClientModal(false);
+
 
       setClientData({
         name: "",
@@ -320,6 +436,7 @@ export default function useTransportationController({
         phone: "",
         notes: ""
       });
+
 
       return true;
 
@@ -332,10 +449,12 @@ export default function useTransportationController({
         error
       );
 
+
       notifyError(
         "Error",
         "No se pudo crear el cliente."
       );
+
 
       return false;
 
@@ -343,12 +462,6 @@ export default function useTransportationController({
 
   };
 
-
-  /*
-  ======================================================
-  CLIENT SEARCH
-  ======================================================
-  */
 
   useEffect(() => {
 
@@ -363,19 +476,23 @@ export default function useTransportationController({
 
         }
 
+
         if (!companyId) {
           return;
         }
 
+
         try {
 
           setIsSearching(true);
+
 
           const results =
             await searchClientsByName(
               companyId,
               searchTerm.trim()
             );
+
 
           setSearchResults(results);
 
@@ -398,6 +515,7 @@ export default function useTransportationController({
 
       }, 600);
 
+
     return () =>
       clearTimeout(debounce);
 
@@ -412,12 +530,20 @@ export default function useTransportationController({
     setData(prev => ({
       ...prev,
 
-      clientId: client.id,
-      clientName: client.name,
-      clientEmail: client.email || "",
-      phone: client.phone || ""
+      clientId:
+        client.id,
+
+      clientName:
+        client.name,
+
+      clientEmail:
+        client.email || "",
+
+      phone:
+        client.phone || ""
 
     }));
+
 
     setShowSearchModal(false);
     setSearchTerm("");
@@ -426,17 +552,12 @@ export default function useTransportationController({
   };
 
 
-  /*
-  ======================================================
-  LOAD SETTINGS
-  ======================================================
-  */
-
   useEffect(() => {
 
     if (!companyId) {
       return;
     }
+
 
     const loadSettings = async () => {
 
@@ -447,49 +568,61 @@ export default function useTransportationController({
             companyId
           );
 
+
         setServiceTypes(
           settings.serviceTypes
         );
+
 
         setLocations(
           settings.locations
         );
 
+
         setRoutes(
           settings.routes
         );
+
 
         setVehicles(
           settings.vehicles
         );
 
+
         setBookingSources(
           settings.bookingSources
         );
+
 
         setPayers(
           settings.payers
         );
 
+
         setTaxes(
           settings.taxes
         );
+
 
         setDiscounts(
           settings.discounts
         );
 
+
         setCurrencies(
           settings.currencies
         );
+
 
         setDrivers(
           settings.drivers
         );
 
+
         setPaymentTypes(
           settings.paymentTypes
         );
+
 
         setCommissionAgents(
           settings.commissionAgents
@@ -508,63 +641,131 @@ export default function useTransportationController({
 
     };
 
+
     loadSettings();
 
   }, [companyId]);
 
 
-  /*
-  ======================================================
-  INITIALIZE RESERVATION
-  ======================================================
-  */
-
   useEffect(() => {
 
     let initialData;
 
+
+    const restoredDraft =
+      mode === "create"
+        ? readDraft(draftKey)
+        : null;
+
+
     if (mode === "create") {
 
       initialData =
-        buildCreateForm(
-          reservation
-        );
+        restoredDraft ||
+        buildCreateForm(reservation);
+
+
+      draftHydratedRef.current = true;
+
+      setHasDraft(
+        Boolean(restoredDraft)
+      );
 
     }
 
     else {
 
       if (!reservation) {
+
+        draftHydratedRef.current =
+          false;
+
+        setHasDraft(false);
+
         return;
+
       }
+
 
       initialData =
         buildEditForm(
           reservation
         );
 
+
+      draftHydratedRef.current =
+        false;
+
+      setHasDraft(false);
+
     }
 
+
+    skipNextDraftWriteRef.current =
+      true;
+
+
     setData(initialData);
+
+
+    previousServiceTypeIdRef.current =
+      mode === "create" && !restoredDraft
+        ? null
+        : initialData.serviceTypeId || null;
+
 
     initialFormSnapshot.current =
       createFormSnapshot(
         initialData
       );
 
+
     setHasUnsavedChanges(false);
 
   }, [
     reservation,
-    mode
+    mode,
+    draftKey
   ]);
 
 
-  /*
-  ======================================================
-  SELECTED SERVICE
-  ======================================================
-  */
+  useEffect(() => {
+
+    if (
+      mode !== "create" ||
+      !draftKey ||
+      !draftHydratedRef.current
+    ) {
+      return;
+    }
+
+
+    if (
+      skipNextDraftWriteRef.current
+    ) {
+
+      skipNextDraftWriteRef.current =
+        false;
+
+      return;
+
+    }
+
+
+    writeDraft(
+      draftKey,
+      data
+    );
+
+
+    setHasDraft(true);
+
+  }, [
+    data,
+    mode,
+    draftKey
+  ]);
+
 
   const selectedServiceType =
     useMemo(() => {
@@ -581,17 +782,26 @@ export default function useTransportationController({
     ]);
 
 
-  /*
-  ======================================================
-  AUTO PRICE
-  ======================================================
-  */
-
   useEffect(() => {
 
     if (!selectedServiceType) {
       return;
     }
+
+
+    const serviceTypeChanged =
+      previousServiceTypeIdRef.current !==
+      selectedServiceType.id;
+
+
+    if (!serviceTypeChanged) {
+      return;
+    }
+
+
+    previousServiceTypeIdRef.current =
+      selectedServiceType.id;
+
 
     if (
       selectedServiceType.pricingMode ===
@@ -612,9 +822,11 @@ export default function useTransportationController({
 
       }));
 
+
       return;
 
     }
+
 
     setData(prev => ({
       ...prev,
@@ -635,12 +847,6 @@ export default function useTransportationController({
   ]);
 
 
-  /*
-  ======================================================
-  FINANCIALS
-  ======================================================
-  */
-
   const financial =
     calculateFinancials({
       data,
@@ -648,12 +854,6 @@ export default function useTransportationController({
       discounts
     });
 
-
-  /*
-  ======================================================
-  OPTIONS
-  ======================================================
-  */
 
   const locationOptions =
     useMemo(
@@ -678,7 +878,10 @@ export default function useTransportationController({
 
   const routeOptions =
     useMemo(
-      () => buildOptions(routes, "code"),
+      () => buildOptions(
+        routes,
+        "code"
+      ),
       [routes]
     );
 
@@ -692,7 +895,9 @@ export default function useTransportationController({
 
   const bookingSourceOptions =
     useMemo(
-      () => buildOptions(bookingSources),
+      () => buildOptions(
+        bookingSources
+      ),
       [bookingSources]
     );
 
@@ -704,93 +909,112 @@ export default function useTransportationController({
     );
 
 
-  const discountOptions = useMemo(() => [
-    {
-      value: "",
-      label: "Sin descuento"
-    },
+  const discountOptions =
+    useMemo(() => [
 
-    ...discounts
-      .filter(discount => {
-        // Excluir descuentos inactivos
-        if (discount.isActive === false) {
-          return false;
-        }
+      {
+        value: "",
+        label: "Sin descuento"
+      },
 
-        // Excluir descuentos expirados
-        if (discount.expirationDate) {
-          const expirationDate =
-            typeof discount.expirationDate.toDate === "function"
-              ? discount.expirationDate.toDate()
-              : new Date(discount.expirationDate);
+      ...discounts
+        .filter(discount => {
 
           if (
-            !Number.isNaN(expirationDate.getTime()) &&
-            expirationDate < new Date()
+            discount.isActive === false
           ) {
             return false;
           }
-        }
 
-        return true;
-      })
-      .map(discount => ({
-        value: discount.id,
 
-        label:
-          `${discount.name} (${discount.type === "percentage"
-            ? `${discount.value}%`
-            : `${discount.value} ${data.currency}`
-          })`
-      }))
+          if (discount.expirationDate) {
 
-  ], [
-    discounts,
-    data.currency
-  ]);
+            const expirationDate =
+              typeof discount.expirationDate.toDate ===
+              "function"
+                ? discount.expirationDate.toDate()
+                : new Date(
+                    discount.expirationDate
+                  );
+
+
+            if (
+              !Number.isNaN(
+                expirationDate.getTime()
+              ) &&
+              expirationDate < new Date()
+            ) {
+              return false;
+            }
+
+          }
+
+
+          return true;
+
+        })
+        .map(discount => ({
+
+          value:
+            discount.id,
+
+          label:
+            `${discount.name} (${
+              discount.type === "percentage"
+                ? `${discount.value}%`
+                : `${discount.value} ${data.currency}`
+            })`
+
+        }))
+
+    ], [
+      discounts,
+      data.currency
+    ]);
 
 
   const paymentTypeOptions =
     useMemo(
       () =>
-        paymentTypes.map(payment => ({
-          value: payment.id,
-          label: payment.name
-        })),
+        paymentTypes.map(
+          payment => ({
+            value: payment.id,
+            label: payment.name
+          })
+        ),
       [paymentTypes]
     );
 
 
-  /*
-  ------------------------------------------------------
-  COMMISSION OPTIONS
-  ------------------------------------------------------
-  */
-
   const commissionOptions =
     useMemo(
       () =>
-        commissionAgents.map(agent => ({
-          value: agent.id,
-          label: agent.name,
-          type: agent.type,
-          commissionType:
-            agent.commissionType ||
-            "percentage",
-          commissionValue:
-            Number(
-              agent.commissionValue || 0
-            )
-        })),
+        commissionAgents.map(
+          agent => ({
+
+            value:
+              agent.id,
+
+            label:
+              agent.name,
+
+            type:
+              agent.type,
+
+            commissionType:
+              agent.commissionType ||
+              "percentage",
+
+            commissionValue:
+              Number(
+                agent.commissionValue || 0
+              )
+
+          })
+        ),
       [commissionAgents]
     );
 
-
-  /*
-  ======================================================
-  FORM CHANGE
-  ======================================================
-  */
 
   const handleChange = (e) => {
 
@@ -799,15 +1023,11 @@ export default function useTransportationController({
       value
     } = e.target;
 
+
     setData(prev => {
 
       let newValue = value;
 
-      /*
-      --------------------------------------------------
-      PRICE
-      --------------------------------------------------
-      */
 
       if (name === "price") {
 
@@ -818,17 +1038,12 @@ export default function useTransportationController({
 
       }
 
+
       const updatedForm = {
         ...prev,
         [name]: newValue
       };
 
-
-      /*
-      --------------------------------------------------
-      SERVICE TYPE
-      --------------------------------------------------
-      */
 
       if (name === "serviceTypeId") {
 
@@ -839,17 +1054,12 @@ export default function useTransportationController({
               newValue
           );
 
+
         updatedForm.serviceTypeName =
           selectedService?.name || "";
 
       }
 
-
-      /*
-      --------------------------------------------------
-      DATE / SERVICE END
-      --------------------------------------------------
-      */
 
       if (
         name === "date" ||
@@ -861,10 +1071,12 @@ export default function useTransportationController({
             ? newValue
             : prev.date;
 
+
         const serviceId =
           name === "serviceTypeId"
             ? newValue
             : prev.serviceTypeId;
+
 
         const selectedService =
           serviceTypes.find(
@@ -873,23 +1085,18 @@ export default function useTransportationController({
               serviceId
           );
 
+
         updatedForm.end =
           date &&
-            selectedService?.durationMinutes
+          selectedService?.durationMinutes
             ? getEndDate(
-              date,
-              selectedService.durationMinutes
-            )
+                date,
+                selectedService.durationMinutes
+              )
             : "";
 
       }
 
-
-      /*
-      --------------------------------------------------
-      COMMISSION AGENT
-      --------------------------------------------------
-      */
 
       if (
         name ===
@@ -903,34 +1110,29 @@ export default function useTransportationController({
               newValue
           );
 
+
         if (agent) {
 
           updatedForm.commissionBeneficiaryName =
             agent.name;
 
+
           updatedForm.commissionBeneficiaryType =
             agent.type;
+
 
           updatedForm.commissionType =
             agent.commissionType ||
             "percentage";
+
 
           updatedForm.commissionValue =
             Number(
               agent.commissionValue || 0
             );
 
-          /*
-          Si la reserva no tiene descuento,
-          la base siempre es el precio original.
-          Si tiene descuento y todavía no existe
-          una selección, utilizamos afterDiscount
-          para conservar el comportamiento actual.
-          */
 
-          if (
-            !prev.discountId
-          ) {
+          if (!prev.discountId) {
 
             updatedForm.commissionBase =
               "original";
@@ -953,31 +1155,24 @@ export default function useTransportationController({
           updatedForm.commissionBeneficiaryName =
             "";
 
+
           updatedForm.commissionBeneficiaryType =
             "";
+
 
           updatedForm.commissionType =
             "percentage";
 
-          updatedForm.commissionValue = 0;
+
+          updatedForm.commissionValue =
+            0;
 
         }
 
       }
 
 
-      /*
-      --------------------------------------------------
-      DISCOUNT
-      --------------------------------------------------
-      */
-
       if (name === "discountId") {
-
-        /*
-        Sin descuento:
-        la base vuelve automáticamente a original.
-        */
 
         if (!newValue) {
 
@@ -986,21 +1181,10 @@ export default function useTransportationController({
 
         }
 
-        /*
-        Al agregar un descuento:
-        si todavía no existe una selección,
-        usamos afterDiscount.
-        */
-
         else if (
           !prev.commissionBase ||
           prev.commissionBase === "original"
         ) {
-
-          /*
-          No forzamos aquí la base si la reserva
-          ya tenía una selección explícita.
-          */
 
           updatedForm.commissionBase =
             prev.commissionBase ||
@@ -1018,12 +1202,6 @@ export default function useTransportationController({
   };
 
 
-  /*
-  ======================================================
-  TAXES
-  ======================================================
-  */
-
   const toggleTax = (taxId) => {
 
     setData(prev => {
@@ -1033,18 +1211,20 @@ export default function useTransportationController({
           taxId
         );
 
+
       return {
+
         ...prev,
 
         activeTaxIds:
           exists
             ? prev.activeTaxIds.filter(
-              id => id !== taxId
-            )
+                id => id !== taxId
+              )
             : [
-              ...prev.activeTaxIds,
-              taxId
-            ]
+                ...prev.activeTaxIds,
+                taxId
+              ]
 
       };
 
@@ -1053,18 +1233,13 @@ export default function useTransportationController({
   };
 
 
-  /*
-  ======================================================
-  RESERVATION CLIENT
-  ======================================================
-  */
-
   const ensureReservationClient =
     async (currentData) => {
 
       if (currentData.clientId) {
         return currentData;
       }
+
 
       if (!companyId) {
 
@@ -1077,6 +1252,7 @@ export default function useTransportationController({
 
       }
 
+
       if (!currentData.clientName?.trim()) {
 
         notifyError(
@@ -1087,6 +1263,7 @@ export default function useTransportationController({
         return null;
 
       }
+
 
       try {
 
@@ -1100,13 +1277,16 @@ export default function useTransportationController({
                 currentData.clientName.trim(),
 
               email:
-                currentData.clientEmail?.trim() || "",
+                currentData.clientEmail?.trim() ||
+                "",
 
               phone:
-                currentData.phone?.trim() || "",
+                currentData.phone?.trim() ||
+                "",
 
               notes:
-                currentData.notes?.trim() || ""
+                currentData.notes?.trim() ||
+                ""
 
             },
 
@@ -1153,6 +1333,7 @@ export default function useTransportationController({
 
         setData(updatedData);
 
+
         return updatedData;
 
       }
@@ -1164,10 +1345,12 @@ export default function useTransportationController({
           error
         );
 
+
         notifyError(
           "Error",
           "No se pudo obtener o crear el cliente."
         );
+
 
         return null;
 
@@ -1175,12 +1358,6 @@ export default function useTransportationController({
 
     };
 
-
-  /*
-  ======================================================
-  VALIDATION
-  ======================================================
-  */
 
   const validateReservation =
     (currentData = data) => {
@@ -1234,10 +1411,12 @@ export default function useTransportationController({
 
       ];
 
+
       const invalid =
         validations.find(
           ([condition]) => condition
         );
+
 
       if (invalid) {
 
@@ -1245,20 +1424,16 @@ export default function useTransportationController({
           invalid[1]
         );
 
+
         return false;
 
       }
+
 
       return true;
 
     };
 
-
-  /*
-  ======================================================
-  RESERVATION NUMBER
-  ======================================================
-  */
 
   const getReservationNumber =
     async () => {
@@ -1267,13 +1442,16 @@ export default function useTransportationController({
         return data.reservationNumber;
       }
 
+
       let reservationNumber;
       let exists = true;
+
 
       while (exists) {
 
         reservationNumber =
           generateReservationNumber();
+
 
         exists =
           await reservationNumberExists(
@@ -1283,75 +1461,85 @@ export default function useTransportationController({
 
       }
 
+
       return reservationNumber;
 
     };
 
 
-  /*
-  ======================================================
-  RESET UNSAVED CHANGES
-  ======================================================
-  */
+  const clearDraft = () => {
 
-  const resetUnsavedChanges = () => {
+    removeDraft(draftKey);
+
+    setHasDraft(false);
+
+
+    if (mode !== "create") {
+      return;
+    }
+
+
+    const freshForm =
+      buildCreateForm(null);
+
+
+    skipNextDraftWriteRef.current =
+      true;
+
+
+    setData(freshForm);
+
+
+    previousServiceTypeIdRef.current =
+      null;
+
 
     initialFormSnapshot.current =
-      createFormSnapshot(data);
+      createFormSnapshot(
+        freshForm
+      );
+
 
     setHasUnsavedChanges(false);
 
   };
 
 
-  /*
-  ======================================================
-  SUBMIT
-  ======================================================
-  */
+  const resetUnsavedChanges = () => {
+
+    initialFormSnapshot.current =
+      createFormSnapshot(data);
+
+
+    setHasUnsavedChanges(false);
+
+  };
+
 
   const handleSubmit = async () => {
-
-    /*
-    --------------------------------------------------
-    RESOLVE CLIENT
-    --------------------------------------------------
-    */
 
     const dataToSave =
       await ensureReservationClient(
         data
       );
 
+
     if (!dataToSave) {
       return false;
     }
 
-
-    /*
-    --------------------------------------------------
-    VALIDATION
-    --------------------------------------------------
-    */
 
     if (
       !validateReservation(
         dataToSave
       )
     ) {
-
       return false;
-
     }
 
 
-    /*
-    --------------------------------------------------
-    RESERVATION NUMBER
-    --------------------------------------------------
-    */
-
     let reservationNumber;
+
 
     try {
 
@@ -1367,28 +1555,17 @@ export default function useTransportationController({
         error
       );
 
+
       notifyError(
         "Error",
         "No se pudo generar el número de reserva."
       );
 
+
       return false;
 
     }
 
-
-    /*
-    --------------------------------------------------
-    COMMISSION SNAPSHOT
-    --------------------------------------------------
-
-    Financials is the single source of truth
-    for the calculated commission.
-
-    We copy the calculated values into the
-    reservation data so they are persisted as
-    a historical snapshot.
-    */
 
     const reservationDataToSave = {
 
@@ -1406,13 +1583,8 @@ export default function useTransportationController({
     };
 
 
-    /*
-    --------------------------------------------------
-    BUILD RESERVATION
-    --------------------------------------------------
-    */
-
     let reservationData;
+
 
     try {
 
@@ -1452,21 +1624,17 @@ export default function useTransportationController({
         error
       );
 
+
       notifyError(
         "Error",
         "No se pudo preparar la reserva para guardar."
       );
 
+
       return false;
 
     }
 
-
-    /*
-    --------------------------------------------------
-    SAVE
-    --------------------------------------------------
-    */
 
     try {
 
@@ -1475,23 +1643,52 @@ export default function useTransportationController({
           reservationData
         );
 
+
       if (result === false) {
         return false;
       }
 
 
-      /*
-      ------------------------------------------------
-      UPDATE BASELINE
-      ------------------------------------------------
-      */
+      if (mode === "create") {
 
-      initialFormSnapshot.current =
-        createFormSnapshot(
-          reservationDataToSave
-        );
+        removeDraft(draftKey);
+        setHasDraft(false);
+
+
+        const freshForm =
+          buildCreateForm(null);
+
+
+        skipNextDraftWriteRef.current =
+          true;
+
+
+        setData(freshForm);
+
+
+        previousServiceTypeIdRef.current =
+          freshForm.serviceTypeId || null;
+
+
+        initialFormSnapshot.current =
+          createFormSnapshot(
+            freshForm
+          );
+
+      }
+
+      else {
+
+        initialFormSnapshot.current =
+          createFormSnapshot(
+            reservationDataToSave
+          );
+
+      }
+
 
       setHasUnsavedChanges(false);
+
 
       return true;
 
@@ -1504,9 +1701,11 @@ export default function useTransportationController({
         error
       );
 
+
       notifyError(
         "Error guardando reserva"
       );
+
 
       return false;
 
@@ -1514,12 +1713,6 @@ export default function useTransportationController({
 
   };
 
-
-  /*
-  ======================================================
-  CONTROLLER API
-  ======================================================
-  */
 
   return {
 
@@ -1532,6 +1725,7 @@ export default function useTransportationController({
       selectedServiceType,
 
       hasUnsavedChanges,
+      hasDraft,
 
       resetUnsavedChanges
 
@@ -1638,6 +1832,7 @@ export default function useTransportationController({
       handleChange,
       toggleTax,
       handleSubmit,
+      clearDraft,
       resetUnsavedChanges
 
     }

@@ -6,92 +6,480 @@ import {
   selectPortal
 } from "../../constants/transportationConstants";
 
+
 export default function ServiceSection({ controller }) {
 
   const {
-
     form,
-
     settings,
-
     options,
-
     actions
-
   } = controller;
 
+
   const {
-
     data,
-
     setData
-
   } = form;
 
+
   const {
-
     routes,
-
-    vehicles
-
+    vehicles,
+    drivers
   } = settings;
 
-  const {
 
+  const {
     serviceTypeOptions,
     locationOptions,
     driverOptions,
     routeOptions,
     vehicleOptions
-
   } = options;
 
+
   const {
-
     handleChange
-
   } = actions;
 
 
   /*
   =========================================================
-  PENDING RESERVATION
+  REACT SELECT STYLES
   =========================================================
   */
 
-  const isPending =
+  const selectStyles = {
 
-    data.status === "pending";
+    ...selectPortal.styles,
 
+
+    option: (base, state) => ({
+      ...base,
+
+      backgroundColor:
+        state.isSelected
+          ? "#08204B"
+          : state.isFocused
+            ? "#08204B"
+            : "#FFFFFF",
+
+      color:
+        state.isSelected || state.isFocused
+          ? "#FFFFFF"
+          : "#334155",
+
+      cursor: "pointer"
+    }),
+
+
+    control: (base, state) => ({
+      ...base,
+
+      borderColor:
+        state.isFocused
+          ? "#08204B"
+          : "#d1d9e3",
+
+      boxShadow:
+        state.isFocused
+          ? "0 0 0 3px rgba(8, 32, 75, 0.07)"
+          : "none",
+
+      "&:hover": {
+        borderColor: "#08204B"
+      }
+    }),
+
+
+    singleValue: (base) => ({
+      ...base,
+
+      color: "#334155"
+    }),
+
+
+    placeholder: (base) => ({
+      ...base,
+
+      color: "#94a3b8"
+    }),
+
+
+    dropdownIndicator: (base, state) => ({
+      ...base,
+
+      color:
+        state.isFocused
+          ? "#08204B"
+          : "#94a3b8",
+
+      "&:hover": {
+        color: "#08204B"
+      }
+    }),
+
+
+    clearIndicator: (base) => ({
+      ...base,
+
+      color: "#94a3b8",
+
+      "&:hover": {
+        color: "#08204B"
+      }
+    }),
+
+
+    menuPortal: (base) => ({
+      ...base,
+
+      zIndex: 99999
+    })
+
+  };
+
+
+  /*
+  =========================================================
+  VEHICLE OPTIONS
+  =========================================================
+
+  Extends the existing vehicle options with the vehicle
+  information needed by the custom vehicle selector.
+  =========================================================
+  */
+
+  const vehicleSelectOptions =
+    vehicleOptions.map(option => {
+
+      const vehicle =
+        vehicles.find(
+          item =>
+            item.id === option.value
+        );
+
+
+      return {
+
+        ...option,
+
+        vehicleName:
+          vehicle?.name ||
+          option.label ||
+          "",
+
+        vehiclePlate:
+          vehicle?.plate ||
+          ""
+
+      };
+
+    });
+
+
+  /*
+  =========================================================
+  VEHICLE OPTION LABEL
+  =========================================================
+
+  Displays the vehicle name and plate separately.
+
+  The same formatter is used for:
+  - Selected vehicle
+  - Dropdown options
+  =========================================================
+  */
+
+  const formatVehicleOption = (
+    option,
+    { context }
+  ) => {
+
+    const vehicleName =
+      option.vehicleName ||
+      option.label ||
+      "";
+
+
+    const vehiclePlate =
+      option.vehiclePlate ||
+      "";
+
+
+    /*
+    ---------------------------------------------------------
+    SELECTED VEHICLE
+    ---------------------------------------------------------
+    */
+
+    if (context === "value") {
+
+      return (
+
+        <div className="transportation-service-section-vehicle-value">
+
+          <span className="transportation-service-section-vehicle-name">
+            {vehicleName}
+          </span>
+
+
+          {vehiclePlate && (
+
+            <span className="transportation-service-section-vehicle-plate">
+              {vehiclePlate}
+            </span>
+
+          )}
+
+        </div>
+
+      );
+
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    DROPDOWN OPTION
+    ---------------------------------------------------------
+    */
+
+    return (
+
+      <div className="transportation-service-section-vehicle-option">
+
+        <div className="transportation-service-section-vehicle-option-main">
+
+          <span className="transportation-service-section-vehicle-option-name">
+            {vehicleName}
+          </span>
+
+
+          {vehiclePlate && (
+
+            <span className="transportation-service-section-vehicle-option-plate">
+              {vehiclePlate}
+            </span>
+
+          )}
+
+        </div>
+
+      </div>
+
+    );
+
+  };
+
+
+  /*
+  =========================================================
+  DRIVER SELECTION
+  =========================================================
+
+  Selecting a driver automatically loads the vehicle
+  assigned to that driver.
+
+  The vehicle can still be manually changed afterward
+  for this specific reservation.
+  =========================================================
+  */
+
+  const handleDriverChange = (
+    selectedOption
+  ) => {
+
+    const driverId =
+      selectedOption?.value || "";
+
+
+    const selectedDriver =
+      drivers.find(
+        driver =>
+          driver.id === driverId
+      );
+
+
+    /*
+    ---------------------------------------------------------
+    NO DRIVER SELECTED
+    ---------------------------------------------------------
+
+    Clear driver information.
+
+    The vehicle is intentionally preserved because the
+    reservation may have a manually selected vehicle.
+    ---------------------------------------------------------
+    */
+
+    if (!selectedDriver) {
+
+      setData(prev => ({
+
+        ...prev,
+
+        driverId: "",
+
+        driverName: "",
+
+        driverType: ""
+
+      }));
+
+      return;
+
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    FIND DRIVER'S DEFAULT VEHICLE
+    ---------------------------------------------------------
+    */
+
+    const assignedVehicleId =
+      selectedDriver.vehicleId || "";
+
+
+    const assignedVehicle =
+      vehicles.find(
+        vehicle =>
+          vehicle.id === assignedVehicleId
+      );
+
+
+    /*
+    ---------------------------------------------------------
+    UPDATE DRIVER + AUTOMATIC VEHICLE
+    ---------------------------------------------------------
+    */
+
+    setData(prev => ({
+
+      ...prev,
+
+      driverId:
+        selectedDriver.id || "",
+
+      driverName:
+        selectedDriver.name || "",
+
+      driverType:
+        selectedDriver.driverType || "",
+
+
+      vehicleId:
+        assignedVehicle?.id || "",
+
+      vehicleName:
+        assignedVehicle?.name || "",
+
+      vehiclePlate:
+        assignedVehicle?.plate || "",
+
+      vehicleType:
+        assignedVehicle?.type || ""
+
+    }));
+
+  };
+
+
+  /*
+  =========================================================
+  VEHICLE SELECTION
+  =========================================================
+
+  Allows the user to override the driver's default vehicle
+  for this specific reservation.
+  =========================================================
+  */
+
+  const handleVehicleChange = (
+    selectedOption
+  ) => {
+
+    const selectedVehicle =
+      vehicles.find(
+        vehicle =>
+          vehicle.id ===
+          selectedOption?.value
+      );
+
+
+    setData(prev => ({
+
+      ...prev,
+
+      vehicleId:
+        selectedVehicle?.id || "",
+
+      vehicleName:
+        selectedVehicle?.name || "",
+
+      vehiclePlate:
+        selectedVehicle?.plate || "",
+
+      vehicleType:
+        selectedVehicle?.type || ""
+
+    }));
+
+  };
+
+
+  /*
+  =========================================================
+  RENDER
+  =========================================================
+  */
 
   return (
 
-    <div className="modal-section section-card">
+    <div className="transportation-service-section section-card">
 
-      <h4 className="section-title">
+      <div className="transportation-service-section-header">
 
-        Servicio
+        <h4 className="transportation-service-section-title">
+          Servicio
+        </h4>
 
-      </h4>
+      </div>
 
 
-      {/* =========================
-          TIPO DE RESERVA - CODIGO DE RUTA
-      ========================= */}
+      {/* ==================================================
+          TIPO DE RESERVA - ESTADO
+      ================================================== */}
 
-      <div className="form-grid two-columns">
+      <div className="transportation-service-section-grid transportation-service-section-grid-two-columns">
 
-        <div className="form-field">
 
-          <label className="field-label">
+        {/* TIPO DE RESERVA */}
 
-            Tipo de reserva <span className="required">*</span>
+        <div className="transportation-service-section-field">
+
+          <label className="transportation-service-section-label">
+
+            Tipo de reserva{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
 
           </label>
+
 
           <Select
 
             {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-select"
 
             name="serviceTypeId"
 
@@ -104,7 +492,6 @@ export default function ServiceSection({ controller }) {
                 option =>
 
                   option.value ===
-
                   data.serviceTypeId
 
               ) || null
@@ -118,11 +505,9 @@ export default function ServiceSection({ controller }) {
                 target: {
 
                   name:
-
                     "serviceTypeId",
 
                   value:
-
                     selectedOption?.value || ""
 
                 }
@@ -142,17 +527,88 @@ export default function ServiceSection({ controller }) {
         </div>
 
 
-        {/* <div className="form-field">
+        {/* ESTADO */}
 
-          <label className="field-label">
+        <div className="transportation-service-section-field">
 
+          <label className="transportation-service-section-label">
+
+            Estado{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
+
+          </label>
+
+
+          <Select
+
+            {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-select"
+
+            options={statusOptions}
+
+            value={
+
+              statusOptions.find(
+
+                option =>
+
+                  option.value ===
+                  data.status
+
+              ) || null
+
+            }
+
+            onChange={(selectedOption) => {
+
+              setData(prev => ({
+
+                ...prev,
+
+                status:
+                  selectedOption?.value || ""
+
+              }));
+
+            }}
+
+            isSearchable={false}
+
+            isClearable
+
+          />
+
+        </div>
+
+
+        {/* ==================================================
+            CÓDIGO DE RUTA
+        ================================================== */}
+
+        {/*
+        <div className="transportation-service-section-field">
+
+          <label className="transportation-service-section-label">
             Código de ruta
-
           </label>
 
           <Select
 
             {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-select"
 
             options={routeOptions}
 
@@ -163,7 +619,6 @@ export default function ServiceSection({ controller }) {
                 option =>
 
                   option.value ===
-
                   data.routeId
 
               ) || null
@@ -173,13 +628,11 @@ export default function ServiceSection({ controller }) {
             onChange={(selectedOption) => {
 
               const selectedRoute =
-
                 routes.find(
 
                   route =>
 
                     route.id ===
-
                     selectedOption?.value
 
                 );
@@ -190,15 +643,12 @@ export default function ServiceSection({ controller }) {
                 ...prev,
 
                 routeId:
-
                   selectedRoute?.id || "",
 
                 routeCode:
-
                   selectedRoute?.code || "",
 
                 routeName:
-
                   selectedRoute?.name || ""
 
               }));
@@ -213,128 +663,125 @@ export default function ServiceSection({ controller }) {
 
           />
 
-        </div> */}
+        </div>
+        */}
 
       </div>
 
 
-      {/* =========================
-          FECHA Y ESTADO
-      ========================= */}
+      {/* ==================================================
+          FECHA Y PASAJEROS
+      ================================================== */}
 
-      <div className="form-grid two-columns">
+      <div className="transportation-service-section-grid transportation-service-section-grid-two-columns">
 
 
-        <div className="form-field">
+        {/* FECHA */}
 
-          <label className="field-label">
+        <div className="transportation-service-section-field">
 
-            Fecha y hora <span className="required">*</span>
+          <label className="transportation-service-section-label">
+
+            Fecha y hora{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
 
           </label>
 
+
           <input
+
+            className="transportation-service-section-input"
 
             type="datetime-local"
 
             name="date"
 
-            value={data.date || ""}
+            value={
+              data.date || ""
+            }
 
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
 
           />
 
         </div>
 
 
-        <div className="form-field">
+        {/* PASAJEROS */}
 
-          <label className="field-label">
+        <div className="transportation-service-section-field">
 
-            Estado <span className="required">*</span>
+          <label className="transportation-service-section-label">
+
+            Cantidad de pasajeros{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
 
           </label>
 
-          <Select
 
-            {...selectPortal}
+          <input
 
-            options={statusOptions}
+            className="transportation-service-section-input"
+
+            type="number"
+
+            name="passengers"
 
             value={
-
-              statusOptions.find(
-
-                option =>
-
-                  option.value ===
-
-                  data.status
-
-              ) || null
-
+              data.passengers ?? 1
             }
 
-            onChange={(selectedOption) => {
-
-              /*
-              ------------------------------------------------
-              PENDING RESERVATIONS CANNOT CHANGE STATUS
-              HERE.
-
-              Confirmation is handled separately through
-              the "Confirmar reserva" action.
-              ------------------------------------------------
-              */
-
-              if (isPending) {
-
-                return;
-
-              }
-
-
-              setData(prev => ({
-
-                ...prev,
-
-                status:
-
-                  selectedOption?.value || ""
-
-              }));
-
-            }}
-
-            isSearchable={false}
-
-            isDisabled={isPending}
+            onChange={
+              handleChange
+            }
 
           />
 
         </div>
+
 
       </div>
 
 
-      {/* =========================
+      {/* ==================================================
           LUGAR DE RECOGIDA Y DESTINO
-      ========================= */}
+      ================================================== */}
 
-      <div className="form-grid two-columns">
+      <div className="transportation-service-section-grid transportation-service-section-grid-two-columns">
 
-        <div className="form-field">
 
-          <label className="field-label">
+        {/* RECOGIDA */}
 
-            Lugar de recogida <span className="required">*</span>
+        <div className="transportation-service-section-field">
+
+          <label className="transportation-service-section-label">
+
+            Lugar de recogida{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
 
           </label>
+
 
           <Select
 
             {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-select"
 
             options={locationOptions}
 
@@ -345,7 +792,6 @@ export default function ServiceSection({ controller }) {
                 option =>
 
                   option.value ===
-
                   data.locationFromId
 
               ) || null
@@ -359,7 +805,6 @@ export default function ServiceSection({ controller }) {
                 ...prev,
 
                 locationFromId:
-
                   selectedOption?.value || ""
 
               }))
@@ -375,17 +820,30 @@ export default function ServiceSection({ controller }) {
         </div>
 
 
-        <div className="form-field">
+        {/* DESTINO */}
 
-          <label className="field-label">
+        <div className="transportation-service-section-field">
 
-            Lugar de destino <span className="required">*</span>
+          <label className="transportation-service-section-label">
+
+            Lugar de destino{" "}
+
+            <span className="transportation-service-section-required">
+              *
+            </span>
 
           </label>
+
 
           <Select
 
             {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-select"
 
             options={locationOptions}
 
@@ -396,7 +854,6 @@ export default function ServiceSection({ controller }) {
                 option =>
 
                   option.value ===
-
                   data.locationToId
 
               ) || null
@@ -410,7 +867,6 @@ export default function ServiceSection({ controller }) {
                 ...prev,
 
                 locationToId:
-
                   selectedOption?.value || ""
 
               }))
@@ -428,134 +884,111 @@ export default function ServiceSection({ controller }) {
       </div>
 
 
-      {/* =========================
-          CANTIDAD DE PAX Y NUMERO DE VUELO
-      ========================= */}
+      {/* ==================================================
+          VEHÍCULO Y CHOFER
+      ================================================== */}
 
-      <div className="form-grid two-columns">
-
-        <div className="form-field">
-
-          <label className="field-label">
-
-            Cantidad de pasajeros <span className="required">*</span>
-
-          </label>
-
-          <input
-
-            type="number"
-
-            name="passengers"
-
-            value={data.passengers ?? 1}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
+      <div className="transportation-service-section-grid transportation-service-section-grid-two-columns">
 
 
-        <div className="form-field">
+        {/* ==================================================
+            CHOFER
+        ================================================== */}
 
-          <label className="field-label">
+        <div className="transportation-service-section-field">
 
-            Nº de vuelo
+          <label className="transportation-service-section-label">
+
+            Chofer asignado
 
           </label>
 
-          <input
-
-            type="text"
-
-            name="flightNumber"
-
-            placeholder="Ej: AA1337"
-
-            value={data.flightNumber || ""}
-
-            onChange={handleChange}
-
-          />
-
-        </div>
-
-      </div>
-
-
-      {/* =========================
-          VEHICULO Y CHOFER
-      ========================= */}
-
-      <div className="form-grid two-columns">
-
-        <div className="form-field">
-
-          <label className="field-label">
-
-            Vehículo
-
-          </label>
 
           <Select
 
             {...selectPortal}
 
-            options={vehicleOptions}
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-driver-select"
+
+            options={driverOptions}
 
             value={
 
-              vehicleOptions.find(
+              driverOptions.find(
 
                 option =>
 
                   option.value ===
+                  data.driverId
 
+              ) || null
+
+            }
+
+            onChange={
+              handleDriverChange
+            }
+
+            placeholder="Seleccionar chofer"
+
+            isClearable
+
+            isSearchable
+
+          />
+
+        </div>
+
+
+        {/* ==================================================
+            VEHÍCULO
+        ================================================== */}
+
+        <div className="transportation-service-section-field">
+
+          <label className="transportation-service-section-label">
+
+            Vehículo
+
+          </label>
+
+
+          <Select
+
+            {...selectPortal}
+
+            styles={selectStyles}
+
+            className="transportation-service-section-select"
+
+            classNamePrefix="transportation-service-section-vehicle-select"
+
+            options={vehicleSelectOptions}
+
+            value={
+
+              vehicleSelectOptions.find(
+
+                option =>
+
+                  option.value ===
                   data.vehicleId
 
               ) || null
 
             }
 
-            onChange={(selectedOption) => {
+            formatOptionLabel={
+              formatVehicleOption
+            }
 
-              const selectedVehicle =
-
-                vehicles.find(
-
-                  vehicle =>
-
-                    vehicle.id ===
-
-                    selectedOption?.value
-
-                );
-
-
-              setData(prev => ({
-
-                ...prev,
-
-                vehicleId:
-
-                  selectedVehicle?.id || "",
-
-                vehicleName:
-
-                  selectedVehicle?.name || "",
-
-                vehiclePlate:
-
-                  selectedVehicle?.plate || "",
-
-                vehicleType:
-
-                  selectedVehicle?.type || ""
-
-              }));
-
-            }}
+            onChange={
+              handleVehicleChange
+            }
 
             placeholder="Seleccionar vehículo"
 
@@ -567,56 +1000,52 @@ export default function ServiceSection({ controller }) {
 
         </div>
 
+      </div>
 
-        <div className="form-field">
 
-          <label className="field-label">
+      {/* ==================================================
+          VUELO
+      ================================================== */}
 
-            Chofer asignado
+      <div className="transportation-service-section-grid transportation-service-section-grid-two-columns">
+
+
+        {/* VUELO */}
+
+        <div className="transportation-service-section-field">
+
+          <label className="transportation-service-section-label">
+
+            Nº de vuelo
 
           </label>
 
-          <Select
 
-            {...selectPortal}
+          <input
 
-            options={driverOptions}
+            className="transportation-service-section-input"
+
+            type="text"
+
+            name="flightNumber"
+
+            placeholder="Ej: AA1337"
 
             value={
-
-              driverOptions.find(
-
-                option =>
-
-                  option.value ===
-
-                  data.driverId
-
-              ) || null
-
+              data.flightNumber || ""
             }
 
-            onChange={(selectedOption) =>
-
-              setData(prev => ({
-
-                ...prev,
-
-                driverId:
-
-                  selectedOption?.value || ""
-
-              }))
-
+            onChange={
+              handleChange
             }
-
-            isClearable
 
           />
 
         </div>
 
+
       </div>
+
 
     </div>
 
