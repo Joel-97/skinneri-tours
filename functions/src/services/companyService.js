@@ -1,10 +1,4 @@
-/**
- * ==========================================================
- * IMPORTS
- * ==========================================================
- */
-
-import { db } from "../firebase/admin.js";
+import { db, admin } from "../firebase/admin.js";
 
 import {
     created,
@@ -21,129 +15,136 @@ import COMPANY_STATUS
 import PLATFORM_ERRORS
     from "../constants/errors/platformErrors.js";
 
-/*
-==========================================================
-NORMALIZE
-==========================================================
-*/
 
-function normalize(value) {
+/* ==========================================================
+   COLLECTION
+   ========================================================== */
 
-    return value
+const companiesCollection = () =>
+    db.collection(
+        FIRESTORE_COLLECTIONS.COMPANIES
+    );
 
+
+/* ==========================================================
+   HELPERS
+   ========================================================== */
+
+const normalize = (value) =>
+    String(value ?? "")
         .trim()
-
         .toLowerCase();
 
-}
 
-/*
-==========================================================
-CHECK DUPLICATE COMPANY
-==========================================================
-*/
+const isValidCompanyId = (companyId) =>
+    Boolean(
+        normalize(companyId)
+    );
+
+
+const isValidCompany = (company) =>
+    Boolean(
+        company &&
+        normalize(company.name)
+    );
+
+
+const logFirestoreError = (
+    operation,
+    error
+) => {
+
+    console.error(
+        `[companyService] ${operation}`,
+        {
+            code:
+                error?.code ?? null,
+
+            message:
+                error?.message ?? null,
+
+            details:
+                error?.details ?? null,
+
+            status:
+                error?.status ?? null,
+
+            projectId:
+                admin
+                    ?.app()
+                    ?.options
+                    ?.projectId ?? null
+        }
+    );
+};
+
+
+/* ==========================================================
+   CHECK DUPLICATE
+   ========================================================== */
 
 async function existsCompany(
     companyName
 ) {
 
-    const snapshot = await db
+    const name =
+        normalize(companyName);
 
-        .collection(
+    if (!name) {
+        return false;
+    }
 
-            FIRESTORE_COLLECTIONS.COMPANIES
-
-        )
-
-        .where(
-
-            "name",
-
-            "==",
-
-            normalize(companyName)
-
-        )
-
-        .limit(1)
-
-        .get();
+    const snapshot =
+        await companiesCollection()
+            .where(
+                "name",
+                "==",
+                name
+            )
+            .limit(1)
+            .get();
 
     return !snapshot.empty;
-
 }
 
-/*
-==========================================================
-BUILD COMPANY DOCUMENT
-==========================================================
-*/
 
-function buildCompanyDocument(
+/* ==========================================================
+   BUILD DOCUMENT
+   ========================================================== */
+
+const buildCompanyDocument = (
     company
-) {
+) => {
 
-    const timestamp = new Date();
+    const timestamp =
+        new Date();
 
     return {
 
         name:
-
-            normalize(company.name),
+            normalize(
+                company.name
+            ),
 
         enabledModules:
-
-            company.enabledModules,
+            company.enabledModules ||
+            {},
 
         status:
-
             COMPANY_STATUS.ACTIVE,
 
         createdAt:
-
             timestamp,
 
         updatedAt:
-
             timestamp
-
     };
+};
 
-}
 
-/*
-==========================================================
-CREATE COMPANY DOCUMENT
-==========================================================
-*/
-
-async function createCompanyDocument(
-    companyDocument
-) {
-
-    const reference = await db
-
-        .collection(
-
-            FIRESTORE_COLLECTIONS.COMPANIES
-
-        )
-
-        .add(
-
-            companyDocument
-
-        );
-
-    return reference.id;
-
-}
-
-/*
-==========================================================
-CREATE COMPANY
-==========================================================
-*/
+/* ==========================================================
+   CREATE COMPANY
+   ========================================================== */
 
 export async function createCompanyService(
     company
@@ -151,89 +152,62 @@ export async function createCompanyService(
 
     try {
 
-        /*
-        ======================================================
-        DUPLICATE COMPANY
-        ======================================================
-        */
+        if (
+            !isValidCompany(
+                company
+            )
+        ) {
 
-        const exists = await existsCompany(
+            return failure(
+                PLATFORM_ERRORS.INVALID_DATA
+            );
+        }
 
-            company.name
 
-        );
+        const exists =
+            await existsCompany(
+                company.name
+            );
+
 
         if (exists) {
 
             return failure(
-
                 PLATFORM_ERRORS.COMPANY_ALREADY_EXISTS
-
             );
-
         }
 
-        /*
-        ======================================================
-        BUILD DOCUMENT
-        ======================================================
-        */
 
-        const companyDocument =
+        const reference =
+            await companiesCollection()
+                .add(
+                    buildCompanyDocument(
+                        company
+                    )
+                );
 
-            buildCompanyDocument(
-
-                company
-
-            );
-
-        /*
-        ======================================================
-        CREATE DOCUMENT
-        ======================================================
-        */
-
-        const companyId =
-
-            await createCompanyDocument(
-
-                companyDocument
-
-            );
-
-        /*
-        ======================================================
-        RESULT
-        ======================================================
-        */
 
         return created(
-
-            companyId
-
+            reference.id
         );
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-        console.error(error);
+        logFirestoreError(
+            "createCompanyService",
+            error
+        );
 
         return failure(
-
             PLATFORM_ERRORS.UNKNOWN_ERROR
-
         );
-
     }
-
 }
 
-/*
-==========================================================
-DELETE COMPANY
-==========================================================
-*/
+
+/* ==========================================================
+   DELETE COMPANY
+   ========================================================== */
 
 export async function deleteCompanyService(
     companyId
@@ -241,126 +215,112 @@ export async function deleteCompanyService(
 
     try {
 
-        await db
-
-            .collection(
-
-                FIRESTORE_COLLECTIONS.COMPANIES
-
-            )
-
-            .doc(
-
+        if (
+            !isValidCompanyId(
                 companyId
-
             )
+        ) {
 
-            .delete();
+            return failure(
+                PLATFORM_ERRORS.NOT_FOUND
+            );
+        }
+
+
+        const reference =
+            companiesCollection()
+                .doc(
+                    companyId
+                );
+
+
+        const document =
+            await reference.get();
+
+
+        if (!document.exists) {
+
+            return failure(
+                PLATFORM_ERRORS.NOT_FOUND
+            );
+        }
+
+
+        await reference.delete();
+
 
         return success();
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-        console.error(error);
-
-        return failure(
-
-            PLATFORM_ERRORS.UNKNOWN_ERROR
-
+        logFirestoreError(
+            "deleteCompanyService",
+            error
         );
 
+        return failure(
+            PLATFORM_ERRORS.UNKNOWN_ERROR
+        );
     }
-
 }
 
-/*
-==========================================================
-GET COMPANY
-==========================================================
-*/
+
+/* ==========================================================
+   GET COMPANY
+   ========================================================== */
 
 export async function getCompanyService(
-
     companyId
-
 ) {
 
     try {
 
-        /*
-        ======================================================
-        DOCUMENT
-        ======================================================
-        */
-
-        const document =
-
-            await db
-
-                .collection(
-
-                    FIRESTORE_COLLECTIONS.COMPANIES
-
-                )
-
-                .doc(
-
-                    companyId
-
-                )
-
-                .get();
-
-        /*
-        ======================================================
-        NOT FOUND
-        ======================================================
-        */
-
         if (
-
-            !document.exists
-
+            !isValidCompanyId(
+                companyId
+            )
         ) {
 
             return failure(
-
                 PLATFORM_ERRORS.NOT_FOUND
-
             );
-
         }
 
-        /*
-        ======================================================
-        RESULT
-        ======================================================
-        */
+
+        const document =
+            await companiesCollection()
+                .doc(
+                    companyId
+                )
+                .get();
+
+
+        if (!document.exists) {
+
+            return failure(
+                PLATFORM_ERRORS.NOT_FOUND
+            );
+        }
+
 
         return success({
 
             id:
-
                 document.id,
 
             ...document.data()
 
         });
 
-    }
+    } catch (error) {
 
-    catch (error) {
-
-        console.error(error);
-
-        return failure(
-
-            PLATFORM_ERRORS.UNKNOWN_ERROR
-
+        logFirestoreError(
+            "getCompanyService",
+            error
         );
 
+        return failure(
+            PLATFORM_ERRORS.UNKNOWN_ERROR
+        );
     }
-
 }

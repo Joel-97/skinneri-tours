@@ -66,11 +66,7 @@ const Reports = () => {
 
         return (
 
-        //   <TransportationCommission />
-        <div>
-            Reporte de operaciones
-            (próximamente)
-          </div>
+          <TransportationCommission />
 
         );
 

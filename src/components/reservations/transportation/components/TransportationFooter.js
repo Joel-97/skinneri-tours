@@ -27,7 +27,7 @@ export default function TransportationFooter({
         onClick={onCancel}
         className="btn-secondary"
       >
-        Cancelar
+        Cerrar
       </button>
 
 

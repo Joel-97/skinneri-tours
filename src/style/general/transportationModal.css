@@ -51,7 +51,6 @@
   margin-bottom: 30px;
 }
 
-
 .modal-section h4 {
   font-size: 16px;
   font-weight: 600;
@@ -154,7 +153,7 @@ textarea {
 .client-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +167,7 @@ textarea {
   width: 420px;
   max-width: 95%;
   border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -252,6 +251,7 @@ textarea {
 }
 
 /* FOOTER */
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -259,13 +259,12 @@ textarea {
   margin-top: 20px;
 }
 
-/*Text area*/
-/* Sección que ocupa todo el ancho */
+/* Text area */
+
 .modal-section.full-width {
   width: 100%;
 }
 
-/* Textarea grande y cómoda */
 .notes-textarea {
   width: 100%;
   min-height: 120px;
@@ -290,7 +289,7 @@ textarea {
   background: #ffffff;
   border-radius: 14px;
   padding: 20px;
-  z-index: 2000; /* Mayor que overlay */
+  z-index: 2000;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
   animation: fadeInScale 0.2s ease;
 }
@@ -358,18 +357,22 @@ textarea {
 
 
 /* Animación suave */
+
 @keyframes fadeInScale {
   from {
     opacity: 0;
     transform: translate(-50%, -45%) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
 }
 
+
 /* Mejora visual de secciones */
+
 .section-card {
   background: #f8fafc;
   padding: 22px;
@@ -382,28 +385,38 @@ textarea {
   border-color: #dbe3ec;
 }
 
+
 /* Compact grid para cliente */
+
 .form-grid.compact {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+
 /* Mejor espaciado botones cliente */
+
 .client-actions {
   margin-bottom: 20px;
 }
 
+
 /* Inputs readOnly más suaves */
+
 input[readonly] {
   background: #f1f5f9;
   cursor: default;
 }
 
+
 /* Scroll suave */
+
 .modal-card.modern {
   scroll-behavior: smooth;
 }
 
+
 /* Hover botones */
+
 .btn-primary:hover {
   transform: translateY(-1px);
   transition: 0.15s ease;
@@ -416,8 +429,8 @@ input[readonly] {
 }
 
 
-
 /* En pantallas grandes que se vea aún mejor */
+
 @media (min-width: 900px) {
   .notes-textarea {
     min-height: 160px;
@@ -426,9 +439,21 @@ input[readonly] {
 
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(.97); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
+
+
+/* ==========================================================
+   RESUMEN FINANCIERO
+   ========================================================== */
 
 .financial-summary {
   margin-top: 15px;
@@ -446,6 +471,11 @@ input[readonly] {
   font-size: 18px;
   font-weight: bold;
 }
+
+
+/* ==========================================================
+   PRICE INPUT
+   ========================================================== */
 
 .price-input-wrapper {
   position: relative;
@@ -465,11 +495,16 @@ input[readonly] {
 
 .price-input {
   width: 100%;
-  padding: 8px 12px 8px 32px; /* espacio para el símbolo */
+  padding: 8px 12px 8px 32px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   height: 38px;
 }
+
+
+/* ==========================================================
+   GENERAL FORM
+   ========================================================== */
 
 .section-title {
   margin-bottom: 20px;
@@ -517,6 +552,11 @@ input[readonly] {
   border-color: #6366f1;
 }
 
+
+/* ==========================================================
+   TAXES
+   ========================================================== */
+
 .tax-list {
   margin-top: 10px;
   display: flex;
@@ -529,6 +569,11 @@ input[readonly] {
   align-items: center;
   gap: 8px;
 }
+
+
+/* ==========================================================
+   MODAL TITLE
+   ========================================================== */
 
 .modal-title-group {
   align-items: center;
@@ -546,4 +591,492 @@ input[readonly] {
 
 .m-top {
   margin-top: 30px;
+}
+
+
+/* ==========================================================
+   ==========================================================
+   FINANCIAL COMMISSION
+   ==========================================================
+   ========================================================== */
+
+/* ==========================================================
+   MAIN COMMISSION SECTION
+   ========================================================== */
+
+.financial-commission-section {
+  position: relative;
+  overflow: visible;
+  padding: 18px 20px;
+}
+
+.financial-commission-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.financial-commission-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+
+/* ==========================================================
+   COMMISSION TOGGLE
+   ========================================================== */
+
+.financial-commission-toggle {
+  position: absolute;
+  top: 17px;
+  right: 20px;
+  margin: 0;
+}
+
+.financial-commission-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.financial-commission-toggle-input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 0;
+  accent-color: #08204B;
+  cursor: pointer;
+}
+
+.financial-commission-toggle-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+
+/* ==========================================================
+   COMMISSION CONTENT
+   ========================================================== */
+
+.financial-commission-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.65fr);
+  column-gap: 18px;
+  row-gap: 14px;
+  margin-top: 18px;
+}
+
+
+/* ==========================================================
+   MAIN COMMISSION GRID
+   ========================================================== */
+
+.financial-commission-grid {
+  grid-column: 1 / -1;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(170px, 0.65fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.financial-commission-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.financial-commission-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.3;
+}
+
+
+/* ==========================================================
+   COMMISSION SELECT
+   ========================================================== */
+
+.financial-commission-select {
+  width: 100%;
+}
+
+.financial-commission-select__control {
+  min-height: 38px !important;
+  height: 38px;
+  border: 1px solid #d1d9e3 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease !important;
+}
+
+.financial-commission-select__control:hover {
+  border-color: #b8c2cf !important;
+}
+
+.financial-commission-select__control--is-focused {
+  border-color: #08204B !important;
+  box-shadow: 0 0 0 3px rgba(8, 32, 75, 0.07) !important;
+}
+
+.financial-commission-select__value-container {
+  padding: 0 11px !important;
+}
+
+.financial-commission-select__single-value {
+  margin: 0 !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+}
+
+.financial-commission-select__placeholder {
+  margin: 0 !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+}
+
+.financial-commission-select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.financial-commission-select__indicators {
+  height: 100%;
+}
+
+.financial-commission-select__indicator {
+  padding: 6px !important;
+  color: #94a3b8 !important;
+}
+
+.financial-commission-select__indicator:hover {
+  color: #475569 !important;
+}
+
+.financial-commission-select__menu {
+  margin-top: 4px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 9px !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+  z-index: 9999 !important;
+}
+
+.financial-commission-select__menu-list {
+  padding: 4px !important;
+}
+
+.financial-commission-select__option {
+  padding: 8px 10px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+}
+
+.financial-commission-select__option--is-focused {
+  background: #f1f5f9 !important;
+  color: #08204B !important;
+}
+
+.financial-commission-select__option--is-selected {
+  background: #08204B !important;
+  color: #ffffff !important;
+}
+
+
+/* ==========================================================
+   COMMISSION TYPE
+   ========================================================== */
+
+.financial-commission-value {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #08204B;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   COMMISSION BASE
+   ========================================================== */
+
+.financial-commission-base {
+  grid-column: 1 / 2;
+  padding: 0;
+}
+
+.financial-commission-base-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.financial-commission-base-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.financial-commission-base-description {
+  display: inline;
+  margin: 0 0 0 7px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #94a3b8;
+}
+
+
+/* ==========================================================
+   BASE OPTIONS
+   ========================================================== */
+
+.financial-commission-base-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.financial-commission-base-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 10px;
+  margin: 0;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.financial-commission-base-option:hover {
+  border-color: #b9c5d3;
+  background: #fbfcfe;
+}
+
+.financial-commission-base-option-active {
+  border-color: #08204B;
+  background: #f7f9fc;
+  box-shadow: 0 0 0 2px rgba(8, 32, 75, 0.06);
+}
+
+.financial-commission-base-radio {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 0;
+  accent-color: #08204B;
+  cursor: pointer;
+}
+
+.financial-commission-base-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.financial-commission-base-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.25;
+  color: #475569;
+  font-weight: 500;
+
+  /* Permite mostrar el texto completo */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.financial-commission-base-amount {
+  flex: 0 0 auto;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   COMMISSION RESULT
+   ========================================================== */
+
+.financial-commission-result {
+  grid-column: 1 / 2;
+  align-self: end;
+
+  overflow: hidden;
+  border: 1px solid #dbe3ec;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.financial-commission-result-header {
+  padding: 7px 11px;
+  border-bottom: 1px solid #eef2f7;
+  background: #f8fafc;
+}
+
+.financial-commission-result-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+
+.financial-commission-result-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 11px;
+}
+
+.financial-commission-result-description {
+  min-width: 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.financial-commission-result-amount {
+  flex: 0 0 auto;
+  color: #08204B;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   WHEN DISCOUNT EXISTS
+   ========================================================== */
+
+/*
+ * Si existe el selector de base de comisión,
+ * el resultado se coloca a la derecha.
+ */
+.financial-commission-content:has(
+  .financial-commission-base
+) .financial-commission-result {
+  grid-column: 2 / 3;
+}
+
+
+/* ==========================================================
+   COMMISSION RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+  .financial-commission-content {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-commission-base {
+    grid-column: 1 / -1;
+  }
+
+  .financial-commission-result {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+@media (max-width: 760px) {
+
+  .financial-commission-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .financial-commission-base-options {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-commission-base-description {
+    display: block;
+    margin: 3px 0 0;
+  }
+
+  .financial-commission-result-content {
+    min-height: 44px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .financial-commission-section {
+    padding: 16px;
+  }
+
+  .financial-commission-toggle {
+    position: static;
+    margin-top: 12px;
+  }
+
+  .financial-commission-content {
+    margin-top: 16px;
+    gap: 14px;
+  }
+
+  .financial-commission-base-option {
+    height: auto;
+    min-height: 42px;
+    padding: 9px 10px;
+  }
+
+  .financial-commission-base-content {
+    align-items: center;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .financial-commission-base-title {
+    white-space: normal;
+  }
+
 }
