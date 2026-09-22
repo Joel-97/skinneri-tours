@@ -1,5 +1,6 @@
 import React from "react";
 
+
 export default function TransportationFooter({
 
   mode,
@@ -15,8 +16,18 @@ export default function TransportationFooter({
 }) {
 
   const isPending =
-
     status === "pending";
+
+
+  const handleSave = async () => {
+
+    if (!onSave) {
+      return;
+    }
+
+    await onSave();
+
+  };
 
 
   return (
@@ -24,15 +35,17 @@ export default function TransportationFooter({
     <div className="modal-footer">
 
       <button
+        type="button"
         onClick={onCancel}
         className="btn-secondary"
       >
-        Cerrar
+        Cancelar
       </button>
 
 
       <button
-        onClick={onSave}
+        type="button"
+        onClick={handleSave}
         className="btn-primary"
       >
         {mode === "create"
@@ -41,9 +54,12 @@ export default function TransportationFooter({
       </button>
 
 
+      {/*
+
       {mode !== "create" && isPending && (
 
         <button
+          type="button"
           onClick={onConfirm}
           className="btn-primary"
         >
@@ -51,6 +67,8 @@ export default function TransportationFooter({
         </button>
 
       )}
+
+      */}
 
     </div>
 

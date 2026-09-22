@@ -27,19 +27,16 @@ export default function FinancialSection({
         actions
     } = controller;
 
-
     const {
         data,
         setData
     } = form;
-
 
     const {
         taxes,
         bookingSources,
         payers
     } = settings;
-
 
     const {
         discountOptions,
@@ -49,12 +46,10 @@ export default function FinancialSection({
         commissionOptions
     } = options;
 
-
     const {
         handleChange,
         toggleTax
     } = actions;
-
 
     const {
         discountAmount,
@@ -67,26 +62,114 @@ export default function FinancialSection({
         commissionAmount
     } = financial;
 
-
     const hasDiscount =
         Number(discountAmount || 0) > 0;
-
 
     const commissionEnabled =
         Boolean(data.commissionEnabled);
 
+
+    /*
+    =========================================================
+    REACT SELECT STYLES
+    =========================================================
+    */
+
+    const selectStyles = {
+    ...selectPortal.styles,
+
+    option: (base, state) => ({
+        ...base,
+
+        backgroundColor:
+            state.isSelected
+                ? "#08204B"
+                : state.isFocused
+                    ? "#08204B"
+                    : "#FFFFFF",
+
+        color:
+            state.isSelected || state.isFocused
+                ? "#FFFFFF"
+                : "#334155",
+
+        cursor: "pointer"
+    }),
+
+    control: (base, state) => ({
+        ...base,
+
+        borderColor:
+            state.isFocused
+                ? "#08204B"
+                : "#d1d9e3",
+
+        boxShadow:
+            state.isFocused
+                ? "0 0 0 3px rgba(8, 32, 75, 0.07)"
+                : "none",
+
+        "&:hover": {
+            borderColor: "#08204B"
+        }
+    }),
+
+    singleValue: (base) => ({
+        ...base,
+        color: "#334155"
+    }),
+
+    placeholder: (base) => ({
+        ...base,
+        color: "#94a3b8"
+    }),
+
+    dropdownIndicator: (base, state) => ({
+        ...base,
+
+        color:
+            state.isFocused
+                ? "#08204B"
+                : "#94a3b8",
+
+        "&:hover": {
+            color: "#08204B"
+        }
+    }),
+
+    clearIndicator: (base) => ({
+        ...base,
+
+        color: "#94a3b8",
+
+        "&:hover": {
+            color: "#08204B"
+        }
+    }),
+
+    menuPortal: (base) => ({
+        ...base,
+        zIndex: 99999
+    })
+};
+
+
+    /*
+    =========================================================
+    COMMISSION TOGGLE
+    =========================================================
+    */
 
     const handleCommissionToggle = (event) => {
 
         const enabled =
             event.target.checked;
 
-
         setData(prev => ({
-
             ...prev,
 
-            commissionEnabled: enabled,
+            commissionEnabled:
+                enabled,
 
             ...(enabled
                 ? {}
@@ -94,63 +177,91 @@ export default function FinancialSection({
                     commissionBeneficiaryId: "",
                     commissionBeneficiaryName: "",
                     commissionBeneficiaryType: "",
+
                     commissionType: "percentage",
                     commissionValue: 0,
+
                     commissionBase: "original",
                     commissionBaseAmount: 0,
                     commissionAmount: 0,
+
                     commissionId: null
                 }
             )
-
         }));
-
     };
 
+
+    /*
+    =========================================================
+    COMMISSION BASE
+    =========================================================
+    */
 
     const handleCommissionBaseChange = (
         base
     ) => {
 
         setData(prev => ({
-
             ...prev,
 
-            commissionBase: base
-
+            commissionBase:
+                base
         }));
-
     };
 
 
     return (
+
         <>
 
             {/* ==================================================
                 FACTURACIÓN
             ================================================== */}
 
-            <div className="modal-section section-card">
+            <div className="transportation-financial-section section-card">
 
-                <h4 className="section-title">
-                    Facturación
-                </h4>
+                <div className="transportation-financial-section-header">
+
+                    <h4 className="transportation-financial-section-title">
+                        Facturación
+                    </h4>
+
+                </div>
 
 
-                <div className="form-grid two-columns">
+                {/* ==================================================
+                    ORIGEN / PAGADOR
+                ================================================== */}
 
-                    <div className="form-field">
+                <div className="transportation-financial-section-grid transportation-financial-section-grid-two-columns">
 
-                        <label className="field-label">
+                    {/* ORIGEN */}
+
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
+
                             Origen de la reserva{" "}
-                            <span className="required">
+
+                            <span className="transportation-financial-section-required">
                                 *
                             </span>
+
                         </label>
+
 
                         <Select
                             {...selectPortal}
+
+                            className="transportation-financial-section-select"
+
+                            classNamePrefix="transportation-financial-section-select"
+
+                            styles={selectStyles}
+
                             options={bookingSourceOptions}
+
                             value={
                                 bookingSourceOptions.find(
                                     option =>
@@ -158,6 +269,7 @@ export default function FinancialSection({
                                         data.bookingSourceId
                                 ) || null
                             }
+
                             onChange={(selectedOption) => {
 
                                 const selectedSource =
@@ -167,9 +279,7 @@ export default function FinancialSection({
                                             selectedOption?.value
                                     );
 
-
                                 setData(prev => ({
-
                                     ...prev,
 
                                     bookingSourceId:
@@ -177,27 +287,39 @@ export default function FinancialSection({
 
                                     bookingSourceName:
                                         selectedSource?.name || ""
-
                                 }));
-
                             }}
+
                             placeholder="Seleccionar origen"
+
                             isClearable
+
                             isSearchable
                         />
 
                     </div>
 
 
-                    <div className="form-field">
+                    {/* PAGADOR */}
 
-                        <label className="field-label">
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
                             Pagador
                         </label>
 
+
                         <Select
                             {...selectPortal}
+
+                            className="transportation-financial-section-select"
+
+                            classNamePrefix="transportation-financial-section-select"
+
+                            styles={selectStyles}
+
                             options={payerOptions}
+
                             value={
                                 payerOptions.find(
                                     option =>
@@ -205,6 +327,7 @@ export default function FinancialSection({
                                         data.payerId
                                 ) || null
                             }
+
                             onChange={(selectedOption) => {
 
                                 const selectedPayer =
@@ -214,9 +337,7 @@ export default function FinancialSection({
                                             selectedOption?.value
                                     );
 
-
                                 setData(prev => ({
-
                                     ...prev,
 
                                     payerId:
@@ -224,12 +345,13 @@ export default function FinancialSection({
 
                                     payerName:
                                         selectedPayer?.name || ""
-
                                 }));
-
                             }}
+
                             placeholder="Seleccionar pagador"
+
                             isClearable
+
                             isSearchable
                         />
 
@@ -238,17 +360,32 @@ export default function FinancialSection({
                 </div>
 
 
-                <div className="form-grid two-columns">
+                {/* ==================================================
+                    TIPO DE PAGO / ESTADO
+                ================================================== */}
 
-                    <div className="form-field">
+                <div className="transportation-financial-section-grid transportation-financial-section-grid-two-columns">
 
-                        <label className="field-label">
+                    {/* TIPO DE PAGO */}
+
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
                             Tipo de pago
                         </label>
 
+
                         <Select
                             {...selectPortal}
+
+                            className="transportation-financial-section-select"
+
+                            classNamePrefix="transportation-financial-section-select"
+
+                            styles={selectStyles}
+
                             options={paymentTypeOptions}
+
                             value={
                                 paymentTypeOptions.find(
                                     option =>
@@ -256,34 +393,44 @@ export default function FinancialSection({
                                         data.paymentTypeId
                                 ) || null
                             }
+
                             onChange={(selectedOption) =>
-
                                 setData(prev => ({
-
                                     ...prev,
 
                                     paymentTypeId:
                                         selectedOption?.value || ""
-
                                 }))
-
                             }
+
                             placeholder="Seleccionar"
+
                             isClearable
                         />
 
                     </div>
 
 
-                    <div className="form-field">
+                    {/* ESTADO DEL PAGO */}
 
-                        <label className="field-label">
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
                             Estado del pago
                         </label>
 
+
                         <Select
                             {...selectPortal}
+
+                            className="transportation-financial-section-select"
+
+                            classNamePrefix="transportation-financial-section-select"
+
+                            styles={selectStyles}
+
                             options={paymentStatusOptions}
+
                             value={
                                 paymentStatusOptions.find(
                                     option =>
@@ -291,20 +438,20 @@ export default function FinancialSection({
                                         data.paymentStatus
                                 ) || null
                             }
+
                             onChange={(selectedOption) =>
-
                                 setData(prev => ({
-
                                     ...prev,
 
                                     paymentStatus:
                                         selectedOption?.value || ""
-
                                 }))
-
                             }
+
                             placeholder="Seleccionar"
+
                             isSearchable={false}
+
                             isClearable
                         />
 
@@ -313,17 +460,32 @@ export default function FinancialSection({
                 </div>
 
 
-                <div className="form-grid two-columns">
+                {/* ==================================================
+                    DESCUENTO / MONTO
+                ================================================== */}
 
-                    <div className="form-field">
+                <div className="transportation-financial-section-grid transportation-financial-section-grid-two-columns">
 
-                        <label className="field-label">
+                    {/* DESCUENTO */}
+
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
                             Descuento
                         </label>
 
+
                         <Select
                             {...selectPortal}
+
+                            className="transportation-financial-section-select"
+
+                            classNamePrefix="transportation-financial-section-select"
+
+                            styles={selectStyles}
+
                             options={discountOptions}
+
                             value={
                                 discountOptions.find(
                                     option =>
@@ -331,48 +493,53 @@ export default function FinancialSection({
                                         (data.discountId || "")
                                 ) || null
                             }
+
                             onChange={(selectedOption) =>
-
                                 handleChange({
-
                                     target: {
-
                                         name: "discountId",
-
                                         value:
                                             selectedOption?.value || ""
-
                                     }
-
                                 })
-
                             }
+
                             placeholder="Sin descuento"
+
                             isSearchable={false}
+
                             isClearable
                         />
 
                     </div>
 
 
-                    <div className="form-field">
+                    {/* MONTO */}
 
-                        <label className="field-label">
+                    <div className="transportation-financial-section-field">
+
+                        <label className="transportation-financial-section-label">
                             Monto
                         </label>
 
-                        <div className="price-input-wrapper">
 
-                            <span className="currency-symbol">
+                        <div className="transportation-financial-section-price-wrapper">
+
+                            <span className="transportation-financial-section-currency-symbol">
                                 {data.symbol || data.currency}
                             </span>
 
+
                             <input
                                 type="number"
+
                                 name="price"
+
                                 value={data.price}
+
                                 onChange={handleChange}
-                                className="price-input"
+
+                                className="transportation-financial-section-price-input"
                             />
 
                         </div>
@@ -388,35 +555,47 @@ export default function FinancialSection({
                 IMPUESTOS
             ================================================== */}
 
-            <div className="modal-section section-card">
+            <div className="transportation-financial-section section-card">
 
-                <h4 className="section-title">
-                    Impuestos
-                </h4>
+                <div className="transportation-financial-section-header">
+
+                    <h4 className="transportation-financial-section-title">
+                        Impuestos
+                    </h4>
+
+                </div>
 
 
-                <div className="tax-list">
+                <div className="transportation-financial-section-tax-list">
 
                     {taxes.map(tax => (
 
                         <label
                             key={tax.id}
-                            className="tax-item"
+
+                            className="transportation-financial-section-tax-item"
                         >
 
                             <input
                                 type="checkbox"
+
                                 checked={
                                     data.activeTaxIds.includes(
                                         tax.id
                                     )
                                 }
+
                                 onChange={() =>
                                     toggleTax(tax.id)
                                 }
+
+                                className="transportation-financial-section-tax-checkbox"
                             />
 
-                            {tax.name} ({tax.rate}%)
+
+                            <span className="transportation-financial-section-tax-label">
+                                {tax.name} ({tax.rate}%)
+                            </span>
 
                         </label>
 
@@ -431,64 +610,74 @@ export default function FinancialSection({
                 COMISIÓN
             ================================================== */}
 
-            <div className="modal-section section-card financial-commission-section">
+            <div className="transportation-financial-section section-card transportation-financial-section-commission">
 
-                <div className="financial-commission-header">
+                <div className="transportation-financial-section-header">
 
-                    <h4 className="financial-commission-title">
+                    <h4 className="transportation-financial-section-title">
                         Comisión
                     </h4>
 
-                </div>
 
+                    {/* ACTIVAR COMISIÓN */}
 
-                {/* ACTIVAR COMISIÓN */}
+                    <div className="transportation-financial-section-commission-toggle">
 
-                <div className="financial-commission-toggle">
+                        <label className="transportation-financial-section-commission-toggle-label">
 
-                    <label className="financial-commission-toggle-label">
+                            <input
+                                type="checkbox"
 
-                        <input
-                            type="checkbox"
-                            checked={commissionEnabled}
-                            onChange={handleCommissionToggle}
-                            className="financial-commission-toggle-input"
-                        />
+                                checked={commissionEnabled}
 
-                        <span className="financial-commission-toggle-text">
-                            Aplicar comisión
-                        </span>
+                                onChange={handleCommissionToggle}
 
-                    </label>
+                                className="transportation-financial-section-commission-toggle-input"
+                            />
+
+                            <span className="transportation-financial-section-commission-toggle-text">
+                                Aplicar comisión
+                            </span>
+
+                        </label>
+
+                    </div>
 
                 </div>
 
 
                 {commissionEnabled && (
 
-                    <div className="financial-commission-content">
+                    <div className="transportation-financial-section-commission-content">
 
 
                         {/* ==================================================
                             CONFIGURACIÓN PRINCIPAL
                         ================================================== */}
 
-                        <div className="financial-commission-grid">
+                        <div className="transportation-financial-section-grid transportation-financial-section-grid-two-columns">
 
 
                             {/* COMISIONISTA */}
 
-                            <div className="financial-commission-field">
+                            <div className="transportation-financial-section-field">
 
-                                <label className="financial-commission-label">
+                                <label className="transportation-financial-section-label">
                                     Comisionista
                                 </label>
 
+
                                 <Select
                                     {...selectPortal}
-                                    className="financial-commission-select"
-                                    classNamePrefix="financial-commission-select"
+
+                                    className="transportation-financial-section-select"
+
+                                    classNamePrefix="transportation-financial-section-select"
+
+                                    styles={selectStyles}
+
                                     options={commissionOptions}
+
                                     value={
                                         commissionOptions.find(
                                             option =>
@@ -496,24 +685,21 @@ export default function FinancialSection({
                                                 data.commissionBeneficiaryId
                                         ) || null
                                     }
+
                                     onChange={(selected) =>
-
                                         handleChange({
-
                                             target: {
-
                                                 name:
                                                     "commissionBeneficiaryId",
 
                                                 value:
                                                     selected?.value || ""
-
                                             }
-
                                         })
-
                                     }
+
                                     placeholder="Seleccionar comisionista"
+
                                     isClearable
                                 />
 
@@ -522,29 +708,27 @@ export default function FinancialSection({
 
                             {/* TIPO DE COMISIÓN */}
 
-                            <div className="financial-commission-field">
+                            <div className="transportation-financial-section-field">
 
-                                <label className="financial-commission-label">
+                                <label className="transportation-financial-section-label">
                                     Tipo de comisión
                                 </label>
 
-                                <div className="financial-commission-value">
 
-                                    {data.commissionType ===
-                                    "percentage"
+                                <div className="transportation-financial-section-commission-value">
+
+                                    {data.commissionType === "percentage"
 
                                         ? `${data.commissionValue || 0}%`
 
                                         : formatCurrency(
                                             data.commissionValue || 0
                                         )
-
                                     }
 
                                 </div>
 
                             </div>
-
 
                         </div>
 
@@ -555,17 +739,18 @@ export default function FinancialSection({
 
                         {hasDiscount && (
 
-                            <div className="financial-commission-base">
+                            <div className="transportation-financial-section-commission-base">
 
-                                <div className="financial-commission-base-header">
+                                <div className="transportation-financial-section-commission-base-header">
 
                                     <div>
 
-                                        <span className="financial-commission-base-label">
+                                        <span className="transportation-financial-section-commission-base-label">
                                             Calcular comisión sobre
                                         </span>
 
-                                        <p className="financial-commission-base-description">
+
+                                        <p className="transportation-financial-section-commission-base-description">
                                             Selecciona el monto utilizado
                                             para calcular la comisión.
                                         </p>
@@ -575,46 +760,54 @@ export default function FinancialSection({
                                 </div>
 
 
-                                <div className="financial-commission-base-options">
+                                <div className="transportation-financial-section-commission-base-options">
 
 
                                     {/* PRECIO ORIGINAL */}
 
                                     <label
-                                        className={`financial-commission-base-option ${
+                                        className={`transportation-financial-section-commission-base-option ${
                                             commissionBase === "original"
-                                                ? "financial-commission-base-option-active"
+                                                ? "transportation-financial-section-commission-base-option-active"
                                                 : ""
                                         }`}
                                     >
 
                                         <input
                                             type="radio"
+
                                             name="commissionBase"
+
                                             value="original"
+
                                             checked={
                                                 commissionBase ===
                                                 "original"
                                             }
+
                                             onChange={() =>
                                                 handleCommissionBaseChange(
                                                     "original"
                                                 )
                                             }
-                                            className="financial-commission-base-radio"
+
+                                            className="transportation-financial-section-commission-base-radio"
                                         />
 
 
-                                        <span className="financial-commission-base-content">
+                                        <span className="transportation-financial-section-commission-base-content">
 
-                                            <span className="financial-commission-base-title">
+                                            <span className="transportation-financial-section-commission-base-title">
                                                 Precio original
                                             </span>
 
-                                            <strong className="financial-commission-base-amount">
+
+                                            <strong className="transportation-financial-section-commission-base-amount">
+
                                                 {formatCurrency(
                                                     originalCommissionBase
                                                 )}
+
                                             </strong>
 
                                         </span>
@@ -625,46 +818,53 @@ export default function FinancialSection({
                                     {/* PRECIO DESPUÉS DEL DESCUENTO */}
 
                                     <label
-                                        className={`financial-commission-base-option ${
+                                        className={`transportation-financial-section-commission-base-option ${
                                             commissionBase === "afterDiscount"
-                                                ? "financial-commission-base-option-active"
+                                                ? "transportation-financial-section-commission-base-option-active"
                                                 : ""
                                         }`}
                                     >
 
                                         <input
                                             type="radio"
+
                                             name="commissionBase"
+
                                             value="afterDiscount"
+
                                             checked={
                                                 commissionBase ===
                                                 "afterDiscount"
                                             }
+
                                             onChange={() =>
                                                 handleCommissionBaseChange(
                                                     "afterDiscount"
                                                 )
                                             }
-                                            className="financial-commission-base-radio"
+
+                                            className="transportation-financial-section-commission-base-radio"
                                         />
 
 
-                                        <span className="financial-commission-base-content">
+                                        <span className="transportation-financial-section-commission-base-content">
 
-                                            <span className="financial-commission-base-title">
+                                            <span className="transportation-financial-section-commission-base-title">
                                                 Precio después del descuento
                                             </span>
 
-                                            <strong className="financial-commission-base-amount">
+
+                                            <strong className="transportation-financial-section-commission-base-amount">
+
                                                 {formatCurrency(
                                                     discountedCommissionBase
                                                 )}
+
                                             </strong>
 
                                         </span>
 
                                     </label>
-
 
                                 </div>
 
@@ -677,23 +877,22 @@ export default function FinancialSection({
                             RESULTADO DE COMISIÓN
                         ================================================== */}
 
-                        <div className="financial-commission-result">
+                        <div className="transportation-financial-section-commission-result">
 
-                            <div className="financial-commission-result-header">
+                            <div className="transportation-financial-section-commission-result-header">
 
-                                <span className="financial-commission-result-label">
+                                <span className="transportation-financial-section-commission-result-label">
                                     Comisión calculada
                                 </span>
 
                             </div>
 
 
-                            <div className="financial-commission-result-content">
+                            <div className="transportation-financial-section-commission-result-content">
 
-                                <span className="financial-commission-result-description">
+                                <span className="transportation-financial-section-commission-result-description">
 
-                                    {data.commissionType ===
-                                    "percentage"
+                                    {data.commissionType === "percentage"
 
                                         ? `${data.commissionValue || 0}% de ${formatCurrency(
                                             commissionBaseAmount
@@ -702,13 +901,12 @@ export default function FinancialSection({
                                         : `${formatCurrency(
                                             data.commissionValue || 0
                                         )} fijo`
-
                                     }
 
                                 </span>
 
 
-                                <strong className="financial-commission-result-amount">
+                                <strong className="transportation-financial-section-commission-result-amount">
 
                                     {formatCurrency(
                                         commissionAmount
@@ -719,7 +917,6 @@ export default function FinancialSection({
                             </div>
 
                         </div>
-
 
                     </div>
 
@@ -732,60 +929,54 @@ export default function FinancialSection({
                 RESUMEN FINANCIERO
             ================================================== */}
 
-            <div className="modal-section section-card">
+            <div className="transportation-financial-section section-card">
 
-                <h4 className="section-title">
-                    Resumen financiero
-                </h4>
+                <div className="transportation-financial-section-header">
+
+                    <h4 className="transportation-financial-section-title">
+                        Resumen financiero
+                    </h4>
+
+                </div>
 
 
-                <div className="financial-summary">
+                <div className="transportation-financial-section-summary">
 
                     <p>
 
-                        Subtotal:
+                        <span className="transportation-financial-section-summary-label">
+                            Subtotal:
+                        </span>
 
-                        {" "}
-
-                        {data.symbol}
-
-                        {" "}
-
-                        {safe(data.price)}
+                        <span className="transportation-financial-section-summary-value">
+                            {data.symbol} {safe(data.price)}
+                        </span>
 
                     </p>
 
 
                     <p>
 
-                        Descuento:
+                        <span className="transportation-financial-section-summary-label">
+                            Descuento:
+                        </span>
 
-                        {" "}
-
-                        -
-
-                        {" "}
-
-                        {data.symbol}
-
-                        {" "}
-
-                        {safe(discountAmount)}
+                        <span className="transportation-financial-section-summary-value">
+                            - {data.symbol} {safe(discountAmount)}
+                        </span>
 
                     </p>
 
 
                     <p>
 
-                        Impuestos:
+                        <span className="transportation-financial-section-summary-label">
+                            Impuestos:
+                        </span>
 
-                        {" "}
-
-                        {data.symbol}
-
-                        {" "}
-
-                        {safe(totalTax)}
+                        <span className="transportation-financial-section-summary-value">
+                            {data.symbol} {safe(totalTax)}
+                        </span>
 
                     </p>
 
@@ -793,17 +984,15 @@ export default function FinancialSection({
                     <hr />
 
 
-                    <p className="total">
+                    <p className="transportation-financial-section-summary-total">
 
-                        Total:
+                        <span className="transportation-financial-section-summary-total-label">
+                            Total:
+                        </span>
 
-                        {" "}
-
-                        {data.symbol}
-
-                        {" "}
-
-                        {safe(total)}
+                        <span className="transportation-financial-section-summary-total-value">
+                            {data.symbol} {safe(total)}
+                        </span>
 
                     </p>
 

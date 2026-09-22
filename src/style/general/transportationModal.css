@@ -1,384 +1,192 @@
+:root {
+  --tm-primary: #08204B;
+  --tm-primary-hover: #061a3d;
+  --tm-primary-soft: rgba(8, 32, 75, .07);
+  --tm-primary-light: #f3f6fa;
+  --tm-accent: #5B2D8B;
+  --tm-accent-soft: rgba(91, 45, 139, .08);
+  --tm-title: #1e293b;
+  --tm-text: #334155;
+  --tm-muted: #64748b;
+  --tm-placeholder: #94a3b8;
+  --tm-border: #d1d9e3;
+  --tm-border-soft: #e2e8f0;
+  --tm-surface: #fff;
+  --tm-soft: #f8fafc;
+  --tm-danger: #ef4444;
+  --tm-radius: 9px;
+  --tm-control-height: 42px;
+  --tm-font: 14px;
+  --tm-label-font: 14px;
+  --tm-title-font: 17px;
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  padding: 20px;
+  background: rgba(15, 23, 42, .45);
 }
 
 .modal-card.modern {
-  background: #ffffff;
-  width: 95%;
-  max-width: 1100px;
-  max-height: 90vh;
+  width: min(1100px, 100%);
+  max-height: 92vh;
   overflow-y: auto;
+  padding: 26px;
+  background: var(--tm-surface);
   border-radius: 18px;
-  padding: 28px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
-  animation: fadeIn 0.2s ease;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, .18);
+  animation: fadeIn .2s ease;
+  scroll-behavior: smooth;
 }
 
-/* HEADER */
+.modal-card.modern,
+.modal-card.modern * {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
 .modal-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
+  margin: 0;
+  color: var(--tm-title);
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.3;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   CLEAR FIELDS BUTTON
+   ========================================================= */
+
+.clear-fields-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+
+  background: #fff;
+  color: var(--tm-accent);
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+
   cursor: pointer;
-  opacity: 0.6;
+
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    box-shadow .2s ease;
+}
+
+.clear-fields-btn:hover {
+  background: var(--tm-accent-soft);
+  border-color: var(--tm-accent);
+  color: var(--tm-accent);
+}
+
+.clear-fields-btn:active {
+  background: rgba(91, 45, 139, .12);
+}
+
+.clear-fields-btn:focus-visible {
+  outline: none;
+  border-color: var(--tm-accent);
+  box-shadow: 0 0 0 3px rgba(91, 45, 139, .15);
+}
+
+.clear-fields-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+.close-btn {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--tm-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .15s ease;
 }
 
 .close-btn:hover {
-  opacity: 1;
+  color: var(--tm-title);
 }
 
-/* SECTION */
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
 .modal-section {
-  margin-bottom: 30px;
+  margin-bottom: 22px;
 }
 
-.modal-section h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 16px;
+.modal-section h4,
+.section-title {
+  margin: 0 0 16px;
+  color: var(--tm-title);
+  font-size: var(--tm-title-font);
+  font-weight: 650;
+  line-height: 1.3;
 }
-
-/* GRID */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.form-grid.compact input {
-  background: #fff;
-}
-
-/* GROUP */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-label {
-  font-size: 13px;
-  color: #475569;
-  font-weight: 500;
-}
-
-/* INPUTS */
-input,
-select,
-textarea {
-  padding: 9px 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  font-size: 14px;
-  background: #ffffff;
-  transition: 0.2s;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #08204B;
-  box-shadow: 0 0 0 2px rgba(8, 32, 75, 0.1);
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-/* CLIENT ACTIONS */
-.client-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.btn-primary {
-  background: #08204B;
-  color: white;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 9px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-.btn-secondary {
-  background: #e5e7eb;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 9px;
-  cursor: pointer;
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid #cbd5e1;
-  padding: 8px 14px;
-  border-radius: 9px;
-  cursor: pointer;
-}
-
-.btn-ghost:hover {
-  background: #f1f5f9;
-}
-
-/* ===== Overlay ===== */
-
-.client-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-/* ===== Modal ===== */
-
-.client-modal {
-  background: #fff;
-  width: 420px;
-  max-width: 95%;
-  border-radius: 10px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== Header ===== */
-
-.client-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.client-modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-/* ===== Close button ===== */
-
-.client-modal-close {
-  border: none;
-  background: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #666;
-}
-
-.client-modal-close:hover {
-  color: #000;
-}
-
-/* ===== Body ===== */
-
-.client-modal-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* ===== Form group ===== */
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #444;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  transition: border 0.2s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #0b3b78;
-}
-
-/* ===== Footer ===== */
-
-.client-modal-footer {
-  padding: 16px 20px;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-/* FOOTER */
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-/* Text area */
-
-.modal-section.full-width {
-  width: 100%;
-}
-
-.notes-textarea {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  font-size: 14px;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  line-height: 1.5;
-}
-
-
-/* ================= INNER MODAL ================= */
-
-.inner-modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  max-width: 90%;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
-  z-index: 2000;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
-  animation: fadeInScale 0.2s ease;
-}
-
-.inner-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.search-modal {
-  width: 550px;
-  max-width: 95%;
-}
-
-.search-input-wrapper {
-  margin-bottom: 15px;
-}
-
-.search-input-wrapper input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-
-.search-results {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 10px;
-  border-top: 1px solid #eee;
-}
-
-.search-item {
-  padding: 12px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.search-item:hover {
-  background: #f7f9fc;
-}
-
-.search-name {
-  font-weight: 600;
-  color: #08204B;
-}
-
-.search-email,
-.search-phone {
-  font-size: 13px;
-  color: #666;
-}
-
-.search-empty,
-.search-loading {
-  padding: 15px;
-  text-align: center;
-  color: #777;
-  font-size: 14px;
-}
-
-
-/* Animación suave */
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -45%) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-
-/* Mejora visual de secciones */
 
 .section-card {
-  background: #f8fafc;
-  padding: 22px;
-  border-radius: 16px;
+  padding: 20px;
+  background: var(--tm-soft);
   border: 1px solid #eef2f7;
-  transition: 0.2s ease;
+  border-radius: 16px;
+  transition: border-color .18s ease;
 }
 
 .section-card:hover {
@@ -386,50 +194,1281 @@ textarea {
 }
 
 
-/* Compact grid para cliente */
+/* =========================================================
+   FORM GRIDS
+   ========================================================= */
+
+.form-grid,
+.transportation-financial-grid,
+.transportation-financial-section-grid,
+.transportation-service-section-grid {
+  display: grid;
+  width: 100%;
+  gap: 18px;
+}
+
+.form-grid,
+.form-grid.two-columns,
+.transportation-financial-grid-two-columns,
+.transportation-financial-section-grid-two-columns,
+.transportation-service-section-grid-two-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
 .form-grid.compact {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 
-/* Mejor espaciado botones cliente */
+/* =========================================================
+   FORM FIELDS
+   ========================================================= */
 
-.client-actions {
-  margin-bottom: 20px;
+.form-field,
+.form-group,
+.transportation-financial-section-field,
+.transportation-service-section-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 7px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.field-block {
+  margin-bottom: 18px;
+}
+
+label,
+.field-label,
+.transportation-financial-section-label,
+.transportation-service-section-label {
+  color: #374151;
+  font-size: var(--tm-label-font);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.required,
+.transportation-financial-section-required,
+.transportation-service-section-required {
+  margin-left: 3px;
+  color: var(--tm-danger);
 }
 
 
-/* Inputs readOnly más suaves */
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.modal-card.modern > input,
+.modal-card.modern > select,
+.modal-card.modern > textarea,
+.form-field > input,
+.form-field > select,
+.form-field > textarea,
+.form-group > input,
+.form-group > select,
+.form-group > textarea,
+.form-input,
+.transportation-service-section-input,
+.transportation-financial-section-input {
+  width: 100%;
+  min-width: 0;
+  height: var(--tm-control-height);
+  padding: 0 12px;
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  background: #fff;
+  color: var(--tm-text);
+  font-family: inherit;
+  font-size: var(--tm-font);
+  font-weight: 400;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.modal-card.modern > input,
+.modal-card.modern > select,
+.modal-card.modern > textarea,
+.form-field > input,
+.form-field > select,
+.form-field > textarea,
+.form-group > input,
+.form-group > select,
+.form-group > textarea {
+  min-height: var(--tm-control-height);
+}
+
+.form-input,
+.transportation-service-section-input,
+.transportation-financial-section-input {
+  line-height: normal;
+}
+
+.form-input:focus,
+.transportation-service-section-input:focus,
+.transportation-financial-section-input:focus,
+.modal-card.modern > input:focus,
+.form-field > input:focus,
+.form-group > input:focus,
+.form-field > select:focus,
+.form-group > select:focus,
+.form-field > textarea:focus,
+.form-group > textarea:focus {
+  outline: none;
+  border-color: var(--tm-primary);
+  box-shadow: 0 0 0 3px var(--tm-primary-soft);
+}
 
 input[readonly] {
   background: #f1f5f9;
-  cursor: default;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: var(--tm-font);
+}
+
+.notes-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border: 1px solid var(--tm-border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: var(--tm-font);
+  line-height: 1.5;
+  resize: vertical;
 }
 
 
-/* Scroll suave */
+/* =========================================================
+   REACT SELECT
+   ========================================================= */
 
-.modal-card.modern {
-  scroll-behavior: smooth;
+.modal-card.modern [class*="__control"] {
+  width: 100%;
+  min-height: var(--tm-control-height) !important;
+  height: var(--tm-control-height);
+  margin: 0;
+  border: 1px solid var(--tm-border) !important;
+  border-radius: var(--tm-radius) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+  cursor: pointer !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+.modal-card.modern [class*="__control"]:hover {
+  border-color: #aebbc9 !important;
+  background: #fff !important;
+}
+
+.modal-card.modern [class*="__control--is-focused"] {
+  border-color: var(--tm-primary) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px var(--tm-primary-soft) !important;
+}
+
+.modal-card.modern [class*="__value-container"] {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  padding: 0 11px !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+}
+
+.modal-card.modern [class*="__single-value"],
+.modal-card.modern [class*="__placeholder"] {
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.modal-card.modern [class*="__single-value"] {
+  color: var(--tm-text) !important;
+}
+
+.modal-card.modern [class*="__placeholder"] {
+  color: var(--tm-placeholder) !important;
+}
+
+.modal-card.modern [class*="__input-container"] {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+}
+
+.modal-card.modern [class*="__input-container"] input {
+  width: auto !important;
+  min-width: 2px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--tm-text) !important;
+  font: 400 var(--tm-font)/1.3 inherit !important;
+  outline: none !important;
+  box-shadow: none !important;
+  caret-color: var(--tm-primary) !important;
+}
+
+.modal-card.modern [class*="__input-container"] input:focus {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.modal-card.modern [class*="__indicators"] {
+  height: 100%;
+}
+
+.modal-card.modern [class*="__indicator"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px !important;
+  color: var(--tm-placeholder) !important;
+  transition: color .15s ease, transform .15s ease;
+}
+
+.modal-card.modern [class*="__indicator"]:hover {
+  color: var(--tm-primary) !important;
+}
+
+.modal-card.modern [class*="__menu"] {
+  z-index: 9999 !important;
+  margin-top: 4px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--tm-border-soft) !important;
+  border-radius: var(--tm-radius) !important;
+  background: #fff !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .12) !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+}
+
+.modal-card.modern [class*="__menu-list"] {
+  padding: 4px !important;
+  font-family: inherit !important;
+}
+
+.modal-card.modern [class*="__option"] {
+  min-height: 38px;
+  padding: 9px 11px !important;
+  border-radius: 6px !important;
+  color: var(--tm-text) !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+  cursor: pointer !important;
+  transition: background .12s ease, color .12s ease;
+}
+
+.modal-card.modern [class*="__option--is-focused"] {
+  background: var(--tm-primary) !important;
+  color: #fff !important;
+}
+
+.modal-card.modern [class*="__option--is-selected"] {
+  background: var(--tm-primary) !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+
+.modal-card.modern [class*="__option--is-selected"][class*="__option--is-focused"] {
+  background: var(--tm-primary-hover) !important;
+  color: #fff !important;
+}
+
+.modal-card.modern [class*="__control--is-disabled"] {
+  background: #f1f5f9 !important;
+  border-color: var(--tm-border-soft) !important;
+  cursor: not-allowed !important;
+  opacity: .75;
+}
+
+.modal-card.modern [class*="__control--is-disabled"] [class*="__single-value"] {
+  color: var(--tm-muted) !important;
+}
+
+.modal-card.modern [class*="__loading-message"],
+.modal-card.modern [class*="__no-options-message"] {
+  padding: 10px 11px !important;
+  color: var(--tm-muted) !important;
+  font-family: inherit !important;
+  font-size: var(--tm-font) !important;
 }
 
 
-/* Hover botones */
+/* =========================================================
+   FINANCIAL SECTION
+   ========================================================= */
 
-.btn-primary:hover {
-  transform: translateY(-1px);
-  transition: 0.15s ease;
+.transportation-financial-section {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
+.transportation-financial-section-header,
+.transportation-service-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.transportation-financial-section-title,
+.transportation-service-section-title {
+  margin: 0;
+  color: var(--tm-title);
+  font-size: var(--tm-title-font);
+  font-weight: 650;
+}
+
+.transportation-financial-section-grid {
+  margin-bottom: 16px;
+}
+
+.transportation-financial-section-grid:last-child {
+  margin-bottom: 0;
+}
+
+.transportation-financial-section-price-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.transportation-financial-section-currency-symbol {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 1;
+  color: #6b7280;
+  font-size: var(--tm-font);
+  font-weight: 500;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.transportation-financial-section-price-input {
+  width: 100%;
+  height: var(--tm-control-height);
+  padding: 9px 12px 9px 34px;
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-radius);
+  background: #fff;
+  color: var(--tm-text);
+  font-family: inherit;
+  font-size: var(--tm-font);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.transportation-financial-section-price-input:hover {
+  border-color: #aebbc9;
+}
+
+.transportation-financial-section-price-input:focus {
+  outline: none;
+  border-color: var(--tm-primary);
+  box-shadow: 0 0 0 3px var(--tm-primary-soft);
+}
+
+.transportation-financial-section-tax-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.transportation-financial-section-tax-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 48px;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--tm-border-soft);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--tm-text);
+  font-size: var(--tm-font);
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.transportation-financial-section-tax-item:hover {
+  border-color: #aebbc9;
+  background: #fbfcfe;
+}
+
+.transportation-financial-section-tax-item:has(
+  .transportation-financial-section-tax-checkbox:checked
+) {
+  border-color: var(--tm-primary);
+  background: var(--tm-primary-light);
+  box-shadow: 0 0 0 2px var(--tm-primary-soft);
+}
+
+.transportation-financial-section-tax-checkbox {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--tm-primary);
+  cursor: pointer;
+}
+
+.transportation-financial-section-tax-label {
+  min-width: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+
+/* =========================================================
+   COMMISSION
+   ========================================================= */
+
+.transportation-financial-section-commission {
+  position: relative;
+  overflow: visible;
+  padding: 18px 20px;
+}
+
+.transportation-financial-section-commission-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.transportation-financial-section-commission-title {
+  margin: 0;
+  color: var(--tm-title);
+  font-size: var(--tm-title-font);
+  font-weight: 650;
+}
+
+.transportation-financial-section-commission-toggle {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+}
+
+.transportation-financial-section-commission-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--tm-text);
+  font-size: var(--tm-font);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.transportation-financial-section-commission-toggle-input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--tm-primary);
+  cursor: pointer;
+}
+
+.transportation-financial-section-commission-toggle-text {
+  font-size: var(--tm-font);
+}
+
+.transportation-financial-section-commission-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr);
+  gap: 16px 18px;
+  margin-top: 18px;
+}
+
+.transportation-financial-section-commission-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(170px, .65fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.transportation-financial-section-commission-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 7px;
+}
+
+.transportation-financial-section-commission-label {
+  color: #374151;
+  font-size: var(--tm-label-font);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.transportation-financial-section-commission-value {
+  display: flex;
+  align-items: center;
+  min-height: var(--tm-control-height);
+  padding: 0 12px;
+  border: 1px solid #dbe3ec;
+  border-radius: var(--tm-radius);
+  background: var(--tm-soft);
+  color: var(--tm-primary);
+  font-size: var(--tm-font);
+  font-weight: 650;
+}
+
+.transportation-financial-section-commission-base {
+  grid-column: 1 / 2;
+  min-width: 0;
+}
+
+.transportation-financial-section-commission-base-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.transportation-financial-section-commission-base-label {
+  color: #374151;
+  font-size: var(--tm-font);
+  font-weight: 600;
+}
+
+.transportation-financial-section-commission-base-description {
+  color: var(--tm-placeholder);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.transportation-financial-section-commission-base-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.transportation-financial-section-commission-base-option {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 46px;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid #dbe3ec;
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.transportation-financial-section-commission-base-option:hover,
+.transportation-financial-section-commission-base-option-active {
+  border-color: var(--tm-primary);
+  background: var(--tm-primary-light);
+}
+
+.transportation-financial-section-commission-base-option-active {
+  box-shadow: 0 0 0 2px var(--tm-primary-soft);
+}
+
+.transportation-financial-section-commission-base-radio {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--tm-primary);
+}
+
+.transportation-financial-section-commission-base-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 10px;
+}
+
+.transportation-financial-section-commission-base-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.transportation-financial-section-commission-base-amount {
+  flex: 0 0 auto;
+  color: var(--tm-title);
+  font-size: var(--tm-font);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.transportation-financial-section-commission-result {
+  grid-column: 2 / 3;
+  align-self: end;
+  overflow: hidden;
+  border: 1px solid #dbe3ec;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.transportation-financial-section-commission-result-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eef2f7;
+  background: var(--tm-soft);
+}
+
+.transportation-financial-section-commission-result-label {
+  color: var(--tm-muted);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.transportation-financial-section-commission-result-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.transportation-financial-section-commission-result-description {
+  min-width: 0;
+  overflow: hidden;
+  color: #475569;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.transportation-financial-section-commission-result-amount {
+  flex: 0 0 auto;
+  color: var(--tm-primary);
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   FINANCIAL SUMMARY
+   ========================================================= */
+
+.transportation-financial-section-summary {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 11px;
+  background: #f9fafb;
+  font-size: var(--tm-font);
+}
+
+.transportation-financial-section-summary p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.transportation-financial-section-summary-label {
+  color: var(--tm-muted);
+}
+
+.transportation-financial-section-summary-value {
+  color: var(--tm-text);
+  font-weight: 550;
+}
+
+.transportation-financial-section-summary hr {
+  margin: 11px 0;
+  border: 0;
+  border-top: 1px solid var(--tm-border-soft);
+}
+
+.transportation-financial-section-summary-total {
+  margin-top: 9px !important;
+}
+
+.transportation-financial-section-summary-total-label {
+  color: var(--tm-title);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.transportation-financial-section-summary-total-value {
+  color: var(--tm-primary);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SERVICE SECTION
+   ========================================================= */
+
+.transportation-service-section {
+  width: 100%;
+}
+
+.transportation-service-section-grid {
+  margin-bottom: 16px;
+}
+
+.transportation-service-section-vehicle-value {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+}
+
+.transportation-service-section-vehicle-name,
+.transportation-service-section-vehicle-option-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--tm-text);
+  font-size: var(--tm-font);
+  font-weight: 550;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.transportation-service-section-vehicle-plate,
+.transportation-service-section-vehicle-option-plate {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 7px;
+  border: 1px solid var(--tm-border-soft);
+  border-radius: 5px;
+  background: var(--tm-soft);
+  color: var(--tm-muted);
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.transportation-service-section-vehicle-option {
+  width: 100%;
+  min-width: 0;
+}
+
+.transportation-service-section-vehicle-option-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 10px;
+}
+
+.modal-card.modern [class*="__option--is-focused"]
+.transportation-service-section-vehicle-option-plate {
+  border-color: #cbd5e1;
+  background: #fff;
+}
+
+.modal-card.modern [class*="__option--is-selected"]
+.transportation-service-section-vehicle-option-plate {
+  border-color: rgba(255, 255, 255, .35);
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+}
+
+
+/* =========================================================
+   CLIENT ACTIONS / BUTTONS
+   ========================================================= */
+
+.client-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
+  min-height: 40px;
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: var(--tm-font);
+  font-weight: 550;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .15s ease, background .15s ease;
+}
+
+.btn-primary {
+  border: 0;
+  background: var(--tm-primary);
+  color: #fff;
+}
+
+.btn-secondary {
+  border: 0;
+  background: #e5e7eb;
+  color: var(--tm-title);
+}
+
+.btn-ghost {
+  border: 1px solid #cbd5e1;
+  background: transparent;
+  color: var(--tm-text);
+}
+
+.btn-primary:hover,
 .btn-secondary:hover,
 .btn-ghost:hover {
   transform: translateY(-1px);
-  transition: 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--tm-primary-hover);
+}
+
+.btn-ghost:hover {
+  background: #f1f5f9;
 }
 
 
-/* En pantallas grandes que se vea aún mejor */
+/* =========================================================
+   CLIENT MODAL
+   ========================================================= */
+
+.client-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, .35);
+}
+
+.client-modal {
+  width: min(420px, 100%);
+  overflow: hidden;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, .22);
+}
+
+.client-modal-header,
+.inner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.client-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.client-modal-header h3 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.client-modal-close {
+  border: 0;
+  background: transparent;
+  color: #666;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.client-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+}
+
+.client-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #eee;
+}
+
+
+/* =========================================================
+   INNER MODALS
+   ========================================================= */
+
+.inner-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2000;
+  width: min(500px, calc(100% - 32px));
+  padding: 20px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, .22);
+  transform: translate(-50%, -50%);
+  animation: fadeInScale .2s ease;
+}
+
+.search-modal {
+  width: min(550px, calc(100% - 32px));
+}
+
+.search-input-wrapper {
+  margin-bottom: 15px;
+}
+
+.search-input-wrapper input {
+  font-size: 15px;
+}
+
+.search-results {
+  max-height: 300px;
+  margin-top: 10px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+}
+
+.search-item {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #f7f9fc;
+}
+
+.search-name {
+  color: var(--tm-primary);
+  font-weight: 650;
+}
+
+.search-email,
+.search-phone {
+  color: var(--tm-muted);
+  font-size: 14px;
+}
+
+.search-empty,
+.search-loading {
+  padding: 15px;
+  color: #777;
+  font-size: 14px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   RESERVATION
+   ========================================================= */
+
+.reservation-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.m-top {
+  margin-top: 30px;
+}
+
+.modal-section.full-width {
+  width: 100%;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 960px) {
+  .modal-card.modern {
+    max-height: 94vh;
+    padding: 22px;
+  }
+
+  .transportation-financial-section-tax-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .transportation-financial-section-commission-content {
+    grid-template-columns: 1fr;
+  }
+
+  .transportation-financial-section-commission-base,
+  .transportation-financial-section-commission-result {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .modal-card.modern {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .modal-header {
+    align-items: flex-start;
+  }
+
+  .modal-header h2 {
+    font-size: 19px;
+  }
+
+  .modal-header-actions {
+    gap: 8px;
+  }
+
+  .clear-fields-btn {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .section-card {
+    padding: 16px;
+    border-radius: 13px;
+  }
+
+  .form-grid,
+  .form-grid.two-columns,
+  .transportation-financial-grid-two-columns,
+  .transportation-financial-section-grid-two-columns,
+  .transportation-service-section-grid-two-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid,
+  .transportation-financial-grid,
+  .transportation-service-section-grid {
+    gap: 14px;
+  }
+
+  .transportation-financial-section-commission-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .transportation-financial-section-commission-base-options {
+    grid-template-columns: 1fr;
+  }
+
+  .transportation-financial-section-commission-base,
+  .transportation-financial-section-commission-result {
+    grid-column: 1 / -1;
+  }
+
+  .transportation-financial-section-commission-base-description {
+    display: block;
+    margin-top: 3px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-card.modern {
+    width: 100%;
+    max-height: 100vh;
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    gap: 10px;
+  }
+
+  .modal-header-actions {
+    gap: 6px;
+  }
+
+  .clear-fields-btn {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .section-card {
+    padding: 14px;
+  }
+
+  .modal-section h4,
+  .section-title,
+  .transportation-financial-section-title,
+  .transportation-service-section-title,
+  .transportation-financial-section-commission-title {
+    font-size: 16px;
+  }
+
+  .transportation-financial-section-tax-list {
+    grid-template-columns: 1fr;
+  }
+
+  .transportation-financial-section-tax-item {
+    min-height: 46px;
+  }
+
+  .transportation-financial-section-commission {
+    padding: 16px;
+  }
+
+  .transportation-financial-section-commission-toggle {
+    position: static;
+    margin-top: 12px;
+  }
+
+  .transportation-financial-section-commission-content {
+    margin-top: 16px;
+    gap: 14px;
+  }
+
+  .transportation-financial-section-commission-base-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .transportation-financial-section-commission-base-content {
+    align-items: center;
+  }
+
+  .transportation-financial-section-summary {
+    padding: 14px;
+  }
+
+  .transportation-financial-section-summary-total-label {
+    font-size: 15px;
+  }
+
+  .transportation-financial-section-summary-total-value {
+    font-size: 18px;
+  }
+
+  .client-actions,
+  .modal-footer,
+  .client-modal-footer {
+    flex-wrap: wrap;
+  }
+
+  .client-actions > *,
+  .modal-footer > * {
+    flex: 1 1 auto;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE - EXTRA SMALL
+   ========================================================= */
+
+@media (max-width: 360px) {
+  .modal-card.modern {
+    padding: 11px;
+  }
+
+  .section-card {
+    padding: 12px;
+  }
+
+  .modal-header {
+    gap: 6px;
+  }
+
+  .modal-header-actions {
+    gap: 4px;
+  }
+
+  .clear-fields-btn {
+    min-height: 31px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .transportation-financial-section-tax-item {
+    font-size: 13px;
+  }
+
+  .transportation-financial-section-commission-base-content {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+
+/* =========================================================
+   LARGE SCREENS
+   ========================================================= */
 
 @media (min-width: 900px) {
   .notes-textarea {
@@ -437,6 +1476,22 @@ input[readonly] {
   }
 }
 
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%) scale(.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
 
 @keyframes fadeIn {
   from {
@@ -448,635 +1503,4 @@ input[readonly] {
     opacity: 1;
     transform: scale(1);
   }
-}
-
-
-/* ==========================================================
-   RESUMEN FINANCIERO
-   ========================================================== */
-
-.financial-summary {
-  margin-top: 15px;
-  background: #f9fafb;
-  padding: 15px;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-.financial-summary p {
-  margin: 4px 0;
-}
-
-.financial-summary .total {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-
-/* ==========================================================
-   PRICE INPUT
-   ========================================================== */
-
-.price-input-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.currency-symbol {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  font-weight: 500;
-  pointer-events: none;
-}
-
-.price-input {
-  width: 100%;
-  padding: 8px 12px 8px 32px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  height: 38px;
-}
-
-
-/* ==========================================================
-   GENERAL FORM
-   ========================================================== */
-
-.section-title {
-  margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.field-block {
-  margin-bottom: 18px;
-}
-
-.two-columns {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.field-label {
-  font-size: 15px;
-  font-weight: 600;
-  color: #374151;
-  margin-top: 10px;
-}
-
-.required {
-  color: #ef4444;
-  margin-left: 4px;
-}
-
-.form-input {
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border 0.2s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #6366f1;
-}
-
-
-/* ==========================================================
-   TAXES
-   ========================================================== */
-
-.tax-list {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tax-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-
-/* ==========================================================
-   MODAL TITLE
-   ========================================================== */
-
-.modal-title-group {
-  align-items: center;
-  gap: 12px;
-}
-
-.reservation-badge {
-  background: #eef2ff;
-  color: #3730a3;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-.m-top {
-  margin-top: 30px;
-}
-
-
-/* ==========================================================
-   ==========================================================
-   FINANCIAL COMMISSION
-   ==========================================================
-   ========================================================== */
-
-/* ==========================================================
-   MAIN COMMISSION SECTION
-   ========================================================== */
-
-.financial-commission-section {
-  position: relative;
-  overflow: visible;
-  padding: 18px 20px;
-}
-
-.financial-commission-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0;
-}
-
-.financial-commission-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 650;
-  color: #1e293b;
-  letter-spacing: -0.01em;
-}
-
-
-/* ==========================================================
-   COMMISSION TOGGLE
-   ========================================================== */
-
-.financial-commission-toggle {
-  position: absolute;
-  top: 17px;
-  right: 20px;
-  margin: 0;
-}
-
-.financial-commission-toggle-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  cursor: pointer;
-  user-select: none;
-}
-
-.financial-commission-toggle-input {
-  width: 15px;
-  height: 15px;
-  margin: 0;
-  padding: 0;
-  accent-color: #08204B;
-  cursor: pointer;
-}
-
-.financial-commission-toggle-text {
-  font-size: 13px;
-  font-weight: 500;
-  color: #334155;
-}
-
-
-/* ==========================================================
-   COMMISSION CONTENT
-   ========================================================== */
-
-.financial-commission-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.65fr);
-  column-gap: 18px;
-  row-gap: 14px;
-  margin-top: 18px;
-}
-
-
-/* ==========================================================
-   MAIN COMMISSION GRID
-   ========================================================== */
-
-.financial-commission-grid {
-  grid-column: 1 / -1;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(170px, 0.65fr);
-  gap: 18px;
-  align-items: end;
-}
-
-.financial-commission-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.financial-commission-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  line-height: 1.3;
-}
-
-
-/* ==========================================================
-   COMMISSION SELECT
-   ========================================================== */
-
-.financial-commission-select {
-  width: 100%;
-}
-
-.financial-commission-select__control {
-  min-height: 38px !important;
-  height: 38px;
-  border: 1px solid #d1d9e3 !important;
-  border-radius: 8px !important;
-  background: #ffffff !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    background-color 0.18s ease !important;
-}
-
-.financial-commission-select__control:hover {
-  border-color: #b8c2cf !important;
-}
-
-.financial-commission-select__control--is-focused {
-  border-color: #08204B !important;
-  box-shadow: 0 0 0 3px rgba(8, 32, 75, 0.07) !important;
-}
-
-.financial-commission-select__value-container {
-  padding: 0 11px !important;
-}
-
-.financial-commission-select__single-value {
-  margin: 0 !important;
-  color: #334155 !important;
-  font-size: 13px !important;
-}
-
-.financial-commission-select__placeholder {
-  margin: 0 !important;
-  color: #94a3b8 !important;
-  font-size: 13px !important;
-}
-
-.financial-commission-select__input-container {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.financial-commission-select__indicators {
-  height: 100%;
-}
-
-.financial-commission-select__indicator {
-  padding: 6px !important;
-  color: #94a3b8 !important;
-}
-
-.financial-commission-select__indicator:hover {
-  color: #475569 !important;
-}
-
-.financial-commission-select__menu {
-  margin-top: 4px !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 9px !important;
-  overflow: hidden !important;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
-  z-index: 9999 !important;
-}
-
-.financial-commission-select__menu-list {
-  padding: 4px !important;
-}
-
-.financial-commission-select__option {
-  padding: 8px 10px !important;
-  border-radius: 6px !important;
-  font-size: 13px !important;
-  color: #334155 !important;
-  cursor: pointer !important;
-}
-
-.financial-commission-select__option--is-focused {
-  background: #f1f5f9 !important;
-  color: #08204B !important;
-}
-
-.financial-commission-select__option--is-selected {
-  background: #08204B !important;
-  color: #ffffff !important;
-}
-
-
-/* ==========================================================
-   COMMISSION TYPE
-   ========================================================== */
-
-.financial-commission-value {
-  min-height: 38px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  border: 1px solid #dbe3ec;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #08204B;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-
-/* ==========================================================
-   COMMISSION BASE
-   ========================================================== */
-
-.financial-commission-base {
-  grid-column: 1 / 2;
-  padding: 0;
-}
-
-.financial-commission-base-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 7px;
-}
-
-.financial-commission-base-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.financial-commission-base-description {
-  display: inline;
-  margin: 0 0 0 7px;
-  font-size: 11px;
-  line-height: 1.3;
-  color: #94a3b8;
-}
-
-
-/* ==========================================================
-   BASE OPTIONS
-   ========================================================== */
-
-.financial-commission-base-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.financial-commission-base-option {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  min-height: 42px;
-  padding: 8px 10px;
-  margin: 0;
-  border: 1px solid #dbe3ec;
-  border-radius: 8px;
-  background: #ffffff;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    border-color 0.18s ease,
-    background-color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.financial-commission-base-option:hover {
-  border-color: #b9c5d3;
-  background: #fbfcfe;
-}
-
-.financial-commission-base-option-active {
-  border-color: #08204B;
-  background: #f7f9fc;
-  box-shadow: 0 0 0 2px rgba(8, 32, 75, 0.06);
-}
-
-.financial-commission-base-radio {
-  flex: 0 0 auto;
-  width: 15px;
-  height: 15px;
-  margin: 0;
-  padding: 0;
-  accent-color: #08204B;
-  cursor: pointer;
-}
-
-.financial-commission-base-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
-}
-
-.financial-commission-base-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 12px;
-  line-height: 1.25;
-  color: #475569;
-  font-weight: 500;
-
-  /* Permite mostrar el texto completo */
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-}
-
-.financial-commission-base-amount {
-  flex: 0 0 auto;
-  color: #1e293b;
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-
-/* ==========================================================
-   COMMISSION RESULT
-   ========================================================== */
-
-.financial-commission-result {
-  grid-column: 1 / 2;
-  align-self: end;
-
-  overflow: hidden;
-  border: 1px solid #dbe3ec;
-  border-radius: 9px;
-  background: #ffffff;
-}
-
-.financial-commission-result-header {
-  padding: 7px 11px;
-  border-bottom: 1px solid #eef2f7;
-  background: #f8fafc;
-}
-
-.financial-commission-result-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.045em;
-}
-
-.financial-commission-result-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 42px;
-  padding: 0 11px;
-}
-
-.financial-commission-result-description {
-  min-width: 0;
-  color: #475569;
-  font-size: 12px;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.financial-commission-result-amount {
-  flex: 0 0 auto;
-  color: #08204B;
-  font-size: 16px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-
-/* ==========================================================
-   WHEN DISCOUNT EXISTS
-   ========================================================== */
-
-/*
- * Si existe el selector de base de comisión,
- * el resultado se coloca a la derecha.
- */
-.financial-commission-content:has(
-  .financial-commission-base
-) .financial-commission-result {
-  grid-column: 2 / 3;
-}
-
-
-/* ==========================================================
-   COMMISSION RESPONSIVE
-   ========================================================== */
-
-@media (max-width: 900px) {
-
-  .financial-commission-content {
-    grid-template-columns: 1fr;
-  }
-
-  .financial-commission-base {
-    grid-column: 1 / -1;
-  }
-
-  .financial-commission-result {
-    grid-column: 1 / -1;
-  }
-
-}
-
-
-@media (max-width: 760px) {
-
-  .financial-commission-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .financial-commission-base-options {
-    grid-template-columns: 1fr;
-  }
-
-  .financial-commission-base-description {
-    display: block;
-    margin: 3px 0 0;
-  }
-
-  .financial-commission-result-content {
-    min-height: 44px;
-  }
-
-}
-
-
-@media (max-width: 480px) {
-
-  .financial-commission-section {
-    padding: 16px;
-  }
-
-  .financial-commission-toggle {
-    position: static;
-    margin-top: 12px;
-  }
-
-  .financial-commission-content {
-    margin-top: 16px;
-    gap: 14px;
-  }
-
-  .financial-commission-base-option {
-    height: auto;
-    min-height: 42px;
-    padding: 9px 10px;
-  }
-
-  .financial-commission-base-content {
-    align-items: center;
-    flex-direction: row;
-    gap: 8px;
-  }
-
-  .financial-commission-base-title {
-    white-space: normal;
-  }
-
 }
